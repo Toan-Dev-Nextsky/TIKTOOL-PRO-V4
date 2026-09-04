@@ -1,0 +1,1251 @@
+2026-08-01 02:25:17 | 18_iPhone (9) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:25:22 | 6_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:25:22 | 14_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:25:22 | 53_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:25:22 | 29_iPhone (3) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:25:22 | 22_iPhone (69) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:25:23 | 5_iPhone (6) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:31:18 | 38_iPhone_20260731_134743 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:31:23 | 26_iPhone (49) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:31:25 | 1_iPhone_20260731_133342 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:31:25 | 42_iPhone (4) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:31:27 | 17_iPhone (8) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:31:28 | 41_iPhone_20260731_134743 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:31:29 | 50_iPhone (122) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:34:11 | 15_iPhone (2) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:34:15 | 46_iPhone (9) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:34:15 | 19_iPhone (10) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:34:16 | 4_iPhone (7) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 02:34:16 | 57_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:39:51 | 48_iPhone (109) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:02 | 23_iPhone (82) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:07 | 24_iPhone (98) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:07 | 10_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:09 | 2_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:09 | 7_iPhone (2) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:10 | 20_iPhone (7) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:12 | 28_iPhone (2) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:12 | 9_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:12 | 5_iPhone_20260731_133347 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:12 | 11_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:12 | 25_iPhone (102) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:12 | 13_iPhone_20260731_133623 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:40:13 | 30_iPhone (6) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:03 | 52_iPhone (80) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:06 | 33_iPhone (10) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:07 | 21_iPhone (106) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:07 | 39_iPhone (11) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:09 | 25_iPhone_20260730_134440 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:10 | 55_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:10 | 3_iPhone (5) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:10 | 49_iPhone (17) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:10 | 16_iPhone (5) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:45:12 | 59_iPhone_20260731_145029 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:36 | 1_iPhone_20260731_112224 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:38 | 13_iPhone_20260731_112504 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:41 | 3_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:43 | 54_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:44 | 12_iPhone_20260731_133624 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:44 | 36_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:46 | 19_iPhone_20260730_134440 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:46 | 13_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:46 | 8_iPhone (4) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:47 | 12_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:47 | 67_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:47:47 | 58_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:05 | 11_iPhone_20260731_112506 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:07 | 47_iPhone (23) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:14 | 69_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:15 | 37_iPhone (9) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:17 | 31_iPhone (51) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:18 | 45_iPhone (106) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:19 | 59_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:19 | 43_iPhone (6) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:19 | 78_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:19 | 60_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:20 | 12_iPhone_20260730_133812 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:20 | 65_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:20 | 63_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 08:52:22 | 31_iPhone_20260730_134753 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:32 | 27_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:32 | 12_iPhone (3) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:35 | 77_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:37 | 34_iPhone (80) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:37 | 32_iPhone (8) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:37 | 1_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:38 | 16_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:38 | 51_iPhone (10) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:38 | 62_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:38 | 14_iPhone_20260731_112553 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:38 | 7_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:38 | 40_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:38 | 68_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:00:40 | 76_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:20 | 71_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:25 | 6_iPhone_20260731_112224 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:28 | 27_iPhone_20260730_134738 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:28 | 2_iPhone_20260731_112201 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:29 | 50_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:29 | 74_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:29 | 41_iPhone (2) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:31 | 37_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:31 | 21_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:06:31 | 17_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:10:58 | 4_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:02 | 56_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:08 | 51_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:09 | 38_iPhone (31) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:09 | 44_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:10 | 9_iPhone_20260731_112224 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:10 | 35_iPhone (102) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:10 | 15_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:10 | 36_iPhone (15) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:11 | 61_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:11 | 91_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:11:13 | 64_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:24 | 40_iPhone_20260731_113229 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:36 | 51_iPhone_20260731_143403 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:37 | 43_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:39 | 39_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:40 | 18_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:40 | 36_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:41 | 44_iPhone (7) | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:41 | 45_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:41 | 8_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:42 | 53_iPhone_20260731_113824 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:42 | 8_iPhone_20260731_133415 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:42 | 73_iPhone_20260731_114749 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:42 | 2_iPhone_20260731_133415 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:17:45 | 20_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:43 | 24_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:43 | 66_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:50 | 83_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:53 | 47_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:54 | 26_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:54 | 72_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:54 | 70_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:54 | 73_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:54 | 25_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:55 | 54_iPhone_20260731_113824 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:55 | 27_iPhone_20260731_113010 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:55 | 41_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:25:56 | 31_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:29:50 | 49_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:06 | 5_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:07 | 75_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:07 | 46_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:07 | 66_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:09 | 34_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:09 | 32_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:09 | 10_iPhone_20260731_112506 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:10 | 61_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:12 | 104_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:12 | 58_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:12 | 28_iPhone_20260731_134152 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:12 | 98_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:30:13 | 11_iPhone_20260731_133639 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:33:23 | 59_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:33:33 | 56_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:33:34 | 19_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:33:34 | 30_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:33:34 | 57_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:33:35 | 60_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:33:35 | 22_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:02 | 52_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:06 | 67_iPhone_20260731_114502 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:12 | 35_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:14 | 29_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:15 | 87_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:17 | 48_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:17 | 23_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:17 | 88_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:17 | 13_iPhone_20260730_133812 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:17 | 72_iPhone_20260731_114750 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:18 | 101_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:18 | 84_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:38:20 | 46_iPhone_20260731_135355 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:54 | 38_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:56 | 103_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:56 | 74_iPhone_20260731_114751 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:56 | 33_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:56 | 42_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:57 | 6_iPhone_20260731_133347 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:57 | 71_iPhone_20260731_114751 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:57 | 112_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:57 | 7_iPhone_20260730_133800 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:59 | 118_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:41:59 | 50_iPhone_20260731_142908 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:42:06 | 28_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:47:18 | 114_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:47:20 | 89_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:47:20 | 75_iPhone_20260731_114751 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:47:20 | 62_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:47:20 | 55_iPhone_20260731_113824 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:47:21 | 35_iPhone_20260731_134743 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:47:23 | 43_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:03 | 70_iPhone_20260731_114750 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:05 | 63_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:12 | 92_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:15 | 95_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:15 | 10_iPhone_20260731_133415 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:15 | 3_iPhone_20260731_133342 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:16 | 65_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:16 | 76_iPhone_20260731_115519 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:16 | 102_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:16 | 64_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:16 | 93_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:54:16 | 96_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:57:39 | 69_iPhone_20260731_114600 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:57:39 | 24_iPhone_20260730_134739 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:57:39 | 68_iPhone_20260731_114502 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:57:40 | 4_iPhone_20260731_133347 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:57:42 | 18_iPhone_20260731_134153 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 09:57:42 | 17_iPhone_20260731_133639 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:15 | 1_iPhone_20260730_134439 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:22 | 78_iPhone_20260731_115433 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:24 | 23_iPhone_20260730_134440 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:24 | 111_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:25 | 85_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:27 | 14_iPhone_20260731_133639 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:27 | 82_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:27 | 29_iPhone_20260731_134152 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:28 | 79_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:28 | 77_iPhone_20260731_115519 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:28 | 9_iPhone_20260731_133625 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:28 | 90_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:01:30 | 35_iPhone_20260730_134739 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:29 | 3_iPhone_20260730_133812 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:35 | 32_iPhone_20260731_134724 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:36 | 80_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:36 | 81_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:38 | 86_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:39 | 110_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:39 | 34_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:40 | 44_iPhone_20260731_135355 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:40 | 94_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:06:41 | 57_iPhone_20260731_142943 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:12:56 | 107_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:12:59 | 100_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:03 | 115_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:03 | 10_iPhone_20260730_133800 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:06 | 97_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:07 | 99_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:07 | 7_iPhone_20260731_133415 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:08 | 106_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:09 | 30_iPhone_20260731_134152 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:09 | 109_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:09 | 108_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:11 | 21_iPhone_20260731_133638 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:11 | 105_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:13:12 | 47_iPhone_20260731_135355 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:18:44 | 113_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:18:58 | 17_iPhone_20260730_134355 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:00 | 14_iPhone_20260730_133812 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:01 | 26_iPhone_20260730_134708 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:01 | 11_iPhone_20260730_133812 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:02 | 2_iPhone_20260730_133801 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:02 | 116_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:04 | 15_iPhone_20260731_133638 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:06 | 117_iPhone | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:06 | 25_iPhone_20260731_134152 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:06 | 40_iPhone_20260731_134743 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:07 | 33_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:07 | 32_iPhone_20260730_134739 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:07 | 49_iPhone_20260731_142943 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:19:08 | 19_iPhone_20260731_133639 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:03 | 54_iPhone_20260731_143416 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:03 | 16_iPhone_20260731_133638 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:06 | 18_iPhone_20260730_134356 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:07 | 26_iPhone_20260731_134141 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:07 | 20_iPhone_20260731_133639 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:09 | 24_iPhone_20260731_134232 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:09 | 37_iPhone_20260730_134738 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:09 | 23_iPhone_20260731_134144 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:11 | 48_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:22:18 | 22_iPhone_20260731_134153 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:25:48 | 34_iPhone_20260731_134743 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:25:49 | 27_iPhone_20260731_134152 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:25:54 | 31_iPhone_20260731_134152 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:25:55 | 36_iPhone_20260731_134743 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:25:56 | 43_iPhone_20260731_135355 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:25:57 | 45_iPhone_20260731_135355 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:33:05 | 60_iPhone_20260731_144710 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:33:06 | 33_iPhone_20260731_134724 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:33:07 | 42_iPhone_20260731_135355 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:33:08 | 39_iPhone_20260731_134743 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:33:09 | 37_iPhone_20260731_134743 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:33:09 | 45_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:33:17 | 44_iPhone_20260730_135621 | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc\16.7 78acc A | BB | move
+2026-08-01 10:49:42 | 48_iPhone_20260731_135355 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 10:55:10 | 4_iPhone_20260730_133812 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 10:55:12 | 9_iPhone_20260730_134439 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 10:55:13 | 5_iPhone_20260730_133800 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 10:55:15 | 6_iPhone_20260730_133800 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 10:55:15 | 15_iPhone_20260730_133812 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 10:55:15 | 8_iPhone_20260730_133812 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:34 | 16_iPhone_20260730_134355 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:39 | 20_iPhone_20260730_134440 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:40 | 22_iPhone_20260730_134440 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:45 | 28_iPhone_20260730_134708 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:46 | 53_iPhone_20260731_143402 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:48 | 40_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:49 | 56_iPhone_20260731_142943 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:49 | 123_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:51 | 30_iPhone_20260730_134738 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:51 | 65_iPhone_20260731_143828 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:51 | 64_iPhone_20260731_143416 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:51 | 29_iPhone_20260730_134739 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:51 | 38_iPhone_20260730_134739 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:07:52 | 39_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:08:05 | 21_iPhone_20260730_134800 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:36 | 63_iPhone_20260731_144715 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:37 | 42_iPhone_20260730_135213 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:38 | 47_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:40 | 46_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:41 | 61_iPhone_20260731_143416 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:41 | 52_iPhone_20260731_143416 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:41 | 119_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:41 | 62_iPhone_20260731_143839 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:41 | 41_iPhone_20260730_135245 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:42 | 121_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:43 | 55_iPhone_20260731_143827 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:47 | 120_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:17:56 | 58_iPhone_20260731_143432 | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:19:23 | 122_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:31:45 | 68_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:31:52 | 67_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:31:53 | 69_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:31:53 | 66_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:31:57 | 71_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:31:58 | 70_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:31:59 | 74_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:32:01 | 75_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:32:01 | 76_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:32:01 | 73_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:32:02 | 72_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:32:07 | 77_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:38:22 | 78_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:38:26 | 79_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:38:26 | 80_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:38:26 | 81_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:38:27 | 83_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:38:27 | 82_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:38:27 | 84_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:58:00 | 87_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:58:02 | 85_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:58:04 | 88_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 11:58:04 | 86_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:48 | 92_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:50 | 95_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:50 | 97_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:51 | 94_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:52 | 96_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:52 | 100_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:53 | 98_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:54 | 101_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:56 | 93_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:56 | 91_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:57 | 99_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:57 | 102_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:23:57 | 90_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:24:19 | 89_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:28 | 105_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:30 | 103_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:40 | 106_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:42 | 107_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:43 | 111_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:44 | 114_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:44 | 117_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:44 | 108_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:44 | 119_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:44 | 109_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:45 | 110_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:31:47 | 104_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:00 | 122_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:01 | 120_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:07 | 134_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:07 | 115_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:07 | 129_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:09 | 113_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:09 | 127_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:09 | 126_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:09 | 123_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:09 | 112_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:36:24 | 131_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:45:05 | 116_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:45:13 | 124_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:45:13 | 121_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:45:15 | 125_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:45:15 | 128_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:45:16 | 118_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:45:16 | 137_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:45:16 | 138_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:41 | 140_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:47 | 139_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:52 | 135_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:55 | 147_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:55 | 141_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:56 | 149_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:56 | 143_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:56 | 145_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:57 | 152_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:57 | 136_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:57 | 130_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:57 | 154_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:47:58 | 144_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:51:29 | 148_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:51:29 | 146_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:51:29 | 159_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:51:29 | 156_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:51:29 | 157_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:54:22 | 151_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:54:24 | 153_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:54:27 | 155_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:54:27 | 158_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:54:27 | 150_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:54:27 | 160_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:54:28 | 161_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:54:28 | 162_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:38 | 165_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:39 | 164_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:43 | 173_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:43 | 169_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:43 | 170_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:43 | 167_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:43 | 166_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:44 | 163_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:44 | 172_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:44 | 174_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 13:57:46 | 168_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:01:53 | 177_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:02 | 183_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:04 | 193_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:06 | 184_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:06 | 188_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:07 | 176_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:07 | 182_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:07 | 192_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:07 | 191_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:09 | 175_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:09 | 171_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:11 | 194_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:02:11 | 187_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:09:53 | 195_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:09:53 | 202_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:09:56 | 180_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:09:56 | 200_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:09:58 | 203_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:09:59 | 181_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:09:59 | 178_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:10:00 | 199_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:10:00 | 179_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:10:05 | 201_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:16:09 | 189_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:16:09 | 185_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:16:12 | 190_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:16:13 | 186_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:16:13 | 205_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:16:13 | 207_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:18:41 | 196_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:18:42 | 197_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:18:43 | 198_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:18:45 | 206_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:18:46 | 204_iPhone | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc B | D:\1 dang chay diem danh\16.7 78acc check\16.7 78acc A | BB | move
+2026-08-01 14:22:35 | 5_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:36 | 2_iPhone_20260504_110724 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:40 | 90_iPhone_20260504_112315 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:43 | 6_iPhone_20260504_110724 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:43 | 57_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:43 | 70_iPhone_20260504_112039 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:45 | 63_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:45 | 1_iPhone_20260504_110703 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:47 | 11_iPhone_20260504_110724 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:22:48 | 3_iPhone_20260504_110724 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:08 | 24_iPhone_20260504_110937 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:08 | 26_iPhone_20260504_111127 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:09 | 28_iPhone_20260504_111123 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:11 | 9_iPhone_20260504_110936 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:11 | 61_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:17 | 4_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:17 | 27_iPhone_20260504_111123 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:17 | 58_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:19 | 7_iPhone_20260504_110706 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:22 | 10_iPhone_20260504_110703 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:28:23 | 171_iPhone_20260504_113907 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:35:32 | Backup_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:35:35 | Backup_iPhone_20260801_143534 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:35:40 | Backup_iPhone_20260801_143540 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:35:43 | Backup_iPhone_20260801_143542 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:36:00 | Backup_iPhone_20260801_143600 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:36:00 | Backup_iPhone_20260801_143559 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:36:03 | Backup_iPhone_20260801_143602 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:36:05 | Backup_iPhone_20260801_143604 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:36:11 | Backup_iPhone_20260801_143611 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:36:11 | Backup_iPhone_20260801_143610 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:36:14 | Backup_iPhone_20260801_143613 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:38:47 | 71_iPhone_20260504_112039 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:50 | 31_iPhone_20260504_111128 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:51 | 89_iPhone_20260504_112315 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:52 | 29_iPhone_20260504_111128 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:52 | 98_iPhone_20260504_112455 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:52 | 47_iPhone_20260504_111610 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:53 | 88_iPhone_20260504_112243 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:56 | 36_iPhone_20260504_111314 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:57 | 32_iPhone_20260504_111127 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:38:57 | 151_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:39:00 | 93_iPhone_20260504_112315 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:39:00 | 33_iPhone_20260504_111128 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:39:03 | 134_iPhone_20260504_113516 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:39:06 | 137_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:41:08 | Backup_iPhone_20260801_144107 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:41:20 | Backup_iPhone_20260801_144119 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:41:23 | Backup_iPhone_20260801_144123 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:41:25 | Backup_iPhone_20260801_144124 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:41:27 | Backup_iPhone_20260801_144127 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:41:27 | Backup_iPhone_20260801_144126 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:41:36 | Backup_iPhone_20260801_144135 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:41:38 | Backup_iPhone_20260801_144138 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:42:57 | 8_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:42:57 | 84_iPhone_20260504_112243 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:42:59 | 72_iPhone_20260504_112112 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:42:59 | 66_iPhone_20260504_111826 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:42:59 | 60_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:43:00 | 25_iPhone_20260504_111123 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:43:03 | 210_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:43:03 | 20_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:43:06 | 101_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:47:42 | Backup_iPhone_20260801_144741 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:47:42 | Backup_iPhone_20260801_144742 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:47:45 | Backup_iPhone_20260801_144744 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:47:46 | Backup_iPhone_20260801_144746 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:47:57 | Backup_iPhone_20260801_144756 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:48:09 | Backup_iPhone_20260801_144809 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:48:11 | Backup_iPhone_20260801_144810 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:48:14 | Backup_iPhone_20260801_144813 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:48:16 | Backup_iPhone_20260801_144816 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:48:25 | Backup_iPhone_20260801_144824 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:48:26 | Backup_iPhone_20260801_144825 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:48:27 | Backup_iPhone_20260801_144826 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:50:22 | 228_iPhone_20260504_114928 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:23 | 123_iPhone_20260504_113205 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:23 | 21_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:24 | 62_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:26 | 83_iPhone_20260504_112112 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:26 | 12_iPhone_20260504_110935 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:32 | 13_iPhone_20260504_110932 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:35 | 46_iPhone_20260504_111608 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:39 | 30_iPhone_20260504_111127 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:41 | 86_iPhone_20260504_112243 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:43 | 135_iPhone_20260504_113539 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:43 | 150_iPhone_20260504_113703 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:43 | 116_iPhone_20260504_112938 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:43 | 117_iPhone_20260504_112938 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:50:44 | 122_iPhone_20260504_113205 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:53:23 | Backup_iPhone_20260801_145322 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:53:27 | Backup_iPhone_20260801_145326 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:53:30 | Backup_iPhone_20260801_145329 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:53:31 | Backup_iPhone_20260801_145331 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:53:33 | Backup_iPhone_20260801_145332 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:53:42 | Backup_iPhone_20260801_145342 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:53:46 | Backup_iPhone_20260801_145345 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:53:47 | Backup_iPhone_20260801_145347 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 14:55:22 | 40_iPhone_20260504_111314 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:55:27 | 95_iPhone_20260504_112447 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:55:33 | 125_iPhone_20260504_113223 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:55:35 | 38_iPhone_20260504_111316 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:55:38 | 85_iPhone_20260504_112315 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:55:38 | 140_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:55:39 | 97_iPhone_20260504_112456 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:55:39 | 22_iPhone_20260504_110937 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 14:55:39 | 110_iPhone_20260504_112728 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:00:55 | Backup_iPhone_20260801_150055 | D:/GOM NICK | C:\Users\tuananh\Downloads\cho xoa | BB | backup
+2026-08-01 15:01:04 | Backup_iPhone_20260801_150103 | D:/GOM NICK | C:\Users\tuananh\Downloads\cho xoa | BB | backup
+2026-08-01 15:01:06 | Backup_iPhone_20260801_150106 | D:/GOM NICK | C:\Users\tuananh\Downloads\cho xoa | BB | backup
+2026-08-01 15:01:07 | Backup_iPhone_20260801_150107 | D:/GOM NICK | C:\Users\tuananh\Downloads\cho xoa | BB | backup
+2026-08-01 15:01:10 | Backup_iPhone_20260801_150109 | D:/GOM NICK | C:\Users\tuananh\Downloads\cho xoa | BB | backup
+2026-08-01 15:01:12 | Backup_iPhone_20260801_150112 | D:/GOM NICK | C:\Users\tuananh\Downloads\cho xoa | BB | backup
+2026-08-01 15:02:26 | 194_iPhone_20260504_114238 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:02:26 | 136_iPhone_20260504_113539 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:02:27 | 92_iPhone_20260504_112243 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:02:27 | 166_iPhone_20260504_113908 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:02:28 | 264_iPhone_20260504_115622 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:02:29 | 121_iPhone_20260504_112936 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:04:28 | Backup_iPhone_20260801_150427 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:04:29 | Backup_iPhone_20260801_150429 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:04:30 | Backup_iPhone_20260801_150430 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:06:59 | 103_iPhone_20260504_112447 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:07:04 | 285_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:07:06 | 111_iPhone_20260504_112728 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:07:09 | 23_iPhone_20260504_110937 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:07:10 | 39_iPhone_20260504_111316 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:07:12 | 118_iPhone_20260504_112933 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:07:12 | 124_iPhone_20260504_113223 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:07:13 | 139_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:07:15 | 167_iPhone_20260504_113907 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:11:53 | Backup_iPhone_20260801_151153 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:11:56 | Backup_iPhone_20260801_151155 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:12:08 | Backup_iPhone_20260801_151207 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:12:08 | Backup_iPhone_20260801_151208 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:12:10 | Backup_iPhone_20260801_151209 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:12:23 | Backup_iPhone_20260801_151223 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:12:25 | Backup_iPhone_20260801_151224 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:12:29 | Backup_iPhone_20260801_151229 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:12:31 | Backup_iPhone_20260801_151230 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:14:11 | 34_iPhone_20260504_111316 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:12 | 169_iPhone_20260504_113907 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:13 | 59_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:17 | 35_iPhone_20260504_111316 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:20 | 128_iPhone_20260504_113205 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:22 | 67_iPhone_20260504_111826 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:26 | 195_iPhone_20260504_114238 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:26 | 202_iPhone_20260504_114421 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:28 | 37_iPhone_20260504_111314 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:28 | 237_iPhone_20260504_115225 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:28 | 73_iPhone_20260504_112112 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:30 | 130_iPhone_20260504_113223 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:30 | 106_iPhone_20260504_112728 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:14:34 | 102_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:16:51 | Backup_iPhone_20260801_151651 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:16:56 | Backup_iPhone_20260801_151655 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:16:58 | Backup_iPhone_20260801_151658 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:17:00 | Backup_iPhone_20260801_151659 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:17:10 | Backup_iPhone_20260801_151709 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:19:02 | 205_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:19:09 | 131_iPhone_20260504_113223 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:19:11 | 211_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:19:11 | 201_iPhone_20260504_114421 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:19:11 | 215_iPhone_20260504_114701 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:19:12 | 41_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:19:13 | 186_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:19:16 | 44_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:21:11 | Backup_iPhone_20260801_152110 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:21:12 | Backup_iPhone_20260801_152111 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:21:13 | Backup_iPhone_20260801_152113 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:21:23 | Backup_iPhone_20260801_152122 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:23:12 | 68_iPhone_20260504_112112 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:23:13 | 74_iPhone_20260504_112112 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:23:16 | 43_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:23:16 | 109_iPhone_20260504_112728 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:23:16 | 42_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:23:17 | 69_iPhone_20260504_112112 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:23:19 | 212_iPhone_20260504_114701 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:30:16 | 87_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:30:41 | 87_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:30:46 | 87_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:30:47 | 87_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:30:51 | 87_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:31:02 | 87_iPhone_5 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:31:03 | 87_iPhone_6 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:31:05 | 87_iPhone_7 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:31:05 | 87_iPhone_8 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:31:10 | 87_iPhone_10 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:31:10 | 87_iPhone_9 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:32:16 | 45_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:21 | 230_iPhone_20260504_114938 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:26 | 290_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:30 | 200_iPhone_20260504_114418 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:33 | 155_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:35 | 168_iPhone_20260504_113906 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:36 | 243_iPhone_20260504_115225 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:36 | 55_iPhone_20260504_111608 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:36 | 187_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:37 | 303_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:32:38 | 107_iPhone_20260504_112728 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:34:55 | 91_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:35:03 | 91_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:35:04 | 91_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:35:06 | 91_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:35:07 | 91_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:35:08 | 91_iPhone_5 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:35:09 | 91_iPhone_6 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:35:13 | 91_iPhone_7 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:35:15 | 91_iPhone_8 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:36:44 | 188_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:36:48 | 197_iPhone_20260504_114238 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:36:48 | 56_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:36:50 | 75_iPhone_20260504_112112 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:36:52 | 232_iPhone_20260504_114938 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:36:55 | 112_iPhone_20260504_112714 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:36:55 | 138_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:36:57 | 87_iPhone_20260504_112243 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:36:59 | 99_iPhone_20260504_112457 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:39:56 | 96_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:39:58 | 96_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:40:00 | 96_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:40:06 | 96_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:40:06 | 96_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:41:09 | 299_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:41:10 | 64_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:41:15 | 100_iPhone_20260504_112447 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:41:16 | 65_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:41:16 | 119_iPhone_20260504_112933 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:41:17 | 105_iPhone_20260504_112728 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:44:34 | 104_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:45:01 | 104_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:45:02 | 104_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:45:03 | 104_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:45:14 | 104_iPhone_5 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:45:14 | 104_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:45:14 | 104_iPhone_7 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:45:14 | 104_iPhone_6 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:45:20 | 104_iPhone_8 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:46:37 | 108_iPhone_20260504_112713 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:46:38 | 199_iPhone_20260504_114417 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:46:38 | 104_iPhone_20260504_112728 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:46:41 | 113_iPhone_20260504_112936 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:46:44 | 129_iPhone_20260504_113223 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:46:49 | 224_iPhone_20260504_114938 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:46:49 | 233_iPhone_20260504_115200 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:46:49 | 115_iPhone_20260504_112936 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:46:49 | 94_iPhone_20260504_112447 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:53:38 | 111_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:53:58 | 111_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:54:03 | 111_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:54:05 | 111_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:54:05 | 111_iPhone_5 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:54:05 | 111_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:54:10 | 111_iPhone_6 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:56:49 | 120_iPhone_20260504_112936 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:56:53 | 149_iPhone_20260504_113658 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:56:55 | 206_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:56:56 | 209_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:56:56 | 214_iPhone_20260504_114701 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:57:01 | 216_iPhone_20260504_114701 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:57:01 | 114_iPhone_20260504_112936 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:58:33 | 114_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:58:34 | 114_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:58:38 | 114_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:58:42 | 114_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 15:59:39 | 263_iPhone_20260504_115622 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:59:41 | 170_iPhone_20260504_113907 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:59:44 | 268_iPhone_20260504_115606 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 15:59:46 | 189_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:01:31 | 119_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:01:35 | 119_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:01:36 | 119_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:01:41 | 119_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:01:41 | 119_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:06:49 | 126_iPhone_20260504_113223 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:06:55 | 245_iPhone_20260504_115157 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:06:57 | 156_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:06:57 | 148_iPhone_20260504_113658 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:06:58 | 208_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:06:58 | 165_iPhone_20260504_113903 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:07:01 | 226_iPhone_20260504_114938 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:07:03 | 242_iPhone_20260504_115225 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:07:03 | 132_iPhone_20260504_113514 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:07:04 | 133_iPhone_20260504_113539 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:09:19 | 129_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:09:19 | 129_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:09:28 | 129_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:09:29 | 129_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:09:30 | 129_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:09:31 | 129_iPhone_5 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:09:40 | 129_iPhone_6 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:09:45 | 129_iPhone_7 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:10:00 | 129_iPhone_8 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:10:04 | 129_iPhone_9 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:11:20 | 300_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:27 | 152_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:27 | 229_iPhone_20260504_114938 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:29 | 153_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:29 | 275_iPhone_20260504_115852 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:37 | 234_iPhone_20260504_115156 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:37 | 154_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:39 | 305_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:40 | 196_iPhone_20260504_114209 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:11:50 | 207_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:13:54 | 136_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:14:06 | 136_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:14:21 | 136_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:14:21 | 136_iPhone_5 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:14:21 | 136_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:14:21 | 136_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:14:25 | 135_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:16:20 | 270_iPhone_20260504_115848 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:25 | 267_iPhone_20260504_115622 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:25 | 271_iPhone_20260504_115852 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:27 | 227_iPhone_20260504_114938 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:29 | 157_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:29 | 246_iPhone_20260504_115622 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:32 | 213_iPhone_20260504_114701 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:33 | 190_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:33 | 266_iPhone_20260504_115622 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:33 | 204_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:35 | 198_iPhone_20260504_114209 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:16:37 | 203_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:18:55 | 148_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:18:55 | 148_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:18:59 | 148_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:00 | 148_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:01 | 148_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:03 | 148_iPhone_5 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:17 | 148_iPhone_6 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:17 | 148_iPhone_7 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:18 | 148_iPhone_8 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:20 | 148_iPhone_9 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:21 | 148_iPhone_10 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:24 | 148_iPhone_11 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:19:26 | 148_iPhone_12 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:22:01 | 248_iPhone_20260504_115622 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:05 | 235_iPhone_20260504_115200 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:05 | 247_iPhone_20260504_115622 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:08 | 265_iPhone_20260504_115605 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:12 | 225_iPhone_20260504_114928 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:13 | 269_iPhone_20260504_115853 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:14 | 231_iPhone_20260504_114928 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:15 | 273_iPhone_20260504_115852 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:15 | 274_iPhone_20260504_115848 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:15 | 236_iPhone_20260504_115200 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:15 | 244_iPhone_20260504_115159 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:18 | 276_iPhone_20260504_115852 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:22:18 | 272_iPhone_20260504_115852 | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:24:49 | 158_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:17 | 158_iPhone_2 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:17 | 158_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:20 | 158_iPhone_3 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:20 | 158_iPhone_4 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:33 | 158_iPhone_5 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:37 | 158_iPhone_6 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:38 | 158_iPhone_7 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:43 | 157_iPhone_1 | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:25:43 | 157_iPhone | D:/GOM NICK | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | backup
+2026-08-01 16:27:19 | 297_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:27:22 | 298_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:27:28 | 289_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:27:30 | 287_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:27:34 | 301_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:27:37 | 302_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:27:39 | 304_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:27:39 | 295_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:27:39 | 286_iPhone | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 A | F:\tk\1 TK 431 - 14-04\1 TK 431 - 14-04\20.4 B | BB | move
+2026-08-01 16:31:52 | 172_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:31:55 | 172_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:06 | 172_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:07 | 172_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:11 | 172_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:12 | 172_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:16 | 172_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:22 | 172_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:33 | 172_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:35 | 172_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:37 | 172_iPhone_11 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:37 | 172_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:37 | 172_iPhone_12 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:42 | 172_iPhone_13 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:32:43 | 172_iPhone_14 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:35:35 | 177_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:35:39 | 169_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:35:47 | 170_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:35:48 | 182_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:35:49 | 131_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:35:54 | 130_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:35:56 | 111_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:35:58 | 23_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:36:01 | 2_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:36:01 | 124_iPhone (5) | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:36:01 | 22_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:36:04 | 178_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:36:05 | 4_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:36:05 | 119_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:36:06 | 168_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:46:12 | 183_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:19 | 183_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:20 | 183_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:22 | 183_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:22 | 183_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:24 | 183_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:24 | 183_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:37 | 183_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:42 | 182_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:46:43 | 182_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:50:08 | 204_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:10 | 154_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:20 | 241_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:22 | 244_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:24 | 173_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:26 | 1_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:26 | 214_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:30 | 129_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:30 | 122_iPhone (3) | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:32 | 115_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:37 | 29_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:50:37 | 6_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:52:44 | 191_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:52:47 | 191_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:52:50 | 191_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:52:54 | 191_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:52:56 | 191_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:53:12 | 191_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:53:13 | 191_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:53:13 | 191_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:53:13 | 191_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 16:54:33 | 172_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:54:40 | 209_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:54:41 | 207_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:54:42 | 180_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:54:44 | 134_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:54:44 | 125_iPhone (8) | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:54:48 | 121_iPhone (2) | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:54:48 | 216_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 16:54:49 | 128_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:02:58 | 203_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:02 | 203_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:04 | 203_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:06 | 203_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:09 | 203_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:09 | 203_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:09 | 203_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:24 | 203_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:27 | 203_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:30 | 203_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:32 | 203_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:03:33 | 203_iPhone (3) | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:05:11 | 245_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:11 | 205_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:13 | 185_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:13 | 277_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:14 | 229_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:14 | 250_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:18 | 135_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:25 | 12_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:25 | 10_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:26 | 48_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:28 | 7_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:05:30 | 285_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:06:43 | 210_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:07:03 | 210_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:07:03 | 210_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:07:10 | 210_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:07:11 | 210_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:07:12 | 210_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:07:15 | 210_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:09:12 | 208_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:13 | 149_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:14 | 210_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:16 | 123_iPhone (4) | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:17 | 133_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:20 | 24_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:22 | 127_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:25 | 30_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:25 | 27_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:29 | 32_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:29 | 28_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:09:31 | 243_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:11:20 | 213_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:11:23 | 213_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:11:25 | 213_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:12:30 | 175_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:12:34 | 25_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:12:38 | 26_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:12:39 | 31_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:14:43 | 224_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:14:48 | 224_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:14:49 | 224_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:15:03 | 224_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:15:05 | 224_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:15:06 | 224_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:15:07 | 224_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:15:12 | 224_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:15:16 | 224_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:15:17 | 224_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:15:17 | 224_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:16:54 | 176_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:16:55 | 153_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:16:58 | 206_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:17:01 | 171_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:17:01 | 200_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:17:06 | 34_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:17:08 | 35_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:17:11 | 43_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:17:11 | 33_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:17:14 | 49_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:17:17 | 271_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:41:10 | 238_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:18 | 238_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:20 | 238_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:20 | 238_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:24 | 238_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:24 | 238_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:42 | 238_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:47 | 238_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:47 | 238_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:48 | 238_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:55 | 238_iPhone_12 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:55 | 238_iPhone_11 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:55 | 238_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:41:56 | 238_iPhone_13 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:43:32 | 152_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:34 | 215_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:40 | 184_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:40 | 235_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:41 | 278_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:42 | 195_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:42 | 267_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:45 | 292_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:48 | 147_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:49 | 228_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:53 | 132_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:57 | 44_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:59 | 46_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:43:59 | 47_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:46:00 | 242_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:46:00 | 242_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:46:09 | 242_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:46:13 | 242_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:47:18 | 270_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:47:19 | 120_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:47:24 | 117_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:47:24 | 50_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:49:51 | 199_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:49:53 | 222_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:49:55 | 53_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:49:59 | 51_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:49:59 | 56_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:51:54 | 254_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:09 | 254_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:12 | 254_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:14 | 254_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:14 | 254_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:28 | 254_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:31 | 254_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:33 | 254_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:39 | 254_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:41 | 254_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:41 | 254_iPhone_11 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:52:41 | 254_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:54:57 | 224_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:00 | 274_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:00 | 258_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:04 | 238_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:04 | 193_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:05 | 146_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:05 | 198_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:08 | 290_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:12 | 62_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:14 | 65_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:14 | 54_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:16 | 59_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:55:18 | 64_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:57:05 | 264_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:07 | 264_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:10 | 264_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:10 | 264_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:11 | 264_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:24 | 264_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:24 | 264_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:27 | 264_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:31 | 264_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:57:35 | 264_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 17:59:50 | 183_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:59:54 | 261_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 17:59:56 | 202_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:00:05 | 234_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:00:06 | 69_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:00:06 | 72_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:00:10 | 77_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:00:10 | 76_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:00:10 | 137_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:00:11 | 70_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:04:06 | 277_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:08 | 277_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:18 | 277_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:18 | 277_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:20 | 277_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:20 | 277_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:25 | 277_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:38 | 277_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:38 | 277_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:43 | 277_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:47 | 277_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:49 | 277_iPhone_11 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:04:50 | 277_iPhone_12 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:07:23 | 79_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:25 | 83_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:26 | 84_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:30 | 81_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:32 | 78_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:34 | 86_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:37 | 88_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:37 | 259_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:38 | 160_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:38 | 80_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:38 | 87_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:41 | 85_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:07:42 | 82_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:12:22 | 290_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:23 | 290_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:26 | 290_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:27 | 290_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:29 | 290_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:31 | 290_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:31 | 290_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:31 | 290_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:41 | 290_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:44 | 290_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:45 | 290_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:49 | 290_iPhone_11 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:12:50 | 290_iPhone_12 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:16:06 | 3_iPhone (6)_20260406_164424 | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:18 | 254_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:20 | 91_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:21 | 89_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:21 | 299_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:23 | 90_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:27 | 93_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:28 | 95_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:28 | 92_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:28 | 94_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:34 | 126_iPhone (9) | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:37 | 232_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:16:41 | 280_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:21:18 | 300_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:21:37 | 300_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:21:38 | 300_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:21:41 | 300_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:21:41 | 300_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:21:54 | 300_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:21:55 | 300_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:21:56 | 300_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:22:01 | 300_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:22:01 | 300_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:24:07 | 103_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:09 | 282_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:14 | 97_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:15 | 102_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:15 | 100_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:20 | 96_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:20 | 105_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:21 | 101_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:21 | 104_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:24:26 | 98_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:26:14 | 313_iPhone (9) | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:15 | 313_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:15 | 313_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:19 | 313_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:19 | 313_iPhone (6) | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:20 | 313_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:21 | 313_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:21 | 313_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:34 | 313_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:36 | 313_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:37 | 313_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:40 | 313_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:26:43 | 313_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:28:34 | 150_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:38 | 181_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:44 | 143_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:49 | 141_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:49 | 139_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:50 | 136_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:50 | 140_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:50 | 145_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:51 | 263_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:56 | 106_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:56 | 114_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:28:57 | 116_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:29:02 | 138_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:33:18 | 326_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:33:21 | 326_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:33:27 | 326_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:33:28 | 326_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:33:46 | 326_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:33:46 | 326_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:33:50 | 326_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:33:52 | 326_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:34:00 | 326_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:34:02 | 326_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:34:03 | 326_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:34:04 | 326_iPhone_11 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:34:04 | 326_iPhone_12 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:35:36 | 174_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:37 | 186_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:37 | 196_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:38 | 203_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:42 | 201_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:42 | 179_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:43 | 213_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:46 | 212_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:46 | 217_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:47 | 218_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:48 | 248_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:48 | 276_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:35:49 | 211_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:37:58 | 331_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:38:01 | 331_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:38:05 | 331_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:38:11 | 331_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:38:24 | 331_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:42:24 | 246_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:42:27 | 236_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:42:30 | 219_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:42:30 | 226_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:42:32 | 287_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:42:32 | 269_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:42:36 | 247_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:45:49 | 341_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:45:55 | 341_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:45:58 | 341_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:46:00 | 341_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:46:04 | 341_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:46:14 | 341_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:46:16 | 341_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:46:20 | 341_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:46:22 | 341_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:46:22 | 341_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:49:20 | 233_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:24 | 220_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:27 | 227_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:27 | 221_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:27 | 231_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:28 | 225_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:29 | 230_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:33 | 223_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:36 | 237_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:49:37 | 239_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:51:56 | 353_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:07 | 353_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:17 | 353_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:17 | 353_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:19 | 353_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:21 | 353_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:21 | 353_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:27 | 353_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:33 | 353_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:33 | 353_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:35 | 353_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:52:39 | 353_iPhone_11 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:54:19 | 266_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:27 | 249_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:27 | 264_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:27 | 255_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:30 | 260_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:33 | 251_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:35 | 288_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:35 | 268_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:36 | 242_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:44 | 240_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:47 | 262_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:54:47 | 265_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 18:57:32 | 364_iPhone | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:57:39 | 364_iPhone_1 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:57:44 | 364_iPhone_2 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:57:45 | 364_iPhone_3 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:57:46 | 364_iPhone_4 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:57:49 | 364_iPhone_5 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:57:58 | 364_iPhone_6 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:58:01 | 364_iPhone_7 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:58:03 | 364_iPhone_8 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:58:06 | 364_iPhone_9 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 18:58:07 | 364_iPhone_10 | D:/GOM NICK | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | backup
+2026-08-01 19:00:39 | 294_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:43 | 283_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:43 | 275_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:44 | 293_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:44 | 273_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:46 | 284_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:50 | 281_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:51 | 272_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:52 | 289_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:00:52 | 286_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move
+2026-08-01 19:01:00 | 291_iPhone | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\226-B | F:\tk\3 TK 226 - 20-04\3 TK 226 - 20-04\266-A | BB | move

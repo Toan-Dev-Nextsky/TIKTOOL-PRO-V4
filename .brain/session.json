@@ -1,0 +1,84 @@
+{
+  "updated_at": "2026-09-04T15:07:00+07:00",
+  "working_on": {
+    "feature": "BB Manager Pro V4 UI Modernization & Dual Store Intelligence",
+    "task": "Completed Pro Dark High-Contrast Redesign, Store Counter Priority & Compact Device Cards",
+    "status": "completed",
+    "files": [
+      "BB_RB.py",
+      "settings.json"
+    ],
+    "blockers": [],
+    "notes": "App runs smoothly; all features verified with headless unit testing and runtime testing by user."
+  },
+  "pending_tasks": [
+    {
+      "task": "Nghiên cứu đóng gói PyInstaller / Auto-Py-to-Exe nếu cần xuất bản file exe mới",
+      "priority": "low",
+      "notes": "Hiện tại chạy trực tiếp python BB_RB.py rất ổn định."
+    }
+  ],
+  "recent_changes": [
+    {
+      "timestamp": "2026-09-04T15:04:00+07:00",
+      "type": "ui_refinement",
+      "description": "Thu gọn số máy kết nối thành badge inline [ X máy ] và ưu tiên diện tích cho bộ đếm 3 thẻ (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI); thu gọn DeviceCard xuống ~80px loại bỏ dòng trống IMEI/SN.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-04T14:55:00+07:00",
+      "type": "feature",
+      "description": "Tích hợp bộ đếm thống kê kho thời gian thực (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI) kèm nút reset ↺.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-04T14:45:00+07:00",
+      "type": "ui_redesign",
+      "description": "Nâng cấp giao diện toàn diện sang phong cách Pro Dark High-Contrast theo bộ kỹ năng ui-ux-pro-max-skill; giải quyết triệt để lỗi mất chữ nút Restore và màu trắng chói.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-04T14:00:00+07:00",
+      "type": "feature",
+      "description": "Thêm tính năng đảo chiều chuyển kho (Kho A ➜ B và Kho B ➜ A) với kiểm tra số lượng và phân bổ động.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-04T13:30:00+07:00",
+      "type": "feature",
+      "description": "Tích hợp Batch Activate 3 giai đoạn (Activate -> Skip Setup -> Set Lang) đồng bộ từ iphone_tool_v2.",
+      "files": ["BB_RB.py"]
+    }
+  ],
+  "errors_encountered": [
+    {
+      "error": "TclError: unknown font style 'semibold' trên Windows Tkinter",
+      "solution": "Chuyển toàn bộ font tuple sang dạng weight chuẩn ('Segoe UI', size, 'bold').",
+      "resolved": true
+    },
+    {
+      "error": "UnicodeEncodeError charmap trong console cp1252 khi chạy test script in emoji",
+      "solution": "Thêm sys.stdout.reconfigure(encoding='utf-8') ở đầu file script test.",
+      "resolved": true
+    },
+    {
+      "error": "Nút bấm BẮT ĐẦU RESTORE CHUYỂN KHO PRO bị tràn viền / cắt chữ bên phải",
+      "solution": "Rút gọn nhãn thành '⚡ BẮT ĐẦU RESTORE PRO (A ➜ B • {count} iPhone)' hiển thị sắc nét 100%.",
+      "resolved": true
+    }
+  ],
+  "decisions_made": [
+    {
+      "decision": "Áp dụng High-Contrast Pro Dark (Deep Midnight Slate #0B0F19, Navy Slate #151E2E)",
+      "reason": "Theo khuyến nghị của ui-ux-pro-max-skill cho Developer Tool / IDE Dashboard, giúp kỹ thuật viên làm việc thời gian dài không mỏi mắt và các nhãn trạng thái neon nổi bật rõ ràng."
+    },
+    {
+      "decision": "Đặt bộ đếm kho ngay trên hàng tiêu đề thiết bị",
+      "reason": "Tận dụng khoảng trống hàng ngang sẵn có, tiết kiệm 100% chiều dọc màn hình và nằm ngay tầm nhìn trực tiếp của kỹ thuật viên khi quan sát tiến trình khôi phục."
+    },
+    {
+      "decision": "Thu gọn DeviceCard xuống ~80px và gộp Model + ECID vào 1 dòng",
+      "reason": "Loại bỏ các thông tin rác (IMEI/SN luôn trống trong quá trình restore) để lưới 6 thiết bị hiển thị vừa vặn trong một màn hình, không bị cuộn trang."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "apps": [
+    "com.zhiliaoapp.musically",
+    "com.zhiliaoapp.musicallylite"
+  ],
+  "backup_encrypted": true,
+  "threads": 4
+}

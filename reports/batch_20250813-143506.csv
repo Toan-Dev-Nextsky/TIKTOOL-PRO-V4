@@ -1,0 +1,2 @@
+time,action,udid,result,message,backup_path
+2025-08-13 14:35:06,restore,db7e25610fb37d8fcb7976562bcd516566075f96,FAIL,No device found with udid db7e25610fb37d8fcb7976562bcd516566075f96.,D:\iphone_tool\backups\c890461581a0d94201e62614d63505f1e6261dd5

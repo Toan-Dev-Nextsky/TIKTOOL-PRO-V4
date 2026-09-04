@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "schema_version": "1.1.0",
+    "awf_version": "3.3.0",
+    "created_at": "2026-09-04T15:07:00+07:00",
+    "last_updated": "2026-09-04T15:07:00+07:00"
+  },
+  "project": {
+    "name": "BB MANAGER PRO (TIKTOOL PRO V4)",
+    "type": "Desktop Application (Python/Tkinter)",
+    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate) và đổi ngôn ngữ/locale tự động cho thiết bị iPhone qua cổng USB đa luồng.",
+    "version": "4.0.0 Pro Dark Edition",
+    "status": "Production Ready / Fully Operational",
+    "entry_point": "BB_RB.py"
+  },
+  "tech_stack": {
+    "language": "Python 3.11",
+    "gui_framework": "Tkinter / ttk (Vanilla GUI, Pro Dark High-Contrast Theme)",
+    "external_binaries": {
+      "libimobiledevice": [
+        "ideviceinfo.exe",
+        "idevice_id.exe",
+        "idevicepair.exe",
+        "ideviceactivation.exe",
+        "idevicebackup2.exe",
+        "ideviceinstaller.exe"
+      ],
+      "proprietary_ios_engine": "ios.exe (Quản lý prepare, skip-all, setlang, setlocale)"
+    },
+    "storage": "settings.json, apps_config.json, SQLite (Manifest.db), Apple Binary Plist (Info.plist, Status.plist)",
+    "concurrency": "threading.Thread, concurrent.futures.ThreadPoolExecutor, threading.Semaphore"
+  },
+  "architecture": {
+    "ui_layer": {
+      "theme": "Pro Dark High-Contrast (ui-ux-pro-max-skill: Developer Tool & Modern Dark Cinema)",
+      "color_tokens": {
+        "bg_dark": "#0B0F19",
+        "surface_panel": "#151E2E",
+        "inner_well": "#0D1524",
+        "border": "#2D3B54",
+        "text_primary": "#F8FAFC",
+        "text_muted": "#94A3B8",
+        "accent_source": "#34D399 (Emerald)",
+        "accent_target": "#FBBF24 (Amber)",
+        "accent_info": "#38BDF8 (Cyan)",
+        "accent_action": "#059669 (Restore Pro) / #2563EB (Backup)"
+      },
+      "components": [
+        "TopCard: Header branding, logo well, language config & batch activate pipeline",
+        "TabSection: Chuyển đổi Khôi phục (Restore Pro) & Sao lưu (Backup All)",
+        "StoreSelector: Radio chuyển kho hai chiều A ➜ B / B ➜ A kèm tự động đếm số lượng",
+        "StatsTitleBar: Thanh thống kê mini siêu gọn [X máy] kết nối và ưu tiên 3 thẻ đếm kho (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI)",
+        "DeviceGrid: Lưới 3 cột hiển thị thẻ iPhone (DeviceCard) nhỏ gọn ~80px với thanh tiến trình và nút tác vụ nhanh",
+        "ConfirmZone: Bảng phân bổ ghép nối 2-layer (UDID -> iOS version) xác nhận trước khi chạy",
+        "LogConsole: Terminal Dark Box ghi nhật ký thời gian thực",
+        "BottomStatusBar: Glowing pill badges hiển thị trạng thái Trust, Total, Not Trust, Restored"
+      ]
+    },
+    "business_logic": {
+      "store_switcher": "Cho phép đảo chiều luồng công việc giữa Kho A và Kho B; tự động đếm file backup hợp lệ và gán nhãn MỤC NHẬP / MỤC XUẤT",
+      "batch_activate_pipeline": [
+        "Giai đoạn 1: ideviceactivation activate -u {udid} -b",
+        "Giai đoạn 2: ios.exe prepare --skip-all --udid={udid} --nojson (Bỏ qua Setup Assistant)",
+        "Giai đoạn 3: ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson (Tùy chọn)"
+      ],
+      "restore_two_layer_matching": [
+        "Lớp 1: Khớp chính xác UDID của máy với tên/metadata bản backup (Ưu tiên cao nhất)",
+        "Lớp 2: Ghép bản backup có phiên bản iOS <= iOS của thiết bị đích"
+      ],
+      "backup_intervention": "Can thiệp trực tiếp vào Info.plist (đổi Target UDID) và Manifest.db (patch ngôn ngữ/locale) trước khi nạp vào máy",
+      "automatic_transfer_on_finish": "Khi restore xong, thư mục backup tự động được di chuyển từ kho nguồn sang kho đích (shutil.move), đồng thời cập nhật tức thì bộ đếm ĐÃ CHUYỂN (+1) và CÒN LẠI (-1)"
+    }
+  },
+  "knowledge_items": {
+    "gotchas": [
+      "Tkinter Font Style: Tcl/Tk trên Windows báo lỗi 'unknown font style semibold'. Bắt buộc dùng weight chuẩn như 'bold'.",
+      "Reboot Detection: Thiết bị iPhone sau khi restore sẽ tự khởi động lại và tạm thời ngắt kết nối USB. Cần dùng RESTORE_LOCK_CACHE khóa 35 giây để tránh luồng Polling hiểu nhầm là Not Trust.",
+      "Console Encoding: Terminal Windows cmd/powershell mặc định mã hóa cp1252. Các script test cần cấu hình sys.stdout.reconfigure(encoding='utf-8') khi in ký tự Unicode như tia chớp hay emoji.",
+      "Text Truncation: Các nút bấm Tkinter có font lớn và padding cố định nếu text quá dài sẽ bị tràn viền hoặc cắt chữ. Cần giữ nhãn súc tích, cô đọng."
+    ],
+    "conventions": [
+      "Luôn acquire SEMAPHORE trước khi thực hiện các tác vụ nặng (Backup, Restore, Activate) để kiểm soát tải CPU và băng thông USB.",
+      "Giao diện Pro Dark tuyệt đối không dùng nền trắng thuần (#FFFFFF), dùng các lớp nền phân cấp #0B0F19 -> #151E2E -> #0D1524.",
+      "Tất cả các hàm gọi luồng nền phải sử dụng self.after(0, ...) khi cần cập nhật lại widget GUI Tkinter."
+    ]
+  }
+}

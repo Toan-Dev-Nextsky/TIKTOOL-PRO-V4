@@ -1,0 +1,14 @@
+{
+  "storeA": "D:/TKBAND DONG MOI 3.9 A",
+  "storeB": "D:/TKBAND DONG MOI 3.9 B",
+  "generalBackupDir": "C:\\TIKTOOL PRO V4\\backups",
+  "ipasDir": "C:\\Users\\tuananh\\Downloads\\TIKTOOL PRO V4\\TIKTOOL PRO V4\\ipas",
+  "removeTikTok": false,
+  "removeTikTokLite": true,
+  "deepFlags": true,
+  "langLocale": "ja_JP|ja",
+  "patchBackupLangBeforeRestore": false,
+  "setLangAfterActive": true,
+  "active": "A",
+  "autoSetLangAfterRestore": true
+}

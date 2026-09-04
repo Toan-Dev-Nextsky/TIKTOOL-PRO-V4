@@ -1,0 +1,31 @@
+{
+  "backup_person": "BB",
+  "custom_pc_name": "PC - 01",
+  "custom_network_name": "",
+  "telegram_token": "8971450781:AAGOAHL6sdD-oRbl7kb-IV5yCN36ytSp1YA",
+  "telegram_chat_id": "5018858909",
+  "external_app_path": "C:\\Users\\tuananh\\Downloads\\TIKTOOL PRO V4\\TIKTOOL PRO V4\\BB_RB3.exe",
+  "auto_tg_send": true,
+  "reset_hour": "22",
+  "reset_minute": "00",
+  "app_position": "Trên",
+  "telegram_custom_commands": {
+    "status": "/status",
+    "test": "/test",
+    "hoibanku": "/hoibanku",
+    "hienthi": "/hienthi",
+    "mo": "/mo",
+    "nhac": "/nhac",
+    "chup": "/chup",
+    "clean": "/clean",
+    "pause": "/pause",
+    "reboot": "/reboot",
+    "shutdown": "/shutdown",
+    "coppy": "/coppy",
+    "huythongbao": "/huythongbao"
+  },
+  "is_running": false,
+  "cached_log_count": 0,
+  "total_backup_today": 0,
+  "start_time_save": "2026-08-01 00:40:23"
+}
