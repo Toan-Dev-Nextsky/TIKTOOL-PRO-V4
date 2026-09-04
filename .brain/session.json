@@ -1,78 +1,146 @@
 {
-  "updated_at": "2026-09-04T21:45:00+07:00",
+  "updated_at": "2026-09-05T01:15:00+07:00",
   "working_on": {
-    "feature": "Modern Light Dashboard, Daily Restore Tracking & Clean Staging",
-    "task": "Tối ưu hóa giao diện siêu gọn, bổ sung bộ đếm thống kê restore theo ngày, chuẩn hóa flow restore và tự động dọn dẹp thư mục staging .tiktool_work",
+    "feature": "Web App Custom URL Persistence, Entry Context Menu & Portable Launcher Fix",
+    "task": "Sửa lỗi nhảy về link mặc định khi nhập URL Web App, bổ sung menu chuột phải Dán/Sao chép cho ô nhập liệu, sửa lỗi khởi động TIKTOOL_PRO.pyw qua runpy.run_path và hoàn thiện hướng dẫn di chuyển máy tính độc lập (Zero-Pip Dependencies)",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "tiktool_core.py",
-      "settings.json",
+      "TIKTOOL_PRO.pyw",
+      "CHAY_TIKTOOL.bat",
       "CHANGELOG.md",
       "docs/architecture/system_overview.md"
     ],
-    "blockers": [],
-    "notes": "Giao diện chuyển sang Modern Light Dashboard rất thoáng và sang trọng. Không còn nút đơn lẻ hay hộp nút thô cứng chiếm chỗ. Bộ đếm restore trong ngày lưu bền vững vào settings.json và tự động reset sang ngày mới. Folder tạm .tiktool_work tự động dọn sạch sau khi restore xong."
+    "notes": "Đã kiểm thử thực tế: URL Web App tự chọn không bị ghi đè bởi sync loop 1s, menu chuột phải Cut/Copy/Paste hoạt động mượt mà, TIKTOOL_PRO.pyw mở app ngầm sạch sẽ không hiện cửa sổ cmd đen, app chạy 100% độc lập không cần pip."
   },
   "pending_tasks": [
     {
-      "task": "Theo dõi hiệu năng thực tế khi khôi phục đồng thời 10-20 thiết bị trên dàn máy USB hub",
+      "task": "Theo dõi người dùng trải nghiệm thực tế khi cắm/rút nhiều iPhone hàng loạt",
       "priority": "medium",
-      "notes": "Đảm bảo USB hub cấp nguồn ổn định và idevicebackup2 hoàn tất trơn tru."
+      "notes": "Kiểm tra độ mượt mà khi đổi kho và restore hàng loạt dàn máy lớn."
     },
     {
-      "task": "Đóng gói PyInstaller xuất bản file exe mới",
+      "task": "Đóng gói PyInstaller xuất bản file exe mới nếu cần thiết",
       "priority": "low",
-      "notes": "Chạy trực tiếp python BB_RB.py hiện tại phản hồi nhanh và chính xác."
+      "notes": "Chạy trực tiếp python BB_RB.py hoặc nhấp đúp TIKTOOL_PRO.pyw / CHAY_TIKTOOL.bat hiện tại phản hồi nhanh và chính xác."
     }
   ],
   "recent_changes": [
     {
-      "timestamp": "2026-09-04T21:40:00+07:00",
-      "type": "staging_cleanup",
-      "description": "Nâng cấp cleanup_owned_job trong tiktool_core.py để tự động xóa luôn thư mục cha .tiktool_work khi rỗng sau khi dọn dẹp staging job, đảm bảo không còn thư mục rác trong kho dữ liệu A/B của người dùng; đồng thời xóa bỏ thư mục .tiktool_work tồn dư.",
-      "files": ["tiktool_core.py"]
+      "timestamp": "2026-09-05T01:05:00+07:00",
+      "type": "fix_launcher_pyw",
+      "description": "Sửa TIKTOOL_PRO.pyw dùng runpy.run_path(target, run_name='__main__') thay vì exec() để nạp đúng __file__, khắc phục hoàn toàn lỗi NameError __file__ làm app tắt ngầm khi nhấp đúp.",
+      "files": ["TIKTOOL_PRO.pyw", "CHAY_TIKTOOL.bat"]
     },
     {
-      "timestamp": "2026-09-04T21:30:00+07:00",
-      "type": "feature_daily_stats",
-      "description": "Tích hợp bộ đếm số lượng máy đã Restore trong ngày (Hôm nay: X) trên thanh tiêu đề thiết bị (dev_title_bar) với màu Soft Indigo, lưu trạng thái vào settings.json (dailyRestoreDate, dailyRestoreCount) và tự động reset về 0 khi sang ngày mới.",
-      "files": ["BB_RB.py", "settings.json"]
-    },
-    {
-      "timestamp": "2026-09-04T21:00:00+07:00",
-      "type": "ui_compact_bottom_status",
-      "description": "Thay thế các nút hộp màu thô cứng (Trust, Tổng, Not Trust, Restored) ở thanh trạng thái đáy bằng định dạng chuỗi text thanh mảnh, ngăn cách bằng dấu ' | ' inline, tối ưu không gian hiển thị tối đa.",
+      "timestamp": "2026-09-05T00:55:00+07:00",
+      "type": "fix_webapp_link_persistence",
+      "description": "Thêm cờ _webclip_link_loaded ngăn vòng lặp _start_json_sync_loop ghi đè URL Web App về giá trị mặc định; bổ sung _bind_context_menu hỗ trợ chuột phải Dán (Paste) cho ô nhập liệu.",
       "files": ["BB_RB.py"]
     },
     {
-      "timestamp": "2026-09-04T20:45:00+07:00",
-      "type": "ui_compact_device_card",
-      "description": "Xóa bỏ 2 nút thao tác đơn lẻ Lang và Active trên từng DeviceCard để tối giản giao diện, tiết kiệm diện tích thẻ và tập trung hoàn toàn vào điều khiển hàng loạt.",
+      "timestamp": "2026-09-05T00:25:00+07:00",
+      "type": "ui_text_label_dev_count",
+      "description": "Bỏ hoàn toàn dạng button/pill frame ở thanh log; chuyển thông tin thiết bị sang dạng text thuần 'Số thiết bị đang kết nối: X' font đậm Segoe UI 10 bold, màu xanh rêu sẫm #0A2B17 theo đúng hình minh họa.",
       "files": ["BB_RB.py"]
     },
     {
-      "timestamp": "2026-09-04T20:20:00+07:00",
-      "type": "ui_modern_light_dashboard",
-      "description": "Chuyển đổi giao diện sang Modern Light Dashboard (Slate-100 / Crisp White / Soft Indigo), thu gọn toàn bộ Top Card và các thanh công cụ thành các hàng siêu gọn, thẩm mỹ cao.",
+      "timestamp": "2026-09-05T00:21:00+07:00",
+      "type": "ui_black_borders_and_default_3_cols",
+      "description": "Đổi màu viền thẻ thiết bị DeviceCard sang màu đen (#000000); cấu hình mặc định mở app luôn hiển thị 3 thiết bị trên 1 hàng (< 1550px) và phóng to Full HD hiển thị 5 thiết bị trên 1 hàng.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-05T00:13:00+07:00",
+      "type": "ui_declutter_top_bar",
+      "description": "Xóa bỏ cụm đếm thiết bị thừa ở thanh trên, đưa cụm Tổng (Hôm nay) sang lề trái và giữ các thẻ Tổng kho / Đã chuyển / Còn lại ở lề phải.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-05T00:02:00+07:00",
+      "type": "ui_responsive_grid_and_title_positions",
+      "description": "Khôi phục bố cục trên - dưới full-width; căn tiêu đề NHẬT KÝ HỆ THỐNG sang lề trái thanh log; sửa lỗi Tkinter columnconfigure uniform='' ngăn hiện tượng bóp dẹt thẻ khi un-maximize; liên kết cập nhật số máy trực tiếp vào _sync_cards.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-04T23:30:00+07:00",
+      "type": "audio_visual_notification",
+      "description": "Tích hợp file âm thanh notify.wav trực tiếp trong thư mục ứng dụng và gọi Windows User32 FlashWindow nhấp nháy icon Taskbar cam; phát chuông qua winsound.SND_FILENAME miễn nhiễm với chế độ 'No Sounds' của Windows.",
+      "files": ["BB_RB.py", "notify.wav"]
+    },
+    {
+      "timestamp": "2026-09-04T23:18:00+07:00",
+      "type": "batch_restore_notification",
+      "description": "Chuyển từ thông báo lẻ tẻ từng máy sang thông báo gom cả đợt (len(active_restores) == 0) trong khối finally khi tắt Auto Activate; in banner vàng cam nổi bật trong log thông báo rút toàn bộ máy ra cắm đợt mới.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-04T22:50:00+07:00",
+      "type": "fix_batch_activate_hang",
+      "description": "Khắc phục lỗi treo 80% khi Batch Activate: giảm timeout lệnh ios.exe lang từ 120s xuống 20s để xử lý kịp thời hiện tượng SpringBoard reload ngắt kết nối tạm thời; bổ sung helper _update_card_progress bảo vệ thread-safety.",
       "files": ["BB_RB.py"]
     }
   ],
   "errors_encountered": [
     {
-      "error": "Thư mục tạm .tiktool_work vẫn còn nằm lại trong kho A/B sau khi restore",
-      "solution": "Cải tiến hàm cleanup_owned_job trong tiktool_core.py tự động kiểm tra và xóa luôn thư mục cha .tiktool_work nếu nó rỗng sau khi xóa thư mục restore job con.",
+      "error": "Lỗi nhấp đúp TIKTOOL_PRO.pyw không phản hồi do exec() thiếu biến __file__",
+      "solution": "Chuyển sang dùng runpy.run_path(target, run_name='__main__') để thiết lập đầy đủ runtime context mà không cần cửa sổ console đen.",
+      "resolved": true
+    },
+    {
+      "error": "Dán link Web App mới vào ô nhập liệu nhưng bị nhảy lùi về https://linkm.site/",
+      "solution": "Vòng lặp _start_json_sync_loop chạy mỗi 1s liên tục apply_settings; thêm cờ _webclip_link_loaded chỉ nạp từ file json một lần duy nhất lúc khởi động.",
+      "resolved": true
+    },
+    {
+      "error": "Lỗi Tkinter uniform=None không xóa được nhóm cột uniform cũ khiến thẻ bị bóp dẹt sau khi un-maximize",
+      "solution": "Thay uniform=None bằng uniform='' để Tcl hủy triệt để ràng buộc uniform của các cột thừa.",
+      "resolved": true
+    },
+    {
+      "error": "Nhãn số thiết bị ở thanh log hiển thị 0 máy do chỉ khởi tạo tĩnh",
+      "solution": "Liên kết trực tiếp self.lbl_log_dev_info.config vào luồng _sync_cards() để cập nhật thời gian thực.",
+      "resolved": true
+    },
+    {
+      "error": "Batch Activate thỉnh thoảng treo ở 80% khi đang đặt ngôn ngữ",
+      "solution": "ios.exe lang khiến SpringBoard khởi động lại làm mất kết nối USB trong tích tắc; giảm timeout xuống 20s và bọc xử lý ngoại lệ mềm dẻo để hoàn tất quy trình an toàn.",
+      "resolved": true
+    },
+    {
+      "error": "Lệnh âm thanh SystemAsterisk bị im lặng khi Windows đặt Sound Scheme là 'No Sounds'",
+      "solution": "Tích hợp file notify.wav trực tiếp vào thư mục app và gọi bằng cờ winsound.SND_FILENAME để vượt qua cấu hình No Sounds của Windows; bổ sung FlashWindow nháy taskbar khi tắt volume.",
       "resolved": true
     }
   ],
   "decisions_made": [
     {
-      "decision": "Giữ staging tạm trên cùng phân vùng ổ đĩa của kho nhưng tự xóa .tiktool_work khi hoàn tất",
-      "reason": "Giữ nguyên tốc độ di chuyển cùng ổ đĩa (same-volume rename) cực nhanh mà không để lại bất kỳ thư mục rác nào gây phiền toái cho người dùng."
+      "decision": "Bổ sung menu chuột phải (Context Menu) cho các ô Entry trong Tkinter",
+      "reason": "Người dùng thường xuyên copy link Web App từ trình duyệt và paste bằng chuột phải thay vì phím tắt Ctrl+V; cần popup menu Cut/Copy/Paste/Select All để tối ưu trải nghiệm."
     },
     {
-      "decision": "Bỏ các nút hộp thô ở đáy và các nút đơn lẻ trên thẻ máy",
-      "reason": "Người dùng làm việc theo batch số lượng lớn, việc dùng text inline và thanh điều khiển tập trung giúp giao diện gọn gàng, thoáng đãng và tiện dụng hơn nhiều."
+      "decision": "Dùng runpy.run_path thay vì subprocess hay exec trong wrapper launcher TIKTOOL_PRO.pyw",
+      "reason": "runpy chạy cùng tiến trình pythonw, truyền đúng __file__, không sinh thêm process dư thừa và khởi động lập tức."
+    },
+    {
+      "decision": "Duy trì 100% zero-pip-dependency cho toàn bộ dự án",
+      "reason": "Đảm bảo công cụ có thể chuyển sang bất kỳ máy tính Windows nào chỉ với Python gốc và driver Apple, không phụ thuộc internet tải pip."
+    },
+    {
+      "decision": "Duy trì bố cục Trên - Dưới (full-width) thay vì chia 2 cột dọc",
+      "reason": "Người dùng yêu cầu giữ nguyên bố cục ban đầu, chỉ điều chỉnh các vị trí tiêu đề và hiển thị số thiết bị."
+    },
+    {
+      "decision": "Mặc định mở app hiển thị 3 thiết bị trên 1 hàng, khi phóng to hiển thị 5 thiết bị trên 1 hàng",
+      "reason": "Ở kích thước cửa sổ bình thường 1300px, 3 cột đảm bảo thẻ rộng rãi, dễ nhìn thông tin Model/ECID; khi phóng to Full HD 1920px, 5 cột tận dụng tối đa không gian màn hình."
+    },
+    {
+      "decision": "Dùng viền đen (#000000) cho thẻ thiết bị thay vì viền xanh lá",
+      "reason": "Tạo độ tương phản cao, định hình khối rõ ràng, sang trọng theo đúng yêu cầu người dùng."
+    },
+    {
+      "decision": "Hiển thị thông tin thiết bị kết nối dạng text thuần 'Số thiết bị đang kết nối: X', bỏ dạng khung button/pill",
+      "reason": "Người dùng muốn giao diện phẳng tự nhiên, không bị nhầm lẫn là nút bấm có thể nhấp vào."
     }
   ]
 }

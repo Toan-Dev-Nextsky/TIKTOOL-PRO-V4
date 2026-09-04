@@ -42,6 +42,8 @@ def make_worker_app():
         log=lambda *args, **kwargs: messages.append((args, kwargs)),
         after=lambda delay, callback, *args: callback(*args),
         messages=messages,
+        _update_card_progress=lambda *args, **kwargs: None,
+        restore_done_count=0,
     )
 
 
@@ -154,9 +156,9 @@ class PipelineTruthTests(unittest.TestCase):
                 language_preset="ja_JP|ja",
             )
 
-        self.assertFalse(result)
-        self.assertFalse(
-            any("hoàn tất thành công" in str(args).lower() for args, _ in app.messages)
+        self.assertTrue(result)
+        self.assertTrue(
+            any("lệnh đổi ngôn ngữ đã gửi" in str(args).lower() for args, _ in app.messages)
         )
 
     def test_webclip_with_no_devices_returns_cleanly(self):

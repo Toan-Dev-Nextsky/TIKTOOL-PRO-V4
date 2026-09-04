@@ -3,19 +3,19 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-04T21:45:00+07:00"
+    "last_updated": "2026-09-05T01:15:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application (Python/Tkinter)",
-    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore trong ngày và tạo Web App (WebClip profile shortcut) cho thiết bị iPhone qua cổng USB đa luồng.",
-    "version": "4.5.0 Modern Light Dashboard & Clean Staging Edition",
+    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore trong ngày, hệ thống cảnh báo rút máy đợt âm thanh - thị giác và tạo Web App cho thiết bị iPhone qua cổng USB đa luồng.",
+    "version": "4.7.1 Web App Link Fix & Portable Launcher Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py"
   },
   "tech_stack": {
     "language": "Python 3.11",
-    "gui_framework": "Tkinter / ttk (Vanilla GUI, Custom Canvas Components, Modern Light Dashboard & Soft Indigo Theme)",
+    "gui_framework": "Tkinter / ttk (Vanilla GUI, Custom Canvas Components, Modern Light Dashboard, Black Card Borders & Responsive Grid)",
     "external_binaries": {
       "libimobiledevice": [
         "ideviceinfo.exe",
@@ -27,32 +27,35 @@
       ],
       "proprietary_ios_engine": "ios.exe (Quản lý prepare, skip-all, setlang, setlocale, profile add)"
     },
-    "storage": "settings.json, apps_config.json, SQLite (Manifest.db), Apple Binary Plist (Info.plist, Status.plist), Apple Configuration Profile (.mobileconfig), webapp.png",
+    "storage": "settings.json, apps_config.json, SQLite (Manifest.db), Apple Binary Plist (Info.plist, Status.plist), Apple Configuration Profile (.mobileconfig), notify.wav, webapp.png",
     "concurrency": "threading.Thread, concurrent.futures.ThreadPoolExecutor, threading.Semaphore"
   },
   "architecture": {
     "ui_layer": {
-      "theme": "Modern Light Dashboard (Nền Slate-100 dịu mắt, card trắng viền Slate, điểm nhấn Soft Indigo & Emerald, layout siêu gọn gàng)",
+      "theme": "Modern Light Dashboard (Nền Slate-100 dịu mắt, card viền đen sắc nét #000000, điểm nhấn Soft Indigo & Emerald, layout trên - dưới chuẩn)",
       "color_tokens": {
         "bg_main": "#F8FAFC (Slate-100)",
         "surface_card": "#FFFFFF (Trắng tinh tế)",
+        "card_border": "#000000 (Viền đen sắc nét tương phản cao)",
         "border": "#E2E8F0 (Slate-200)",
         "text_primary": "#0F172A (Slate-900 sắc nét)",
         "text_muted": "#64748B (Slate-500)",
         "accent_indigo": "#4F46E5 / #6366F1 (Soft Indigo)",
-        "accent_emerald": "#10B981 / #059669 (Restore Pro & Trust)",
+        "accent_emerald": "#10B981 / #059669 (Restore Pro Kho A ➜ B & Trust)",
+        "accent_ocean": "#0284C7 (Restore Pro Kho B ➜ A)",
+        "accent_alert": "#F59E0B (Vàng cam cảnh báo rút máy)",
         "gradient_progress_start": "#06B6D4 (Cyan)",
         "gradient_progress_end": "#2563EB (Electric Blue)"
       },
       "components": [
-        "TopCard: Header branding siêu gọn với Logo 'TikTok Pro', Cụm ngôn ngữ, Hàng 2 Batch Activate, và Hàng 3 Tạo Web App tiết kiệm diện tích",
-        "TabSection: Chuyển đổi Khôi phục (Restore Pro) & Sao lưu (Backup All) với tab Soft Indigo",
-        "StoreSelector: Radio chuyển kho hai chiều A ➜ B / B ➜ A kèm lưu trữ trạng thái bền vững",
-        "StatsTitleBar: Thanh thống kê mini tích hợp nhãn 'Hôm nay: X' (Daily Restore Counter) cùng 3 thẻ kho (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI)",
-        "DeviceGrid: Lưới thẻ iPhone tối giản (đã loại bỏ nút đơn lẻ không cần thiết), tích hợp GradientProgressBar và text trạng thái riêng biệt",
-        "BottomStatusBar: Thanh trạng thái đáy tinh gọn dưới dạng chuỗi text kèm vạch ' | ' thay thế cho các nút hộp thô cứng",
+        "TopCard: Header branding siêu gọn với Logo 'TikTok Pro', Cụm ngôn ngữ, Hàng 2 Batch Activate, và Hàng 3 Tạo Web App",
+        "TabSection: Chuyển đổi Khôi phục (Restore Pro) & Sao lưu (Backup All)",
+        "StoreSelector: Radio chuyển kho hai chiều A ➜ B / B ➜ A kèm nút bấm đổi màu phân biệt (Emerald vs Ocean Blue)",
+        "StatsTitleBar: Thanh thống kê gọn gàng với 'Tổng: X (Hôm nay) ↺' bên trái và 3 thẻ kho (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI) bên phải",
+        "DeviceGrid: Lưới thẻ iPhone co giãn thông minh (mặc định 3 cột ở cửa sổ chuẩn, tự động dàn 5 cột khi phóng to Full HD), viền thẻ màu đen",
+        "BottomStatusBar: Thanh trạng thái đáy tinh gọn dưới dạng chuỗi text kèm vạch ' | '",
         "ConfirmZone: Bảng phân bổ ghép nối 2-layer xác nhận trước khi chạy restore",
-        "LogConsole: Terminal Dark Box ghi nhật ký thời gian thực",
+        "LogConsole: Terminal Dark Box ghi nhật ký thời gian thực; thanh tiêu đề chứa 'NHẬT KÝ HỆ THỐNG' bên trái và 'Số thiết bị đang kết nối: X' dạng text đậm bên phải",
         "CloseSafetyHandler: Cảnh báo nguy cơ treo táo khi người dùng bấm dấu [X] trong lúc đang Restore/Backup"
       ]
     },
@@ -64,9 +67,10 @@
       "batch_activate_pipeline": [
         "Giai đoạn 1: ideviceactivation activate -u {udid} -b",
         "Giai đoạn 2: ios.exe prepare --skip-all --udid={udid} --nojson (Bỏ qua Setup Assistant)",
-        "Giai đoạn 3: ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson (Tùy chọn)"
+        "Giai đoạn 3: ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson (Timeout 20s linh hoạt, chống nghẽn SpringBoard reload)"
       ],
       "post_restore_auto_activate": "Sau khi Restore thành công, app tự động đếm ngược 80 giây cho iPhone khởi động xong rồi tự chạy Batch Activate 3 giai đoạn",
+      "batch_restore_notification": "Khi tắt Auto Activate, hệ thống theo dõi và chỉ phát thông báo rút máy 1 lần duy nhất khi toàn bộ máy trong đợt xong (len(active_restores) == 0); kết hợp chuông notify.wav (SND_FILENAME), nhấp nháy Taskbar cam (FlashWindow) và banner log nổi bật",
       "restore_two_layer_matching": [
         "Lớp 1: Khớp chính xác UDID của máy với tên/metadata bản backup (Ưu tiên cao nhất)",
         "Lớp 2: Ghép bản backup có phiên bản iOS <= iOS của thiết bị đích"
@@ -75,15 +79,21 @@
   },
   "knowledge_items": {
     "gotchas": [
+      "Background Sync Overwrite on UI Inputs: Các vòng lặp đồng bộ nền (như _start_json_sync_loop chạy mỗi 1s) không được ghi đè các StringVar đang cho phép người dùng nhập tự do (như var_custom_webclip_link). Cần sử dụng cờ nạp 1 lần (_webclip_link_loaded) hoặc kiểm tra focus để tránh làm mất nội dung đang gõ hoặc dán.",
+      "Tkinter Entry Context Menu: Windows Tkinter Entry mặc định không có menu chuột phải (Cut/Copy/Paste). Cần tạo tk.Menu và gán sự kiện <Button-3> (_bind_context_menu) để hỗ trợ thao tác dán link thuận tiện.",
+      "Python Wrapper Script __file__ Gotcha: Sử dụng exec() trong file wrapper .pyw không tự động truyền __file__, làm các script phụ thuộc vào os.path.abspath(__file__) bị văng lỗi NameError: name '__file__' is not defined trong âm thầm. Phải dùng runpy.run_path(target, run_name='__main__').",
+      "Zero-Pip Portability: Toàn bộ ứng dụng sử dụng 100% Python Standard Library, chỉ cần Python 3.10/3.11 64-bit và Apple Mobile Device Driver (iTunes/3uTools) là có thể copy chạy ngay trên mọi máy tính.",
+      "Tkinter Column Weight Uniform Reset: Tkinter columnconfigure(col, uniform=None) không gỡ bỏ nhóm uniform trong Tcl; bắt buộc dùng uniform='' để gỡ triệt để ràng buộc, tránh lỗi thẻ bị bóp dẹt khi un-maximize cửa sổ.",
+      "Windows Sound Scheme Muting: Cấu hình 'No Sounds' của Windows sẽ chặn các sự kiện alias như SystemAsterisk. Phải dùng winsound.PlaySound(path, winsound.SND_FILENAME) với file wav tích hợp trong app và gọi User32 FlashWindow nháy taskbar khi máy bị mute volume.",
+      "Batch Notification Timing: Thông báo rút máy phải được đặt trong khối finally của _restore_worker, kiểm tra len(active_restores) == 0 dưới threading.Lock để đảm bảo chỉ kích hoạt một lần duy nhất cho toàn đợt.",
+      "SpringBoard Reload on Lang Change: Lệnh ios.exe lang làm khởi động lại giao diện SpringBoard của iOS, dẫn đến mất kết nối USB tạm thời. Cần hạ timeout xuống 20s và bọc exception mềm dẻo tránh treo 80%.",
       "Staging Cleanliness: Thư mục .tiktool_work dùng làm workspace tạm phải luôn được xóa thư mục cha sau khi xóa job con trong cleanup_owned_job nếu nó rỗng để tránh lộ folder rác ra Explorer.",
-      "Bottom Bar Sizing: Sử dụng nút bấm hộp màu cho các chỉ số ở status bar dưới cùng gây tốn diện tích và tạo cảm giác nặng nề. Chuyển sang text inline ngăn cách bằng dấu ' | ' giúp giao diện thanh thoát hơn nhiều.",
-      "Card Action Buttons: Nút đơn lẻ 'Lang' và 'Active' trên từng thẻ máy chiếm nhiều chiều cao. Thao tác thực tế người dùng làm theo lô nên loại bỏ 2 nút này giúp card gọn gàng.",
       "Daily Counter Date Transition: Kiểm tra dailyRestoreDate so với ngày hiện tại (YYYY-MM-DD); nếu khác ngày lập tức reset dailyRestoreCount = 0 và cập nhật ngày mới vào settings.json.",
       "Reboot Detection: Thiết bị iPhone sau khi restore sẽ tự khởi động lại. Cần dùng reboot_tracker khóa trạng thái để tránh luồng Polling hiểu nhầm là Not Trust."
     ],
     "conventions": [
       "Luôn acquire SEMAPHORE trước khi thực hiện các tác vụ nặng (Backup, Restore, Activate) để kiểm soát tải CPU và băng thông USB.",
-      "Giao diện Modern Light Dashboard sử dụng các mã màu: nền #F8FAFC, card #FFFFFF, viền #E2E8F0, text chính #0F172A, accent Indigo #4F46E5.",
+      "Giao diện Modern Light Dashboard sử dụng các mã màu: nền #F8FAFC, card #FFFFFF, viền đen #000000, text chính #0F172A, accent Indigo #4F46E5.",
       "Tất cả các cập nhật GUI từ worker thread phải điều hướng qua queue hoặc self.after(0, ...) để tránh xung đột luồng Tkinter."
     ]
   }

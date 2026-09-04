@@ -128,6 +128,7 @@ Bạn có thể mở ứng dụng dễ dàng bằng các cách sau mà **không 
 
 ### Bước 3: Thực hiện Khôi phục (Restore Pro)
 1. Tích chọn `⚡ Tự Activate sau Restore` nếu muốn máy tự động kích hoạt sau khi khởi động lại.
+   - *Mẹo*: Nếu **tắt** tùy chọn này để cắm đợt máy mới, ngay khi cả đợt restore xong app sẽ **phát chuông ding êm ái**, **nhấp nháy icon Taskbar màu cam** và **báo log rõ ràng** để bạn rút toàn bộ máy ra cắm đợt tiếp theo mà không cần ngồi chờ iPhone reboot!
 2. Bấm nút **[⚡ BẮT ĐẦU RESTORE PRO]**.
 3. Bảng xác nhận phân bổ ghép nối 2 lớp sẽ hiện ra hiển thị chi tiết: Tên bản backup, iOS backup, Tên máy nhận, UDID và Phương thức ghép (Trùng UDID hoặc Khớp iOS).
 4. Bấm **[XÁC NHẬN BẮT ĐẦU]** để tiến hành.

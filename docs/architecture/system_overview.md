@@ -3,9 +3,9 @@
 ## 1. Giới Thiệu Tổng Quan
 **TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) cho số lượng lớn iPhone thông qua kết nối USB trên nền tảng Windows.
 
-- **Phiên bản hiện tại**: `4.5.0 Modern Light Dashboard & Clean Staging Edition`
-- **Tập tin chạy chính**: `BB_RB.py`
-- **Ngôn ngữ & Thư viện**: Python 3.11, Tkinter GUI, Custom Canvas Components, Threading đa luồng, Semaphore, SQLite3, Plistlib.
+- **Phiên bản hiện tại**: `4.7.1 Web App Link Fix & Portable Launcher Edition`
+- **Tập tin chạy chính**: `BB_RB.py` (hoặc mở ngầm qua `TIKTOOL_PRO.pyw` / `CHAY_TIKTOOL.bat`)
+- **Ngôn ngữ & Thư viện**: Python 3.11 (100% Python Standard Library, Zero-Pip Dependencies), Tkinter GUI, Custom Canvas Components, Threading đa luồng, Semaphore, SQLite3, Plistlib, Runpy.
 - **Công cụ nhị phân tích hợp**: `libimobiledevice` (Windows x64) và `ios.exe`.
 
 ---
@@ -60,14 +60,29 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
     ```
   - Khi gửi thành công, người dùng chỉ cần bấm xác nhận trên màn hình iPhone để icon xuất hiện ngay ngoài màn hình chính.
 - **Tiện ích thao tác nhanh trên giao diện (Hàng 3 Top Card)**:
-  - **Nhập link web**: Ô nhập link trực quan, mặc định sẵn `https://linkm.site/`, tự động lưu cấu hình vào `settings.json`.
+  - **Nhập link web tự do & chống ghi đè**: Ô nhập link trực quan, mặc định `https://linkm.site/`. Ứng dụng tích hợp cờ `_webclip_link_loaded` chỉ nạp cấu hình một lần lúc mở máy, ngăn hiện tượng vòng lặp 1s sync loop giật lùi về URL cũ khi người dùng đang gõ hoặc dán link mới.
+  - **Menu chuột phải trực quan (Context Menu)**: Tích hợp `_bind_context_menu()` hỗ trợ chuột phải Cắt, Sao chép, Dán (Paste) và Chọn tất cả trên các ô nhập link và tên.
   - **🚀 Tạo Web App**: Tự động trích xuất tên miền làm nhãn và đẩy link tắt tới toàn bộ thiết bị đang kết nối.
   - **📱 TikTok - AppStore** & **⚡ TikTok Lite - AppStore**: Các nút tắt tạo link tải TikTok/TikTok Lite nhanh từ kho ứng dụng.
   - Xử lý hoàn toàn trên tiểu trình nền (`threading.Thread`), cập nhật tiến trình trên từng thẻ thiết bị và hiển thị hộp thông báo kết quả.
 
+### 2.6. Hệ Thống Thông Báo Hoàn Tất Đợt & Cảnh Báo Rút Máy (Audio-Visual Batch Alert)
+- **Cơ chế gom đợt (Batch-level Notification)**:
+  - Khi người dùng **tắt tính năng Auto Activate** để cắm đợt máy mới, hệ thống theo dõi số lượng máy đang chạy `active_restores`.
+  - Chỉ khi **toàn bộ máy trong đợt hoàn tất** (`len(active_restores) == 0`), hệ thống mới phát thông báo duy nhất một lần (không spam thông báo lẻ tẻ từng máy).
+- **Banner nổi bật trong Terminal Log**:
+  - Xuất khung cảnh báo màu vàng cam viền đậm: `🔔 ĐÃ RESTORE XONG X MÁY – RÚT TẤT CẢ RA & CẮM ĐỢT MỚI!`, giải phóng người dùng ngay khi máy đang reboot.
+- **Tích hợp file âm thanh riêng (`notify.wav`)**:
+  - File chuông êm dịu `notify.wav` nằm trực tiếp trong thư mục gốc của app, sử dụng `winsound.PlaySound(..., SND_FILENAME)`.
+  - **Khắc phục triệt để cài đặt Windows "No Sounds"**: Bỏ qua hoàn toàn cấu hình tắt âm thanh sự kiện của Windows, đảm bảo phát âm thanh chính xác.
+  - Cho phép người dùng linh hoạt đổi file chuông tùy thích bằng cách ghi đè `notify.wav`.
+- **Nhấp nháy biểu tượng Taskbar (`FlashWindow`)**:
+  - Tích hợp Windows User32 `FlashWindow` làm nhấp nháy màu vàng cam biểu tượng TikTool trên thanh taskbar.
+  - Đảm bảo người dùng vẫn nhận biết tức thì ngay cả khi **tắt loa / mute volume máy tính hoàn toàn** hoặc đang chuyển sang làm việc tại cửa sổ khác.
+
 ---
 
-## 3. Kiến Trúc Giao Diện (Modern Light Dashboard & Soft Indigo)
+## 3. Kiến Trúc Giao Diện (Modern Light Dashboard & Responsive Grid)
 Thiết kế tinh tế, gọn nhẹ, tối ưu không gian hiển thị:
 
 | Vùng giao diện | Vai trò | Thiết kế & Màu sắc |
@@ -75,11 +90,12 @@ Thiết kế tinh tế, gọn nhẹ, tối ưu không gian hiển thị:
 | **Nền ứng dụng** | Khung chứa toàn bộ giao diện | Slate-100 dịu mắt `#F8FAFC`, sạch sẽ |
 | **Top Card** | Logo, Đổi ngôn ngữ, Batch Activate, Tạo Web App Hàng 3 | Thiết kế siêu gọn gàng, nền trắng `#FFFFFF`, viền Slate `#E2E8F0` |
 | **Tab Section** | Chuyển đổi giữa Restore Pro và Backup | Tab active `#4F46E5` (Soft Indigo), inactive `#E2E8F0` |
-| **Stats Title Bar** | Hiển thị `[X máy]`, bộ đếm kho và thống kê ngày | Nhãn `Hôm nay: X` (Indigo) cùng cụm 3 thẻ BỘ ĐẾM KHO |
-| **Device Grid** | Lưới thẻ iPhone tích hợp `GradientProgressBar` | Card `#FFFFFF`, viền `#10B981` (Trust) / `#EF4444`, đã bỏ nút đơn lẻ thừa |
+| **Stats Title Bar** | Hiển thị bộ đếm kho và thống kê ngày | Nhãn `Tổng: X (Hôm nay)` bên trái cùng cụm 3 thẻ BỘ ĐẾM KHO bên phải |
+| **Device Grid** | Lưới thẻ iPhone co giãn thông minh (Responsive Grid) | Card trắng viền đen `#000000` sắc nét; mặc định 3 cột, Full HD 5 cột |
 | **Thanh tiến trình** | Hiển thị % và tiến trình làm việc | Gradient Cyan `#06B6D4` ➜ Electric Blue `#2563EB` |
 | **Dòng trạng thái thẻ** | Hiển thị tác vụ hiện tại và số % bên trên bar | Chữ trạng thái `#059669`, % font Consolas `#0284C7` |
 | **Thanh trạng thái đáy** | Hiển thị tổng kết kết nối, thiết bị và đã restore | Chuỗi text tinh gọn, chia vạch ` | `, không dùng nút hộp thô cứng |
+| **Log Terminal Header** | Tiêu đề log và bộ đếm thiết bị kết nối | Trái: `NHẬT KÝ HỆ THỐNG`, Phải: `Số thiết bị đang kết nối: X` (text đậm `#0A2B17`) |
 | **Log Terminal** | Nhật ký hệ thống thời gian thực | Dark Box OLED `#050811`, chữ trắng `#F0FAF4` |
 
 ---
@@ -93,7 +109,9 @@ Thiết kế tinh tế, gọn nhẹ, tối ưu không gian hiển thị:
 - **Theo dõi reboot độc lập USB**: Card thiết bị được giữ trong lúc máy biến mất tạm thời và trạng thái chỉ xóa khi reconnect đã xác minh hoặc hết hạn.
 - **UI queue**: Worker không thao tác widget hay biến Tk trực tiếp; toàn bộ cập nhật đi qua queue do UI thread xử lý.
 - **Process runner**: Lệnh ngoài có timeout, lưu registry tiến trình và được dừng có kiểm soát khi người dùng xác nhận đóng ứng dụng.
-- **Đồng bộ cài đặt JSON tự động**: Quét mtime của `settings.json` mỗi giây một lần để đồng bộ cài đặt ngay cả khi có tiến trình khác can thiệp.
+- **Đồng bộ cài đặt JSON tự động**: Quét mtime của `settings.json` mỗi giây một lần để đồng bộ cài đặt ngay cả khi có tiến trình khác can thiệp (chỉ đồng bộ các trường trạng thái, không ghi đè input người dùng đang soạn thảo).
+- **Khởi động không cửa sổ dòng lệnh (`TIKTOOL_PRO.pyw`)**: Sử dụng thư viện chuẩn `runpy.run_path` để khởi chạy `BB_RB.py` một cách êm ái, cung cấp đầy đủ biến toàn cục `__file__` và ngữ cảnh thực thi chuẩn mà không mở bất kỳ cửa sổ console đen nào.
+- **Tính di động cực cao (Zero-Pip Deployment)**: Toàn bộ dự án được xây dựng 100% bằng thư viện gốc của Python. Khi chuyển sang máy tính mới, chỉ cần cài Python và Apple Driver (iTunes/3uTools) là có thể copy chạy ngay mà không cần internet để tải gói phụ thuộc bên ngoài.
 
 ---
 

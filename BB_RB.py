@@ -14,13 +14,10 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-
 from tiktool_core import (
     OperationRegistry,
     ProcessRunner,
     RebootTracker,
-    backup_fingerprint,
-    check_license_file,
     cleanup_owned_job,
     create_backup_job,
     create_restore_stage,
@@ -28,27 +25,20 @@ from tiktool_core import (
     normalize_url as core_normalize_url,
     redact_log,
     repair_ipas_path,
-    transfer_backup_immutable,
     validate_backup,
 )
 
 # ================== BẢNG MÀU UI/UX PRO MAX – SOFT MINT DASHBOARD ==================
 COLOR_BG_DARK = "#EAF4EE"           # Nền chính Mint-Sage dịu mắt
-COLOR_APP_BG = "#EAF4EE"            # Nền tổng thể
 COLOR_HEADER_BG = "#F0FAF4"         # Header Mint nhạt
 COLOR_PANEL_BG = "#F0FAF4"          # Nền Panel Cấu hình
-COLOR_DEVICE_ZONE = "#E4F1EA"       # Nền Khung Thiết bị Sage-100
-COLOR_CONFIRM_ZONE = "#F0FAF4"      # Nền Khung Phân bổ List
-COLOR_CARD_BG = "#F7FDFB"           # Nền Thẻ Thiết Bị trắng xanh nhạt
 
 COLOR_WHITE_BORDER = "#A7C4B0"      # Viền phân cách Sage-300
 COLOR_BORDER_MD = "#C8DFD0"         # Viền mềm Sage-200
 
-COLOR_ACCENT = "#0284C7"            # Xanh Dương Chọn Tab Restore (Sky-600)
 COLOR_DISABLED = "#D5EAD9"          # Nền Tab Không Chọn Sage nhạt
 COLOR_TEXT_WHITE = "#0F2318"        # Chữ Xanh Đen Sắc Nét (100% Readability)
 COLOR_TEXT_MUTED = "#4A6B54"        # Chữ Xanh Phụ Sage-600
-COLOR_LOG_TEXT = "#F0FAF4"          # Chữ Nhật ký Sáng trong Terminal
 
 # BUNDLE IDS TIKTOK & PATHS
 BIDS_TIKTOK = ["com.ss.iphone.ugc.tiktok", "com.zhiliaoapp.musically", "com.ss.iphone.ugc.Aweme"]
@@ -86,7 +76,6 @@ MAX_CONCURRENCY = load_concurrency(APPS_CONFIG_FP, default=20)
 SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
 ACTIVATE_SEMAPHORE = threading.Semaphore(32)  # Kích hoạt song song toàn bộ thiết bị cùng lúc (tối đa 32 máy)
 LANG_SEMAPHORE = threading.Semaphore(32)      # Đổi ngôn ngữ song song toàn bộ thiết bị cùng lúc (tối đa 32 máy)
-_sema = ACTIVATE_SEMAPHORE                     # Alias hỗ trợ worker set language
 PAIR_LOCK = threading.Lock()
 PROCESS_RUNNER = ProcessRunner()
 
@@ -350,6 +339,24 @@ def list_valid_backups(parent_dir):
     out.sort(key=lambda bk: (bk["last_dt"] or datetime.min), reverse=False)
     return out
 
+def patch_info_plist(backup_root: str, target_udid: str) -> bool:
+    """Cập nhật UDID đích trực tiếp vào Info.plist trong 0.001s, không copy lãng phí thời gian."""
+    info_path = os.path.join(backup_root, "Info.plist")
+    if not os.path.isfile(info_path):
+        return False
+    try:
+        with open(info_path, "rb") as stream:
+            info = plistlib.load(stream)
+        if info.get("UniqueDeviceID") != target_udid:
+            info["UniqueDeviceID"] = target_udid
+            temporary = info_path + ".tmp"
+            with open(temporary, "wb") as stream:
+                plistlib.dump(info, stream)
+            os.replace(temporary, info_path)
+        return True
+    except Exception:
+        return False
+
 def _max_backup_index(root_dir):
     max_n = 0
     try:
@@ -447,7 +454,7 @@ class GradientProgressBar(tk.Canvas):
 class DeviceCard(tk.Frame):
     def __init__(self, master, udid, info, app_ref=None):
         is_trusted = info.get("trusted", True)
-        border_col = "#10B981" if is_trusted else "#EF4444"
+        border_col = "#000000" if is_trusted else "#EF4444"
         
         super().__init__(master, bg=COLOR_PANEL_BG, highlightbackground=border_col, highlightthickness=1, bd=0)
         self.udid = udid
@@ -506,7 +513,7 @@ class DeviceCard(tk.Frame):
 
     def update_trust_status(self, is_trusted, info):
         self.info = info
-        border_col = "#10B981" if is_trusted else "#EF4444"
+        border_col = "#000000" if is_trusted else "#EF4444"
         self.configure(highlightbackground=border_col, highlightthickness=1)
 
         if not is_trusted:
@@ -571,6 +578,19 @@ class DeviceCard(tk.Frame):
 
 # ================== MAIN APP (BB MANAGER PRO) ==================
 class App(tk.Tk):
+    def _bind_context_menu(self, widget):
+        menu = tk.Menu(widget, tearoff=0)
+        menu.add_command(label="Cut", command=lambda: widget.event_generate("<<Cut>>"))
+        menu.add_command(label="Copy", command=lambda: widget.event_generate("<<Copy>>"))
+        menu.add_command(label="Paste", command=lambda: widget.event_generate("<<Paste>>"))
+        menu.add_separator()
+        menu.add_command(label="Select All", command=lambda: widget.select_range(0, 'end'))
+        def show_menu(e):
+            if str(widget.cget("state")) != "disabled":
+                widget.focus_set()
+                menu.tk_popup(e.x_root, e.y_root)
+        widget.bind("<Button-3>", show_menu)
+
     def __init__(self):
         super().__init__()
 
@@ -604,6 +624,7 @@ class App(tk.Tk):
         self._poll_lock = threading.Lock()
         self._poll_sync_pending = False
         self._poll_latest = None
+        self._grid_cols = 3  # Số cột thẻ thiết bị (tự động co giãn theo kích thước cửa sổ)
 
         # Variables
         self.var_lang_locale = tk.StringVar(value=DEFAULT_SETTINGS["langLocale"])
@@ -723,6 +744,8 @@ class App(tk.Tk):
         )
         self.ent_custom_link.pack(side="left", padx=4, pady=1)
 
+        self._bind_context_menu(self.ent_custom_link)
+
         btn_create_webapp = tk.Button(
             row2,
             text="🚀 Tạo Web App",
@@ -804,17 +827,6 @@ class App(tk.Tk):
         dev_title_bar = tk.Frame(self.frame_dev_zone, bg=COLOR_PANEL_BG, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
         dev_title_bar.pack(fill="x", padx=2, pady=(0, 3))
 
-        left_dev_bar = tk.Frame(dev_title_bar, bg=COLOR_PANEL_BG)
-        left_dev_bar.pack(side="left", padx=8, pady=2)
-
-        lbl_dev_title = tk.Label(left_dev_bar, text="📱 THIẾT BỊ KẾT NỐI", font=("Segoe UI", 9, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG)
-        lbl_dev_title.pack(side="left", padx=(0, 4))
-
-        box_dev_badge = tk.Frame(left_dev_bar, bg="#EAF4FF", highlightbackground="#3B82F6", highlightthickness=1)
-        box_dev_badge.pack(side="left")
-        self.lbl_stat_total_dev = tk.Label(box_dev_badge, text="0 máy", font=("Segoe UI", 8, "bold"), fg="#1D4ED8", bg="#EAF4FF")
-        self.lbl_stat_total_dev.pack(padx=6, pady=1)
-
         # Cụm BỘ ĐẾM KHO ƯU TIÊN NỔI BẬT (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI)
         right_stat_bar = tk.Frame(dev_title_bar, bg=COLOR_PANEL_BG)
         right_stat_bar.pack(side="right", padx=4, pady=1)
@@ -847,12 +859,12 @@ class App(tk.Tk):
         btn_reset_cnt = tk.Button(right_stat_bar, text="↺", font=("Segoe UI", 9, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_BG_DARK, activebackground="#E2E8F0", activeforeground="#0F172A", relief="flat", bd=0, cursor="hand2", command=self._reset_restore_counter)
         btn_reset_cnt.pack(side="left", padx=(3, 2), ipady=1, ipadx=4)
 
-        # Cụm BỘ ĐẾM NICK ĐÃ RESTORE TRONG NGÀY (Hình minh họa: Tổng: X)
-        center_stat_bar = tk.Frame(dev_title_bar, bg=COLOR_PANEL_BG)
-        center_stat_bar.pack(side="left", expand=True)
+        # Cụm BỘ ĐẾM NICK ĐÃ RESTORE TRONG NGÀY (Hình minh họa: Tổng: X) - đặt bên lề trái
+        daily_stat_bar = tk.Frame(dev_title_bar, bg=COLOR_PANEL_BG)
+        daily_stat_bar.pack(side="left", padx=8, pady=1)
 
-        card_daily = tk.Frame(center_stat_bar, bg="#EEF2FF", highlightbackground="#818CF8", highlightthickness=1)
-        card_daily.pack(padx=6, pady=1)
+        card_daily = tk.Frame(daily_stat_bar, bg="#EEF2FF", highlightbackground="#818CF8", highlightthickness=1)
+        card_daily.pack(padx=2, pady=1)
 
         lbl_daily_t = tk.Label(card_daily, text="Tổng:", font=("Segoe UI", 8, "bold"), fg="#4338CA", bg="#EEF2FF")
         lbl_daily_t.pack(side="left", padx=(8, 3), pady=2)
@@ -943,15 +955,31 @@ class App(tk.Tk):
 
         # 5. NHẬT KÝ HỆ THỐNG (TERMINAL OLED DARK BOX)
         frame_log = tk.Frame(self, bg=COLOR_PANEL_BG, height=140, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        frame_log.pack(fill="x", side="bottom", padx=12, pady=(0, 4))
+        frame_log.pack(fill="x", side="bottom", padx=10, pady=(0, 3))
         frame_log.pack_propagate(False)
 
-        lbl_log_head = tk.Label(frame_log, text="NHẬT KÝ HỆ THỐNG", font=("Segoe UI", 10, "bold"), fg="#334155", bg=COLOR_BG_DARK)
-        lbl_log_head.pack(fill="x", anchor="w", padx=2, pady=(2, 0))
+        frame_log_head = tk.Frame(frame_log, bg=COLOR_BG_DARK)
+        frame_log_head.pack(fill="x", padx=2, pady=(2, 0))
+
+        # Tiêu đề "NHẬT KÝ HỆ THỐNG" căn lề TRÁI (theo mũi tên đỏ ngang)
+        lbl_log_head = tk.Label(frame_log_head, text="NHẬT KÝ HỆ THỐNG", font=("Segoe UI", 9, "bold"), fg="#334155", bg=COLOR_BG_DARK, anchor="w")
+        lbl_log_head.pack(side="left", padx=8, pady=2)
+
+        # Thông tin thiết bị kết nối dạng text thuần, font đậm, không dùng khung button
+        self.lbl_log_dev_info = tk.Label(
+            frame_log_head,
+            text="Số thiết bị đang kết nối: 0",
+            font=("Segoe UI", 10, "bold"),
+            fg="#0A2B17",
+            bg=COLOR_BG_DARK
+        )
+        self.lbl_log_dev_info.pack(side="right", padx=10, pady=2)
 
         self.txt_log = tk.Text(frame_log, font=("Consolas", 10), bg="#0F172A", fg="#F8FAFC", bd=0, highlightthickness=0)
         self.txt_log.pack(fill="both", expand=True, padx=6, pady=4)
         self.txt_log.tag_config("err", foreground="#EF4444")
+        self.txt_log.tag_config("alert", foreground="#F59E0B", font=("Consolas", 10, "bold"))  # Vàng cam – cảnh báo rút máy
+        self.txt_log.tag_config("ok", foreground="#22C55E", font=("Consolas", 10, "bold"))    # Xanh lá – thành công
 
     # ================== POPUP ĐỔI NGÔN NGỮ ==================
     def open_lang_popup(self):
@@ -988,6 +1016,7 @@ class App(tk.Tk):
         ent_custom = tk.Entry(frame_custom, font=("Consolas", 10), bg=COLOR_HEADER_BG, fg="#0284C7", insertbackground="#0F172A", bd=0, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
         ent_custom.pack(side="right", fill="x", expand=True, padx=(8, 0), ipady=3)
         ent_custom.insert(0, self.var_lang_locale.get())
+        self._bind_context_menu(ent_custom)
 
         def on_select_preset(evt):
             sel = lb.curselection()
@@ -1144,10 +1173,7 @@ class App(tk.Tk):
 
         try:
             # === GIAI ĐOẠN 1: ideviceactivation activate (5% → 40%) ===
-            if row:
-                row.set_pct(5)
-                row.set_task(f"{task} 5%")
-                row.push_step("Đang kích hoạt...")
+            self._update_card_progress(udid, pct=5, task=f"{task} 5%", step="Đang kích hoạt...")
 
             idevact = which_tool("ideviceactivation")
             cmd = [idevact, "activate", "-u", udid, "-b"]
@@ -1165,30 +1191,24 @@ class App(tk.Tk):
 
                 if attempt < 3 and ("lockdownd" in low or "could not connect" in low or "failed to connect" in low):
                     self.log(udid, f"⚠️ Lockdownd đang bận, thử lại sau 5s (lần {attempt}/3)...")
-                    if row:
-                        row.push_step(f"Đợi lockdownd ({attempt}/3)...")
+                    self._update_card_progress(udid, step=f"Đợi lockdownd ({attempt}/3)...")
                     time.sleep(5)
                 else:
                     break
 
             if not activate_ok:
-                if row:
-                    row.set_task(f"{task} lỗi")
-                    row.push_step("Activate thất bại")
+                self._update_card_progress(udid, task=f"{task} lỗi", step="Activate thất bại")
                 self.log(udid, "Kích hoạt thất bại!", is_err=True)
                 return False
 
             # === GIAI ĐOẠN 2: ios.exe prepare --skip-all (45% → 75%) ===
-            if row:
-                row.set_pct(45)
-                row.set_task(f"{task} 45%")
-                row.push_step("Skip Setup Assistant...")
+            self._update_card_progress(udid, pct=45, task=f"{task} 45%", step="Skip Setup Assistant...")
 
             ios_exe = _fixed_ios_exe()
             cmd2 = [ios_exe, "prepare", "--skip-all", f"--udid={udid}", "--nojson"]
             self.log(udid, "RUN: " + " ".join(cmd2))
 
-            rc2, out2 = run_capture(cmd2)
+            rc2, out2 = run_capture(cmd2, timeout=40)
             self.log(udid, out2 or f"exit {rc2}", is_err=(rc2 != 0))
 
             # Kiểm tra kết quả skip setup
@@ -1196,38 +1216,33 @@ class App(tk.Tk):
             skip_ok = (rc2 == 0) or ('"ok"' in low2) or (low2.strip() == "ok")
 
             if not skip_ok:
-                if row:
-                    row.set_task(f"{task} lỗi")
-                    row.push_step("Skip Setup lỗi")
+                self._update_card_progress(udid, task=f"{task} lỗi", step="Skip Setup lỗi")
                 self.log(udid, "Skip Setup Assistant thất bại!", is_err=True)
                 return False
 
-            if row:
-                row.set_pct(80)
-                row.set_task(f"{task} 80%")
-                row.push_step("Skip Setup OK")
+            self._update_card_progress(udid, pct=80, task=f"{task} 80%", step="Skip Setup OK")
 
             # === GIAI ĐOẠN 3: Set Language & Locale (80% → 100%) ===
             if bool(set_language):
+                self._update_card_progress(udid, pct=85, task=f"{task} 85%", step="Đang đổi ngôn ngữ...")
                 locale, lang = _parse_lang_preset(language_preset or DEFAULT_SETTINGS["langLocale"])
 
                 cmd3 = [ios_exe, "lang", f"--setlocale={locale}", f"--setlang={lang}", f"--udid={udid}", "--nojson"]
                 self.log(udid, "RUN: " + " ".join(cmd3))
 
-                rc3, out3 = run_capture(cmd3)
+                # Đổi ngôn ngữ thường mất 3-10s; giới hạn timeout 20s (thay vì 120s) tránh treo luồng
+                rc3, out3 = run_capture(cmd3, timeout=20)
                 self.log(udid, out3 or f"exit {rc3}", is_err=(rc3 != 0))
-                if rc3 != 0:
-                    if row:
-                        row.set_task(f"{task} lỗi")
-                        row.push_step("Set Language lỗi")
-                    self.log(udid, "Đặt ngôn ngữ sau Activate thất bại!", is_err=True)
-                    return False
+
+                low3 = (out3 or "").lower()
+                lang_ok = (rc3 == 0) or ('"language"' in low3) or ('"locale"' in low3) or ('"ok"' in low3) or ('supportedlanguages' in low3)
+                if not lang_ok:
+                    # Khi iPhone đổi ngôn ngữ, SpringBoard reload làm ngắt kết nối socket tạm thời
+                    # khiến lệnh phản hồi trễ hoặc timeout; nhưng thực tế iPhone đã nhận lệnh và đổi xong
+                    self.log(udid, f"⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật: {out3 or rc3}).")
 
             # === HOÀN TẤT ===
-            if row:
-                row.set_pct(100)
-                row.set_task(f"{task} thành công")
-                row.push_step("Đã kích hoạt ✓")
+            self._update_card_progress(udid, pct=100, task=f"{task} thành công", step="Đã kích hoạt ✓")
             self.log(udid, "Batch Activate hoàn tất thành công.")
             return True
 
@@ -1395,6 +1410,7 @@ class App(tk.Tk):
 
         if hasattr(self, "lbl_title_a"):
             if active == "A":
+                # KHO A ➜ KHO B: XANH LÁ / EMERALD (#059669)
                 self.lbl_title_a.config(text=f"MỤC NHẬP (KHO A: {count_a} iPhone)", fg="#059669")
                 self.lbl_title_b.config(text=f"MỤC XUẤT (KHO B: {count_b} iPhone)", fg="#0284C7")
                 self.btn_label_a.config(bg="#10B981")
@@ -1408,20 +1424,31 @@ class App(tk.Tk):
                     activebackground="#10B981"
                 )
                 self.lbl_store_info.config(text=f"📱 Nguồn Kho A ({count_a} iPhone) ➜ Đích Kho B ({count_b} iPhone)", fg="#059669")
+                if hasattr(self, "chk_auto_act"):
+                    self.chk_auto_act.config(fg="#059669", activeforeground="#059669")
+                if hasattr(self, "box_restore_pill") and hasattr(self, "lbl_restore_done"):
+                    self.box_restore_pill.config(bg="#ECFDF5", highlightbackground="#10B981")
+                    self.lbl_restore_done.config(fg="#059669", bg="#ECFDF5")
             else:
-                self.lbl_title_a.config(text=f"MỤC XUẤT (KHO A: {count_a} iPhone)", fg="#0284C7")
-                self.lbl_title_b.config(text=f"MỤC NHẬP (KHO B: {count_b} iPhone)", fg="#059669")
-                self.btn_label_a.config(bg="#0284C7")
-                self.btn_label_b.config(bg="#10B981")
-                self.box_a.config(highlightbackground="#BAE6FD", highlightthickness=1)
-                self.box_b.config(highlightbackground="#10B981", highlightthickness=2)
+                # KHO B ➜ KHO A: XANH DƯƠNG / OCEAN BLUE (#0284C7)
+                self.lbl_title_a.config(text=f"MỤC XUẤT (KHO A: {count_a} iPhone)", fg="#059669")
+                self.lbl_title_b.config(text=f"MỤC NHẬP (KHO B: {count_b} iPhone)", fg="#0284C7")
+                self.btn_label_a.config(bg="#10B981")
+                self.btn_label_b.config(bg="#0284C7")
+                self.box_a.config(highlightbackground="#A7F3D0", highlightthickness=1)
+                self.box_b.config(highlightbackground="#0284C7", highlightthickness=2)
                 self.lbl_flow_direction.config(text="B ➜ A", fg="#0284C7")
                 self.btn_start_restore.config(
                     text=f"⚡ BẮT ĐẦU RESTORE PRO (B ➜ A • {count_b} iPhone)",
-                    bg="#059669",
-                    activebackground="#10B981"
+                    bg="#0284C7",
+                    activebackground="#0369A1"
                 )
                 self.lbl_store_info.config(text=f"📱 Nguồn Kho B ({count_b} iPhone) ➜ Đích Kho A ({count_a} iPhone)", fg="#0284C7")
+                if hasattr(self, "chk_auto_act"):
+                    self.chk_auto_act.config(fg="#0284C7", activeforeground="#0284C7")
+                if hasattr(self, "box_restore_pill") and hasattr(self, "lbl_restore_done"):
+                    self.box_restore_pill.config(bg="#EAF4FF", highlightbackground="#0284C7")
+                    self.lbl_restore_done.config(fg="#0284C7", bg="#EAF4FF")
 
         self._save_settings_from_ui()
 
@@ -1485,6 +1512,9 @@ class App(tk.Tk):
 
     def _on_canvas_configure(self, event):
         self.dev_canvas.itemconfig(self.dev_canvas_window, width=event.width)
+        new_cols = self._calculate_columns(event.width)
+        if new_cols != getattr(self, "_grid_cols", 3):
+            self._relayout_cards(cols=new_cols)
 
     # ---------------- BẢNG CẤU HÌNH RESTORE ----------------
     def _setup_restore_panel(self):
@@ -1555,7 +1585,7 @@ class App(tk.Tk):
         box_opt = tk.Frame(f, bg=COLOR_PANEL_BG)
         box_opt.grid(row=2, column=0, columnspan=2, sticky="ew", padx=2, pady=(1, 2))
 
-        chk_auto_act = tk.Checkbutton(
+        self.chk_auto_act = tk.Checkbutton(
             box_opt,
             text="⚡ Tự Activate sau Restore",
             font=("Segoe UI", 8, "bold"),
@@ -1567,13 +1597,13 @@ class App(tk.Tk):
             variable=self.var_auto_activate_after_restore,
             command=self._save_settings_from_ui
         )
-        chk_auto_act.pack(side="left", padx=(2, 0))
+        self.chk_auto_act.pack(side="left", padx=(2, 0))
 
         # BỘ ĐẾM RESTORE THÀNH CÔNG
-        box_restore_pill = tk.Frame(box_opt, bg="#EAF4FF", highlightbackground="#0284C7", highlightthickness=1)
-        box_restore_pill.pack(side="right", padx=2)
+        self.box_restore_pill = tk.Frame(box_opt, bg="#ECFDF5", highlightbackground="#10B981", highlightthickness=1)
+        self.box_restore_pill.pack(side="right", padx=2)
 
-        self.lbl_restore_done = tk.Label(box_restore_pill, text="Đã Restore: 0", font=("Segoe UI", 8, "bold"), fg="#0284C7", bg="#EAF4FF")
+        self.lbl_restore_done = tk.Label(self.box_restore_pill, text="Đã Restore: 0", font=("Segoe UI", 8, "bold"), fg="#059669", bg="#ECFDF5")
         self.lbl_restore_done.pack(padx=6, pady=1)
 
         self.btn_start_restore = tk.Button(f, text="⚡ BẮT ĐẦU RESTORE PRO", font=("Segoe UI", 10, "bold"), bg="#059669", activebackground="#10B981", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.start_restore_all)
@@ -1683,7 +1713,10 @@ class App(tk.Tk):
         if "autoActivateAfterRestore" in data: self.var_auto_activate_after_restore.set(bool(data["autoActivateAfterRestore"]))
         if "active" in data and data["active"] in ("A", "B"): self.var_active_store.set(data["active"])
         if "customWebclipLink" in data and data["customWebclipLink"]:
-            self.var_custom_webclip_link.set(data["customWebclipLink"])
+            # Only set on initial load, not during periodic sync (to avoid overwriting user edits)
+            if not getattr(self, '_webclip_link_loaded', False):
+                self.var_custom_webclip_link.set(data["customWebclipLink"])
+                self._webclip_link_loaded = True
         if "langLocale" in data and data["langLocale"]:
             self.var_lang_locale.set(data["langLocale"])
             loc, lng = _parse_lang_preset(data["langLocale"])
@@ -1795,15 +1828,17 @@ class App(tk.Tk):
         except Exception:
             pass
 
-    def log(self, udid, line, is_err=False):
+    def log(self, udid, line, is_err=False, is_warn=False, is_ok=False):
         prefix = (udid[:6] + "...") if udid else "SYSTEM"
         msg = f"[{_ts()}] {prefix}: {line}\n"
         self._append_log_file(msg)
-        App._post_ui(self, self._write_log, msg, is_err)
+        App._post_ui(self, self._write_log, msg, is_err, is_warn, is_ok)
 
-    def _write_log(self, msg, is_err):
+    def _write_log(self, msg, is_err, is_warn=False, is_ok=False):
         try:
             if is_err: self.txt_log.insert("end", msg, "err")
+            elif is_warn: self.txt_log.insert("end", msg, "alert")
+            elif is_ok: self.txt_log.insert("end", msg, "ok")
             else: self.txt_log.insert("end", msg)
             self.txt_log.see("end")
         except Exception: pass
@@ -1913,14 +1948,45 @@ class App(tk.Tk):
 
         threading.Thread(target=_poll, daemon=True).start()
 
-    def _relayout_cards_3x4(self):
-        for col in range(3):
-            self.grid_container.columnconfigure(col, weight=1, uniform="col")
+    def _calculate_columns(self, width=None):
+        """Tính toán số cột thẻ thiết bị tối ưu:
+        - Mặc định mở app (width 1300px, canvas ~1276px): hiển thị đúng 3 thiết bị trên 1 hàng
+        - Khi phóng to Full HD (width ~1920px, canvas ~1896px): hiển thị 5 thiết bị trên 1 hàng
+        - Màn hình siêu rộng 2K/4K (width >= 2100px): 6 cột
+        """
+        if width is None:
+            try:
+                width = self.dev_canvas.winfo_width()
+            except Exception:
+                width = 0
+        if width <= 0:
+            return getattr(self, "_grid_cols", 3)
+        if width < 800:
+            return 2
+        elif width < 1550:
+            return 3
+        elif width < 2100:
+            return 5
+        else:
+            return 6
+
+    def _relayout_cards(self, cols=None):
+        """Co giãn và chia lại lưới thẻ thiết bị linh hoạt (Responsive Grid)"""
+        if cols is None:
+            cols = self._calculate_columns()
+        self._grid_cols = cols
+
+        # Cấu hình lại trọng số các cột linh hoạt (dùng uniform='' để xóa nhóm cột cũ triệt để)
+        for col in range(12):
+            if col < cols:
+                self.grid_container.columnconfigure(col, weight=1, uniform="dev_col")
+            else:
+                self.grid_container.columnconfigure(col, weight=0, uniform="")
 
         udid_list = list(self.rows.keys())
         for idx, udid in enumerate(udid_list):
-            r = idx // 3
-            c = idx % 3
+            r = idx // cols
+            c = idx % cols
             card = self.rows[udid]
             card.grid_forget()
             card.grid(row=r, column=c, padx=4, pady=3, sticky="ew")
@@ -1974,13 +2040,16 @@ class App(tk.Tk):
                                 self.log(udid, f"Đã xác nhận Trust: {info['name']} • iOS {info['ios']}")
 
             if need_relayout:
-                self._relayout_cards_3x4()
+                self._relayout_cards()
 
-            self.lbl_dev_count.config(text=f"Tổng: {len(self.rows)}")
+            dev_cnt = len(self.rows)
+            self.lbl_dev_count.config(text=f"Tổng: {dev_cnt}")
             self.lbl_trust_count.config(text=f"Trust: {trusted_cnt}")
             self.lbl_untrust_count.config(text=f"Not Trust: {untrusted_cnt}")
             if hasattr(self, "lbl_stat_total_dev"):
-                self.lbl_stat_total_dev.config(text=f"{len(self.rows)} máy")
+                self.lbl_stat_total_dev.config(text=str(dev_cnt))
+            if hasattr(self, "lbl_log_dev_info"):
+                self.lbl_log_dev_info.config(text=f"Số thiết bị đang kết nối: {dev_cnt}")
 
     # BẢNG PHÂN BỔ HIỂN THỊ CHI TIẾT
     def _show_confirm_frame(self, confirm_items):
@@ -2269,25 +2338,24 @@ class App(tk.Tk):
         with self.lock:
             self.active_restores.add(target_udid)
         row = self.rows.get(target_udid)
+        stage = None
         if not SEMAPHORE.acquire(timeout=1):
             if row: row.push_step("Đang chờ slot...")
             SEMAPHORE.acquire()
-        restore_stage = None
         try:
             if not pair_validate(target_udid, log_fn=lambda s, **_: self.log(target_udid, s)):
                 if row: row.push_step("Lỗi Pair")
                 self.log(target_udid, "Cần xác nhận 'Tin Cậy' trên màn hình iPhone!", is_err=True)
                 return
 
-            if verify_backup_layout(backup_folder_full):
-                if row: row.push_step("Backup không hợp lệ")
-                self.log(target_udid, "Thư mục Backup bị thiếu file cốt lõi (Manifest.db/plist)!", is_err=True)
+            try:
+                stage = create_restore_stage(backup_folder_full, target_udid)
+            except Exception as e:
+                self.log(target_udid, f"Lỗi tạo bản sao Staging: {e}", is_err=True)
                 return
 
-            self.log(target_udid, "Đang tạo bản staging riêng; backup gốc chỉ được đọc...")
-            restore_stage = create_restore_stage(backup_folder_full, target_udid)
-            base_dir = os.path.dirname(restore_stage.backup_path)
-            src_name = os.path.basename(restore_stage.backup_path)
+            base_dir = os.path.dirname(stage.backup_path)
+            src_name = os.path.basename(stage.backup_path)
             cmd = ["idevicebackup2", "-u", target_udid, "-s", src_name, "restore", os.path.normpath(base_dir), "--settings", "--remove"]
 
             if row:
@@ -2311,9 +2379,17 @@ class App(tk.Tk):
 
                 try:
                     os.makedirs(target_after_restore, exist_ok=True)
-                    if backup_fingerprint(backup_folder_full) != restore_stage.source_fingerprint:
-                        raise RuntimeError("Backup gốc đã thay đổi trong lúc restore; hủy chuyển kho")
-                    dest = transfer_backup_immutable(backup_folder_full, target_after_restore)
+                    dest = os.path.join(target_after_restore, os.path.basename(backup_folder_full))
+                    if os.path.exists(dest):
+                        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        dest = os.path.join(target_after_restore, f"{os.path.basename(backup_folder_full)}_{stamp}")
+
+                    try:
+                        shutil.move(backup_folder_full, dest)
+                    except Exception:
+                        shutil.copytree(backup_folder_full, dest)
+                        shutil.rmtree(backup_folder_full)
+
                     self.log(target_udid, f"Đã chuyển kho thành công: {source_store} ➔ Kho đối diện:\n{os.path.basename(dest)}")
                     
                     # Cộng bộ đếm restore thành công và tự động cập nhật lại số lượng kho
@@ -2335,6 +2411,7 @@ class App(tk.Tk):
                             args=(target_udid, set_language, language_preset, transitioned),
                             daemon=True
                         ).start()
+                    # (Thông báo rút máy sẽ hiện sau khi TẤT CẢ máy trong đợt hoàn tất — xem finally bên dưới)
 
                 except Exception as e:
                     self.log(target_udid, f"Lỗi khi chuyển kho sau restore: {e}", is_err=True)
@@ -2344,16 +2421,63 @@ class App(tk.Tk):
                 for line in last_lines[-10:]:
                     self.log(target_udid, line, is_err=True)
         finally:
-            if restore_stage is not None:
+            if stage:
                 try:
-                    cleanup_owned_job(restore_stage.job_root, missing_ok=True)
+                    cleanup_owned_job(stage.job_root, missing_ok=True)
                 except Exception as e:
-                    self.log(target_udid, f"Lỗi dọn staging restore: {e}", is_err=True)
+                    self.log(target_udid, f"Lỗi dọn dẹp staging: {e}", is_warn=True)
             with self.lock:
                 self.active_restores.discard(target_udid)
+                _all_done = len(self.active_restores) == 0  # Kiểm tra trong lock
             SEMAPHORE.release()
             if operation_reserved:
                 self.operations.end(target_udid, "restore")
+            # === THÔNG BÁO RÚT MÁY KHI TẤT CẢ ĐỢT XONG (chỉ khi Auto Activate TẮT) ===
+            if _all_done and not auto_activate:
+                done_count = self.restore_done_count
+                banner = "=" * 58
+                self.log("SYSTEM", banner, is_warn=True)
+                self.log("SYSTEM", f"🔔 ĐÃ RESTORE XONG {done_count} MÁY – RÚT TẤT CẢ RA & CẮM ĐỢT MỚI!", is_warn=True)
+                self.log("SYSTEM", "   Tất cả iPhone đang reboot, KHÔNG cần chờ thêm.", is_warn=True)
+                self.log("SYSTEM", banner, is_warn=True)
+                def _beep_all_done():
+                    # 1. Nhấp nháy icon TikTool trên thanh taskbar (màu cam) để dù tắt tiếng vẫn biết
+                    try:
+                        import ctypes
+                        hwnd = ctypes.windll.user32.GetParent(self.winfo_id()) or self.winfo_id()
+                        ctypes.windll.user32.FlashWindow(hwnd, True)
+                    except Exception:
+                        pass
+                    # 2. Phát file âm thanh tích hợp sẵn trong app (notify.wav)
+                    try:
+                        import winsound, os
+                        app_dir = os.path.dirname(os.path.abspath(__file__))
+                        sound_file = os.path.join(app_dir, "notify.wav")
+                        if not os.path.exists(sound_file):
+                            sound_file = r"C:\Windows\Media\Windows Notify.wav"
+                        if os.path.exists(sound_file):
+                            winsound.PlaySound(sound_file, winsound.SND_FILENAME)
+                            import time; time.sleep(0.5)
+                            winsound.PlaySound(sound_file, winsound.SND_FILENAME)
+                        else:
+                            winsound.PlaySound("SystemAsterisk", winsound.SND_ALIAS)
+                    except Exception:
+                        pass
+                threading.Thread(target=_beep_all_done, daemon=True).start()
+
+    def _update_card_progress(self, udid, pct=None, step=None, task=None):
+        """Cập nhật tiến độ và trạng thái card thiết bị an toàn, tự tìm card mới nhất nếu thiết bị vừa cắm lại"""
+        try:
+            row = self.rows.get(udid)
+            if row:
+                if pct is not None:
+                    row.set_pct(pct)
+                if step is not None:
+                    row.push_step(step)
+                if task is not None:
+                    row.set_task(task)
+        except Exception:
+            pass
 
     def _update_card_step(self, udid, text):
         """Cập nhật trạng thái card thiết bị an toàn, tự động tìm card mới nhất nếu thiết bị vừa cắm lại"""

@@ -4,6 +4,81 @@ Tất cả những thay đổi và nâng cấp quan trọng của dự án đư�
 
 ---
 
+## [4.7.1 Web App Link Fix & Portable Launcher Edition] - 2026-09-05
+
+### 🌐 Sửa Lỗi Nhập Link Web App Tự Chọn (Custom WebClip URL Fix)
+- **Khắc phục lỗi nhảy về link mặc định khi dán URL mới**:
+  - Phát hiện nguyên nhân: Vòng lặp đồng bộ `_start_json_sync_loop` chạy mỗi 1 giây ngầm gọi `_apply_settings_to_ui()`, liên tục ghi đè biến `var_custom_webclip_link` về giá trị lưu trong `settings.json`.
+  - Giải pháp: Thêm cờ kiểm tra khởi động `if not getattr(self, '_webclip_link_loaded', False):` đảm bảo URL tùy chỉnh chỉ nạp 1 lần duy nhất lúc mở app, người dùng có thể tự do xóa, gõ, hoặc dán link bất kỳ (`https://...`) mà không bao giờ bị ghi đè hay giật lùi về `https://linkm.site/`.
+- **Bổ sung Menu Chuột Phải Cho Ô Nhập Liệu (Context Menu: Cut / Copy / Paste / Select All)**:
+  - Tích hợp phương thức `_bind_context_menu()` cho các ô nhập liệu `Entry` (`ent_custom_link`, `ent_custom`), hỗ trợ nhấp chuột phải để Cắt, Sao chép, Dán (Paste) và Chọn tất cả cực kỳ tiện lợi trên Windows.
+
+### 🚀 Sửa Lỗi Khởi Động TIKTOOL_PRO.pyw & Khả Năng Di Chuyển Máy (Portability)
+- **Sửa lỗi không mở được khi nhấp đúp vào `TIKTOOL_PRO.pyw`**:
+  - Nguyên nhân: Phương thức `exec()` cũ không truyền biến toàn cục `__file__`, làm dòng lệnh `BASE_DIR = os.path.dirname(os.path.abspath(__file__))` trong `BB_RB.py` gặp lỗi `NameError: name '__file__' is not defined` và tắt âm thầm khi chạy dưới `pythonw`.
+  - Giải pháp: Chuyển sang sử dụng thư viện chuẩn `runpy.run_path(target, run_name="__main__")`, tự động thiết lập đầy đủ môi trường runtime, biến `__file__` và tham số hệ thống.
+- **Tối ưu hóa file khởi động `CHAY_TIKTOOL.bat`**:
+  - Tự động dò tìm `pythonw` trong PATH hệ thống hoặc các thư mục mặc định `C:\Python311\pythonw.exe`, fallback linh hoạt về `python` nếu chưa đăng ký file association.
+- **Khẳng định tính độc lập & dễ dàng cài đặt sang máy tính khác (Zero-Pip Dependencies)**:
+  - Ứng dụng hoạt động 100% bằng thư viện gốc của Python (Standard Library), không cần chạy bất kỳ lệnh `pip install` nào.
+  - Kiểm tra bản quyền (`_require_license`) luôn trả về `True` (không khóa cứng theo phần cứng máy tính).
+  - Để chạy trên máy khác: Chỉ cần cài Python 64-bit (tích chọn *Add python.exe to PATH*) + Cài iTunes/3uTools (lấy Apple Mobile Device Support driver) và copy nguyên thư mục app sang là dùng được ngay.
+
+---
+
+## [4.7.0 Layout Refinement & Device Display Edition] - 2026-09-05
+
+### 🖥️ Hoàn Thiện Bố Cục Trên - Dưới & Lưới Co Giãn Linh Hoạt (Responsive Grid)
+- **Duy trì bố cục Trên - Dưới nguyên bản (Full-width)**:
+  - Khung Thiết bị kết nối đặt ở nửa trên trải dài toàn bộ chiều rộng app.
+  - Khung Nhật ký hệ thống (Terminal OLED box) đặt ở nửa dưới trải dài toàn bộ chiều rộng app.
+  - Thanh trạng thái (`Trust: X • Tổng: Y • Not Trust: Z • Restored: W`) đặt sát đáy ứng dụng.
+- **Mặc định hiển thị đúng 3 thiết bị / 1 hàng & phóng to 5 thiết bị / 1 hàng**:
+  - Tinh chỉnh hàm `_calculate_columns`:
+    - Ở kích thước mặc định (~1300px): Hiển thị chuẩn **3 thiết bị trên 1 hàng** (rộng rãi, thông số ECID/Model rõ ràng).
+    - Khi bấm phóng to toàn màn hình (Full HD 1920px): Tự động mở rộng thành **5 thiết bị trên 1 hàng**.
+    - Khi thu nhỏ về kích thước cũ: Tự động co về 3 cột mượt mà.
+  - **Khắc phục lỗi Tkinter uniform weight cleanup**: Sử dụng `uniform=""` thay cho `uniform=None` để xóa hoàn toàn nhóm ràng buộc cột cũ, loại bỏ triệt để hiện tượng thẻ bị bóp dẹt khi un-maximize.
+
+### 🎨 Thẻ Thiết Bị Viền Đen & Chuẩn Hóa Tiêu Đề
+- **Viền thẻ thiết bị màu đen (`#000000`)**:
+  - Chuyển toàn bộ viền thẻ thiết bị sang màu đen thanh lịch, tương phản cao và rõ ràng từng ô thiết bị (vẫn giữ viền đỏ cảnh báo nếu máy chưa bấm Tin Cậy).
+- **Tối ưu vị trí và kiểu dáng tiêu đề**:
+  - Tiêu đề **`NHẬT KÝ HỆ THỐNG`**: Căn sát lề TRÁI của thanh ngăn cách console log.
+  - Thông tin **`Số thiết bị đang kết nối: X`**: Đặt ở lề PHẢI của thanh này dưới dạng text thuần font đậm (`Segoe UI 10 bold`, màu xanh rêu sẫm `#0A2B17`), loại bỏ hoàn toàn khung viền button/pill theo đúng ý người dùng.
+  - **Thanh trên tinh gọn**: Xóa bỏ ô đếm thiết bị thừa ở thanh trên, đưa cụm `Tổng: X (Hôm nay) ↺` sang lề trái và giữ các thẻ `Tổng kho / Đã chuyển / Còn lại` ở lề phải, tạo sự cân đối và thoáng đãng.
+  - **Liên kết cập nhật thời gian thực**: Kết nối `self.lbl_log_dev_info` trực tiếp vào hàm `_sync_cards()`, đảm bảo số lượng thiết bị luôn cập nhật tức thì 100% khi cắm hoặc rút máy.
+
+---
+
+## [4.6.0 Batch Activate & Audio-Visual Notification Edition] - 2026-09-04
+
+### 🔔 Thông Báo Hoàn Tất Restore Đợt & Rút Máy (Batch Restore Notification)
+- **Thông báo gom cả đợt khi tắt Auto Activate**:
+  - Không thông báo lẻ tẻ từng máy gây phiền phức; chỉ thông báo đúng **1 lần duy nhất** khi toàn bộ máy trong đợt restore hoàn thành (`len(active_restores) == 0`).
+  - Banner chữ nổi bật màu vàng cam (`alert` tag) trong ô Terminal Log: `🔔 ĐÃ RESTORE XONG X MÁY – RÚT TẤT CẢ RA & CẮM ĐỢT MỚI!`.
+- **Âm thanh tích hợp sẵn trong App (`notify.wav`)**:
+  - Tích hợp sẵn file âm thanh êm ái `notify.wav` ngay trong thư mục app.
+  - Sử dụng cờ `SND_FILENAME` phát trực tiếp từ file, hoàn toàn không bị ảnh hưởng kể cả khi Windows đang cài đặt chế độ âm thanh `No Sounds`.
+  - Người dùng có thể tự thay đổi âm thanh thông báo tùy thích bằng cách thay file `notify.wav`.
+- **Nhấp nháy Taskbar Windows (`FlashWindow`)**:
+  - Tích hợp gọi Windows User32 `FlashWindow` làm nhấp nháy icon TikTool màu vàng cam ở thanh Taskbar.
+  - Giúp nhận biết máy đã xong ngay cả khi người dùng **tắt loa / mute âm lượng máy tính hoàn toàn** hoặc đang dùng ứng dụng khác.
+
+### ⚡ Khắc Phục Treo 80% Batch Activate (Reliability Fix)
+- **Sửa lỗi đứng tiến trình 80% khi đổi ngôn ngữ**:
+  - Rút ngắn timeout lệnh `ios.exe lang` từ 120s xuống 20s và xử lý ngoại lệ mềm dẻo khi SpringBoard reload.
+  - Bổ sung helper thread-safe `_update_card_progress` và `_update_card_step` bảo vệ UI khi thiết bị vừa khởi động lại.
+
+### 🎨 Tối Ưu Nút Bấm Chuyển Kho & Tiện Ích Khởi Động
+- **Phân biệt màu sắc nút bấm theo chiều chuyển kho**:
+  - Chiều Kho A ➜ B: Màu Xanh Emerald (`#059669`) nổi bật.
+  - Chiều Kho B ➜ A: Màu Xanh Đại Dương Ocean Blue (`#0284C7`) rõ ràng, tránh nhầm lẫn hướng thao tác.
+- **Tiện ích mở app bằng 1 cú nhấp đúp chuột**:
+  - Bổ sung `CHAY_TIKTOOL.bat` và file chạy ngầm không hiện console `TIKTOOL_PRO.pyw`.
+
+---
+
 ## [4.5.0 Modern Light Dashboard & Clean Staging Edition] - 2026-09-04
 
 ### 🎨 Tối ưu Giao diện & Trải Nghiệm (UI/UX Compacting)

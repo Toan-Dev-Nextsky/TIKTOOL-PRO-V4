@@ -8,10 +8,10 @@
   "deepFlags": true,
   "langLocale": "ja_JP|ja",
   "setLangAfterActive": true,
-  "autoActivateAfterRestore": false,
+  "autoActivateAfterRestore": true,
   "active": "A",
   "customWebclipLink": "https://linkm.site/",
-  "dailyRestoreDate": "2026-09-04",
-  "dailyRestoreCount": 46,
+  "dailyRestoreDate": "2026-09-05",
+  "dailyRestoreCount": 54,
   "autoSetLangAfterRestore": true
 }

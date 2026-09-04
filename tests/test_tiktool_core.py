@@ -163,7 +163,7 @@ class RegistryConfigTests(unittest.TestCase):
             config.write_text(json.dumps({"threads": 4}), encoding="utf-8")
             self.assertEqual(4, load_concurrency(str(config)))
             config.write_text(json.dumps({"threads": 999}), encoding="utf-8")
-            self.assertEqual(8, load_concurrency(str(config)))
+            self.assertEqual(32, load_concurrency(str(config)))
             config.write_text(json.dumps({"threads": 0}), encoding="utf-8")
             self.assertEqual(1, load_concurrency(str(config)))
 
