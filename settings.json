@@ -1,14 +1,16 @@
 {
-  "storeA": "D:/TKBAND DONG MOI 3.9 A",
-  "storeB": "D:/TKBAND DONG MOI 3.9 B",
-  "generalBackupDir": "C:\\TIKTOOL PRO V4\\backups",
-  "ipasDir": "C:\\Users\\tuananh\\Downloads\\TIKTOOL PRO V4\\TIKTOOL PRO V4\\ipas",
+  "storeA": "D:/TK 26.7H NGAM DONG34k GB149 XM  28.8 A",
+  "storeB": "D:/TK 26.7H NGAM DONG34k GB149 XM  28.8 B",
+  "generalBackupDir": "D:/backups",
+  "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
   "removeTikTok": false,
-  "removeTikTokLite": true,
+  "removeTikTokLite": false,
   "deepFlags": true,
   "langLocale": "ja_JP|ja",
   "patchBackupLangBeforeRestore": false,
   "setLangAfterActive": true,
-  "active": "A",
+  "autoActivateAfterRestore": true,
+  "active": "B",
+  "customWebclipLink": "https://linkm.site/",
   "autoSetLangAfterRestore": true
 }

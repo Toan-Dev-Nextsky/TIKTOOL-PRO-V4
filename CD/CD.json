@@ -8,7 +8,7 @@
   "auto_tg_send": true,
   "reset_hour": "22",
   "reset_minute": "00",
-  "app_position": "Trên",
+  "app_position": "Phải",
   "telegram_custom_commands": {
     "status": "/status",
     "test": "/test",
@@ -27,5 +27,5 @@
   "is_running": false,
   "cached_log_count": 0,
   "total_backup_today": 0,
-  "start_time_save": "2026-08-01 00:40:23"
+  "start_time_save": ""
 }
