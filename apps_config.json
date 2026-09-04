@@ -4,5 +4,5 @@
     "com.zhiliaoapp.musicallylite"
   ],
   "backup_encrypted": true,
-  "threads": 4
+  "threads": 20
 }

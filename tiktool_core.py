@@ -287,13 +287,13 @@ def create_backup_job(target_root: str, udid: str) -> BackupJob:
     return BackupJob(job_root=job_root, output_path=os.path.join(job_root, udid))
 
 
-def load_concurrency(path: str, default: int = 4) -> int:
+def load_concurrency(path: str, default: int = 20) -> int:
     try:
         with open(path, "r", encoding="utf-8") as stream:
             value = int(json.load(stream).get("threads", default))
     except (OSError, ValueError, TypeError, json.JSONDecodeError):
         value = default
-    return max(1, min(8, value))
+    return max(1, min(32, value))
 
 
 def normalize_url(url: str) -> str:
@@ -500,7 +500,10 @@ def create_restore_stage(source_backup: str, target_udid: str) -> RestoreStage:
 
 
 def cleanup_owned_job(job_root: str, missing_ok: bool = False) -> None:
-    """Remove only a direct, recognized child of a `.tiktool_work` directory."""
+    """Remove only a direct, recognized child of a `.tiktool_work` directory.
+    After the job folder is deleted, the parent `.tiktool_work` dir is also
+    removed when it becomes empty so it never lingers in the store.
+    """
     resolved = os.path.realpath(os.path.abspath(job_root))
     if not _is_owned_job_root(resolved):
         raise ValueError(f"Refusing to delete a non-owned path: {job_root}")
@@ -509,6 +512,15 @@ def cleanup_owned_job(job_root: str, missing_ok: bool = False) -> None:
             return
         raise FileNotFoundError(resolved)
     shutil.rmtree(resolved)
+
+    # Clean up the parent .tiktool_work dir if it is now empty
+    work_dir = os.path.dirname(resolved)
+    try:
+        if os.path.basename(work_dir) == WORK_DIR_NAME and os.path.isdir(work_dir):
+            if not os.listdir(work_dir):  # empty → safe to remove
+                os.rmdir(work_dir)
+    except Exception:
+        pass  # Non-critical: leave it if something prevents removal
 
 
 def _validate_distinct_stores(source: str, destination_root: str) -> tuple[str, str]:

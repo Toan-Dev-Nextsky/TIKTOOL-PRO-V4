@@ -4,6 +4,31 @@ Tất cả những thay đổi và nâng cấp quan trọng của dự án đư�
 
 ---
 
+## [4.5.0 Modern Light Dashboard & Clean Staging Edition] - 2026-09-04
+
+### 🎨 Tối ưu Giao diện & Trải Nghiệm (UI/UX Compacting)
+- **Chuyển đổi giao diện sang Modern Light Dashboard**:
+  - Thiết kế bảng màu hiện đại dịu mắt với tông Slate-100 (`#F8FAFC`), viền Slate-200 (`#E2E8F0`), điểm nhấn Soft Indigo (`#4F46E5`, `#6366F1`) và xanh Emerald (`#10B981`).
+  - Thu gọn toàn bộ cụm điều khiển phía trên (Top Card): Logo, Đổi ngôn ngữ, Batch Activate, Tạo Web App thành các hàng ngắn gọn, siêu tiết kiệm diện tích.
+  - Tinh gọn thanh trạng thái đáy: Thay thế các nút hộp màu thô cứng (`Trust`, `Tổng`, `Not Trust`, `Restored`) bằng chuỗi text thanh mảnh kèm dấu phân cách ` | ` inline, giảm triệt để chiều cao và diện tích đáy.
+  - Tối giản thẻ thiết bị (`DeviceCard`): Xóa bỏ 2 nút đơn lẻ `Lang` và `Active` trên từng card để layout gọn gàng, thoáng mắt, ưu tiên điều khiển hàng loạt từ thanh công cụ.
+
+### 📊 Thống Kê Số Lượng Restore Trong Ngày (Daily Restore Counter)
+- **Bộ đếm Restore trong ngày (`Hôm nay: X`)**:
+  - Tích hợp nhãn thống kê số máy đã restore thành công trong ngày ngay trên thanh tiêu đề thiết bị (`dev_title_bar`) với phong cách Soft Indigo thanh lịch.
+  - Lưu trữ bền vững trong `settings.json` (`dailyRestoreDate`, `dailyRestoreCount`), không bị mất khi tắt app.
+  - Cơ chế tự động nhận diện ngày mới và reset bộ đếm về 0 khi sang ngày tiếp theo.
+
+### 🛡️ Chuẩn Hóa Restore & Tự Động Dọn Dẹp Staging (.tiktool_work)
+- **Kiểm tra chuẩn hóa Restore Logic**:
+  - Khẳng định tính chuẩn xác của lệnh `idevicebackup2 -u {udid} -s {src_name} restore {base_dir} --settings --remove`.
+  - Quy trình staging bất biến an toàn: Sao chép đọc-chỉ bản backup gốc, patch UDID trong staging `Info.plist`, kiểm tra fingerprint toàn vẹn và chuyển kho sau khi hoàn tất.
+- **Tự động xóa thư mục cha `.tiktool_work`**:
+  - Cải tiến hàm `cleanup_owned_job` trong `tiktool_core.py` tự động xóa luôn thư mục cha `.tiktool_work` nếu rỗng sau khi dọn dẹp job restore, không để lại bất kỳ thư mục rác nào trong kho A hoặc kho B của người dùng.
+  - Đã quét và dọn sạch thư mục `.tiktool_work` tồn dư trong kho dữ liệu.
+
+---
+
 ## [4.4.0 Stability & Immutable Backup Edition] - 2026-09-04
 
 ### An toàn dữ liệu

@@ -3,7 +3,7 @@
 ## 1. Giới Thiệu Tổng Quan
 **TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) cho số lượng lớn iPhone thông qua kết nối USB trên nền tảng Windows.
 
-- **Phiên bản hiện tại**: `4.4.0 Stability & Immutable Backup Edition`
+- **Phiên bản hiện tại**: `4.5.0 Modern Light Dashboard & Clean Staging Edition`
 - **Tập tin chạy chính**: `BB_RB.py`
 - **Ngôn ngữ & Thư viện**: Python 3.11, Tkinter GUI, Custom Canvas Components, Threading đa luồng, Semaphore, SQLite3, Plistlib.
 - **Công cụ nhị phân tích hợp**: `libimobiledevice` (Windows x64) và `ios.exe`.
@@ -46,6 +46,7 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
 - Một bản sao đầy đủ được tạo trong staging, sau đó chỉ `Info.plist` của bản staging mới được gắn UDID đích.
 - Sau khi restore thành công, fingerprint nguồn được kiểm tra lại rồi toàn bộ thư mục được chuyển sang kho đối diện.
 - Khi chuyển chéo ổ đĩa, bản đích được copy và xác minh trước; nguồn chỉ bị xóa sau khi bản đích khớp hoàn toàn.
+- **Tự động dọn dẹp staging sạch sẽ**: Thư mục tạm `.tiktool_work` được tự động xóa hoàn toàn sau mỗi lần restore xong khi thư mục trống, không để lại file hay thư mục rác trong kho dữ liệu A/B.
 
 ### 2.5. Tạo Web App Ra Màn Hình iPhone (WebClip Profile Engine)
 - **Cơ chế Apple Configuration Profile (`.mobileconfig`)**:
@@ -66,18 +67,19 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
 
 ---
 
-## 3. Kiến Trúc Giao Diện (Soft Mint & Gradient Dashboard)
-Thiết kế hướng đến sự tập trung cao, dịu mắt và thẩm mỹ cao cấp:
+## 3. Kiến Trúc Giao Diện (Modern Light Dashboard & Soft Indigo)
+Thiết kế tinh tế, gọn nhẹ, tối ưu không gian hiển thị:
 
-| Vùng giao diện | Vai trò | Màu sắc chủ đạo |
+| Vùng giao diện | Vai trò | Thiết kế & Màu sắc |
 | :--- | :--- | :--- |
-| **Nền ứng dụng** | Khung chứa toàn bộ giao diện | Soft Mint `#EAF4EE` |
-| **Top Card** | Logo `TikTok Pro`, Đổi ngôn ngữ, Batch Activate, Tạo Web App Hàng 3 | Nền mint nhạt `#F0FAF4`, viền `#A7C4B0` |
-| **Tab Section** | Chuyển đổi giữa Restore Pro và Backup | Tab active `#0284C7`, inactive `#D5EAD9` |
-| **Stats Title Bar** | Hiển thị `[X máy]` và cụm 3 thẻ BỘ ĐẾM KHO | Nền `#F0FAF4`, chữ số to đậm rõ ràng |
-| **Device Grid** | Lưới thẻ iPhone tích hợp `GradientProgressBar` | Card `#F0FAF4`, viền `#10B981` (Trust) / `#EF4444` |
+| **Nền ứng dụng** | Khung chứa toàn bộ giao diện | Slate-100 dịu mắt `#F8FAFC`, sạch sẽ |
+| **Top Card** | Logo, Đổi ngôn ngữ, Batch Activate, Tạo Web App Hàng 3 | Thiết kế siêu gọn gàng, nền trắng `#FFFFFF`, viền Slate `#E2E8F0` |
+| **Tab Section** | Chuyển đổi giữa Restore Pro và Backup | Tab active `#4F46E5` (Soft Indigo), inactive `#E2E8F0` |
+| **Stats Title Bar** | Hiển thị `[X máy]`, bộ đếm kho và thống kê ngày | Nhãn `Hôm nay: X` (Indigo) cùng cụm 3 thẻ BỘ ĐẾM KHO |
+| **Device Grid** | Lưới thẻ iPhone tích hợp `GradientProgressBar` | Card `#FFFFFF`, viền `#10B981` (Trust) / `#EF4444`, đã bỏ nút đơn lẻ thừa |
 | **Thanh tiến trình** | Hiển thị % và tiến trình làm việc | Gradient Cyan `#06B6D4` ➜ Electric Blue `#2563EB` |
 | **Dòng trạng thái thẻ** | Hiển thị tác vụ hiện tại và số % bên trên bar | Chữ trạng thái `#059669`, % font Consolas `#0284C7` |
+| **Thanh trạng thái đáy** | Hiển thị tổng kết kết nối, thiết bị và đã restore | Chuỗi text tinh gọn, chia vạch ` | `, không dùng nút hộp thô cứng |
 | **Log Terminal** | Nhật ký hệ thống thời gian thực | Dark Box OLED `#050811`, chữ trắng `#F0FAF4` |
 
 ---
@@ -95,9 +97,10 @@ Thiết kế hướng đến sự tập trung cao, dịu mắt và thẩm mỹ c
 
 ---
 
-## 5. Danh Mục Phím Tắt & Thao Tác Nhanh
+## 5. Danh Mục Thao Tác & Phím Tắt Nhanh
 - **📂 Chọn**: Bấm vào nút Chọn hoặc click trực tiếp lên đường dẫn để duyệt thư mục.
 - **⚡ BẮT ĐẦU RESTORE PRO**: Khởi chạy quy trình ghép nối và nạp chuyển kho.
-- **⚡ Active (trên thẻ iPhone)**: Kích hoạt nhanh đơn lẻ cho riêng chiếc iPhone đó.
-- **🌐 Lang (trên thẻ iPhone)**: Đổi nhanh ngôn ngữ đơn lẻ cho riêng chiếc iPhone đó.
+- **⚡ Batch Activate**: Kích hoạt hàng loạt cho toàn bộ thiết bị đang kết nối.
+- **🚀 Tạo Web App**: Tạo shortcut ra màn hình chính cho toàn bộ thiết bị.
 - **↺ (trên thanh thống kê)**: Reset nhanh bộ đếm "Đã chuyển" về 0 khi bắt đầu ca làm việc mới.
+- **Hôm nay: X (thống kê ngày)**: Tự động ghi nhận số lượng restore hoàn tất trong ngày và lưu vào `settings.json`.

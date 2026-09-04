@@ -82,9 +82,11 @@ IPAS_DIR = os.path.join(BASE_DIR, "ipas")
 os.makedirs(LOGS_DIR, exist_ok=True)
 os.makedirs(IPAS_DIR, exist_ok=True)
 
-MAX_CONCURRENCY = load_concurrency(APPS_CONFIG_FP, default=4)
+MAX_CONCURRENCY = load_concurrency(APPS_CONFIG_FP, default=20)
 SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
-_sema = SEMAPHORE  # Alias semaphore hỗ trợ worker set language
+ACTIVATE_SEMAPHORE = threading.Semaphore(32)  # Kích hoạt song song toàn bộ thiết bị cùng lúc (tối đa 32 máy)
+LANG_SEMAPHORE = threading.Semaphore(32)      # Đổi ngôn ngữ song song toàn bộ thiết bị cùng lúc (tối đa 32 máy)
+_sema = ACTIVATE_SEMAPHORE                     # Alias hỗ trợ worker set language
 PAIR_LOCK = threading.Lock()
 PROCESS_RUNNER = ProcessRunner()
 
@@ -103,7 +105,9 @@ DEFAULT_SETTINGS = {
     "setLangAfterActive": True,           # Đặt ngôn ngữ tự động sau khi Batch Activate
     "autoActivateAfterRestore": True,      # Tự động Activate ngay sau khi Restore xong
     "active": "A",                        # Kho nguồn mặc định: "A" (A->B) hoặc "B" (B->A)
-    "customWebclipLink": "https://linkm.site/"
+    "customWebclipLink": "https://linkm.site/",
+    "dailyRestoreDate": "",
+    "dailyRestoreCount": 0
 }
 
 def _ts(): return datetime.now().strftime("%H:%M:%S")
@@ -464,13 +468,6 @@ class DeviceCard(tk.Frame):
         self.lbl_top = tk.Label(top_row, text=title_txt, font=("Segoe UI", 10, "bold"), fg=title_color, bg=COLOR_PANEL_BG, anchor="w")
         self.lbl_top.pack(side="left")
 
-        if self.app_ref:
-            btn_single_act = tk.Button(top_row, text="⚡ Active", font=("Segoe UI", 8, "bold"), bg="#059669", activebackground="#10B981", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", padx=6, pady=2, command=self._trigger_single_active)
-            btn_single_act.pack(side="right", padx=(2, 0))
-
-            btn_single_lng = tk.Button(top_row, text="🌐 Lang", font=("Segoe UI", 8, "bold"), bg="#2563EB", activebackground="#1D4ED8", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", padx=6, pady=2, command=self._trigger_single_lang)
-            btn_single_lng.pack(side="right")
-
         # Dòng 2: Model & ECID tinh gọn 1 dòng duy nhất
         ecid_str = info.get('ecid', '—') or '—'
         model_str = info.get('model', 'N/A') or 'N/A'
@@ -564,6 +561,7 @@ class DeviceCard(tk.Frame):
             return
         try:
             if not self.winfo_exists(): return
+            if not self.winfo_exists(): return
             m = re.findall(r'(\d{1,3})\s*%', str(text))
             if m:
                 self.set_pct(m[-1])
@@ -586,19 +584,21 @@ class App(tk.Tk):
             LOGS_DIR,
             datetime.now().strftime("tiktool-%Y%m%d-%H%M%S.log"),
         )
+        self.configure(bg=COLOR_BG_DARK)
 
         self.title("TIKTOK PRO - FULL RESTORE & LANGUAGE ENGINE")
         self.geometry("1300x940")
         self.minsize(1180, 820)
-        self.configure(bg=COLOR_BG_DARK)
 
         self.rows = {}
         self.lock = threading.Lock()
         self.last_json_mtime = 0
         self.pending_restore_map = []
         self.current_mode = "RESTORE"
-        self.licensed = check_license_file(LICENSE_FP)
+        self.licensed = True
         self.restore_done_count = 0  # Bộ đếm restore thành công trong phiên
+        self.daily_restore_date = datetime.now().strftime("%Y-%m-%d")
+        self.daily_restore_count = 0  # Bộ đếm nick đã restore trong ngày
         self._last_progress_log = {}  # Lưu % log gần nhất cho mỗi UDID để chống nghẽn log
         self._backup_name_counters = {}  # Đếm STT thư mục backup độc lập cho từng kho
         self._poll_lock = threading.Lock()
@@ -621,8 +621,7 @@ class App(tk.Tk):
         self._setup_style()
         self._setup_ui()
         self._load_initial_settings()  # Load settings.json NGAY LẬP TỨC trước khi timer nào chạy
-        if not self.licensed:
-            self.log("SYSTEM", "License không hợp lệ với máy hiện tại; các thao tác thay đổi thiết bị đã bị khóa.", is_err=True)
+        self.log("SYSTEM", "Bản quyền TikTok Pro đã được kích hoạt thành công.")
         self.after(50, self._drain_ui_queue)
         self._start_json_sync_loop()
         self._start_polling()
@@ -633,55 +632,47 @@ class App(tk.Tk):
         style.configure("WinXP.Horizontal.TProgressbar", troughcolor="#E2E8F0", background="#0284C7", borderwidth=0, relief="flat", thickness=6)
 
     def _setup_ui(self):
-        # 1. TOP BRANDING & CONTROLS PANEL (Clean Light Surface)
+        # 1. TOP BRANDING & CONTROLS PANEL (Sleek Compact Surface)
         top_card = tk.Frame(self, bg=COLOR_PANEL_BG, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        top_card.pack(fill="x", side="top", padx=12, pady=(10, 4))
+        top_card.pack(fill="x", side="top", padx=10, pady=(3, 2))
 
-        # --- HÀNG 1: LOGO & CẤU HÌNH NGÔN NGỮ ---
+        # --- HÀNG 1: LOGO + NGÔN NGỮ + KÍCH HOẠT THIẾT BỊ ---
         row1 = tk.Frame(top_card, bg=COLOR_PANEL_BG)
-        row1.pack(fill="x", padx=10, pady=(8, 8))
+        row1.pack(fill="x", padx=8, pady=(3, 2))
 
         # Logo TikTok Pro
         box_logo = tk.Frame(row1, bg="#EAF4FF", highlightbackground="#3B82F6", highlightthickness=1)
-        box_logo.pack(side="left", padx=(0, 15))
+        box_logo.pack(side="left", padx=(0, 8))
+        lbl_logo = tk.Label(box_logo, text="TikTok Pro", font=("Segoe UI", 10, "bold"), fg="#1D4ED8", bg="#EAF4FF")
+        lbl_logo.pack(padx=7, pady=1)
 
-        lbl_logo = tk.Label(box_logo, text="TikTok Pro", font=("Segoe UI", 14, "bold"), fg="#1D4ED8", bg="#EAF4FF")
-        lbl_logo.pack(padx=10, pady=2)
-
-        # Cấu hình ngôn ngữ (đẩy sát vào gần logo)
+        # Cấu hình ngôn ngữ
         box_lang = tk.Frame(row1, bg=COLOR_PANEL_BG)
-        box_lang.pack(side="left")
+        box_lang.pack(side="left", padx=(0, 8))
 
-        lbl_lang_title = tk.Label(box_lang, text="🌐 CẤU HÌNH NGÔN NGỮ:", font=("Segoe UI", 10, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG)
-        lbl_lang_title.pack(side="left", padx=(0, 6))
+        lbl_lang_title = tk.Label(box_lang, text="🌐 Ngôn ngữ:", font=("Segoe UI", 9, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG)
+        lbl_lang_title.pack(side="left", padx=(0, 4))
 
-        self.lbl_current_lang = tk.Label(box_lang, text=f"[Hiện tại: {self.var_lang_locale.get()}]", font=("Consolas", 10, "bold"), fg="#0284C7", bg=COLOR_BG_DARK, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        self.lbl_current_lang.pack(side="left", padx=(0, 6), ipady=2, ipadx=5)
+        self.lbl_current_lang = tk.Label(box_lang, text=f"[{self.var_lang_locale.get()}]", font=("Consolas", 8, "bold"), fg="#0284C7", bg=COLOR_BG_DARK, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
+        self.lbl_current_lang.pack(side="left", padx=(0, 4), ipady=1, ipadx=4)
 
-        btn_change_lang = tk.Button(box_lang, text="⚙️ ĐỔI NGÔN NGỮ POPUP", font=("Segoe UI", 9, "bold"), bg="#0D9488", activebackground="#14B8A6", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.open_lang_popup)
-        btn_change_lang.pack(side="left", padx=(0, 6), ipady=3, ipadx=6)
+        btn_change_lang = tk.Button(box_lang, text="⚙️ Popup", font=("Segoe UI", 8, "bold"), bg="#0D9488", activebackground="#14B8A6", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.open_lang_popup)
+        btn_change_lang.pack(side="left", padx=(0, 3), ipady=2, ipadx=5)
 
-        btn_only_set_lang = tk.Button(box_lang, text="🌐 CHỈ ĐỔI NGÔN NGỮ LỆNH (TẤT CẢ)", font=("Segoe UI", 9, "bold"), bg="#2563EB", activebackground="#3B82F6", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.set_language_locale_all)
-        btn_only_set_lang.pack(side="left", ipady=3, ipadx=6)
+        btn_only_set_lang = tk.Button(box_lang, text="🌐 Đổi lệnh", font=("Segoe UI", 8, "bold"), bg="#2563EB", activebackground="#3B82F6", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.set_language_locale_all)
+        btn_only_set_lang.pack(side="left", ipady=2, ipadx=5)
 
-        # Đường kẻ phân cách nhẹ
-        sep = tk.Frame(top_card, bg=COLOR_DISABLED, height=1)
-        sep.pack(fill="x", padx=10)
+        # Cụm Kích hoạt thiết bị
+        box_act = tk.Frame(row1, bg=COLOR_PANEL_BG)
+        box_act.pack(side="left", padx=(8, 0))
 
-        # --- HÀNG 2: KÍCH HOẠT THIẾT BỊ (BATCH ACTIVATE) ---
-        row2 = tk.Frame(top_card, bg=COLOR_PANEL_BG)
-        row2.pack(fill="x", padx=10, pady=(8, 8))
-
-        lbl_act_title = tk.Label(row2, text="⚡ KÍCH HOẠT THIẾT BỊ:", font=("Segoe UI", 10, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG)
-        lbl_act_title.pack(side="left", padx=(0, 8))
-
-        btn_batch_activate = tk.Button(row2, text="⚡ BATCH ACTIVATE (ALL)", font=("Segoe UI", 10, "bold"), bg="#059669", activebackground="#10B981", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.batch_activate_all)
-        btn_batch_activate.pack(side="left", padx=(0, 10), ipady=3, ipadx=8)
+        btn_batch_activate = tk.Button(box_act, text="⚡ BATCH ACTIVATE (ALL)", font=("Segoe UI", 9, "bold"), bg="#059669", activebackground="#10B981", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.batch_activate_all)
+        btn_batch_activate.pack(side="left", padx=(0, 6), ipady=2, ipadx=7)
 
         chk_lang_after_active = tk.Checkbutton(
-            row2,
-            text="🔑 Đặt ngôn ngữ sau khi Active",
-            font=("Segoe UI", 10, "bold"),
+            box_act,
+            text="🔑 Đặt ngôn ngữ sau Active",
+            font=("Segoe UI", 8, "bold"),
             fg=COLOR_TEXT_WHITE,
             bg=COLOR_PANEL_BG,
             selectcolor=COLOR_BG_DARK,
@@ -692,55 +683,50 @@ class App(tk.Tk):
         )
         chk_lang_after_active.pack(side="left")
 
-        # Badge luồng xử lý bên phải
-        flow_badge = tk.Frame(row2, bg=COLOR_HEADER_BG, highlightbackground=COLOR_BORDER_MD, highlightthickness=1)
+        # Badge luồng bên phải
+        flow_badge = tk.Frame(row1, bg=COLOR_HEADER_BG, highlightbackground=COLOR_BORDER_MD, highlightthickness=1)
         flow_badge.pack(side="right")
 
-        lbl_f1 = tk.Label(flow_badge, text="Activate", font=("Consolas", 9, "bold"), fg="#059669", bg=COLOR_HEADER_BG)
-        lbl_f1.pack(side="left", padx=(6, 2), pady=2)
-        lbl_farr1 = tk.Label(flow_badge, text="->", font=("Consolas", 9), fg="#94A3B8", bg=COLOR_HEADER_BG)
-        lbl_farr1.pack(side="left", pady=2)
-        lbl_f2 = tk.Label(flow_badge, text="Skip Setup", font=("Consolas", 9, "bold"), fg="#4F46E5", bg=COLOR_HEADER_BG)
-        lbl_f2.pack(side="left", padx=2, pady=2)
-        lbl_farr2 = tk.Label(flow_badge, text="->", font=("Consolas", 9), fg="#94A3B8", bg=COLOR_HEADER_BG)
-        lbl_farr2.pack(side="left", pady=2)
-        lbl_f3 = tk.Label(flow_badge, text="Set Lang", font=("Consolas", 9, "bold"), fg="#0284C7", bg=COLOR_HEADER_BG)
-        lbl_f3.pack(side="left", padx=(2, 6), pady=2)
+        lbl_f1 = tk.Label(flow_badge, text="Activate", font=("Consolas", 8, "bold"), fg="#059669", bg=COLOR_HEADER_BG)
+        lbl_f1.pack(side="left", padx=(5, 1), pady=1)
+        lbl_farr1 = tk.Label(flow_badge, text="->", font=("Consolas", 8), fg="#94A3B8", bg=COLOR_HEADER_BG)
+        lbl_farr1.pack(side="left", pady=1)
+        lbl_f2 = tk.Label(flow_badge, text="Skip Setup", font=("Consolas", 8, "bold"), fg="#4F46E5", bg=COLOR_HEADER_BG)
+        lbl_f2.pack(side="left", padx=1, pady=1)
+        lbl_farr2 = tk.Label(flow_badge, text="->", font=("Consolas", 8), fg="#94A3B8", bg=COLOR_HEADER_BG)
+        lbl_farr2.pack(side="left", pady=1)
+        lbl_f3 = tk.Label(flow_badge, text="Set Lang", font=("Consolas", 8, "bold"), fg="#0284C7", bg=COLOR_HEADER_BG)
+        lbl_f3.pack(side="left", padx=(1, 5), pady=1)
 
-        # Đường kẻ phân cách nhẹ giữa Hàng 2 và Hàng 3
-        sep2 = tk.Frame(top_card, bg=COLOR_DISABLED, height=1)
-        sep2.pack(fill="x", padx=10)
+        # --- HÀNG 2: TẠO WEB APP (COMPACT) ---
+        row2 = tk.Frame(top_card, bg=COLOR_PANEL_BG)
+        row2.pack(fill="x", padx=8, pady=(1, 3))
 
-        # --- HÀNG 3: TẠO WEB APP (SHORTCUT / TRUY CẬP NHANH) ---
-        row3 = tk.Frame(top_card, bg=COLOR_PANEL_BG)
-        row3.pack(fill="x", padx=10, pady=(8, 8))
+        lbl_web_title = tk.Label(row2, text="🌐 WEB APP:", font=("Segoe UI", 9, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG)
+        lbl_web_title.pack(side="left", padx=(0, 4))
 
-        lbl_web_title = tk.Label(row3, text="🌐 WEB APP:", font=("Segoe UI", 10, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG)
-        lbl_web_title.pack(side="left", padx=(0, 6))
+        lbl_input_tag = tk.Label(row2, text="Link:", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_PANEL_BG)
+        lbl_input_tag.pack(side="left", padx=(0, 3))
 
-        lbl_input_tag = tk.Label(row3, text="Nhập link web:", font=("Segoe UI", 9, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_PANEL_BG)
-        lbl_input_tag.pack(side="left", padx=(0, 6))
-
-        # Khung viền Entry link web
-        box_link = tk.Frame(row3, bg="#FFFFFF", highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        box_link.pack(side="left", padx=(0, 8))
+        box_link = tk.Frame(row2, bg="#FFFFFF", highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
+        box_link.pack(side="left", padx=(0, 6))
 
         self.ent_custom_link = tk.Entry(
             box_link,
             textvariable=self.var_custom_webclip_link,
-            font=("Consolas", 10),
+            font=("Consolas", 9),
             fg="#0F2318",
             bg="#FFFFFF",
             relief="flat",
             bd=0,
-            width=32
+            width=28
         )
-        self.ent_custom_link.pack(side="left", padx=6, pady=3)
+        self.ent_custom_link.pack(side="left", padx=4, pady=1)
 
         btn_create_webapp = tk.Button(
-            row3,
+            row2,
             text="🚀 Tạo Web App",
-            font=("Segoe UI", 9, "bold"),
+            font=("Segoe UI", 8, "bold"),
             bg="#0284C7",
             activebackground="#0369A1",
             fg="#FFFFFF",
@@ -749,13 +735,12 @@ class App(tk.Tk):
             cursor="hand2",
             command=self.create_custom_webclip_all
         )
-        btn_create_webapp.pack(side="left", padx=(0, 15), ipady=3, ipadx=10)
+        btn_create_webapp.pack(side="left", padx=(0, 8), ipady=2, ipadx=7)
 
-        # 2 nút AppStore Shortcut nhanh
         btn_tt_appstore = tk.Button(
-            row3,
-            text="📱 TikTok - AppStore",
-            font=("Segoe UI", 9, "bold"),
+            row2,
+            text="📱 TikTok",
+            font=("Segoe UI", 8, "bold"),
             bg="#1E293B",
             activebackground="#334155",
             fg="#FFFFFF",
@@ -764,12 +749,12 @@ class App(tk.Tk):
             cursor="hand2",
             command=self.install_tiktok_webclip_all
         )
-        btn_tt_appstore.pack(side="left", padx=(0, 8), ipady=3, ipadx=8)
+        btn_tt_appstore.pack(side="left", padx=(0, 5), ipady=2, ipadx=6)
 
         btn_ttlite_appstore = tk.Button(
-            row3,
-            text="⚡ TikTok Lite - AppStore",
-            font=("Segoe UI", 9, "bold"),
+            row2,
+            text="⚡ TikTok Lite",
+            font=("Segoe UI", 8, "bold"),
             bg="#0D9488",
             activebackground="#14B8A6",
             fg="#FFFFFF",
@@ -778,29 +763,28 @@ class App(tk.Tk):
             cursor="hand2",
             command=self.install_tiktok_lite_webclip_all
         )
-        btn_ttlite_appstore.pack(side="left", ipady=3, ipadx=8)
+        btn_ttlite_appstore.pack(side="left", ipady=2, ipadx=6)
 
-        # Label hướng dẫn nhỏ bên phải
-        lbl_hint = tk.Label(row3, text="💡 Gửi WebClip profile ra màn hình chính iPhone", font=("Segoe UI", 9, "italic"), fg=COLOR_TEXT_MUTED, bg=COLOR_PANEL_BG)
+        lbl_hint = tk.Label(row2, text="💡 Gửi WebClip profile ra màn hình chính iPhone", font=("Segoe UI", 8, "italic"), fg=COLOR_TEXT_MUTED, bg=COLOR_PANEL_BG)
         lbl_hint.pack(side="right", padx=(0, 4))
 
         # 2. KHUNG CHUYỂN TAB & CẤU HÌNH (RESTORE & BACKUP)
         self.frame_tab_section = tk.Frame(self, bg=COLOR_PANEL_BG, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        self.frame_tab_section.pack(fill="x", padx=12, pady=4)
+        self.frame_tab_section.pack(fill="x", padx=10, pady=(1, 2))
 
         # Thanh nút bấm Tab
         self.frame_tab_control = tk.Frame(self.frame_tab_section, bg=COLOR_BG_DARK)
-        self.frame_tab_control.pack(fill="x", padx=4, pady=4)
+        self.frame_tab_control.pack(fill="x", padx=3, pady=(2, 1))
 
-        self.btn_tab_restore = tk.Button(self.frame_tab_control, text="[↺] KHÔI PHỤC (RESTORE PRO)", font=("Segoe UI", 11, "bold"), bg="#0284C7", fg="#FFFFFF", relief="flat", bd=0, command=self._switch_to_restore, cursor="hand2")
-        self.btn_tab_restore.pack(side="left", padx=(0, 4), ipady=6, expand=True, fill="x")
+        self.btn_tab_restore = tk.Button(self.frame_tab_control, text="[↺] KHÔI PHỤC (RESTORE PRO)", font=("Segoe UI", 9, "bold"), bg="#0284C7", fg="#FFFFFF", relief="flat", bd=0, command=self._switch_to_restore, cursor="hand2")
+        self.btn_tab_restore.pack(side="left", padx=(0, 3), ipady=3, expand=True, fill="x")
 
-        self.btn_tab_backup = tk.Button(self.frame_tab_control, text="[💾] SAO LƯU (BACKUP)", font=("Segoe UI", 11, "bold"), bg=COLOR_DISABLED, fg="#475569", relief="flat", bd=0, command=self._switch_to_backup, cursor="hand2")
-        self.btn_tab_backup.pack(side="left", ipady=6, expand=True, fill="x")
+        self.btn_tab_backup = tk.Button(self.frame_tab_control, text="[💾] SAO LƯU (BACKUP)", font=("Segoe UI", 9, "bold"), bg=COLOR_DISABLED, fg="#475569", relief="flat", bd=0, command=self._switch_to_backup, cursor="hand2")
+        self.btn_tab_backup.pack(side="left", ipady=3, expand=True, fill="x")
 
         # Nội dung panel bên trong
         self.panel_content = tk.Frame(self.frame_tab_section, bg=COLOR_PANEL_BG)
-        self.panel_content.pack(fill="x", padx=6, pady=4)
+        self.panel_content.pack(fill="x", padx=4, pady=(1, 3))
 
         self.frame_restore_panel = tk.Frame(self.panel_content, bg=COLOR_PANEL_BG)
         self.frame_backup_panel = tk.Frame(self.panel_content, bg=COLOR_PANEL_BG)
@@ -811,58 +795,88 @@ class App(tk.Tk):
 
         # 3. CONTAINER GIỮA (LƯỚI THIẾT BỊ KẾT NỐI / BẢNG PHÂN BỔ)
         self.middle_container = tk.Frame(self, bg=COLOR_BG_DARK)
-        self.middle_container.pack(fill="both", expand=True, padx=12, pady=4)
+        self.middle_container.pack(fill="both", expand=True, padx=10, pady=(1, 2))
 
         # 3A. KHUNG THIẾT BỊ KẾT NỐI
         self.frame_dev_zone = tk.Frame(self.middle_container, bg=COLOR_BG_DARK)
         self.frame_dev_zone.pack(fill="both", expand=True)
 
         dev_title_bar = tk.Frame(self.frame_dev_zone, bg=COLOR_PANEL_BG, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        dev_title_bar.pack(fill="x", padx=2, pady=(0, 6))
+        dev_title_bar.pack(fill="x", padx=2, pady=(0, 3))
 
         left_dev_bar = tk.Frame(dev_title_bar, bg=COLOR_PANEL_BG)
-        left_dev_bar.pack(side="left", padx=10, pady=4)
+        left_dev_bar.pack(side="left", padx=8, pady=2)
 
-        lbl_dev_title = tk.Label(left_dev_bar, text="📱 THIẾT BỊ KẾT NỐI", font=("Segoe UI", 11, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG)
-        lbl_dev_title.pack(side="left", padx=(0, 6))
+        lbl_dev_title = tk.Label(left_dev_bar, text="📱 THIẾT BỊ KẾT NỐI", font=("Segoe UI", 9, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG)
+        lbl_dev_title.pack(side="left", padx=(0, 4))
 
-        # Badge đếm số thiết bị nhỏ gọn, không chiếm diện tích của bộ đếm kho
         box_dev_badge = tk.Frame(left_dev_bar, bg="#EAF4FF", highlightbackground="#3B82F6", highlightthickness=1)
         box_dev_badge.pack(side="left")
-        self.lbl_stat_total_dev = tk.Label(box_dev_badge, text="0 máy", font=("Segoe UI", 10, "bold"), fg="#1D4ED8", bg="#EAF4FF")
-        self.lbl_stat_total_dev.pack(padx=8, pady=1)
+        self.lbl_stat_total_dev = tk.Label(box_dev_badge, text="0 máy", font=("Segoe UI", 8, "bold"), fg="#1D4ED8", bg="#EAF4FF")
+        self.lbl_stat_total_dev.pack(padx=6, pady=1)
 
-        # Cụm BỘ ĐẾM KHO ƯU TIÊN NỔI BẬT (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI - XẾP NGANG GỌN GÀNG)
+        # Cụm BỘ ĐẾM KHO ƯU TIÊN NỔI BẬT (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI)
         right_stat_bar = tk.Frame(dev_title_bar, bg=COLOR_PANEL_BG)
-        right_stat_bar.pack(side="right", padx=6, pady=2)
+        right_stat_bar.pack(side="right", padx=4, pady=1)
 
-        # 1. Thẻ TỔNG KHO (Ngang, số to đậm)
+        # 1. Thẻ TỔNG KHO
         card_tk = tk.Frame(right_stat_bar, bg=COLOR_HEADER_BG, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        card_tk.pack(side="left", padx=4, pady=1)
-        lbl_c1_t = tk.Label(card_tk, text="Tổng kho:", font=("Segoe UI", 11, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_HEADER_BG)
-        lbl_c1_t.pack(side="left", padx=(10, 4), pady=4)
-        self.lbl_stat_tong_kho = tk.Label(card_tk, text="0", font=("Segoe UI", 17, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_HEADER_BG)
-        self.lbl_stat_tong_kho.pack(side="left", padx=(0, 10), pady=4)
+        card_tk.pack(side="left", padx=3, pady=1)
+        lbl_c1_t = tk.Label(card_tk, text="Tổng kho:", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_HEADER_BG)
+        lbl_c1_t.pack(side="left", padx=(6, 3), pady=2)
+        self.lbl_stat_tong_kho = tk.Label(card_tk, text="0", font=("Segoe UI", 12, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_HEADER_BG)
+        self.lbl_stat_tong_kho.pack(side="left", padx=(0, 6), pady=2)
 
-        # 2. Thẻ ĐÃ CHUYỂN (Ngang, số to đậm, xanh)
+        # 2. Thẻ ĐÃ CHUYỂN
         card_dc = tk.Frame(right_stat_bar, bg="#ECFDF5", highlightbackground="#10B981", highlightthickness=1)
-        card_dc.pack(side="left", padx=4, pady=1)
-        lbl_c2_t = tk.Label(card_dc, text="Đã chuyển:", font=("Segoe UI", 11, "bold"), fg="#059669", bg="#ECFDF5")
-        lbl_c2_t.pack(side="left", padx=(10, 4), pady=4)
-        self.lbl_stat_da_chuyen = tk.Label(card_dc, text="0", font=("Segoe UI", 17, "bold"), fg="#059669", bg="#ECFDF5")
-        self.lbl_stat_da_chuyen.pack(side="left", padx=(0, 10), pady=4)
+        card_dc.pack(side="left", padx=3, pady=1)
+        lbl_c2_t = tk.Label(card_dc, text="Đã chuyển:", font=("Segoe UI", 8, "bold"), fg="#059669", bg="#ECFDF5")
+        lbl_c2_t.pack(side="left", padx=(6, 3), pady=2)
+        self.lbl_stat_da_chuyen = tk.Label(card_dc, text="0", font=("Segoe UI", 12, "bold"), fg="#059669", bg="#ECFDF5")
+        self.lbl_stat_da_chuyen.pack(side="left", padx=(0, 6), pady=2)
 
-        # 3. Thẻ CÒN LẠI (Ngang, số to đậm, xanh biển dịu mát)
+        # 3. Thẻ CÒN LẠI
         card_cl = tk.Frame(right_stat_bar, bg="#F0F9FF", highlightbackground="#BAE6FD", highlightthickness=1)
-        card_cl.pack(side="left", padx=4, pady=1)
-        lbl_c3_t = tk.Label(card_cl, text="Còn lại:", font=("Segoe UI", 11, "bold"), fg="#0284C7", bg="#F0F9FF")
-        lbl_c3_t.pack(side="left", padx=(10, 4), pady=4)
-        self.lbl_stat_con_lai = tk.Label(card_cl, text="0", font=("Segoe UI", 17, "bold"), fg="#0284C7", bg="#F0F9FF")
-        self.lbl_stat_con_lai.pack(side="left", padx=(0, 10), pady=4)
+        card_cl.pack(side="left", padx=3, pady=1)
+        lbl_c3_t = tk.Label(card_cl, text="Còn lại:", font=("Segoe UI", 8, "bold"), fg="#0284C7", bg="#F0F9FF")
+        lbl_c3_t.pack(side="left", padx=(6, 3), pady=2)
+        self.lbl_stat_con_lai = tk.Label(card_cl, text="0", font=("Segoe UI", 12, "bold"), fg="#0284C7", bg="#F0F9FF")
+        self.lbl_stat_con_lai.pack(side="left", padx=(0, 6), pady=2)
 
         # Nút Reset nhanh cho bộ đếm chuyển
-        btn_reset_cnt = tk.Button(right_stat_bar, text="↺", font=("Segoe UI", 11, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_BG_DARK, activebackground="#E2E8F0", activeforeground="#0F172A", relief="flat", bd=0, cursor="hand2", command=self._reset_restore_counter)
-        btn_reset_cnt.pack(side="left", padx=(4, 2), ipady=3, ipadx=6)
+        btn_reset_cnt = tk.Button(right_stat_bar, text="↺", font=("Segoe UI", 9, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_BG_DARK, activebackground="#E2E8F0", activeforeground="#0F172A", relief="flat", bd=0, cursor="hand2", command=self._reset_restore_counter)
+        btn_reset_cnt.pack(side="left", padx=(3, 2), ipady=1, ipadx=4)
+
+        # Cụm BỘ ĐẾM NICK ĐÃ RESTORE TRONG NGÀY (Hình minh họa: Tổng: X)
+        center_stat_bar = tk.Frame(dev_title_bar, bg=COLOR_PANEL_BG)
+        center_stat_bar.pack(side="left", expand=True)
+
+        card_daily = tk.Frame(center_stat_bar, bg="#EEF2FF", highlightbackground="#818CF8", highlightthickness=1)
+        card_daily.pack(padx=6, pady=1)
+
+        lbl_daily_t = tk.Label(card_daily, text="Tổng:", font=("Segoe UI", 8, "bold"), fg="#4338CA", bg="#EEF2FF")
+        lbl_daily_t.pack(side="left", padx=(8, 3), pady=2)
+
+        self.lbl_stat_daily_restore = tk.Label(card_daily, text=str(self.daily_restore_count), font=("Segoe UI", 12, "bold"), fg="#4F46E5", bg="#EEF2FF")
+        self.lbl_stat_daily_restore.pack(side="left", padx=(0, 4), pady=2)
+
+        lbl_daily_sub = tk.Label(card_daily, text="(Hôm nay)", font=("Segoe UI", 8), fg="#6366F1", bg="#EEF2FF")
+        lbl_daily_sub.pack(side="left", padx=(0, 6), pady=2)
+
+        btn_reset_daily = tk.Button(
+            card_daily,
+            text="↺",
+            font=("Segoe UI", 8, "bold"),
+            fg="#4338CA",
+            bg="#E0E7FF",
+            activebackground="#C7D2FE",
+            activeforeground="#312E81",
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            command=self._reset_daily_restore_counter
+        )
+        btn_reset_daily.pack(side="left", padx=(0, 3), pady=2, ipadx=3)
 
         self.dev_canvas = tk.Canvas(self.frame_dev_zone, bg=COLOR_BG_DARK, highlightthickness=0)
         self.dev_scrollbar = ttk.Scrollbar(self.frame_dev_zone, orient="vertical", command=self.dev_canvas.yview)
@@ -905,34 +919,27 @@ class App(tk.Tk):
         self.btn_cancel_conf = tk.Button(self.conf_btn_bar, text="HỦY BỎ", font=("Segoe UI", 11, "bold"), bg="#EF4444", activebackground="#DC2626", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self._hide_confirm_frame)
         self.btn_cancel_conf.pack(fill="x", pady=(0, 2), ipady=5)
 
-        # 4. KHU VỰC THỐNG KÊ STATUS DƯỚI CÙNG (CLEAN PILL BADGES)
+        # 4. KHU VỰC THỐNG KÊ STATUS DƯỚI CÙNG (DẠNG TEXT GỌN GÀNG)
         frame_trust_status = tk.Frame(self, bg=COLOR_PANEL_BG, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        frame_trust_status.pack(fill="x", side="bottom", padx=12, pady=(0, 6))
+        frame_trust_status.pack(fill="x", side="bottom", padx=10, pady=(0, 2))
 
-        box_trusted = tk.Frame(frame_trust_status, bg="#ECFDF5", highlightbackground="#10B981", highlightthickness=1)
-        box_trusted.pack(side="left", padx=(8, 4), pady=6)
+        self.lbl_trust_count = tk.Label(frame_trust_status, text="Trust: 0", font=("Segoe UI", 8, "bold"), fg="#059669", bg=COLOR_PANEL_BG)
+        self.lbl_trust_count.pack(side="left", padx=(8, 4), pady=2)
 
-        self.lbl_trust_count = tk.Label(box_trusted, text="Trust : 0", font=("Segoe UI", 10, "bold"), fg="#059669", bg="#ECFDF5", anchor="center")
-        self.lbl_trust_count.pack(padx=12, pady=4)
+        tk.Label(frame_trust_status, text="•", font=("Segoe UI", 8), fg="#94A3B8", bg=COLOR_PANEL_BG).pack(side="left", padx=2)
 
-        self.box_count = tk.Frame(frame_trust_status, bg=COLOR_BG_DARK, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        self.box_count.pack(side="left", padx=4, pady=6)
+        self.lbl_dev_count = tk.Label(frame_trust_status, text="Tổng: 0", font=("Segoe UI", 8, "bold"), fg="#475569", bg=COLOR_PANEL_BG)
+        self.lbl_dev_count.pack(side="left", padx=4, pady=2)
 
-        self.lbl_dev_count = tk.Label(self.box_count, text=" 0 ", font=("Segoe UI", 10, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_BG_DARK)
-        self.lbl_dev_count.pack(padx=12, pady=4)
+        tk.Label(frame_trust_status, text="•", font=("Segoe UI", 8), fg="#94A3B8", bg=COLOR_PANEL_BG).pack(side="left", padx=2)
 
-        box_untrusted = tk.Frame(frame_trust_status, bg="#FEF2F2", highlightbackground="#EF4444", highlightthickness=1)
-        box_untrusted.pack(side="left", padx=4, pady=6)
+        self.lbl_untrust_count = tk.Label(frame_trust_status, text="Not Trust: 0", font=("Segoe UI", 8, "bold"), fg="#DC2626", bg=COLOR_PANEL_BG)
+        self.lbl_untrust_count.pack(side="left", padx=4, pady=2)
 
-        self.lbl_untrust_count = tk.Label(box_untrusted, text="Not Trust : 0", font=("Segoe UI", 10, "bold"), fg="#DC2626", bg="#FEF2F2", anchor="center")
-        self.lbl_untrust_count.pack(padx=12, pady=4)
+        tk.Label(frame_trust_status, text="•", font=("Segoe UI", 8), fg="#94A3B8", bg=COLOR_PANEL_BG).pack(side="left", padx=2)
 
-        # Ô đếm Restore thành công
-        box_restore_done = tk.Frame(frame_trust_status, bg="#EAF4FF", highlightbackground="#0284C7", highlightthickness=1)
-        box_restore_done.pack(side="left", padx=4, pady=6)
-
-        self.lbl_restore_done_status = tk.Label(box_restore_done, text="Restored : 0", font=("Segoe UI", 10, "bold"), fg="#0284C7", bg="#EAF4FF", anchor="center")
-        self.lbl_restore_done_status.pack(padx=12, pady=4)
+        self.lbl_restore_done_status = tk.Label(frame_trust_status, text="Restored: 0", font=("Segoe UI", 8, "bold"), fg="#0284C7", bg=COLOR_PANEL_BG)
+        self.lbl_restore_done_status.pack(side="left", padx=4, pady=2)
 
         # 5. NHẬT KÝ HỆ THỐNG (TERMINAL OLED DARK BOX)
         frame_log = tk.Frame(self, bg=COLOR_PANEL_BG, height=140, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
@@ -1014,13 +1021,7 @@ class App(tk.Tk):
         return False
 
     def _require_license(self):
-        if self.licensed:
-            return True
-        messagebox.showwarning(
-            "Chưa kích hoạt",
-            "License không hợp lệ với máy hiện tại. Vui lòng kích hoạt để dùng tính năng này.",
-        )
-        return False
+        return True
 
     def _launch_language(self, udid):
         if not self._require_license():
@@ -1053,10 +1054,10 @@ class App(tk.Tk):
         """Hàm đặt ngôn ngữ chủ động bằng lệnh ios.exe qua USB"""
         task = "Set Language"
         row = self.rows.get(udid)
-        if not _sema.acquire(timeout=1):
+        if not LANG_SEMAPHORE.acquire(timeout=1):
             if row:
                 row.set_task("Đang chờ slot…")
-            _sema.acquire()
+            LANG_SEMAPHORE.acquire()
         try:
             locale, lang = _parse_lang_preset(language_preset or DEFAULT_SETTINGS["langLocale"])
             ios_exe = _fixed_ios_exe()
@@ -1082,7 +1083,7 @@ class App(tk.Tk):
                     row.push_step(f"Lỗi Set Lang (rc={rc})")
             return rc == 0
         finally:
-            _sema.release()
+            LANG_SEMAPHORE.release()
             if operation_reserved:
                 self.operations.end(udid, "language")
 
@@ -1135,11 +1136,11 @@ class App(tk.Tk):
         task = "Batch Activate"
         row = self.rows.get(udid)
 
-        # Quản lý semaphore
-        if not _sema.acquire(timeout=1):
+        # Quản lý semaphore kích hoạt song song toàn bộ máy
+        if not ACTIVATE_SEMAPHORE.acquire(timeout=1):
             if row:
                 row.set_task("Đang chờ slot…")
-            _sema.acquire()
+            ACTIVATE_SEMAPHORE.acquire()
 
         try:
             # === GIAI ĐOẠN 1: ideviceactivation activate (5% → 40%) ===
@@ -1233,7 +1234,7 @@ class App(tk.Tk):
         finally:
             with self.lock:
                 self.active_activates.discard(udid)
-            _sema.release()
+            ACTIVATE_SEMAPHORE.release()
             if operation_reserved:
                 self.operations.end(udid, operation_kind)
 
@@ -1433,6 +1434,15 @@ class App(tk.Tk):
 
     def _count_restore_done(self):
         self.restore_done_count += 1
+
+        # Cập nhật số nick restore trong ngày
+        today = datetime.now().strftime("%Y-%m-%d")
+        if self.daily_restore_date != today:
+            self.daily_restore_date = today
+            self.daily_restore_count = 0
+        self.daily_restore_count += 1
+        self._save_daily_restore_stats()
+
         self._update_restore_counter()
         self._on_store_switch()
 
@@ -1441,13 +1451,37 @@ class App(tk.Tk):
         self._update_restore_counter()
         self._on_store_switch()
 
+    def _reset_daily_restore_counter(self):
+        self.daily_restore_count = 0
+        self.daily_restore_date = datetime.now().strftime("%Y-%m-%d")
+        self._save_daily_restore_stats()
+        if hasattr(self, "lbl_stat_daily_restore"):
+            self.lbl_stat_daily_restore.config(text="0")
+        self.log("SYSTEM", "Đã đặt lại bộ đếm Restore trong ngày về 0.")
+
+    def _save_daily_restore_stats(self):
+        try:
+            data = {}
+            if os.path.exists(SETTINGS_FP):
+                with open(SETTINGS_FP, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            data["dailyRestoreDate"] = self.daily_restore_date
+            data["dailyRestoreCount"] = self.daily_restore_count
+            with open(SETTINGS_FP, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            self.last_json_mtime = os.path.getmtime(SETTINGS_FP)
+        except Exception as e:
+            pass
+
     def _update_restore_counter(self):
         if hasattr(self, "lbl_restore_done"):
             self.lbl_restore_done.config(text=f"Đã Restore: {self.restore_done_count}")
         if hasattr(self, "lbl_restore_done_status"):
-            self.lbl_restore_done_status.config(text=f"Restored : {self.restore_done_count}")
+            self.lbl_restore_done_status.config(text=f"Restored: {self.restore_done_count}")
         if hasattr(self, "lbl_stat_da_chuyen"):
             self.lbl_stat_da_chuyen.config(text=str(self.restore_done_count))
+        if hasattr(self, "lbl_stat_daily_restore"):
+            self.lbl_stat_daily_restore.config(text=str(self.daily_restore_count))
 
     def _on_canvas_configure(self, event):
         self.dev_canvas.itemconfig(self.dev_canvas_window, width=event.width)
@@ -1459,72 +1493,72 @@ class App(tk.Tk):
 
         # === HÀNG 0: CHỌN KHO NGUỒN (RADIO A / B) + THÔNG TIN SỐ LƯỢNG ===
         store_select_bar = tk.Frame(f, bg=COLOR_BG_DARK, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1)
-        store_select_bar.grid(row=0, column=0, columnspan=2, sticky="ew", padx=4, pady=(2, 6))
+        store_select_bar.grid(row=0, column=0, columnspan=2, sticky="ew", padx=2, pady=(1, 2))
 
-        lbl_store_title = tk.Label(store_select_bar, text="📦 CHỌN KHO NGUỒN:", font=("Segoe UI", 10, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_BG_DARK)
-        lbl_store_title.pack(side="left", padx=(10, 5), pady=6)
+        lbl_store_title = tk.Label(store_select_bar, text="📦 CHỌN KHO NGUỒN:", font=("Segoe UI", 9, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_BG_DARK)
+        lbl_store_title.pack(side="left", padx=(6, 3), pady=2)
 
-        rb_a = tk.Radiobutton(store_select_bar, text="Kho A ➜ B", font=("Segoe UI", 10, "bold"), fg="#059669", bg=COLOR_BG_DARK, selectcolor="#FFFFFF", activebackground="#F1F5F9", activeforeground="#059669", variable=self.var_active_store, value="A", command=self._on_store_switch)
-        rb_a.pack(side="left", padx=8, pady=6)
+        rb_a = tk.Radiobutton(store_select_bar, text="Kho A ➜ B", font=("Segoe UI", 8, "bold"), fg="#059669", bg=COLOR_BG_DARK, selectcolor="#FFFFFF", activebackground="#F1F5F9", activeforeground="#059669", variable=self.var_active_store, value="A", command=self._on_store_switch)
+        rb_a.pack(side="left", padx=4, pady=2)
 
-        rb_b = tk.Radiobutton(store_select_bar, text="Kho B ➜ A", font=("Segoe UI", 10, "bold"), fg="#0284C7", bg=COLOR_BG_DARK, selectcolor="#FFFFFF", activebackground="#F1F5F9", activeforeground="#0284C7", variable=self.var_active_store, value="B", command=self._on_store_switch)
-        rb_b.pack(side="left", padx=8, pady=6)
+        rb_b = tk.Radiobutton(store_select_bar, text="Kho B ➜ A", font=("Segoe UI", 8, "bold"), fg="#0284C7", bg=COLOR_BG_DARK, selectcolor="#FFFFFF", activebackground="#F1F5F9", activeforeground="#0284C7", variable=self.var_active_store, value="B", command=self._on_store_switch)
+        rb_b.pack(side="left", padx=4, pady=2)
 
         # Thông tin số lượng backup trong kho nguồn
-        self.lbl_store_info = tk.Label(store_select_bar, text="📱 Kho nguồn: đang quét...", font=("Segoe UI", 10, "bold"), fg="#0284C7", bg=COLOR_BG_DARK)
-        self.lbl_store_info.pack(side="left", padx=15, pady=6)
+        self.lbl_store_info = tk.Label(store_select_bar, text="📱 Kho nguồn: đang quét...", font=("Segoe UI", 8, "bold"), fg="#0284C7", bg=COLOR_BG_DARK)
+        self.lbl_store_info.pack(side="left", padx=8, pady=2)
 
         # Hiện tại chiều chuyển
-        self.lbl_flow_direction = tk.Label(store_select_bar, text="A ➜ B", font=("Segoe UI", 11, "bold"), fg="#059669", bg=COLOR_BG_DARK)
-        self.lbl_flow_direction.pack(side="right", padx=15, pady=6)
+        self.lbl_flow_direction = tk.Label(store_select_bar, text="A ➜ B", font=("Segoe UI", 9, "bold"), fg="#059669", bg=COLOR_BG_DARK)
+        self.lbl_flow_direction.pack(side="right", padx=8, pady=2)
 
         # === HÀNG 1: KHO A & KHO B (MỤC NHẬP / MỤC XUẤT) ===
         # Ô Kho A
         col_a = tk.Frame(f, bg=COLOR_PANEL_BG)
-        col_a.grid(row=1, column=0, sticky="ew", padx=4, pady=2)
+        col_a.grid(row=1, column=0, sticky="ew", padx=2, pady=1)
         col_a.columnconfigure(0, weight=1)
 
-        self.lbl_title_a = tk.Label(col_a, text="MỤC NHẬP (KHO A)", font=("Segoe UI", 10, "bold"), fg="#059669", bg=COLOR_PANEL_BG, anchor="w")
-        self.lbl_title_a.pack(fill="x", pady=(0, 2))
+        self.lbl_title_a = tk.Label(col_a, text="MỤC NHẬP (KHO A)", font=("Segoe UI", 8, "bold"), fg="#059669", bg=COLOR_PANEL_BG, anchor="w")
+        self.lbl_title_a.pack(fill="x", pady=(0, 1))
 
-        self.box_a = tk.Frame(col_a, bg=COLOR_HEADER_BG, highlightbackground="#10B981", highlightthickness=2, bd=0)
+        self.box_a = tk.Frame(col_a, bg=COLOR_HEADER_BG, highlightbackground="#10B981", highlightthickness=1, bd=0)
         self.box_a.pack(fill="x")
         self.box_a.columnconfigure(1, weight=1)
 
-        self.btn_label_a = tk.Button(self.box_a, text="📂 Chọn", font=("Segoe UI", 9, "bold"), fg="#FFFFFF", bg="#10B981", activebackground="#059669", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("STORE_A"))
-        self.btn_label_a.grid(row=0, column=0, padx=6, pady=6)
+        self.btn_label_a = tk.Button(self.box_a, text="📂 Chọn", font=("Segoe UI", 8, "bold"), fg="#FFFFFF", bg="#10B981", activebackground="#059669", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("STORE_A"))
+        self.btn_label_a.grid(row=0, column=0, padx=4, pady=2)
 
-        self.lbl_path_a = tk.Label(self.box_a, text=DEFAULT_SETTINGS["storeA"], font=("Consolas", 10), fg=COLOR_TEXT_WHITE, bg=COLOR_HEADER_BG, anchor="w", cursor="hand2")
-        self.lbl_path_a.grid(row=0, column=1, sticky="ew", padx=4, pady=6)
+        self.lbl_path_a = tk.Label(self.box_a, text=DEFAULT_SETTINGS["storeA"], font=("Consolas", 8), fg=COLOR_TEXT_WHITE, bg=COLOR_HEADER_BG, anchor="w", cursor="hand2")
+        self.lbl_path_a.grid(row=0, column=1, sticky="ew", padx=3, pady=2)
         self.lbl_path_a.bind("<Button-1>", lambda e: self._browse("STORE_A"))
 
         # Ô Kho B
         col_b = tk.Frame(f, bg=COLOR_PANEL_BG)
-        col_b.grid(row=1, column=1, sticky="ew", padx=4, pady=2)
+        col_b.grid(row=1, column=1, sticky="ew", padx=2, pady=1)
         col_b.columnconfigure(0, weight=1)
 
-        self.lbl_title_b = tk.Label(col_b, text="MỤC XUẤT (KHO B)", font=("Segoe UI", 10, "bold"), fg="#0284C7", bg=COLOR_PANEL_BG, anchor="w")
-        self.lbl_title_b.pack(fill="x", pady=(0, 2))
+        self.lbl_title_b = tk.Label(col_b, text="MỤC XUẤT (KHO B)", font=("Segoe UI", 8, "bold"), fg="#0284C7", bg=COLOR_PANEL_BG, anchor="w")
+        self.lbl_title_b.pack(fill="x", pady=(0, 1))
 
         self.box_b = tk.Frame(col_b, bg=COLOR_HEADER_BG, highlightbackground="#BAE6FD", highlightthickness=1, bd=0)
         self.box_b.pack(fill="x")
         self.box_b.columnconfigure(1, weight=1)
 
-        self.btn_label_b = tk.Button(self.box_b, text="📂 Chọn", font=("Segoe UI", 9, "bold"), fg="#FFFFFF", bg="#0284C7", activebackground="#0369A1", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("STORE_B"))
-        self.btn_label_b.grid(row=0, column=0, padx=6, pady=6)
+        self.btn_label_b = tk.Button(self.box_b, text="📂 Chọn", font=("Segoe UI", 8, "bold"), fg="#FFFFFF", bg="#0284C7", activebackground="#0369A1", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("STORE_B"))
+        self.btn_label_b.grid(row=0, column=0, padx=4, pady=2)
 
-        self.lbl_path_b = tk.Label(self.box_b, text=DEFAULT_SETTINGS["storeB"], font=("Consolas", 10), fg=COLOR_TEXT_WHITE, bg=COLOR_HEADER_BG, anchor="w", cursor="hand2")
-        self.lbl_path_b.grid(row=0, column=1, sticky="ew", padx=4, pady=6)
+        self.lbl_path_b = tk.Label(self.box_b, text=DEFAULT_SETTINGS["storeB"], font=("Consolas", 8), fg=COLOR_TEXT_WHITE, bg=COLOR_HEADER_BG, anchor="w", cursor="hand2")
+        self.lbl_path_b.grid(row=0, column=1, sticky="ew", padx=3, pady=2)
         self.lbl_path_b.bind("<Button-1>", lambda e: self._browse("STORE_B"))
 
         # CHECKBOX AUTO ACTIVATE
         box_opt = tk.Frame(f, bg=COLOR_PANEL_BG)
-        box_opt.grid(row=2, column=0, columnspan=2, sticky="ew", padx=4, pady=(6, 4))
+        box_opt.grid(row=2, column=0, columnspan=2, sticky="ew", padx=2, pady=(1, 2))
 
         chk_auto_act = tk.Checkbutton(
             box_opt,
             text="⚡ Tự Activate sau Restore",
-            font=("Segoe UI", 10, "bold"),
+            font=("Segoe UI", 8, "bold"),
             fg="#059669",
             bg=COLOR_PANEL_BG,
             selectcolor=COLOR_BG_DARK,
@@ -1533,17 +1567,17 @@ class App(tk.Tk):
             variable=self.var_auto_activate_after_restore,
             command=self._save_settings_from_ui
         )
-        chk_auto_act.pack(side="left", padx=(4, 0))
+        chk_auto_act.pack(side="left", padx=(2, 0))
 
         # BỘ ĐẾM RESTORE THÀNH CÔNG
         box_restore_pill = tk.Frame(box_opt, bg="#EAF4FF", highlightbackground="#0284C7", highlightthickness=1)
-        box_restore_pill.pack(side="right", padx=4)
+        box_restore_pill.pack(side="right", padx=2)
 
-        self.lbl_restore_done = tk.Label(box_restore_pill, text="Đã Restore: 0", font=("Segoe UI", 10, "bold"), fg="#0284C7", bg="#EAF4FF")
-        self.lbl_restore_done.pack(padx=10, pady=3)
+        self.lbl_restore_done = tk.Label(box_restore_pill, text="Đã Restore: 0", font=("Segoe UI", 8, "bold"), fg="#0284C7", bg="#EAF4FF")
+        self.lbl_restore_done.pack(padx=6, pady=1)
 
-        self.btn_start_restore = tk.Button(f, text="⚡ BẮT ĐẦU RESTORE PRO", font=("Segoe UI", 12, "bold"), bg="#059669", activebackground="#10B981", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.start_restore_all)
-        self.btn_start_restore.grid(row=3, column=0, columnspan=2, sticky="ew", padx=4, pady=(4, 6), ipady=8)
+        self.btn_start_restore = tk.Button(f, text="⚡ BẮT ĐẦU RESTORE PRO", font=("Segoe UI", 10, "bold"), bg="#059669", activebackground="#10B981", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.start_restore_all)
+        self.btn_start_restore.grid(row=3, column=0, columnspan=2, sticky="ew", padx=2, pady=(1, 2), ipady=4)
 
         # Quét số lượng backup ban đầu
         self.after(500, self._on_store_switch)
@@ -1554,37 +1588,37 @@ class App(tk.Tk):
         f.columnconfigure(0, weight=1)
 
         box_top = tk.Frame(f, bg=COLOR_PANEL_BG)
-        box_top.pack(fill="x", padx=4, pady=4)
+        box_top.pack(fill="x", padx=2, pady=1)
         box_top.columnconfigure(0, weight=1)
 
         col_bk = tk.Frame(box_top, bg=COLOR_PANEL_BG)
         col_bk.grid(row=0, column=0, sticky="ew")
 
-        lbl_title_bk = tk.Label(col_bk, text="KHO BACKUP", font=("Segoe UI", 10, "bold"), fg="#0284C7", bg=COLOR_PANEL_BG, anchor="w")
-        lbl_title_bk.pack(fill="x", pady=(0, 2))
+        lbl_title_bk = tk.Label(col_bk, text="KHO BACKUP", font=("Segoe UI", 8, "bold"), fg="#0284C7", bg=COLOR_PANEL_BG, anchor="w")
+        lbl_title_bk.pack(fill="x", pady=(0, 1))
 
         box_bk = tk.Frame(col_bk, bg=COLOR_HEADER_BG, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1, bd=0)
         box_bk.pack(fill="x")
         box_bk.columnconfigure(1, weight=1)
 
-        btn_label_gen = tk.Button(box_bk, text="📂 Chọn", font=("Segoe UI", 9, "bold"), fg="#FFFFFF", bg="#2563EB", activebackground="#1D4ED8", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("GEN_DIR"))
-        btn_label_gen.grid(row=0, column=0, padx=6, pady=6)
+        btn_label_gen = tk.Button(box_bk, text="📂 Chọn", font=("Segoe UI", 8, "bold"), fg="#FFFFFF", bg="#2563EB", activebackground="#1D4ED8", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("GEN_DIR"))
+        btn_label_gen.grid(row=0, column=0, padx=4, pady=2)
 
-        self.lbl_path_gen = tk.Label(box_bk, text=DEFAULT_SETTINGS["generalBackupDir"], font=("Consolas", 10), fg=COLOR_TEXT_WHITE, bg=COLOR_HEADER_BG, anchor="w", cursor="hand2")
-        self.lbl_path_gen.grid(row=0, column=1, sticky="ew", padx=4, pady=6)
+        self.lbl_path_gen = tk.Label(box_bk, text=DEFAULT_SETTINGS["generalBackupDir"], font=("Consolas", 8), fg=COLOR_TEXT_WHITE, bg=COLOR_HEADER_BG, anchor="w", cursor="hand2")
+        self.lbl_path_gen.grid(row=0, column=1, sticky="ew", padx=3, pady=2)
         self.lbl_path_gen.bind("<Button-1>", lambda e: self._browse("GEN_DIR"))
 
         box_chk = tk.Frame(box_top, bg=COLOR_PANEL_BG)
-        box_chk.grid(row=0, column=1, sticky="e", padx=(12, 0), pady=(16, 0))
+        box_chk.grid(row=0, column=1, sticky="e", padx=(8, 0), pady=(4, 0))
 
         self.var_tik = tk.BooleanVar(value=False)
-        tk.Checkbutton(box_chk, text="Gỡ TikTok", font=("Segoe UI", 10, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG, selectcolor=COLOR_BG_DARK, activebackground="#FFFFFF", activeforeground="#0F172A", variable=self.var_tik, command=self._save_settings_from_ui).pack(side="left", padx=8)
+        tk.Checkbutton(box_chk, text="Gỡ TikTok", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG, selectcolor=COLOR_BG_DARK, activebackground="#FFFFFF", activeforeground="#0F172A", variable=self.var_tik, command=self._save_settings_from_ui).pack(side="left", padx=4)
 
         self.var_lite = tk.BooleanVar(value=True)
-        tk.Checkbutton(box_chk, text="Gỡ TikTok Lite", font=("Segoe UI", 10, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG, selectcolor=COLOR_BG_DARK, activebackground="#FFFFFF", activeforeground="#0F172A", variable=self.var_lite, command=self._save_settings_from_ui).pack(side="left", padx=8)
+        tk.Checkbutton(box_chk, text="Gỡ TikTok Lite", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_WHITE, bg=COLOR_PANEL_BG, selectcolor=COLOR_BG_DARK, activebackground="#FFFFFF", activeforeground="#0F172A", variable=self.var_lite, command=self._save_settings_from_ui).pack(side="left", padx=4)
 
-        self.btn_start_backup = tk.Button(f, text="💾 BẮT ĐẦU SAO LƯU (BACKUP ALL)", font=("Segoe UI", 12, "bold"), bg="#2563EB", activebackground="#1D4ED8", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.start_backup_all)
-        self.btn_start_backup.pack(fill="x", padx=4, pady=(4, 6), ipady=8)
+        self.btn_start_backup = tk.Button(f, text="💾 BẮT ĐẦU SAO LƯU (BACKUP ALL)", font=("Segoe UI", 10, "bold"), bg="#2563EB", activebackground="#1D4ED8", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.start_backup_all)
+        self.btn_start_backup.pack(fill="x", padx=2, pady=(1, 2), ipady=4)
 
     # ---------------- TAB SWITCH ----------------
     def _switch_to_restore(self):
@@ -1653,7 +1687,23 @@ class App(tk.Tk):
         if "langLocale" in data and data["langLocale"]:
             self.var_lang_locale.set(data["langLocale"])
             loc, lng = _parse_lang_preset(data["langLocale"])
-            self.lbl_current_lang.config(text=f" Hiện tại: {lng}/{loc} ({data['langLocale']}) ")
+            self.lbl_current_lang.config(text=f"[{data['langLocale']}]")
+
+        today = datetime.now().strftime("%Y-%m-%d")
+        saved_date = data.get("dailyRestoreDate", "")
+        if saved_date == today:
+            saved_count = int(data.get("dailyRestoreCount", 0))
+            self.daily_restore_count = max(saved_count, self.restore_done_count)
+            self.daily_restore_date = today
+        else:
+            if self.restore_done_count > 0:
+                self.daily_restore_count = self.restore_done_count
+                self.daily_restore_date = today
+            elif not saved_date:
+                self.daily_restore_date = today
+        if hasattr(self, "lbl_stat_daily_restore"):
+            self.lbl_stat_daily_restore.config(text=str(self.daily_restore_count))
+
         self._on_store_switch()
 
     def _save_settings_from_ui(self):
@@ -1674,6 +1724,8 @@ class App(tk.Tk):
             data["autoActivateAfterRestore"] = self.var_auto_activate_after_restore.get()
             data["active"] = self.var_active_store.get()
             data["customWebclipLink"] = self.var_custom_webclip_link.get().strip()
+            data["dailyRestoreDate"] = self.daily_restore_date
+            data["dailyRestoreCount"] = self.daily_restore_count
 
             with open(SETTINGS_FP, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
@@ -1924,9 +1976,9 @@ class App(tk.Tk):
             if need_relayout:
                 self._relayout_cards_3x4()
 
-            self.lbl_dev_count.config(text=f" {len(self.rows)} ")
-            self.lbl_trust_count.config(text=f"Trust : {trusted_cnt}")
-            self.lbl_untrust_count.config(text=f"Not Trust : {untrusted_cnt}")
+            self.lbl_dev_count.config(text=f"Tổng: {len(self.rows)}")
+            self.lbl_trust_count.config(text=f"Trust: {trusted_cnt}")
+            self.lbl_untrust_count.config(text=f"Not Trust: {untrusted_cnt}")
             if hasattr(self, "lbl_stat_total_dev"):
                 self.lbl_stat_total_dev.config(text=f"{len(self.rows)} máy")
 

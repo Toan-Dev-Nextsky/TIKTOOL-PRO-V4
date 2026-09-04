@@ -1,109 +1,78 @@
 {
-  "updated_at": "2026-09-04T17:47:00+07:00",
+  "updated_at": "2026-09-04T21:45:00+07:00",
   "working_on": {
-    "feature": "Tích hợp Tạo Web App & Icon Toàn Năng Siêu Đẹp",
-    "task": "Xóa checkbox can thiệp backup nguy hiểm và bổ sung icon webapp.png mặc định cho mọi link web",
+    "feature": "Modern Light Dashboard, Daily Restore Tracking & Clean Staging",
+    "task": "Tối ưu hóa giao diện siêu gọn, bổ sung bộ đếm thống kê restore theo ngày, chuẩn hóa flow restore và tự động dọn dẹp thư mục staging .tiktool_work",
     "status": "completed",
     "files": [
       "BB_RB.py",
+      "tiktool_core.py",
       "settings.json",
-      "webapp.png",
-      "tiktok.png",
-      "tiktok_lite.png",
-      "fun.png",
-      "2FA.png"
+      "CHANGELOG.md",
+      "docs/architecture/system_overview.md"
     ],
     "blockers": [],
-    "notes": "Ứng dụng hoạt động trơn tru; giao diện gọn gàng không còn ô can thiệp nguy hiểm, mọi link web nhập vào đều có icon 3D Glassmorphic cực đẹp ngoài màn hình iPhone."
+    "notes": "Giao diện chuyển sang Modern Light Dashboard rất thoáng và sang trọng. Không còn nút đơn lẻ hay hộp nút thô cứng chiếm chỗ. Bộ đếm restore trong ngày lưu bền vững vào settings.json và tự động reset sang ngày mới. Folder tạm .tiktool_work tự động dọn sạch sau khi restore xong."
   },
   "pending_tasks": [
     {
-      "task": "Theo dõi hiệu năng thực tế khi khôi phục đồng thời 10-20 thiết bị",
+      "task": "Theo dõi hiệu năng thực tế khi khôi phục đồng thời 10-20 thiết bị trên dàn máy USB hub",
       "priority": "medium",
-      "notes": "Kiểm tra thời gian chờ 80 giây cho Auto Activate trên các dòng iPhone cũ/mới."
+      "notes": "Đảm bảo USB hub cấp nguồn ổn định và idevicebackup2 hoàn tất trơn tru."
     },
     {
-      "task": "Nghiên cứu đóng gói PyInstaller xuất bản file exe mới",
+      "task": "Đóng gói PyInstaller xuất bản file exe mới",
       "priority": "low",
-      "notes": "Hiện tại chạy trực tiếp python BB_RB.py rất ổn định và phản hồi tức thì."
+      "notes": "Chạy trực tiếp python BB_RB.py hiện tại phản hồi nhanh và chính xác."
     }
   ],
   "recent_changes": [
     {
-      "timestamp": "2026-09-04T17:41:00+07:00",
-      "type": "ui_asset_enhancement",
-      "description": "Tạo và tích hợp icon webapp.png (3D Glassmorphic Holographic Globe & Link 512x512) làm icon mặc định toàn năng cho mọi link web nhập vào (như https://linkm.site/), hiển thị ngoài màn hình chính iPhone cực kỳ sang trọng thay cho icon xám mặc định của Safari.",
-      "files": ["BB_RB.py", "webapp.png"]
+      "timestamp": "2026-09-04T21:40:00+07:00",
+      "type": "staging_cleanup",
+      "description": "Nâng cấp cleanup_owned_job trong tiktool_core.py để tự động xóa luôn thư mục cha .tiktool_work khi rỗng sau khi dọn dẹp staging job, đảm bảo không còn thư mục rác trong kho dữ liệu A/B của người dùng; đồng thời xóa bỏ thư mục .tiktool_work tồn dư.",
+      "files": ["tiktool_core.py"]
     },
     {
-      "timestamp": "2026-09-04T17:30:00+07:00",
-      "type": "ui_cleanup_safety",
-      "description": "Xóa bỏ hoàn toàn checkbox 'Can thiệp ngôn ngữ vào file Backup trước khi Restore' khỏi giao diện Restore Panel theo yêu cầu người dùng, đảm bảo file backup nguyên vẹn 100% và giao diện gọn gàng, chỉ giữ lại '⚡ Tự Activate sau Restore'.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-04T17:20:00+07:00",
-      "type": "feature_webclip_webapp",
-      "description": "Tích hợp tính năng Tạo Web App từ C:\\iphone_tool_v2 sang BB_RB.py: tự động tạo profile Apple Configuration com.apple.webClip.managed nhúng ảnh icon base64, nạp profile qua lệnh ios.exe profile add --udid={udid} --nojson, bổ sung Hàng 3 trong top_card với ô nhập link web (mặc định https://linkm.site/), nút Tạo Web App và 2 nút phím tắt TikTok/TikTok Lite AppStore.",
-      "files": ["BB_RB.py", "settings.json", "tiktok.png", "tiktok_lite.png", "fun.png", "2FA.png"]
-    },
-    {
-      "timestamp": "2026-09-04T16:53:00+07:00",
-      "type": "ui_color_softening",
-      "description": "Loại bỏ triệt để màu cam đỏ (#EA580C, #D97706) khi chọn Kho B ➜ A và trên thẻ 'Còn lại'. Thay thế hoàn toàn bằng cặp màu nhã nhặn: Xanh Ngọc Emerald (#059669) cho nút Restore & Mục Nhập, và Xanh Biển Sky Blue (#0284C7) cho Mục Xuất & Thẻ Còn lại, mang lại cảm giác an toàn và dễ chịu.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-04T16:40:00+07:00",
-      "type": "ui_enhancement",
-      "description": "Tích hợp widget GradientProgressBar với dải màu Gradient từ Cyan (#06B6D4) sang Electric Blue (#2563EB); chuyển toàn bộ text trạng thái (lbl_step) và số % tiến độ (lbl_pct) lên hẳn phía trên thanh tiến trình, khắc phục triệt để lỗi chữ bị che khuất và co lại thành ': 45%'.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-04T16:28:00+07:00",
-      "type": "feature_safety",
-      "description": "Bổ sung cơ chế bảo vệ an toàn khi đóng app (WM_DELETE_WINDOW): theo dõi luồng Restore, Backup, Activate; nếu còn máy đang chạy thì bật hộp thoại cảnh báo nguy cơ treo táo / hỏng backup, hỏi xác nhận trước khi cho phép thoát.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-04T16:20:00+07:00",
-      "type": "branding_update",
-      "description": "Đổi tên thương hiệu và logo sang 'TikTok Pro', cập nhật tiêu đề cửa sổ, xóa dòng text phụ Developer by Tumaemo, đẩy cụm Cấu hình ngôn ngữ vào nằm sát cạnh logo.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-04T16:12:00+07:00",
-      "type": "bugfix_persistence",
-      "description": "Khắc phục triệt để lỗi không lưu trạng thái kho đang chọn (Kho A/B) khi khởi động lại app bằng cơ chế load settings đồng bộ ngay khi khởi tạo.",
+      "timestamp": "2026-09-04T21:30:00+07:00",
+      "type": "feature_daily_stats",
+      "description": "Tích hợp bộ đếm số lượng máy đã Restore trong ngày (Hôm nay: X) trên thanh tiêu đề thiết bị (dev_title_bar) với màu Soft Indigo, lưu trạng thái vào settings.json (dailyRestoreDate, dailyRestoreCount) và tự động reset về 0 khi sang ngày mới.",
       "files": ["BB_RB.py", "settings.json"]
     },
     {
-      "timestamp": "2026-09-04T16:05:00+07:00",
-      "type": "optimization",
-      "description": "Tối ưu thời gian đếm ngược tự động kích hoạt (Auto Activate sau Restore) từ 120s xuống còn 80s.",
+      "timestamp": "2026-09-04T21:00:00+07:00",
+      "type": "ui_compact_bottom_status",
+      "description": "Thay thế các nút hộp màu thô cứng (Trust, Tổng, Not Trust, Restored) ở thanh trạng thái đáy bằng định dạng chuỗi text thanh mảnh, ngăn cách bằng dấu ' | ' inline, tối ưu không gian hiển thị tối đa.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-04T20:45:00+07:00",
+      "type": "ui_compact_device_card",
+      "description": "Xóa bỏ 2 nút thao tác đơn lẻ Lang và Active trên từng DeviceCard để tối giản giao diện, tiết kiệm diện tích thẻ và tập trung hoàn toàn vào điều khiển hàng loạt.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-04T20:20:00+07:00",
+      "type": "ui_modern_light_dashboard",
+      "description": "Chuyển đổi giao diện sang Modern Light Dashboard (Slate-100 / Crisp White / Soft Indigo), thu gọn toàn bộ Top Card và các thanh công cụ thành các hàng siêu gọn, thẩm mỹ cao.",
       "files": ["BB_RB.py"]
     }
   ],
   "errors_encountered": [
     {
-      "error": "Lỗi text tiến trình bị cắt thành ': 45%'",
-      "solution": "Trước đây set_task bị ghi đè vào lbl_task cạnh thanh bar (width=4). Đã tách riêng một dòng trạng thái ở trên với lbl_step và lbl_pct, đồng bộ trích xuất phần trăm từ chuỗi text.",
-      "resolved": true
-    },
-    {
-      "error": "Khởi động lại app bị reset về Kho A mặc dù trước đó đã chọn Kho B",
-      "solution": "Chuyển việc đọc settings.json sang hàm đồng bộ _load_initial_settings() chạy trước timer UI, đồng thời bổ sung log bắt lỗi ghi file.",
+      "error": "Thư mục tạm .tiktool_work vẫn còn nằm lại trong kho A/B sau khi restore",
+      "solution": "Cải tiến hàm cleanup_owned_job trong tiktool_core.py tự động kiểm tra và xóa luôn thư mục cha .tiktool_work nếu nó rỗng sau khi xóa thư mục restore job con.",
       "resolved": true
     }
   ],
   "decisions_made": [
     {
-      "decision": "Dùng tk.Canvas tự vẽ GradientProgressBar thay cho ttk.Progressbar",
-      "reason": "ttk.Progressbar trên Windows Clam chỉ hỗ trợ màu đơn sắc thô cứng; dùng Canvas vẽ dải màu chuyển tiếp vừa mượt mà, vừa nhẹ CPU và tương thích 100% không phụ thuộc thư viện ngoài."
+      "decision": "Giữ staging tạm trên cùng phân vùng ổ đĩa của kho nhưng tự xóa .tiktool_work khi hoàn tất",
+      "reason": "Giữ nguyên tốc độ di chuyển cùng ổ đĩa (same-volume rename) cực nhanh mà không để lại bất kỳ thư mục rác nào gây phiền toái cho người dùng."
     },
     {
-      "decision": "Chặn sự kiện tắt app (WM_DELETE_WINDOW) khi có máy đang Restore/Backup",
-      "reason": "Ngăn chặn người dùng lỡ tay bấm nhầm nút [X] làm ngắt luồng ghi dữ liệu vào iPhone gây lỗi Treo Táo (bootloop) hoặc hỏng file Manifest của Backup."
+      "decision": "Bỏ các nút hộp thô ở đáy và các nút đơn lẻ trên thẻ máy",
+      "reason": "Người dùng làm việc theo batch số lượng lớn, việc dùng text inline và thanh điều khiển tập trung giúp giao diện gọn gàng, thoáng đãng và tiện dụng hơn nhiều."
     }
   ]
 }
