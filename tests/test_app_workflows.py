@@ -116,6 +116,64 @@ class UiThreadTests(unittest.TestCase):
         self.assertEqual([], written)
 
 
+class ConfirmationScrollerLayoutTests(unittest.TestCase):
+    def test_confirmation_grid_defaults_to_three_columns(self):
+        """Catches the restore confirmation reverting to a two-column layout."""
+        self.assertEqual(3, BB_RB.CONFIRM_GRID_COLUMNS)
+
+    def test_confirmation_scroller_places_bar_beside_canvas_and_resizes_content(self):
+        """Catches mapped phones being clipped below the confirmation viewport."""
+        calls = []
+
+        class FakeFrame:
+            def columnconfigure(self, *args, **kwargs):
+                calls.append(("columnconfigure", args, kwargs))
+
+            def rowconfigure(self, *args, **kwargs):
+                calls.append(("rowconfigure", args, kwargs))
+
+        class FakeCanvas:
+            def create_window(self, *args, **kwargs):
+                calls.append(("create_window", args, kwargs))
+                return 7
+
+            def configure(self, *args, **kwargs):
+                calls.append(("canvas.configure", args, kwargs))
+
+            def bind(self, event, callback):
+                calls.append(("canvas.bind", (event,), {}))
+                callback(types.SimpleNamespace(width=1234))
+
+            def itemconfigure(self, *args, **kwargs):
+                calls.append(("itemconfigure", args, kwargs))
+
+            def bbox(self, tag):
+                return (0, 0, 1234, 900)
+
+            def grid(self, *args, **kwargs):
+                calls.append(("canvas.grid", args, kwargs))
+
+            def yview(self, *args):
+                return None
+
+        class FakeScrollbar:
+            def set(self, *args):
+                return None
+
+            def grid(self, *args, **kwargs):
+                calls.append(("scrollbar.grid", args, kwargs))
+
+        class FakeContent:
+            def bind(self, event, callback):
+                calls.append(("content.bind", (event,), {}))
+
+        BB_RB.configure_canvas_scroller(FakeFrame(), FakeCanvas(), FakeScrollbar(), FakeContent())
+
+        self.assertIn(("canvas.grid", (), {"row": 0, "column": 0, "sticky": "nsew"}), calls)
+        self.assertIn(("scrollbar.grid", (), {"row": 0, "column": 1, "sticky": "ns", "padx": (0, 4)}), calls)
+        self.assertIn(("itemconfigure", (7,), {"width": 1234}), calls)
+
+
 class RebootTests(unittest.TestCase):
     def test_reboot_state_survives_absence_until_expiry(self):
         """Catches polling deleting the reboot lock on the first USB disconnect."""

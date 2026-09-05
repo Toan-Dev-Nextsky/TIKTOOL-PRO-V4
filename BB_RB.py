@@ -128,6 +128,7 @@ AUTO_ACTIVATE_SETTLE_SECONDS = 100
 AUTO_ACTIVATE_READY_CHECKS = 30
 AUTO_ACTIVATE_READY_INTERVAL_SECONDS = 3
 AUTO_ACTIVATE_STABLE_SAMPLES = 3
+CONFIRM_GRID_COLUMNS = 3
 PAIR_LOCK = threading.Lock()
 PROCESS_RUNNER = ProcessRunner()
 
@@ -152,6 +153,27 @@ DEFAULT_SETTINGS = {
 }
 
 def _ts(): return datetime.now().strftime("%H:%M:%S")
+
+
+def configure_canvas_scroller(host, canvas, scrollbar, content):
+    """Place a vertical scrollbar beside a canvas and keep its content full width."""
+    host.columnconfigure(0, weight=1)
+    host.rowconfigure(0, weight=1)
+
+    window_id = canvas.create_window((0, 0), window=content, anchor="nw")
+    content.bind(
+        "<Configure>",
+        lambda _event: canvas.configure(scrollregion=canvas.bbox("all")),
+    )
+    canvas.bind(
+        "<Configure>",
+        lambda event: canvas.itemconfigure(window_id, width=event.width),
+    )
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.grid(row=0, column=0, sticky="nsew")
+    scrollbar.grid(row=0, column=1, sticky="ns", padx=(0, 4))
+    return window_id
+
 
 def which_tool(tool_name):
     ext = ".exe" if os.name == "nt" else ""
@@ -1205,16 +1227,18 @@ class App(tk.Tk):
         lbl_conf_title = tk.Label(confirm_title_bar, text="PHÂN BỔ THÔNG MINH (2-LAYER MATCHING ENGINE)", font=("Segoe UI", 11, "bold"), fg=COLOR_CYAN_ACCENT, bg=COLOR_SUB_BG)
         lbl_conf_title.pack(side="left")
 
-        self.conf_canvas = tk.Canvas(self.frame_confirm_zone, bg=COLOR_PANEL_BG, highlightthickness=0)
-        self.conf_scrollbar = ttk.Scrollbar(self.frame_confirm_zone, orient="vertical", command=self.conf_canvas.yview)
+        self.conf_scroller_frame = tk.Frame(self.frame_confirm_zone, bg=COLOR_PANEL_BG)
+        self.conf_scroller_frame.pack(side="top", fill="both", expand=True, padx=10, pady=4)
+
+        self.conf_canvas = tk.Canvas(self.conf_scroller_frame, bg=COLOR_PANEL_BG, highlightthickness=0)
+        self.conf_scrollbar = ttk.Scrollbar(self.conf_scroller_frame, orient="vertical", command=self.conf_canvas.yview)
         self.conf_list_container = tk.Frame(self.conf_canvas, bg=COLOR_PANEL_BG)
-
-        self.conf_list_container.bind("<Configure>", lambda e: self.conf_canvas.configure(scrollregion=self.conf_canvas.bbox("all")))
-        self.conf_canvas.create_window((0, 0), window=self.conf_list_container, anchor="nw")
-        self.conf_canvas.configure(yscrollcommand=self.conf_scrollbar.set)
-
-        self.conf_canvas.pack(side="top", fill="both", expand=True, padx=10, pady=4)
-        self.conf_scrollbar.pack(side="right", fill="y", pady=4)
+        configure_canvas_scroller(
+            self.conf_scroller_frame,
+            self.conf_canvas,
+            self.conf_scrollbar,
+            self.conf_list_container,
+        )
 
         self.conf_btn_bar = tk.Frame(self.frame_confirm_zone, bg=COLOR_PANEL_BG)
         self.conf_btn_bar.pack(side="bottom", fill="x", padx=10, pady=8)
@@ -2540,12 +2564,12 @@ class App(tk.Tk):
         self.btn_run_conf.config(state="normal", bg=COLOR_EMERALD_MAIN)
         self.btn_cancel_conf.config(state="normal", bg=COLOR_RED_ERR)
 
-        self.conf_list_container.columnconfigure(0, weight=1, uniform="conf_col")
-        self.conf_list_container.columnconfigure(1, weight=1, uniform="conf_col")
+        for column in range(CONFIRM_GRID_COLUMNS):
+            self.conf_list_container.columnconfigure(column, weight=1, uniform="conf_col")
 
         for idx, item in enumerate(confirm_items):
-            r = idx // 2
-            c = idx % 2
+            r = idx // CONFIRM_GRID_COLUMNS
+            c = idx % CONFIRM_GRID_COLUMNS
 
             cell_f = tk.Frame(self.conf_list_container, bg=COLOR_SUB_BG, highlightbackground=COLOR_WHITE_BORDER, highlightthickness=1, bd=0)
             cell_f.grid(row=r, column=c, padx=5, pady=4, sticky="ew")
