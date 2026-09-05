@@ -23,7 +23,7 @@
   - *Lớp 1 (Ưu tiên cao nhất)*: Tìm bản backup có UDID trùng khớp chính xác với UDID của iPhone.
   - *Lớp 2 (Ưu tiên tiếp theo)*: Nếu không có bản trùng UDID, tự động ghép bản backup có phiên bản iOS tương thích (`iOS backup <= iOS iPhone`).
 - **Can thiệp trực tiếp file Backup trước khi nạp**:
-  - Tự động patch UDID máy vào `Info.plist` của bản backup.
+  - Tự động patch UDID máy vào `Info.plist` của bản backup ngay tại kho (xem 2.4), thời gian chuẩn bị ~0.004s/máy.
   - Tự động patch ngôn ngữ / locale vào cơ sở dữ liệu `Manifest.db` nếu bật tùy chọn.
 
 ### 2.2. Kích Hoạt Thiết Bị Hàng Loạt (Batch Activate Pipeline)
@@ -44,12 +44,13 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng (kèm **tiền
 - Tự động gỡ bỏ TikTok / TikTok Lite sau khi hoàn tất backup.
 - Mỗi tác vụ ghi vào một job riêng trong `.tiktool_work`; lỗi tác vụ không xóa hay ghi đè thư mục backup cũ.
 
-### 2.4. Restore bất biến backup nguồn
-- Backup nguồn chỉ được mở để đọc và tính fingerprint; ứng dụng không sửa, thêm hoặc xóa file bên trong.
-- Một bản sao đầy đủ được tạo trong staging, sau đó chỉ `Info.plist` của bản staging mới được gắn UDID đích.
-- Sau khi restore thành công, fingerprint nguồn được kiểm tra lại rồi toàn bộ thư mục được chuyển sang kho đối diện.
+### 2.4. Chuẩn Bị Restore Tức Thì (Instant In-Place Preparation)
+- **Chỉ sửa duy nhất `Info.plist`**: `prepare_restore_in_place()` xác thực backup qua `Status.plist` (`SnapshotState == finished`) rồi ghi UDID máy đích thẳng vào `Info.plist` của bản backup trong kho. Toàn bộ file dữ liệu (thư mục `ab/`, `Manifest.db`, `Manifest.plist`...) không bị đọc lại hay copy.
+- **Không copy staging, không hash byte**: Cơ chế cũ (`create_restore_stage`) tốn 4 lượt I/O toàn bộ backup mỗi máy (3 lần SHA-256 + 1 lần `copytree`) ≈ 2.8s/máy, gây 10–15s chờ khi cắm 14 iPhone. Cơ chế mới đo được **0.004s/máy**.
+- **Hoàn tác khi restore lỗi**: Bytes gốc của `Info.plist` được giữ trong RAM và ghi trả lại bằng `rollback_restore_info()` nếu `idevicebackup2 restore` thất bại, nên bản backup trong kho không bị mang UDID của máy nạp lỗi.
+- **Restore thành công** thì toàn bộ thư mục được `shutil.move` sang kho đối diện (giữ UDID vừa gắn, để Lớp 1 của động cơ ghép nối nhận đúng máy ở lần sau).
 - Khi chuyển chéo ổ đĩa, bản đích được copy và xác minh trước; nguồn chỉ bị xóa sau khi bản đích khớp hoàn toàn.
-- **Tự động dọn dẹp staging sạch sẽ**: Thư mục tạm `.tiktool_work` được tự động xóa hoàn toàn sau mỗi lần restore xong khi thư mục trống, không để lại file hay thư mục rác trong kho dữ liệu A/B.
+- **`.tiktool_work` chỉ còn phục vụ tác vụ Backup**: Luồng Restore không tạo thư mục tạm nào trong kho A/B.
 
 ### 2.5. Tạo Web App Ra Màn Hình iPhone (WebClip Profile Engine)
 - **Cơ chế Apple Configuration Profile (`.mobileconfig`)**:

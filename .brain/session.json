@@ -1,20 +1,25 @@
 {
-  "updated_at": "2026-09-05T15:22:12+07:00",
+  "updated_at": "2026-09-05T20:50:00+07:00",
   "working_on": {
-    "feature": "Batch-coordinated Auto Activate after Restore",
-    "task": "Gom iPhone restore thành công vào hàng chờ, chờ cả đợt restore xong và USB ổn định rồi chạy cùng pipeline Batch Activate cho từng máy",
+    "feature": "Instant Restore Preparation & Honest Auto Activate Verification",
+    "task": "Loại bỏ hoàn toàn 10-15s chờ check staging khi Restore; sửa lỗi báo thành công ảo của Auto Activate",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "tests/test_app_workflows.py"
+      "tiktool_core.py",
+      "tests/test_app_workflows.py",
+      "tests/test_tiktool_core.py",
+      "CHANGELOG.md",
+      "README.md",
+      "docs/architecture/system_overview.md"
     ],
-    "notes": "Auto cũ chạy riêng từng máy sau thời gian chờ cố định. Auto mới chỉ chạy khi toàn bộ Restore của đợt kết thúc, chờ 100 giây, yêu cầu UDID xuất hiện liên tiếp 3 lần qua USB, sau đó gọi _batch_activate_worker giống nút BATCH ACTIVATE (ALL). Không giới hạn 4 máy; ACTIVATE_SEMAPHORE hiện giữ 32 nên dàn 10-16 máy ổn định sẽ chạy song song. 26/26 unit test và py_compile đạt; chưa xác minh trên dàn iPhone thật."
+    "notes": "1) Restore: Chuyển sang prepare_restore_in_place (0.004s/máy thay vì 2.8s), nạp trực tiếp tại kho gốc, hỗ trợ rollback_restore_info khi lỗi; không copy staging, không hash byte. 2) Auto Activate: tiền kiểm công cụ bắt buộc, xác minh trạng thái thật qua ideviceactivation state, tri-state ở Stage 2 Skip Setup, re-pair và chờ lockdownd sau reboot. 35/35 unit test đạt 100%."
   },
   "pending_tasks": [
     {
-      "task": "Kiểm chứng Auto Activate theo đợt trên dàn 10-16 iPhone và lưu log của một lượt thành công/lỗi nếu có",
+      "task": "Kiểm chứng Auto Activate và Restore tức thì trên dàn 10-16 iPhone thực tế",
       "priority": "high",
-      "notes": "Theo dõi log: hàng chờ Auto Activate, USB ổn định, lệnh Batch và kết quả ios.exe prepare. Không thêm lại kiểm tra ideviceinfo ActivationState vì truy vấn này có thể trả rỗng dù ideviceactivation state báo Activated."
+      "notes": "Xác nhận các máy nạp ngay lập tức không bị delay, và Auto Activate thành công thật sự trên màn hình iPhone."
     },
     {
       "task": "Theo dõi người dùng trải nghiệm thực tế với dàn iPhone thực tế trên nền giao diện Soft Dark, Gradient Buttons và Store Boxes mới",
@@ -28,6 +33,12 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-05T20:50:00+07:00",
+      "type": "instant_restore_and_honest_activate",
+      "description": "Loại bỏ 10-15s chờ check khi Restore bằng cơ chế prepare_restore_in_place (0.004s/máy) kèm rollback an toàn. Sửa triệt để bug Auto Activate báo thành công ảo: tiền kiểm công cụ, xác minh trạng thái thật bằng ideviceactivation state, tri-state Skip Setup, re-pair và chờ lockdownd.",
+      "files": ["BB_RB.py", "tiktool_core.py", "tests/test_app_workflows.py", "tests/test_tiktool_core.py", "CHANGELOG.md", "README.md", "docs/architecture/system_overview.md"]
+    },
     {
       "timestamp": "2026-09-05T15:22:12+07:00",
       "type": "auto_activate_batch_coordinator",

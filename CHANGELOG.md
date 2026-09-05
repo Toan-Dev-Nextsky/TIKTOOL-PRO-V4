@@ -2,6 +2,18 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.8.5 Instant Restore Preparation Edition] - 2026-09-05
+
+### ⚡ Xoá Bỏ 10-15 Giây Chờ "Check" Mỗi Lần Ấn Restore
+- **Nguyên nhân đo được**: `create_restore_stage()` chạy tới **4 lượt I/O toàn bộ bản backup** cho mỗi máy: `backup_fingerprint(nguồn)` (SHA-256 đọc từng byte) ➜ `shutil.copytree` (copy nguyên bản sang `.tiktool_work\restore-xxxx`) ➜ `backup_fingerprint(nguồn)` lần 2 ➜ `backup_fingerprint(bản copy)` lần 3.
+  - Benchmark thật trên `14_iPhone_honginhhng8316` (115 MB / 1053 file, cache nóng, 1 máy): `0.81s + 0.65s + 0.54s` ≈ **2.8 giây/máy** (~460 MB I/O). Cắm 14 iPhone chạy song song trên cùng một ổ đĩa ⇒ ~1.6 GB đọc + 1.6 GB ghi trước khi lệnh restore đầu tiên khởi động ⇒ đúng 10–15 giây chờ.
+- **Chuyển sang nạp trực tiếp tại kho (như `IphoneToolPro_V26.04.26`)**: Thêm `prepare_restore_in_place()` — chỉ `validate_backup()` (đọc `Status.plist`) rồi ghi UDID máy đích thẳng vào `Info.plist` của bản backup gốc, sau đó `idevicebackup2 restore` nạp ngay từ thư mục kho. **Không copy, không hash byte.**
+  - Benchmark sau khi sửa: **0.004 giây/máy** (nhanh hơn ~700 lần); 14 máy vào lệnh restore gần như tức thì.
+- **Hoàn tác an toàn khi restore lỗi (`rollback_restore_info()`)**: Nội dung `Info.plist` nguyên bản được giữ trong RAM; nếu `idevicebackup2 restore` thất bại, ứng dụng ghi lại y nguyên byte cũ để bản backup trong kho không bị mang UDID của máy vừa nạp lỗi. Restore thành công thì bản backup được chuyển kho với UDID mới (đúng như tool cũ) nên Lớp 1 của động cơ ghép nối vẫn nhận đúng máy ở lần sau.
+- **Không còn thư mục rác `.tiktool_work` trong luồng Restore**: Restore không tạo staging nên không cần dọn dẹp; `.tiktool_work` chỉ còn dùng cho tác vụ Backup.
+- **Dọn code chết**: Xoá `create_restore_stage()`, `_patch_staged_info()`, dataclass `RestoreStage` trong `tiktool_core.py` và hàm `patch_info_plist()` không ai gọi trong `BB_RB.py`.
+- **Kiểm thử**: Thay bài test staging bằng 3 bài mới (patch không copy/không sinh `.tiktool_work`, hoàn tác UDID khi restore lỗi, từ chối backup chưa `finished`). Toàn bộ đạt **35/35**.
+
 ## [4.8.4 Honest Activation Verification Edition] - 2026-09-05
 
 ### 🛠️ Sửa Lỗi Auto Activate "Báo Thành Công Nhưng iPhone Chưa Được Kích Hoạt"

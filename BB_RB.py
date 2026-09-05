@@ -21,8 +21,9 @@ from tiktool_core import (
     RebootTracker,
     cleanup_owned_job,
     create_backup_job,
-    create_restore_stage,
     load_concurrency,
+    prepare_restore_in_place,
+    rollback_restore_info,
     normalize_url as core_normalize_url,
     redact_log,
     repair_ipas_path,
@@ -438,24 +439,6 @@ def list_valid_backups(parent_dir):
                 out.append(b_info)
     out.sort(key=lambda bk: (bk["last_dt"] or datetime.min), reverse=False)
     return out
-
-def patch_info_plist(backup_root: str, target_udid: str) -> bool:
-    """Cập nhật UDID đích trực tiếp vào Info.plist trong 0.001s, không copy lãng phí thời gian."""
-    info_path = os.path.join(backup_root, "Info.plist")
-    if not os.path.isfile(info_path):
-        return False
-    try:
-        with open(info_path, "rb") as stream:
-            info = plistlib.load(stream)
-        if info.get("UniqueDeviceID") != target_udid:
-            info["UniqueDeviceID"] = target_udid
-            temporary = info_path + ".tmp"
-            with open(temporary, "wb") as stream:
-                plistlib.dump(info, stream)
-            os.replace(temporary, info_path)
-        return True
-    except Exception:
-        return False
 
 def _max_backup_index(root_dir):
     max_n = 0
@@ -2927,7 +2910,8 @@ class App(tk.Tk):
         with self.lock:
             self.active_restores.add(target_udid)
         row = self.rows.get(target_udid)
-        stage = None
+        original_info = None
+        restore_ok = False
         if not SEMAPHORE.acquire(timeout=1):
             if row: row.push_step("Đang chờ slot...")
             SEMAPHORE.acquire()
@@ -2937,14 +2921,16 @@ class App(tk.Tk):
                 self.log(target_udid, "Cần xác nhận 'Tin Cậy' trên màn hình iPhone!", is_err=True)
                 return
 
+            # Gắn UDID máy đích thẳng vào Info.plist của bản backup rồi nạp ngay tại kho.
+            # Không copy staging, không hash toàn bộ file: 14 máy vào lệnh restore tức thì.
             try:
-                stage = create_restore_stage(backup_folder_full, target_udid)
+                original_info = prepare_restore_in_place(backup_folder_full, target_udid)
             except Exception as e:
-                self.log(target_udid, f"Lỗi tạo bản sao Staging: {e}", is_err=True)
+                self.log(target_udid, f"Lỗi chuẩn bị bản backup: {e}", is_err=True)
                 return
 
-            base_dir = os.path.dirname(stage.backup_path)
-            src_name = os.path.basename(stage.backup_path)
+            base_dir = os.path.dirname(backup_folder_full)
+            src_name = os.path.basename(backup_folder_full)
             cmd = ["idevicebackup2", "-u", target_udid, "-s", src_name, "restore", os.path.normpath(base_dir), "--settings", "--remove"]
 
             if row:
@@ -2961,6 +2947,7 @@ class App(tk.Tk):
 
             rc, last_lines = run_stream(cmd, on_line=on_line)
             if rc == 0:
+                restore_ok = True
                 self.log(target_udid, "Khôi phục dữ liệu Restore hoàn tất thành công.")
                 
                 # KHÓA TRẠNG THÁI REBOOT TRONG 35 GIÂY (Ngăn không cho Polling báo Not Trust)
@@ -3011,11 +2998,13 @@ class App(tk.Tk):
                 for line in last_lines[-10:]:
                     self.log(target_udid, line, is_err=True)
         finally:
-            if stage:
+            if original_info and not restore_ok:
+                # Restore lỗi: trả Info.plist về đúng nguyên trạng để bản backup
+                # không bị mang UDID của máy vừa nạp thất bại.
                 try:
-                    cleanup_owned_job(stage.job_root, missing_ok=True)
+                    rollback_restore_info(backup_folder_full, original_info)
                 except Exception as e:
-                    self.log(target_udid, f"Lỗi dọn dẹp staging: {e}", is_warn=True)
+                    self.log(target_udid, f"Lỗi hoàn tác Info.plist: {e}", is_warn=True)
             with self.lock:
                 self.active_restores.discard(target_udid)
                 _all_done = len(self.active_restores) == 0  # Kiểm tra trong lock

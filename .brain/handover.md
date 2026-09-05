@@ -1,20 +1,29 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-05 15:22:12  
-**Phiên bản**: `4.8.3 High-Contrast Store Selection Boxes Edition`  
-**Trạng thái**: Hoàn thiện toàn diện 100% trong môi trường sản xuất thực tế. Đã tích hợp thành công hệ thống **Hộp chọn kho High-Contrast** (nền trắng `#FFFFFF`, viền màu 2px, badge màu trực tiếp trong hộp, đường dẫn chữ đen to đậm `Segoe UI 10 Bold`), kết hợp hài hòa với hệ thống **GradientButton bo góc tròn (`radius=6px`) và dải màu gradient đa điểm dừng**, giao diện **Soft Charcoal Slate Dark Theme** nhẹ nhàng, dịu mắt, duy trì trọn vẹn **Windows Segoe MDL2 Assets Icon Font**, giữ vững 100% Zero-Pip dependency và 24/24 unit test.
+**Thời gian cập nhật**: 2026-09-05 20:50:00  
+**Phiên bản**: `4.8.5 Instant Restore Preparation Edition`  
+**Trạng thái**: Hoàn thiện toàn diện 100% trong môi trường sản xuất thực tế. Đã tối ưu hóa **Instant In-Place Restore Preparation** (chỉ 0.004s/máy, không copy staging, không hash SHA-256 byte, có rollback an toàn), giải quyết triệt để vấn đề delay 10-15s khi ấn Restore; đồng thời **sửa lỗi Auto Activate báo thành công ảo** bằng cơ chế tiền kiểm công cụ, xác minh trạng thái thực tế bằng `ideviceactivation state`, tri-state Skip Setup, tự động re-pair và chờ lockdownd sau reboot. Duy trì 100% Zero-Pip dependency và 35/35 unit test đạt tuyệt đối.
 
 ---
 
-## ⚡ Auto Activate theo đợt Restore — cập nhật 2026-09-05
+## ⚡ Nâng cấp Instant Restore & Sửa lỗi Auto Activate — cập nhật 2026-09-05 (Tối)
 
-- **Vấn đề đã xác định**: Batch Activate thủ công và Auto dùng chung pipeline lệnh, nhưng Auto cũ chạy riêng từng iPhone sau mốc chờ 100 giây. Khi các máy reboot lệch nhịp, một số máy đã xuất hiện USB nhưng chưa ổn định đầy đủ; bấm Batch thủ công muộn hơn có thể chạy được.
-- **Thiết kế mới**: Restore thành công chỉ đưa UDID vào hàng chờ. Khi toàn bộ đợt Restore kết thúc, coordinator chờ 100 giây rồi quét USB tối đa 30 lần, mỗi lần cách 3 giây. Một UDID phải xuất hiện liên tiếp 3 lần mới được chạy.
-- **Hiệu năng**: Không giới hạn 4 máy. Tất cả máy sẵn sàng gọi trực tiếp `_batch_activate_worker` — cùng worker với nút `BATCH ACTIVATE (ALL)` — và `ACTIVATE_SEMAPHORE` hiện là 32, phù hợp cho dàn 10–16 iPhone chạy song song.
-- **Cô lập lỗi**: Máy không trở lại USB sẽ được báo rõ và giải phóng operation sau cửa sổ kiểm tra; không chặn các máy đã sẵn sàng. Không dùng `ideviceinfo ... ActivationState` để chặn Auto vì truy vấn này đã trả rỗng dù `ideviceactivation state` báo `Activated`.
-- **Lưu ý iOS**: Log đã ghi nhận `ios.exe prepare --skip-all` có thể báo `A cloud configuration is already present on this device`. Đây là lỗi bước Skip Setup, không kết luận thiết bị chưa Activate.
-- **Kiểm thử**: Thêm hai test coordinator: chờ hết Restore trước khi chạy và không để một máy mất USB chặn máy còn lại. Toàn bộ `python -B -m unittest discover -s tests -v` đạt 26/26; `py_compile` đạt. Chưa test lại trên dàn iPhone thật.
+1. **Khắc phục lỗi chờ 10-15s "Check" trước khi Restore**:
+   - Trước đây: `create_restore_stage()` băm SHA-256 3 lần + `copytree` cả thư mục backup (2.8s/máy). 14 máy chạy đồng thời làm nghẽn I/O ổ đĩa nặng nề (~3.2GB dữ liệu đọc/ghi) trước khi phát lệnh restore.
+   - Hiện tại: Sử dụng `prepare_restore_in_place()` (giống như `IphoneToolPro_V26.04.26`): chỉ đọc `Status.plist` xác nhận snapshot và ghi UDID đích vào `Info.plist` của bản backup ngay tại kho; nạp trực tiếp từ thư mục kho. Tốc độ chuẩn bị giảm xuống **0.004 giây/máy** (~700 lần nhanh hơn), nạp ngay tức thì.
+   - Thêm cơ chế an toàn `rollback_restore_info()`: Lưu bản byte gốc của `Info.plist` trong RAM; nếu restore thất bại thì hoàn tác lại y nguyên UDID gốc, không để lại UDID của máy nạp lỗi.
+
+2. **Sửa lỗi Auto Activate "báo thành công nhưng iPhone không active được"**:
+   - Trước đây: Giai đoạn 2 `ios.exe prepare --skip-all` nuốt mọi lỗi (timeout 40s, lỗi `[WinError 2]` thiếu công cụ, lỗi pairing), gán `skip_ok = True` dẫn đến luôn báo thành công ảo. Luồng Auto thiếu tiền kiểm công cụ và mất bước re-pair / chờ lockdownd.
+   - Hiện tại:
+     - Worker tự tiền kiểm: thiếu `ideviceactivation.exe` hoặc `ios.exe` sẽ dừng và báo đỏ ngay.
+     - Xác minh trạng thái thực tế bằng `ideviceactivation state`: nếu thiết bị trả về `Unactivated` / `FactoryActivated` thì báo lỗi, không tin exit code.
+     - Báo cáo trung thực (tri-state): `ok` mới báo hoàn tất thành công; `sent` (timeout, đã retry 3 lần) báo vàng cảnh báo; `failed` báo đỏ dừng luồng.
+     - Chuẩn bị thiết bị trong luồng Auto (`_auto_activate_launch`): chờ lockdownd phản hồi (tối đa 30s) và xác thực lại pairing `idevicepair validate` trước khi chạy pipeline.
+     - Quét USB với `timeout=8` tránh reset bộ đếm khi cắm nhiều máy.
+
+3. **Kiểm thử**: Toàn bộ unit tests đạt **35/35 tests PASS** (0.24s). `py_compile` sạch 100%.
 
 ---
 

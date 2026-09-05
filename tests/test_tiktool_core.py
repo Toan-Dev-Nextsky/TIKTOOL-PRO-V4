@@ -17,12 +17,13 @@ from tiktool_core import (  # noqa: E402
     backup_fingerprint,
     check_license_file,
     cleanup_owned_job,
-    create_restore_stage,
     load_concurrency,
     make_license_key,
     normalize_url,
+    prepare_restore_in_place,
     repair_ipas_path,
     redact_log,
+    rollback_restore_info,
     transfer_backup_immutable,
     validate_license_key,
     validate_backup,
@@ -91,19 +92,37 @@ class BackupSafetyTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("not finished", " ".join(errors).lower())
 
-    def test_restore_staging_patches_copy_without_changing_source(self):
-        """Catches any restore preparation that writes to the stored source backup."""
+    def test_restore_preparation_stamps_udid_without_copying_the_backup(self):
+        """Catches preparation copying or rewriting payload files instead of Info.plist."""
+        backup = make_backup(self.store_a, udid="ORIGINAL-UDID")
+        payload = Path(backup, "ab", "abcdef")
+        payload_before = payload.read_bytes()
+
+        original = prepare_restore_in_place(backup, "TARGET-UDID")
+
+        self.assertEqual("TARGET-UDID", read_udid(backup))
+        self.assertEqual(payload_before, payload.read_bytes())
+        self.assertEqual([], list(Path(self.store_a, ".tiktool_work").glob("*"))
+                         if Path(self.store_a, ".tiktool_work").exists() else [])
+        self.assertEqual("ORIGINAL-UDID", plistlib.loads(original)["UniqueDeviceID"])
+
+    def test_failed_restore_rolls_back_the_source_udid(self):
+        """Catches a failed restore leaving a foreign UDID inside the stored backup."""
         backup = make_backup(self.store_a, udid="ORIGINAL-UDID")
         before = backup_fingerprint(backup)
 
-        stage = create_restore_stage(backup, "TARGET-UDID")
-        try:
-            self.assertEqual(before, backup_fingerprint(backup))
-            self.assertEqual("ORIGINAL-UDID", read_udid(backup))
-            self.assertEqual("TARGET-UDID", read_udid(stage.backup_path))
-            self.assertNotEqual(os.path.realpath(backup), os.path.realpath(stage.backup_path))
-        finally:
-            cleanup_owned_job(stage.job_root)
+        original = prepare_restore_in_place(backup, "TARGET-UDID")
+        rollback_restore_info(backup, original)
+
+        self.assertEqual("ORIGINAL-UDID", read_udid(backup))
+        self.assertEqual(before, backup_fingerprint(backup))
+
+    def test_restore_preparation_rejects_an_unfinished_backup(self):
+        """Catches restore starting on a backup whose snapshot never finished."""
+        backup = make_backup(self.store_a, include_status=False)
+
+        with self.assertRaises(ValueError):
+            prepare_restore_in_place(backup, "TARGET-UDID")
 
     def test_cleanup_rejects_a_real_backup_path(self):
         """Catches broad cleanup code that can recursively delete user backups."""

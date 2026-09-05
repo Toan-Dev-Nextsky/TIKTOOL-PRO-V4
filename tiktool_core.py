@@ -6,6 +6,7 @@ import hashlib
 import base64
 import codecs
 import hmac
+import io
 import json
 import os
 import platform
@@ -268,13 +269,6 @@ class RebootTracker:
 
 
 @dataclass(frozen=True)
-class RestoreStage:
-    job_root: str
-    backup_path: str
-    source_fingerprint: str
-
-
-@dataclass(frozen=True)
 class BackupJob:
     job_root: str
     output_path: str
@@ -462,41 +456,49 @@ def backup_fingerprint(path: str) -> str:
     return digest.hexdigest()
 
 
-def _patch_staged_info(staged_backup: str, target_udid: str, job_root: str) -> None:
-    if not _is_owned_job_root(job_root) or not _is_inside(staged_backup, job_root):
-        raise ValueError("Refusing to patch a backup outside an owned restore job")
-    info_path = os.path.join(staged_backup, "Info.plist")
-    with open(info_path, "rb") as stream:
-        info = plistlib.load(stream)
-    info["UniqueDeviceID"] = target_udid
+def _write_info_bytes(info_path: str, payload: bytes) -> None:
     temporary = info_path + ".tmp"
     with open(temporary, "wb") as stream:
-        plistlib.dump(info, stream)
+        stream.write(payload)
     os.replace(temporary, info_path)
 
 
-def create_restore_stage(source_backup: str, target_udid: str) -> RestoreStage:
-    """Create and patch a disposable copy; the source is opened read-only."""
+def prepare_restore_in_place(source_backup: str, target_udid: str) -> bytes:
+    """Validate the backup and stamp the target UDID straight into its Info.plist.
+
+    Returns the original Info.plist bytes so a failed restore can roll it back.
+    No copy and no byte hashing is performed, so preparation is instant even
+    with a dozen iPhones starting at once.
+    """
     source = _resolved_dir(source_backup)
     valid, errors = validate_backup(source)
     if not valid:
         raise ValueError("Invalid backup: " + "; ".join(errors))
 
-    source_fingerprint = backup_fingerprint(source)
-    work_root = _work_root(os.path.dirname(source))
-    job_root = tempfile.mkdtemp(prefix="restore-", dir=work_root)
-    staged = os.path.join(job_root, os.path.basename(source))
-    try:
-        shutil.copytree(source, staged, copy_function=shutil.copy2)
-        if backup_fingerprint(source) != source_fingerprint:
-            raise IntegrityError("Source backup changed while staging")
-        if backup_fingerprint(staged) != source_fingerprint:
-            raise IntegrityError("Staged backup does not match its source")
-        _patch_staged_info(staged, target_udid, job_root)
-        return RestoreStage(job_root, staged, source_fingerprint)
-    except Exception:
-        cleanup_owned_job(job_root, missing_ok=True)
-        raise
+    info_path = os.path.join(source, "Info.plist")
+    with open(info_path, "rb") as stream:
+        original = stream.read()
+
+    info = plistlib.loads(original)
+    if info.get("UniqueDeviceID") != target_udid:
+        info["UniqueDeviceID"] = target_udid
+        buffer = io.BytesIO()
+        plistlib.dump(info, buffer)
+        _write_info_bytes(info_path, buffer.getvalue())
+    return original
+
+
+def rollback_restore_info(source_backup: str, original_info: bytes) -> None:
+    """Put the untouched Info.plist back after a failed restore."""
+    if not original_info:
+        return
+    info_path = os.path.join(source_backup, "Info.plist")
+    if not os.path.isfile(info_path):
+        return
+    with open(info_path, "rb") as stream:
+        if stream.read() == original_info:
+            return
+    _write_info_bytes(info_path, original_info)
 
 
 def cleanup_owned_job(job_root: str, missing_ok: bool = False) -> None:

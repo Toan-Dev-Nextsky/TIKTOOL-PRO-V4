@@ -23,12 +23,12 @@
 - **Đảo chiều luồng linh hoạt**:
   - **Kho A ➜ Kho B**: Dữ liệu từ Kho A (Mục Nhập) nạp vào iPhone, sau khi hoàn tất tự động chuyển thư mục sang Kho B (Mục Xuất).
   - **Kho B ➜ Kho A**: Dữ liệu từ Kho B nạp vào iPhone và tự động chuyển sang Kho A.
-- **Bảo vệ bất biến bản backup gốc (Immutable Staging)**:
-  - Bản backup gốc được mở ở chế độ đọc-chỉ (Read-Only) và tính mã kiểm tra băm SHA-256 (Fingerprint).
-  - Quá trình nạp được thực hiện trên một bản sao tạm (Staging), tự động gắn đúng UDID của máy đích vào `Info.plist`.
-  - Backup chỉ được di chuyển sang kho đối diện sau khi nạp thành công 100% và fingerprint gốc hoàn toàn nguyên vẹn.
-- **Tự động dọn dẹp sạch sẽ thư mục Staging**:
-  - Không để lại bất kỳ thư mục rác hay `.tiktool_work` nào trong thư mục kho của người dùng.
+- **Chuẩn bị nạp tức thì (Instant In-Place Preparation)**:
+  - Chỉ kiểm tra `Status.plist` rồi gắn UDID máy đích vào `Info.plist` ngay tại kho — **0.004 giây/máy**, cắm 14 iPhone vẫn vào lệnh restore tức thì (không copy, không hash toàn bộ file).
+  - Nếu nạp thất bại, `Info.plist` được hoàn tác về nguyên trạng nên bản backup không bị mang UDID của máy lỗi.
+  - Backup chỉ được di chuyển sang kho đối diện sau khi nạp thành công 100%.
+- **Không sinh thư mục rác trong kho**:
+  - Luồng Restore không tạo `.tiktool_work`; thư mục tạm này chỉ dùng cho tác vụ Backup và tự dọn sau khi xong.
 - **Động cơ phân bổ 2 lớp (2-Layer Matching Engine)**:
   - *Lớp 1 (Ưu tiên tuyệt đối)*: Tự động ghép bản backup có tên/metadata trùng khớp chính xác với UDID của iPhone đang cắm.
   - *Lớp 2 (Tương thích)*: Nếu không có bản trùng UDID, tự động ghép bản backup có phiên bản iOS nhỏ hơn hoặc bằng iOS máy (`iOS backup <= iOS iPhone`).
