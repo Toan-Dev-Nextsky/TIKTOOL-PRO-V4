@@ -1,9 +1,20 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-05 14:15:00  
+**Thời gian cập nhật**: 2026-09-05 15:22:12  
 **Phiên bản**: `4.8.3 High-Contrast Store Selection Boxes Edition`  
 **Trạng thái**: Hoàn thiện toàn diện 100% trong môi trường sản xuất thực tế. Đã tích hợp thành công hệ thống **Hộp chọn kho High-Contrast** (nền trắng `#FFFFFF`, viền màu 2px, badge màu trực tiếp trong hộp, đường dẫn chữ đen to đậm `Segoe UI 10 Bold`), kết hợp hài hòa với hệ thống **GradientButton bo góc tròn (`radius=6px`) và dải màu gradient đa điểm dừng**, giao diện **Soft Charcoal Slate Dark Theme** nhẹ nhàng, dịu mắt, duy trì trọn vẹn **Windows Segoe MDL2 Assets Icon Font**, giữ vững 100% Zero-Pip dependency và 24/24 unit test.
+
+---
+
+## ⚡ Auto Activate theo đợt Restore — cập nhật 2026-09-05
+
+- **Vấn đề đã xác định**: Batch Activate thủ công và Auto dùng chung pipeline lệnh, nhưng Auto cũ chạy riêng từng iPhone sau mốc chờ 100 giây. Khi các máy reboot lệch nhịp, một số máy đã xuất hiện USB nhưng chưa ổn định đầy đủ; bấm Batch thủ công muộn hơn có thể chạy được.
+- **Thiết kế mới**: Restore thành công chỉ đưa UDID vào hàng chờ. Khi toàn bộ đợt Restore kết thúc, coordinator chờ 100 giây rồi quét USB tối đa 30 lần, mỗi lần cách 3 giây. Một UDID phải xuất hiện liên tiếp 3 lần mới được chạy.
+- **Hiệu năng**: Không giới hạn 4 máy. Tất cả máy sẵn sàng gọi trực tiếp `_batch_activate_worker` — cùng worker với nút `BATCH ACTIVATE (ALL)` — và `ACTIVATE_SEMAPHORE` hiện là 32, phù hợp cho dàn 10–16 iPhone chạy song song.
+- **Cô lập lỗi**: Máy không trở lại USB sẽ được báo rõ và giải phóng operation sau cửa sổ kiểm tra; không chặn các máy đã sẵn sàng. Không dùng `ideviceinfo ... ActivationState` để chặn Auto vì truy vấn này đã trả rỗng dù `ideviceactivation state` báo `Activated`.
+- **Lưu ý iOS**: Log đã ghi nhận `ios.exe prepare --skip-all` có thể báo `A cloud configuration is already present on this device`. Đây là lỗi bước Skip Setup, không kết luận thiết bị chưa Activate.
+- **Kiểm thử**: Thêm hai test coordinator: chờ hết Restore trước khi chạy và không để một máy mất USB chặn máy còn lại. Toàn bộ `python -B -m unittest discover -s tests -v` đạt 26/26; `py_compile` đạt. Chưa test lại trên dàn iPhone thật.
 
 ---
 

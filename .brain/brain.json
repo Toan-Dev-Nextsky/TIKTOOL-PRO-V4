@@ -3,7 +3,7 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-05T14:15:00+07:00"
+    "last_updated": "2026-09-05T15:22:12+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
@@ -83,7 +83,7 @@
         "Giai đoạn 2: ios.exe prepare --skip-all --udid={udid} --nojson (Bỏ qua Setup Assistant)",
         "Giai đoạn 3: ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson (Lọc cảnh báo go-ios tunnel, timeout 20s linh hoạt, xử lý mềm dẻo SpringBoard reload)"
       ],
-      "post_restore_auto_activate": "Sau khi Restore thành công, app tự động đếm ngược 100 giây cho iPhone khởi động xong rồi tự chạy Batch Activate 3 giai đoạn (kèm vòng đệm phát hiện USB 45s, tổng an toàn 145s)",
+      "post_restore_auto_activate": "Máy Restore thành công được gom vào queue Auto Activate của cả đợt. Khi toàn bộ Restore kết thúc, coordinator chờ 100 giây, quét USB tối đa 30 lượt mỗi 3 giây và chỉ chạy máy xuất hiện ổn định 3 mẫu liên tiếp. Máy sẵn sàng gọi đúng _batch_activate_worker của Batch Activate; dàn 10-16 máy vẫn chạy song song qua ACTIVATE_SEMAPHORE=32. Máy không xuất hiện lại được log và giải phóng operation, không chặn máy khác.",
       "batch_restore_notification": "Khi tắt Auto Activate, hệ thống theo dõi và chỉ phát thông báo rút máy 1 lần duy nhất khi toàn bộ máy trong đợt xong (len(active_restores) == 0); kết hợp chuông notify.wav (SND_FILENAME), nhấp nháy Taskbar cam (FlashWindow) và banner log nổi bật",
       "restore_two_layer_matching": [
         "Lớp 1: Khớp chính xác UDID của máy với tên/metadata bản backup (Ưu tiên cao nhất)",
@@ -110,12 +110,16 @@
       "Batch Notification Timing: Thông báo rút máy phải được đặt trong khối finally của _restore_worker, kiểm tra len(active_restores) == 0 dưới threading.Lock để đảm bảo chỉ kích hoạt một lần duy nhất cho toàn đợt.",
       "SpringBoard Reload on Lang Change: Lệnh ios.exe lang làm khởi động lại giao diện SpringBoard của iOS, dẫn đến mất kết nối USB tạm thời. Cần hạ timeout xuống 20s và bọc exception mềm dẻo tránh treo 80%.",
       "Staging Cleanliness: Thư mục .tiktool_work dùng làm workspace tạm phải luôn được xóa thư mục cha sau khi xóa job con trong cleanup_owned_job nếu nó rỗng để tránh lộ folder rác ra Explorer."
+      ,"Activation State Query: ideviceinfo --simple -k ActivationState có thể trả rỗng với exit 0 dù ideviceactivation state báo 'ActivationState: Activated' (thường exit 1). Không dùng ideviceinfo ActivationState làm điều kiện chặn Auto Activate."
+      ,"Auto versus Manual Batch: Batch thủ công và Auto theo đợt phải dùng chung _batch_activate_worker (ideviceactivation activate -> ios prepare --skip-all -> optional ios lang). Khác biệt cũ là Auto chạy riêng từng máy theo mốc 100 giây; coordinator mới chạy sau cả đợt Restore và ổn định USB."
+      ,"go-ios Prepare Cloud Configuration: Log đã ghi nhận ios.exe prepare có thể lỗi 'A cloud configuration is already present on this device'. Đây là lỗi Skip Setup, không phải bằng chứng lệnh ideviceactivation chưa Activate; log phải phân biệt hai giai đoạn."
     ],
     "conventions": [
       "Luôn acquire SEMAPHORE trước khi thực hiện các tác vụ nặng (Backup, Restore, Activate) để kiểm soát tải CPU và băng thông USB.",
       "Giao diện Soft Charcoal Slate Dark Theme sử dụng các mã màu: nền chính #1A1D23, panel/card #22262E, sub-panel/track #262A33, terminal console #1E2229, elevated buttons #2C313C, borders #3A414F, text Slate-50/200/400, accent Cyan #38BDF8, Emerald #059669, Blue #2563EB.",
       "Hệ thống icon sử dụng lớp Icons chuẩn Windows Segoe MDL2 Assets với FONT_MDL2.",
       "Tất cả các cập nhật GUI từ worker thread phải điều hướng qua queue hoặc self.after(0, ...) để tránh xung đột luồng Tkinter."
+      ,"Không giảm Auto Activate xuống 4 máy cho dàn 10-16 iPhone. Độ song song hiện do ACTIVATE_SEMAPHORE=32; coordinator chỉ trì hoãn đến khi máy USB ổn định, không tuần tự hóa batch."
     ]
   }
 }

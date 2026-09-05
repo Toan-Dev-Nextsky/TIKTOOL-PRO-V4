@@ -1,20 +1,21 @@
 {
-  "updated_at": "2026-09-05T14:20:00+07:00",
+  "updated_at": "2026-09-05T15:22:12+07:00",
   "working_on": {
-    "feature": "High-Contrast Store Selection Boxes (Identity Badges & Active Border Highlight)",
-    "task": "Cố định màu sắc nhận diện badge (Kho A luôn Xanh lục #10B981, Kho B luôn Cam #F97316), chỉ kho nào được chọn làm nguồn thì border đậm màu tương ứng (2px), kho không chọn thì border tối #3A414F (1px) như bản cũ",
+    "feature": "Batch-coordinated Auto Activate after Restore",
+    "task": "Gom iPhone restore thành công vào hàng chờ, chờ cả đợt restore xong và USB ổn định rồi chạy cùng pipeline Batch Activate cho từng máy",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "CHANGELOG.md",
-      "docs/architecture/system_overview.md",
-      ".brain/brain.json",
-      ".brain/session.json",
-      ".brain/handover.md"
+      "tests/test_app_workflows.py"
     ],
-    "notes": "Kiểm thử 24/24 unit test hoàn hảo (Ran 24 tests in 0.474s - OK). Runtime kiểm chứng: Kho A luôn giữ badge Xanh lục #10B981, Kho B luôn giữ badge Cam #F97316; khi chọn A thì A viền đậm 2px và B viền tối 1px; khi chọn B thì B viền đậm 2px và A viền tối 1px."
+    "notes": "Auto cũ chạy riêng từng máy sau thời gian chờ cố định. Auto mới chỉ chạy khi toàn bộ Restore của đợt kết thúc, chờ 100 giây, yêu cầu UDID xuất hiện liên tiếp 3 lần qua USB, sau đó gọi _batch_activate_worker giống nút BATCH ACTIVATE (ALL). Không giới hạn 4 máy; ACTIVATE_SEMAPHORE hiện giữ 32 nên dàn 10-16 máy ổn định sẽ chạy song song. 26/26 unit test và py_compile đạt; chưa xác minh trên dàn iPhone thật."
   },
   "pending_tasks": [
+    {
+      "task": "Kiểm chứng Auto Activate theo đợt trên dàn 10-16 iPhone và lưu log của một lượt thành công/lỗi nếu có",
+      "priority": "high",
+      "notes": "Theo dõi log: hàng chờ Auto Activate, USB ổn định, lệnh Batch và kết quả ios.exe prepare. Không thêm lại kiểm tra ideviceinfo ActivationState vì truy vấn này có thể trả rỗng dù ideviceactivation state báo Activated."
+    },
     {
       "task": "Theo dõi người dùng trải nghiệm thực tế với dàn iPhone thực tế trên nền giao diện Soft Dark, Gradient Buttons và Store Boxes mới",
       "priority": "medium",
@@ -27,6 +28,12 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-05T15:22:12+07:00",
+      "type": "auto_activate_batch_coordinator",
+      "description": "Thay thế Auto Activate từng máy bằng coordinator theo đợt: queue máy restore thành công, đợi toàn bộ restore kết thúc + 100 giây, xác nhận USB ổn định 3 mẫu liên tiếp, sau đó khởi chạy đúng worker Batch Activate cho từng máy. Máy mất kết nối không chặn máy đã sẵn sàng; sau 30 lượt kiểm tra USB, trạng thái operation của máy mất kết nối được giải phóng và log rõ ràng.",
+      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
+    },
     {
       "timestamp": "2026-09-05T14:20:00+07:00",
       "type": "ui_store_boxes_active_border_refinement",
@@ -101,6 +108,10 @@
     {
       "decision": "Xây dựng GradientButton dựa trên tk.Canvas và hình học giải tích thay vì dùng thư viện bên thứ ba",
       "reason": "Giữ vững cam kết 100% Zero-Pip dependency của dự án; vẽ gradient lát cắt 1px bo góc tròn radius=6px, viền subtle border, text centering và hiệu ứng hover/click cực kỳ mượt mà, không phụ thuộc Pillow hay CustomTkinter."
+    },
+    {
+      "decision": "Auto Activate chạy theo đợt Restore và tái sử dụng pipeline Batch Activate",
+      "reason": "Nút Batch thủ công chạy được trong khi Auto từng máy lỗi phụ thuộc thời điểm reboot. Điều phối theo đợt loại bỏ chênh lệch thời điểm, vẫn cho 10-16 máy chạy song song và tránh dùng một pipeline Auto riêng khác với Batch."
     }
   ]
 }
