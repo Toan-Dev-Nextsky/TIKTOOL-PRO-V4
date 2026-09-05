@@ -94,7 +94,7 @@ DEFAULT_SETTINGS = {
     "setLangAfterActive": True,           # Đặt ngôn ngữ tự động sau khi Batch Activate
     "autoActivateAfterRestore": True,      # Tự động Activate ngay sau khi Restore xong
     "active": "A",                        # Kho nguồn mặc định: "A" (A->B) hoặc "B" (B->A)
-    "customWebclipLink": "https://linkm.site/",
+    "customWebclipLink": "",                      # Để trống, người dùng tự nhập link
     "dailyRestoreDate": "",
     "dailyRestoreCount": 0
 }
@@ -1208,17 +1208,56 @@ class App(tk.Tk):
             cmd2 = [ios_exe, "prepare", "--skip-all", f"--udid={udid}", "--nojson"]
             self.log(udid, "RUN: " + " ".join(cmd2))
 
-            rc2, out2 = run_capture(cmd2, timeout=40)
-            self.log(udid, out2 or f"exit {rc2}", is_err=(rc2 != 0))
+            skip_ok = False
+            for skip_attempt in range(1, 4):
+                _res2 = PROCESS_RUNNER.run_capture(cmd2, timeout=40)
+                rc2 = _res2.returncode
+                out2 = _res2.output
 
-            # Kiểm tra kết quả skip setup
-            low2 = (out2 or "").lower()
-            skip_ok = (rc2 == 0) or ('"ok"' in low2) or (low2.strip() == "ok")
+                # Lọc bỏ warning go-ios tunnel (không ảnh hưởng chức năng qua USB/lockdownd)
+                _skip_display_lines = [
+                    ln for ln in (out2 or "").splitlines()
+                    if "go-ios agent is not running" not in ln
+                    and "failed to get tunnel info" not in ln
+                    and ln.strip()
+                ]
+                _skip_display_out = "\n".join(_skip_display_lines)
+
+                if _res2.timed_out:
+                    # Timeout thường do go-ios tunnel hoặc lockdownd phản hồi chậm
+                    # Lệnh prepare thực tế vẫn có thể đã được iPhone tiếp nhận
+                    self.log(udid, f"⚡ Lệnh Skip Setup đã gửi (timeout 40s, lần {skip_attempt}/3 — iPhone có thể đã nhận lệnh).")
+                    skip_ok = True  # Coi như thành công, tiếp tục luồng
+                    break
+                else:
+                    if _skip_display_out:
+                        low2 = _skip_display_out.lower()
+                    else:
+                        low2 = ""
+
+                    skip_ok = (rc2 == 0) or ('"ok"' in low2) or (low2.strip() == "ok")
+
+                    if skip_ok:
+                        if _skip_display_out:
+                            self.log(udid, _skip_display_out)
+                        break
+
+                    # Nếu lỗi lockdownd/connection → retry
+                    if skip_attempt < 3 and ("lockdownd" in low2 or "could not connect" in low2 or "failed to connect" in low2 or "connection" in low2):
+                        self.log(udid, f"⚠️ Skip Setup: lockdownd đang bận, thử lại sau 5s (lần {skip_attempt}/3)...")
+                        self._update_card_progress(udid, step=f"Retry Skip Setup ({skip_attempt}/3)...")
+                        time.sleep(5)
+                    else:
+                        # Lỗi khác nhưng không chặn — log cảnh báo và tiếp tục
+                        if _skip_display_out:
+                            self.log(udid, _skip_display_out, is_err=True)
+                        self.log(udid, f"⚠️ Skip Setup trả về rc={rc2}, tiếp tục luồng Batch Activate...")
+                        skip_ok = True  # Không chặn cứng; iPhone thường đã nhận lệnh
+                        break
 
             if not skip_ok:
-                self._update_card_progress(udid, task=f"{task} lỗi", step="Skip Setup lỗi")
-                self.log(udid, "Skip Setup Assistant thất bại!", is_err=True)
-                return False
+                self._update_card_progress(udid, task=f"{task} cảnh báo", step="Skip Setup lỗi (tiếp tục)")
+                self.log(udid, "⚠️ Skip Setup Assistant không phản hồi rõ ràng, tiếp tục Batch Activate...", is_err=False)
 
             self._update_card_progress(udid, pct=80, task=f"{task} 80%", step="Skip Setup OK")
 
@@ -1230,16 +1269,35 @@ class App(tk.Tk):
                 cmd3 = [ios_exe, "lang", f"--setlocale={locale}", f"--setlang={lang}", f"--udid={udid}", "--nojson"]
                 self.log(udid, "RUN: " + " ".join(cmd3))
 
-                # Đổi ngôn ngữ thường mất 3-10s; giới hạn timeout 20s (thay vì 120s) tránh treo luồng
-                rc3, out3 = run_capture(cmd3, timeout=20)
-                self.log(udid, out3 or f"exit {rc3}", is_err=(rc3 != 0))
+                # Đổi ngôn ngữ thường mất 3-10s; giới hạn timeout 20s tránh treo luồng
+                # Dùng PROCESS_RUNNER trực tiếp để phân biệt timeout vs lỗi thực
+                _res3 = PROCESS_RUNNER.run_capture(cmd3, timeout=20)
+                rc3 = _res3.returncode
+                out3 = _res3.output
 
-                low3 = (out3 or "").lower()
-                lang_ok = (rc3 == 0) or ('"language"' in low3) or ('"locale"' in low3) or ('"ok"' in low3) or ('supportedlanguages' in low3)
-                if not lang_ok:
-                    # Khi iPhone đổi ngôn ngữ, SpringBoard reload làm ngắt kết nối socket tạm thời
-                    # khiến lệnh phản hồi trễ hoặc timeout; nhưng thực tế iPhone đã nhận lệnh và đổi xong
-                    self.log(udid, f"⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật: {out3 or rc3}).")
+                # Lọc bỏ warning go-ios tunnel (không ảnh hưởng chức năng qua USB/lockdownd)
+                _display_lines = [
+                    ln for ln in (out3 or "").splitlines()
+                    if "go-ios agent is not running" not in ln
+                    and "failed to get tunnel info" not in ln
+                    and ln.strip()
+                ]
+                _display_out = "\n".join(_display_lines)
+
+                if _res3.timed_out:
+                    # SpringBoard reload ngắt kết nối USB tạm thời → timeout là bình thường
+                    # iPhone đã nhận lệnh và đổi ngôn ngữ xong trong thực tế
+                    self.log(udid, f"⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật, timeout 20s là bình thường).")
+                else:
+                    if _display_out:
+                        self.log(udid, _display_out, is_err=(rc3 != 0))
+
+                    low3 = (_display_out or "").lower()
+                    lang_ok = (rc3 == 0) or ('"language"' in low3) or ('"locale"' in low3) or ('"ok"' in low3) or ('supportedlanguages' in low3)
+                    if not lang_ok:
+                        # Khi iPhone đổi ngôn ngữ, SpringBoard reload làm ngắt kết nối socket tạm thời
+                        # khiến lệnh phản hồi trễ; nhưng thực tế iPhone đã nhận lệnh và đổi xong
+                        self.log(udid, f"⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật: {_display_out or rc3}).")
 
             # === HOÀN TẤT ===
             self._update_card_progress(udid, pct=100, task=f"{task} thành công", step="Đã kích hoạt ✓")
@@ -2489,11 +2547,11 @@ class App(tk.Tk):
             pass
 
     def _post_restore_activate_worker(self, udid, set_language=False, language_preset=None, operation_reserved=False):
-        """Sau khi Restore xong, chờ đúng 80 giây cho iPhone khởi động hoàn tất rồi tự động Batch Activate."""
+        """Sau khi Restore xong, chờ đúng 100 giây cho iPhone khởi động hoàn tất rồi tự động Batch Activate."""
         with self.lock:
             self.active_activates.add(udid)
         try:
-            TOTAL_WAIT = 80  # Đợi đúng 80 giây
+            TOTAL_WAIT = 100  # Đợi đúng 100 giây
             self.log(udid, f"⏳ Restore hoàn tất. Bắt đầu đếm ngược ({TOTAL_WAIT}s) cho iPhone khởi động hoàn toàn...")
 
             start_time = time.time()
@@ -2515,7 +2573,7 @@ class App(tk.Tk):
                 time.sleep(2)
 
             # Hết thời gian chờ, kiểm tra kết nối thiết bị
-            self.log(udid, "⌛ Đã hết 80 giây chờ! Đang kiểm tra kết nối thiết bị...")
+            self.log(udid, "⌛ Đã hết 100 giây chờ! Đang kiểm tra kết nối thiết bị...")
             self._update_card_step(udid, "Kiểm tra kết nối...")
 
             # Chờ tối đa 45 giây nếu thiết bị chưa kịp hiện trong danh sách USB

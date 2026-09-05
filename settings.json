@@ -1,6 +1,6 @@
 {
-  "storeA": "D:/TKBAND DONG MOI 3.9 A",
-  "storeB": "D:/TKBAND DONG MOI 3.9 B",
+  "storeA": "D:/TK 30.7H NGAM DONG40k GB  31.8 A",
+  "storeB": "D:/TK 30.7H NGAM DONG40k GB  31.8 B",
   "generalBackupDir": "D:/backups",
   "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
   "removeTikTok": false,
@@ -10,8 +10,8 @@
   "setLangAfterActive": true,
   "autoActivateAfterRestore": true,
   "active": "A",
-  "customWebclipLink": "https://linkm.site/",
+  "customWebclipLink": "",
   "dailyRestoreDate": "2026-09-05",
-  "dailyRestoreCount": 54,
+  "dailyRestoreCount": 153,
   "autoSetLangAfterRestore": true
 }

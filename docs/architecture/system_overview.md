@@ -3,7 +3,7 @@
 ## 1. Giới Thiệu Tổng Quan
 **TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) cho số lượng lớn iPhone thông qua kết nối USB trên nền tảng Windows.
 
-- **Phiên bản hiện tại**: `4.7.1 Web App Link Fix & Portable Launcher Edition`
+- **Phiên bản hiện tại**: `4.7.2 Auto-Activate Timing & Web App Default Edition`
 - **Tập tin chạy chính**: `BB_RB.py` (hoặc mở ngầm qua `TIKTOOL_PRO.pyw` / `CHAY_TIKTOOL.bat`)
 - **Ngôn ngữ & Thư viện**: Python 3.11 (100% Python Standard Library, Zero-Pip Dependencies), Tkinter GUI, Custom Canvas Components, Threading đa luồng, Semaphore, SQLite3, Plistlib, Runpy.
 - **Công cụ nhị phân tích hợp**: `libimobiledevice` (Windows x64) và `ios.exe`.
@@ -33,7 +33,9 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
 1. **Giai đoạn 1 (Activate)**: Gọi `ideviceactivation.exe activate -u {udid} -b` để kích hoạt thiết bị với Apple Server.
 2. **Giai đoạn 2 (Skip Setup Assistant)**: Gọi `ios.exe prepare --skip-all --udid={udid} --nojson` để bỏ qua toàn bộ các bước thiết lập ban đầu (Hello screen, Wifi, FaceID, Passcode).
 3. **Giai đoạn 3 (Set Language / Locale)**: Tùy chọn gọi `ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson` để đưa máy về ngôn ngữ mong muốn (ví dụ: Nhật Bản `ja_JP|ja`, Việt Nam `vi_VN|vi`).
-4. **Tự động kích hoạt sau khi Restore (Auto Activate)**: Đếm ngược 80 giây cho iPhone reboot hoàn tất rồi tự động kích hoạt toàn bộ luồng trên mà không cần can thiệp thủ công.
+   - Tự động lọc bỏ các cảnh báo vô hại về go-ios tunnel (`go-ios agent is not running...`, `failed to get tunnel info...`).
+   - Phân biệt timeout 20s do SpringBoard reload (bình thường, máy đã nhận lệnh) và ghi nhận log thông báo màu xanh/trắng, không gắn cờ đỏ lỗi.
+4. **Tự động kích hoạt sau khi Restore (Auto Activate)**: Đếm ngược **100 giây** cho iPhone reboot hoàn tất (kèm vòng đệm 45s phát hiện USB) rồi tự động kích hoạt toàn bộ luồng trên mà không cần can thiệp thủ công.
 
 ### 2.3. Sao Lưu Dữ Liệu (Backup All)
 - Tự động sao lưu toàn bộ thiết bị đang cắm qua lệnh `idevicebackup2.exe backup --full`.
@@ -60,7 +62,7 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
     ```
   - Khi gửi thành công, người dùng chỉ cần bấm xác nhận trên màn hình iPhone để icon xuất hiện ngay ngoài màn hình chính.
 - **Tiện ích thao tác nhanh trên giao diện (Hàng 3 Top Card)**:
-  - **Nhập link web tự do & chống ghi đè**: Ô nhập link trực quan, mặc định `https://linkm.site/`. Ứng dụng tích hợp cờ `_webclip_link_loaded` chỉ nạp cấu hình một lần lúc mở máy, ngăn hiện tượng vòng lặp 1s sync loop giật lùi về URL cũ khi người dùng đang gõ hoặc dán link mới.
+  - **Nhập link web tự do & chống ghi đè**: Ô nhập link trực quan, mặc định để trống `""` (người dùng tự do nhập/dán URL mong muốn). Ứng dụng tích hợp cờ `_webclip_link_loaded` chỉ nạp cấu hình một lần lúc mở máy, ngăn hiện tượng vòng lặp 1s sync loop giật lùi về URL cũ khi người dùng đang gõ hoặc dán link mới.
   - **Menu chuột phải trực quan (Context Menu)**: Tích hợp `_bind_context_menu()` hỗ trợ chuột phải Cắt, Sao chép, Dán (Paste) và Chọn tất cả trên các ô nhập link và tên.
   - **🚀 Tạo Web App**: Tự động trích xuất tên miền làm nhãn và đẩy link tắt tới toàn bộ thiết bị đang kết nối.
   - **📱 TikTok - AppStore** & **⚡ TikTok Lite - AppStore**: Các nút tắt tạo link tải TikTok/TikTok Lite nhanh từ kho ứng dụng.

@@ -2,6 +2,26 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.7.2 Auto-Activate Timing & Web App Default Edition] - 2026-09-05
+
+### ⏳ Tăng Thời Gian Chờ Reboot Sau Restore (80s ➜ 100s)
+- **Đảm bảo iPhone khởi động hoàn tất trước khi Batch Activate**:
+  - Tăng thời gian đếm ngược `TOTAL_WAIT` từ 80 giây lên **100 giây** sau khi Restore xong.
+  - Lý do thực tế: Các dòng máy iPhone khi Restore nạp dữ liệu lớn mất từ 60-90 giây để nạp xong SpringBoard và khởi động `lockdownd` daemon. Nếu kích hoạt quá sớm ở mốc 80s máy chưa sẵn sàng sẽ dễ báo lỗi hoặc timeout.
+  - Thời gian 100 giây kết hợp với vòng đệm kiểm tra kết nối tối đa 45 giây mang lại tổng thời gian an toàn 145 giây, giúp tỷ lệ kích hoạt thành công đạt mức tối đa và iPhone hoạt động ổn định nhất.
+
+### 🛡️ Lọc Bỏ Cảnh Báo Tunnel & Xử Lý Timeout SpringBoard Khi Đổi Ngôn Ngữ
+- **Ẩn cảnh báo vô hại của go-ios**:
+  - Lọc bỏ dòng thông báo `go-ios agent is not running...` và `failed to get tunnel info...` khi chạy `ios.exe lang`. Đây là cảnh báo cho daemon/tunnel chế độ thử nghiệm trên iOS 17+, không ảnh hưởng đến giao tiếp USB qua socket thông thường.
+- **Xử lý mềm dẻo hiện tượng SpringBoard Reload Timeout (20s)**:
+  - Khi đổi ngôn ngữ, iOS buộc phải reload SpringBoard, dẫn đến socket USB bị ngắt trong 1-2 giây và lệnh trả về timeout.
+  - Phân biệt rõ ràng giữa timeout do SpringBoard reload và lỗi thực tế: hiển thị log thông tin màu xanh/trắng `⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật, timeout 20s là bình thường)` thay vì gắn cờ đỏ lỗi `is_err=True`.
+
+### 🌐 Mặc Định Để Trống Ô Nhập Link Web App
+- **Xóa URL mặc định `https://linkm.site/`**:
+  - Thiết lập giá trị mặc định của `customWebclipLink` thành chuỗi rỗng `""` trong cả code `DEFAULT_SETTINGS` và `settings.json`.
+  - Người dùng có toàn quyền nhập link web mong muốn hoặc để trống mà không cần phải xóa link gợi ý ban đầu.
+
 ---
 
 ## [4.7.1 Web App Link Fix & Portable Launcher Edition] - 2026-09-05

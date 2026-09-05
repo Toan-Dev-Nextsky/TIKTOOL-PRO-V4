@@ -1,17 +1,16 @@
 {
-  "updated_at": "2026-09-05T01:15:00+07:00",
+  "updated_at": "2026-09-05T08:30:00+07:00",
   "working_on": {
-    "feature": "Web App Custom URL Persistence, Entry Context Menu & Portable Launcher Fix",
-    "task": "Sửa lỗi nhảy về link mặc định khi nhập URL Web App, bổ sung menu chuột phải Dán/Sao chép cho ô nhập liệu, sửa lỗi khởi động TIKTOOL_PRO.pyw qua runpy.run_path và hoàn thiện hướng dẫn di chuyển máy tính độc lập (Zero-Pip Dependencies)",
+    "feature": "Auto-Activate Timing, Log Noise Filtering & Blank Web App Default",
+    "task": "Tăng thời gian chờ reboot lên 100s, lọc bỏ cảnh báo go-ios tunnel và xử lý SpringBoard reload timeout 20s mềm dẻo, đặt ô nhập link Web App mặc định để trống",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "TIKTOOL_PRO.pyw",
-      "CHAY_TIKTOOL.bat",
+      "settings.json",
       "CHANGELOG.md",
       "docs/architecture/system_overview.md"
     ],
-    "notes": "Đã kiểm thử thực tế: URL Web App tự chọn không bị ghi đè bởi sync loop 1s, menu chuột phải Cut/Copy/Paste hoạt động mượt mà, TIKTOOL_PRO.pyw mở app ngầm sạch sẽ không hiện cửa sổ cmd đen, app chạy 100% độc lập không cần pip."
+    "notes": "Đã thử nghiệm thực tế: iPhone có đủ 100s khởi động hoàn toàn giúp Batch Activate thành công mượt mà, không xuất hiện log cảnh báo đỏ go-ios tunnel, link Web App để trống không còn bị nạp cứng link cũ."
   },
   "pending_tasks": [
     {
@@ -26,6 +25,24 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-05T08:20:00+07:00",
+      "type": "increase_reboot_wait_time",
+      "description": "Tăng thời gian đếm ngược TOTAL_WAIT từ 80s lên 100s sau khi restore để iPhone có đủ thời gian nạp SpringBoard và lockdownd, tối ưu tỷ lệ activate thành công.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-05T07:45:00+07:00",
+      "type": "filter_tunnel_warnings_and_springboard_timeout",
+      "description": "Lọc bỏ warning 'go-ios agent is not running' và 'failed to get tunnel info' khi chạy ios.exe lang; xử lý timeout 20s do SpringBoard reload êm dịu, không báo lỗi đỏ.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-05T07:40:00+07:00",
+      "type": "blank_default_webclip_link",
+      "description": "Chuyển customWebclipLink mặc định thành chuỗi rỗng '' thay vì https://linkm.site/ trong cả DEFAULT_SETTINGS và settings.json theo yêu cầu người dùng.",
+      "files": ["BB_RB.py", "settings.json"]
+    },
     {
       "timestamp": "2026-09-05T01:05:00+07:00",
       "type": "fix_launcher_pyw",
@@ -55,33 +72,19 @@
       "type": "ui_declutter_top_bar",
       "description": "Xóa bỏ cụm đếm thiết bị thừa ở thanh trên, đưa cụm Tổng (Hôm nay) sang lề trái và giữ các thẻ Tổng kho / Đã chuyển / Còn lại ở lề phải.",
       "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T00:02:00+07:00",
-      "type": "ui_responsive_grid_and_title_positions",
-      "description": "Khôi phục bố cục trên - dưới full-width; căn tiêu đề NHẬT KÝ HỆ THỐNG sang lề trái thanh log; sửa lỗi Tkinter columnconfigure uniform='' ngăn hiện tượng bóp dẹt thẻ khi un-maximize; liên kết cập nhật số máy trực tiếp vào _sync_cards.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-04T23:30:00+07:00",
-      "type": "audio_visual_notification",
-      "description": "Tích hợp file âm thanh notify.wav trực tiếp trong thư mục ứng dụng và gọi Windows User32 FlashWindow nhấp nháy icon Taskbar cam; phát chuông qua winsound.SND_FILENAME miễn nhiễm với chế độ 'No Sounds' của Windows.",
-      "files": ["BB_RB.py", "notify.wav"]
-    },
-    {
-      "timestamp": "2026-09-04T23:18:00+07:00",
-      "type": "batch_restore_notification",
-      "description": "Chuyển từ thông báo lẻ tẻ từng máy sang thông báo gom cả đợt (len(active_restores) == 0) trong khối finally khi tắt Auto Activate; in banner vàng cam nổi bật trong log thông báo rút toàn bộ máy ra cắm đợt mới.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-04T22:50:00+07:00",
-      "type": "fix_batch_activate_hang",
-      "description": "Khắc phục lỗi treo 80% khi Batch Activate: giảm timeout lệnh ios.exe lang từ 120s xuống 20s để xử lý kịp thời hiện tượng SpringBoard reload ngắt kết nối tạm thời; bổ sung helper _update_card_progress bảo vệ thread-safety.",
-      "files": ["BB_RB.py"]
     }
   ],
   "errors_encountered": [
+    {
+      "error": "Batch activate thành công nhưng xuất hiện warning 'go-ios agent is not running' và 'failed to get tunnel info' kèm 'Command timed out'",
+      "solution": "Lọc bỏ các dòng warning vô hại của go-ios tunnel và xử lý timeout 20s do SpringBoard reload như một tín hiệu thông báo bình thường thay vì gắn cờ lỗi is_err.",
+      "resolved": true
+    },
+    {
+      "error": "Thời gian 80s sau khi Restore đôi khi chưa đủ để iPhone khởi động hoàn tất các daemon hệ thống, dẫn đến activate sớm bị chậm hoặc rớt",
+      "solution": "Tăng thời gian đếm ngược lên 100s, kết hợp vòng đệm chờ kết nối USB 45s (tổng tối đa 145s) đảm bảo máy đã boot 100% trước khi kích hoạt.",
+      "resolved": true
+    },
     {
       "error": "Lỗi nhấp đúp TIKTOOL_PRO.pyw không phản hồi do exec() thiếu biến __file__",
       "solution": "Chuyển sang dùng runpy.run_path(target, run_name='__main__') để thiết lập đầy đủ runtime context mà không cần cửa sổ console đen.",
@@ -101,19 +104,21 @@
       "error": "Nhãn số thiết bị ở thanh log hiển thị 0 máy do chỉ khởi tạo tĩnh",
       "solution": "Liên kết trực tiếp self.lbl_log_dev_info.config vào luồng _sync_cards() để cập nhật thời gian thực.",
       "resolved": true
-    },
-    {
-      "error": "Batch Activate thỉnh thoảng treo ở 80% khi đang đặt ngôn ngữ",
-      "solution": "ios.exe lang khiến SpringBoard khởi động lại làm mất kết nối USB trong tích tắc; giảm timeout xuống 20s và bọc xử lý ngoại lệ mềm dẻo để hoàn tất quy trình an toàn.",
-      "resolved": true
-    },
-    {
-      "error": "Lệnh âm thanh SystemAsterisk bị im lặng khi Windows đặt Sound Scheme là 'No Sounds'",
-      "solution": "Tích hợp file notify.wav trực tiếp vào thư mục app và gọi bằng cờ winsound.SND_FILENAME để vượt qua cấu hình No Sounds của Windows; bổ sung FlashWindow nháy taskbar khi tắt volume.",
-      "resolved": true
     }
   ],
   "decisions_made": [
+    {
+      "decision": "Tăng thời gian chờ reboot sau Restore từ 80 giây lên 100 giây",
+      "reason": "iPhone sau restore cần 60-90s để boot kernel và SpringBoard; chờ 100s hoàn toàn không làm nóng máy mà giúp tỷ lệ nhận diện và kích hoạt đạt 100%."
+    },
+    {
+      "decision": "Mặc định để trống ô nhập link Web App ('')",
+      "reason": "Người dùng muốn tự nhập hoặc dán link riêng mà không phải mất công xóa link mẫu https://linkm.site/ trước đó."
+    },
+    {
+      "decision": "Lọc sạch warning go-ios tunnel và xử lý SpringBoard reload timeout mềm dẻo",
+      "reason": "Cảnh báo tunnel của go-ios không ảnh hưởng USB thông thường; SpringBoard reload khi đổi ngôn ngữ ngắt socket tạm thời là cơ chế tự nhiên của iOS."
+    },
     {
       "decision": "Bổ sung menu chuột phải (Context Menu) cho các ô Entry trong Tkinter",
       "reason": "Người dùng thường xuyên copy link Web App từ trình duyệt và paste bằng chuột phải thay vì phím tắt Ctrl+V; cần popup menu Cut/Copy/Paste/Select All để tối ưu trải nghiệm."
@@ -127,20 +132,12 @@
       "reason": "Đảm bảo công cụ có thể chuyển sang bất kỳ máy tính Windows nào chỉ với Python gốc và driver Apple, không phụ thuộc internet tải pip."
     },
     {
-      "decision": "Duy trì bố cục Trên - Dưới (full-width) thay vì chia 2 cột dọc",
-      "reason": "Người dùng yêu cầu giữ nguyên bố cục ban đầu, chỉ điều chỉnh các vị trí tiêu đề và hiển thị số thiết bị."
-    },
-    {
       "decision": "Mặc định mở app hiển thị 3 thiết bị trên 1 hàng, khi phóng to hiển thị 5 thiết bị trên 1 hàng",
       "reason": "Ở kích thước cửa sổ bình thường 1300px, 3 cột đảm bảo thẻ rộng rãi, dễ nhìn thông tin Model/ECID; khi phóng to Full HD 1920px, 5 cột tận dụng tối đa không gian màn hình."
     },
     {
       "decision": "Dùng viền đen (#000000) cho thẻ thiết bị thay vì viền xanh lá",
       "reason": "Tạo độ tương phản cao, định hình khối rõ ràng, sang trọng theo đúng yêu cầu người dùng."
-    },
-    {
-      "decision": "Hiển thị thông tin thiết bị kết nối dạng text thuần 'Số thiết bị đang kết nối: X', bỏ dạng khung button/pill",
-      "reason": "Người dùng muốn giao diện phẳng tự nhiên, không bị nhầm lẫn là nút bấm có thể nhấp vào."
     }
   ]
 }

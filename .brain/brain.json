@@ -3,13 +3,13 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-05T01:15:00+07:00"
+    "last_updated": "2026-09-05T08:30:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application (Python/Tkinter)",
     "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore trong ngày, hệ thống cảnh báo rút máy đợt âm thanh - thị giác và tạo Web App cho thiết bị iPhone qua cổng USB đa luồng.",
-    "version": "4.7.1 Web App Link Fix & Portable Launcher Edition",
+    "version": "4.7.2 Auto-Activate Timing & Web App Default Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py"
   },
@@ -63,13 +63,13 @@
       "store_switcher": "Cho phép đảo chiều luồng công việc giữa Kho A và Kho B; tự động đếm file backup hợp lệ và gán nhãn MỤC NHẬP / MỤC XUẤT, lưu trạng thái vào settings.json",
       "daily_restore_tracker": "Tự động ghi nhận và cộng dồn số lượng thiết bị restore thành công trong ngày vào settings.json (dailyRestoreDate, dailyRestoreCount), tự động reset về 0 khi sang ngày mới",
       "clean_staging_pipeline": "Restore chạy từ staging copy, patch UDID trên staging Info.plist, kiểm tra fingerprint toàn vẹn rồi mới chuyển kho; tự động xóa sạch thư mục cha .tiktool_work khi rỗng",
-      "webclip_pipeline": "Tạo cấu hình Apple Configuration Profile (.mobileconfig) com.apple.webClip.managed, nạp icon toàn năng 3D Glassmorphic webapp.png cho mọi link web, nạp qua ios.exe profile add",
+      "webclip_pipeline": "Tạo cấu hình Apple Configuration Profile (.mobileconfig) com.apple.webClip.managed, nạp icon toàn năng 3D Glassmorphic webapp.png cho mọi link web, mặc định để trống URL custom, nạp qua ios.exe profile add",
       "batch_activate_pipeline": [
         "Giai đoạn 1: ideviceactivation activate -u {udid} -b",
         "Giai đoạn 2: ios.exe prepare --skip-all --udid={udid} --nojson (Bỏ qua Setup Assistant)",
-        "Giai đoạn 3: ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson (Timeout 20s linh hoạt, chống nghẽn SpringBoard reload)"
+        "Giai đoạn 3: ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson (Lọc cảnh báo go-ios tunnel, timeout 20s linh hoạt, xử lý mềm dẻo SpringBoard reload)"
       ],
-      "post_restore_auto_activate": "Sau khi Restore thành công, app tự động đếm ngược 80 giây cho iPhone khởi động xong rồi tự chạy Batch Activate 3 giai đoạn",
+      "post_restore_auto_activate": "Sau khi Restore thành công, app tự động đếm ngược 100 giây cho iPhone khởi động xong rồi tự chạy Batch Activate 3 giai đoạn (kèm vòng đệm phát hiện USB 45s, tổng an toàn 145s)",
       "batch_restore_notification": "Khi tắt Auto Activate, hệ thống theo dõi và chỉ phát thông báo rút máy 1 lần duy nhất khi toàn bộ máy trong đợt xong (len(active_restores) == 0); kết hợp chuông notify.wav (SND_FILENAME), nhấp nháy Taskbar cam (FlashWindow) và banner log nổi bật",
       "restore_two_layer_matching": [
         "Lớp 1: Khớp chính xác UDID của máy với tên/metadata bản backup (Ưu tiên cao nhất)",
@@ -79,6 +79,8 @@
   },
   "knowledge_items": {
     "gotchas": [
+      "go-ios Tunnel Warnings on iOS 17+: Khi gọi ios.exe lang/prepare mà không chạy daemon go-ios, binary có thể log cảnh báo 'go-ios agent is not running' và 'failed to get tunnel info'. Đây chỉ là cảnh báo cho tunnel mode (chạy daemon thử nghiệm), các tác vụ qua USB lockdown/usbmuxd vẫn thành công 100%. Cần lọc các dòng cảnh báo này trong output hiển thị để tránh làm người dùng hoang mang.",
+      "Post-Restore Boot Timing (100s vs 80s): Khi iPhone restore bản backup lớn, hệ thống mất từ 60-90 giây để nạp xong SpringBoard và khởi động daemon lockdownd. Thiết lập 100s kèm tối đa 45s chờ nhận diện USB (tổng 145s) giúp tránh lỗi timeout hoặc rớt kết nối khi kích hoạt quá sớm, và hoàn toàn không làm nóng máy.",
       "Background Sync Overwrite on UI Inputs: Các vòng lặp đồng bộ nền (như _start_json_sync_loop chạy mỗi 1s) không được ghi đè các StringVar đang cho phép người dùng nhập tự do (như var_custom_webclip_link). Cần sử dụng cờ nạp 1 lần (_webclip_link_loaded) hoặc kiểm tra focus để tránh làm mất nội dung đang gõ hoặc dán.",
       "Tkinter Entry Context Menu: Windows Tkinter Entry mặc định không có menu chuột phải (Cut/Copy/Paste). Cần tạo tk.Menu và gán sự kiện <Button-3> (_bind_context_menu) để hỗ trợ thao tác dán link thuận tiện.",
       "Python Wrapper Script __file__ Gotcha: Sử dụng exec() trong file wrapper .pyw không tự động truyền __file__, làm các script phụ thuộc vào os.path.abspath(__file__) bị văng lỗi NameError: name '__file__' is not defined trong âm thầm. Phải dùng runpy.run_path(target, run_name='__main__').",
