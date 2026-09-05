@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-09-05T12:05:00+07:00",
+  "updated_at": "2026-09-05T14:20:00+07:00",
   "working_on": {
-    "feature": "Rounded Gradient Buttons (GradientButton) & Visual Polish",
-    "task": "Triển khai nút bấm bo góc tròn radius=6px và dải màu nền gradient đa điểm dừng cho BATCH ACTIVATE (ALL) và BẮT ĐẦU RESTORE PRO (A->B & B->A) theo đúng bản thiết kế stitch_dark_theme_transformation, giữ trọn 100% Zero-Pip dependency và vượt qua 24/24 unit test.",
+    "feature": "High-Contrast Store Selection Boxes (Identity Badges & Active Border Highlight)",
+    "task": "Cố định màu sắc nhận diện badge (Kho A luôn Xanh lục #10B981, Kho B luôn Cam #F97316), chỉ kho nào được chọn làm nguồn thì border đậm màu tương ứng (2px), kho không chọn thì border tối #3A414F (1px) như bản cũ",
     "status": "completed",
     "files": [
       "BB_RB.py",
@@ -12,11 +12,11 @@
       ".brain/session.json",
       ".brain/handover.md"
     ],
-    "notes": "Kiểm thử 24/24 unit test hoàn hảo (Ran 24 tests in 0.464s - OK). Nút bấm có bo góc radius=6px mượt mà, dải màu gradient đa sắc chuẩn thiết kế, tương tác hover sáng và lún nhẹ khi bấm."
+    "notes": "Kiểm thử 24/24 unit test hoàn hảo (Ran 24 tests in 0.474s - OK). Runtime kiểm chứng: Kho A luôn giữ badge Xanh lục #10B981, Kho B luôn giữ badge Cam #F97316; khi chọn A thì A viền đậm 2px và B viền tối 1px; khi chọn B thì B viền đậm 2px và A viền tối 1px."
   },
   "pending_tasks": [
     {
-      "task": "Theo dõi người dùng trải nghiệm thực tế với dàn iPhone thực tế trên nền giao diện Soft Dark và Gradient Buttons mới",
+      "task": "Theo dõi người dùng trải nghiệm thực tế với dàn iPhone thực tế trên nền giao diện Soft Dark, Gradient Buttons và Store Boxes mới",
       "priority": "medium",
       "notes": "Kiểm tra độ mượt mà, phản hồi thị giác các trạng thái thẻ và tốc độ restore trên dàn thiết bị lớn."
     },
@@ -27,6 +27,12 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-05T14:20:00+07:00",
+      "type": "ui_store_boxes_active_border_refinement",
+      "description": "Cố định màu sắc badge (Kho A luôn Xanh lục #10B981, Kho B luôn Cam #F97316), áp dụng border đậm 2px màu tương ứng cho kho được chọn làm nguồn, kho không được chọn giữ border tối #3A414F (1px) như bản cũ.",
+      "files": ["BB_RB.py"]
+    },
     {
       "timestamp": "2026-09-05T12:05:00+07:00",
       "type": "ui_rounded_gradient_buttons",

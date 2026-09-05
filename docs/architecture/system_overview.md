@@ -1,7 +1,7 @@
 # 📘 TÀI LIỆU KIẾN TRÚC HỆ THỐNG: TIKTOK PRO (TIKTOOL PRO V4)
 
 ## 1. Giới Thiệu Tổng Quan
-**TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) - **Phiên bản hiện tại**: `4.8.0 Stitch Dark Theme & Windows Segoe MDL2 Icon Font Edition`
+**TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) - **Phiên bản hiện tại**: `4.8.3 High-Contrast Store Selection Boxes Edition`
 - **Tập tin chạy chính**: `BB_RB.py` (hoặc mở ngầm qua `TIKTOOL_PRO.pyw` / `CHAY_TIKTOOL.bat`)
 - **Ngôn ngữ & Thư viện**: Python 3.11 (100% Python Standard Library, Zero-Pip Dependencies), Tkinter GUI, Custom Canvas Components, Threading đa luồng, Semaphore, SQLite3, Plistlib, Runpy.
 - **Công cụ nhị phân tích hợp**: `libimobiledevice` (Windows x64) và `ios.exe`.
@@ -91,8 +91,10 @@ Thiết kế cao cấp theo phong cách Soft Charcoal Slate Dark Theme (nhẹ nh
 | **Thanh tiêu đề OS** | Titlebar của Windows | Windows Dark Titlebar qua DWM (`DwmSetWindowAttribute`) |
 | **Top Card** | Logo, Đổi ngôn ngữ, Batch Activate, Tạo Web App Hàng 2 | Nền `#22262E` (appDark-900), viền `#3A414F`, chữ `#F8FAFC`, icon Segoe MDL2 Assets |
 | **Batch Activate Button** | Nút kích hoạt toàn bộ thiết bị hàng 1 | `GradientButton` bo góc 6px, gradient `#059669` ➔ `#0D9488`, viền `#34D399` |
-| **Bảng Kho (Control Deck)**| Khung chuyển tab và cấu hình kho Restore / Backup | Nền nâng cao `#262A33` (appDark-850), viền `#3A414F`, ô lồng `#22262E` tạo chiều sâu êm dịu |
-| **Nút Bắt Đầu Restore** | Nút hành động chính tại Bảng Kho | `GradientButton` bo góc 6px; Kho A ➔ B: Gradient 3 điểm dừng Emerald ➔ Teal ➔ Sky (`#059669` ➔ `#0D9488` ➔ `#0369A1`); Kho B ➔ A: Gradient Electric Blue ➔ Indigo ➔ Sky (`#2563EB` ➔ `#4F46E5` ➔ `#0284C7`) |
+| **Bảng Kho (Control Deck)**| Khung chuyển tab và cấu hình kho Restore / Backup | Nền nâng cao `#262A33` (appDark-850), viền `#3A414F`, cấu trúc rõ nét tương phản cao |
+| **Hộp Chọn Kho (Store Boxes)** | Chọn đường dẫn Kho A, Kho B & Kho Backup | Nền trắng `#FFFFFF`, chữ đen to đậm `Segoe UI 10 Bold`; Kho A badge Xanh lục `#10B981`, Kho B badge Cam `#F97316`, Kho Backup badge Tím `#7C3AED`; Kho được chọn có border 2px đậm theo màu tương ứng, kho không chọn có border tối `#3A414F` (1px) |
+| **Nút Bắt Đầu Restore** | Nút hành động chính tại Bảng Kho | `GradientButton` bo góc 6px; Kho A ➜ B: Gradient 3 điểm dừng Emerald ➔ Teal ➔ Sky (`#059669` ➔ `#0D9488` ➔ `#0369A1`); Kho B ➔ A: Gradient Electric Blue ➔ Indigo ➔ Sky (`#2563EB` ➔ `#4F46E5` ➔ `#0284C7`) |
+| **Nút Bắt Đầu Backup** | Nút sao lưu dữ liệu tại Tab Backup | `GradientButton` bo góc 6px; Gradient dải màu Tím sang Xanh dương (`#7C3AED` ➔ `#6D28D9` ➔ `#2563EB`), viền `#A78BFA` |
 | **Thanh Tab** | Chuyển đổi giữa Restore Pro và Backup | Tab active `#2563EB` (Electric Blue), inactive `#2C313C` (appDark-800) |
 | **Stats Title Bar** | Hiển thị bộ đếm kho và thống kê ngày | Nền `#1A1D23` với các pill card `#22262E` viền `#3A414F`, số liệu `#38BDF8` & `#34D399` |
 | **Device Grid** | Lưới thẻ iPhone co giãn thông minh (Responsive Grid) | Card `#22262E` viền `#3A414F`, slot tag `#262A33`, icon điện thoại Tech Cyan `#38BDF8` (hoặc Đỏ `#EF4444` khi Not Trust) |

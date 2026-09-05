@@ -121,6 +121,13 @@ MAX_CONCURRENCY = load_concurrency(APPS_CONFIG_FP, default=20)
 SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
 ACTIVATE_SEMAPHORE = threading.Semaphore(32)  # Kích hoạt song song toàn bộ thiết bị cùng lúc (tối đa 32 máy)
 LANG_SEMAPHORE = threading.Semaphore(32)      # Đổi ngôn ngữ song song toàn bộ thiết bị cùng lúc (tối đa 32 máy)
+
+# Auto Activate chạy sau khi cả đợt restore đã hoàn tất. 16 máy vẫn chạy song song,
+# nhưng chỉ sau khi mỗi máy xuất hiện ổn định trên USB.
+AUTO_ACTIVATE_SETTLE_SECONDS = 100
+AUTO_ACTIVATE_READY_CHECKS = 30
+AUTO_ACTIVATE_READY_INTERVAL_SECONDS = 3
+AUTO_ACTIVATE_STABLE_SAMPLES = 3
 PAIR_LOCK = threading.Lock()
 PROCESS_RUNNER = ProcessRunner()
 
@@ -870,6 +877,8 @@ class App(tk.Tk):
         self.active_restores = set()
         self.active_backups = set()
         self.active_activates = set()
+        self.auto_activate_queue = []
+        self.auto_activate_batch_active = False
         self.protocol("WM_DELETE_WINDOW", self._on_app_close)
 
         self._enable_dark_titlebar()
@@ -1782,14 +1791,14 @@ class App(tk.Tk):
         if hasattr(self, "lbl_stat_con_lai"):
             self.lbl_stat_con_lai.config(text=str(remaining))
 
-        if hasattr(self, "lbl_title_a"):
+        if hasattr(self, "btn_label_a"):
             if active == "A":
-                # KHO A ➜ KHO B: XANH LÁ / EMERALD (COLOR_EMERALD_ACCENT)
-                self.lbl_title_a.config(text=f"MỤC NHẬP (KHO A: {count_a} iPhone)", fg=COLOR_EMERALD_ACCENT)
-                self.lbl_title_b.config(text=f"MỤC XUẤT (KHO B: {count_b} iPhone)", fg=COLOR_CYAN_ACCENT)
-                self.btn_label_a.config(bg="#0F766E")
-                self.btn_label_b.config(bg=COLOR_BLUE_MAIN)
-                self.box_a.config(highlightbackground=COLOR_EMERALD_MAIN, highlightthickness=1)
+                # KHO A ĐƯỢC CHỌN (Nguồn Kho A -> Đích Kho B):
+                # Kho A: border đậm màu xanh lục (#10B981, dày 2px), badge MỤC NHẬP (KHO A) nền xanh lục
+                # Kho B: border màu tối như bản cũ (COLOR_BORDER_LIGHT, dày 1px), badge MỤC XUẤT (KHO B) nền cam
+                self.btn_label_a.config(text="MỤC NHẬP (KHO A)", bg="#10B981", activebackground="#059669")
+                self.box_a.config(highlightbackground="#10B981", highlightthickness=2)
+                self.btn_label_b.config(text="MỤC XUẤT (KHO B)", bg="#F97316", activebackground="#EA580C")
                 self.box_b.config(highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1)
                 self.lbl_flow_direction.config(text=f"A {Icons.ARROW_RIGHT} B", fg=COLOR_CYAN_ACCENT)
                 self.btn_start_restore.config(
@@ -1805,13 +1814,13 @@ class App(tk.Tk):
                     self.box_restore_pill.config(bg=COLOR_EMERALD_BG, highlightbackground=COLOR_EMERALD_MAIN)
                     self.lbl_restore_done.config(fg=COLOR_EMERALD_ACCENT, bg=COLOR_EMERALD_BG)
             else:
-                # KHO B ➜ KHO A: XANH DƯƠNG / ELECTRIC BLUE (COLOR_BLUE_MAIN)
-                self.lbl_title_a.config(text=f"MỤC XUẤT (KHO A: {count_a} iPhone)", fg=COLOR_EMERALD_ACCENT)
-                self.lbl_title_b.config(text=f"MỤC NHẬP (KHO B: {count_b} iPhone)", fg=COLOR_CYAN_ACCENT)
-                self.btn_label_a.config(bg="#0F766E")
-                self.btn_label_b.config(bg=COLOR_BLUE_MAIN)
+                # KHO B ĐƯỢC CHỌN (Nguồn Kho B -> Đích Kho A):
+                # Kho A: không được chọn -> border màu tối như bản cũ (COLOR_BORDER_LIGHT, dày 1px), badge MỤC XUẤT (KHO A) giữ nguyên màu xanh lục
+                # Kho B: border đậm màu cam (#F97316, dày 2px), badge MỤC NHẬP (KHO B) giữ nguyên màu cam
+                self.btn_label_a.config(text="MỤC XUẤT (KHO A)", bg="#10B981", activebackground="#059669")
                 self.box_a.config(highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1)
-                self.box_b.config(highlightbackground=COLOR_BLUE_MAIN, highlightthickness=1)
+                self.btn_label_b.config(text="MỤC NHẬP (KHO B)", bg="#F97316", activebackground="#EA580C")
+                self.box_b.config(highlightbackground="#F97316", highlightthickness=2)
                 self.lbl_flow_direction.config(text=f"B {Icons.ARROW_RIGHT} A", fg=COLOR_CYAN_ACCENT)
                 self.btn_start_restore.config(
                     text=f"{Icons.LIGHTNING}  BẮT ĐẦU RESTORE PRO (B {Icons.ARROW_RIGHT} A • {count_b} iPhone)",
@@ -1927,38 +1936,80 @@ class App(tk.Tk):
         col_a.grid(row=1, column=0, sticky="ew", padx=2, pady=1)
         col_a.columnconfigure(0, weight=1)
 
-        self.lbl_title_a = tk.Label(col_a, text="MỤC NHẬP (KHO A)", font=("Segoe UI", 8, "bold"), fg=COLOR_EMERALD_ACCENT, bg=COLOR_KHO_BG, anchor="w")
-        self.lbl_title_a.pack(fill="x", pady=(0, 1))
-
-        self.box_a = tk.Frame(col_a, bg=COLOR_KHO_INNER, highlightbackground=COLOR_EMERALD_MAIN, highlightthickness=1, bd=0)
+        self.box_a = tk.Frame(col_a, bg="#FFFFFF", highlightbackground="#10B981", highlightthickness=2, bd=0, cursor="hand2")
         self.box_a.pack(fill="x")
         self.box_a.columnconfigure(1, weight=1)
 
-        self.btn_label_a = tk.Button(self.box_a, text=f"{Icons.FOLDER}  Chọn", font=("Segoe UI", 8, "bold"), fg="#FFFFFF", bg="#0F766E", activebackground="#0D9488", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("STORE_A"))
-        self.btn_label_a.grid(row=0, column=0, padx=4, pady=2)
+        self.btn_label_a = tk.Button(
+            self.box_a,
+            text="MỤC NHẬP (KHO A)",
+            font=("Segoe UI", 9, "bold"),
+            fg="#FFFFFF",
+            bg="#10B981",
+            activebackground="#059669",
+            activeforeground="#FFFFFF",
+            relief="flat",
+            bd=0,
+            padx=8,
+            pady=2,
+            cursor="hand2",
+            command=lambda: self._browse("STORE_A")
+        )
+        self.btn_label_a.grid(row=0, column=0, padx=(2, 6), pady=2)
+        self.lbl_title_a = self.btn_label_a
 
-        self.lbl_path_a = tk.Label(self.box_a, text=DEFAULT_SETTINGS["storeA"], font=("Consolas", 8), fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_INNER, anchor="w", cursor="hand2")
-        self.lbl_path_a.grid(row=0, column=1, sticky="ew", padx=3, pady=2)
+        self.lbl_path_a = tk.Label(
+            self.box_a,
+            text=DEFAULT_SETTINGS["storeA"],
+            font=("Segoe UI", 10, "bold"),
+            fg="#000000",
+            bg="#FFFFFF",
+            anchor="w",
+            cursor="hand2"
+        )
+        self.lbl_path_a.grid(row=0, column=1, sticky="ew", padx=(0, 6), pady=2)
         self.lbl_path_a.bind("<Button-1>", lambda e: self._browse("STORE_A"))
+        self.box_a.bind("<Button-1>", lambda e: self._browse("STORE_A"))
 
         # Ô Kho B
         col_b = tk.Frame(f, bg=COLOR_KHO_BG)
         col_b.grid(row=1, column=1, sticky="ew", padx=2, pady=1)
         col_b.columnconfigure(0, weight=1)
 
-        self.lbl_title_b = tk.Label(col_b, text="MỤC XUẤT (KHO B)", font=("Segoe UI", 8, "bold"), fg=COLOR_CYAN_ACCENT, bg=COLOR_KHO_BG, anchor="w")
-        self.lbl_title_b.pack(fill="x", pady=(0, 1))
-
-        self.box_b = tk.Frame(col_b, bg=COLOR_KHO_INNER, highlightbackground=COLOR_BLUE_MAIN, highlightthickness=1, bd=0)
+        self.box_b = tk.Frame(col_b, bg="#FFFFFF", highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1, bd=0, cursor="hand2")
         self.box_b.pack(fill="x")
         self.box_b.columnconfigure(1, weight=1)
 
-        self.btn_label_b = tk.Button(self.box_b, text=f"{Icons.FOLDER}  Chọn", font=("Segoe UI", 8, "bold"), fg="#FFFFFF", bg=COLOR_BLUE_MAIN, activebackground="#1D4ED8", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("STORE_B"))
-        self.btn_label_b.grid(row=0, column=0, padx=4, pady=2)
+        self.btn_label_b = tk.Button(
+            self.box_b,
+            text="MỤC XUẤT (KHO B)",
+            font=("Segoe UI", 9, "bold"),
+            fg="#FFFFFF",
+            bg="#F97316",
+            activebackground="#EA580C",
+            activeforeground="#FFFFFF",
+            relief="flat",
+            bd=0,
+            padx=8,
+            pady=2,
+            cursor="hand2",
+            command=lambda: self._browse("STORE_B")
+        )
+        self.btn_label_b.grid(row=0, column=0, padx=(2, 6), pady=2)
+        self.lbl_title_b = self.btn_label_b
 
-        self.lbl_path_b = tk.Label(self.box_b, text=DEFAULT_SETTINGS["storeB"], font=("Consolas", 8), fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_INNER, anchor="w", cursor="hand2")
-        self.lbl_path_b.grid(row=0, column=1, sticky="ew", padx=3, pady=2)
+        self.lbl_path_b = tk.Label(
+            self.box_b,
+            text=DEFAULT_SETTINGS["storeB"],
+            font=("Segoe UI", 10, "bold"),
+            fg="#000000",
+            bg="#FFFFFF",
+            anchor="w",
+            cursor="hand2"
+        )
+        self.lbl_path_b.grid(row=0, column=1, sticky="ew", padx=(0, 6), pady=2)
         self.lbl_path_b.bind("<Button-1>", lambda e: self._browse("STORE_B"))
+        self.box_b.bind("<Button-1>", lambda e: self._browse("STORE_B"))
 
         # CHECKBOX AUTO ACTIVATE
         box_opt = tk.Frame(f, bg=COLOR_KHO_BG)
@@ -2013,19 +2064,40 @@ class App(tk.Tk):
         col_bk = tk.Frame(box_top, bg=COLOR_KHO_BG)
         col_bk.grid(row=0, column=0, sticky="ew")
 
-        lbl_title_bk = tk.Label(col_bk, text="KHO BACKUP", font=("Segoe UI", 8, "bold"), fg=COLOR_CYAN_ACCENT, bg=COLOR_KHO_BG, anchor="w")
-        lbl_title_bk.pack(fill="x", pady=(0, 1))
+        self.box_bk = tk.Frame(col_bk, bg="#FFFFFF", highlightbackground="#7C3AED", highlightthickness=2, bd=0, cursor="hand2")
+        self.box_bk.pack(fill="x")
+        self.box_bk.columnconfigure(1, weight=1)
 
-        box_bk = tk.Frame(col_bk, bg=COLOR_KHO_INNER, highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1, bd=0)
-        box_bk.pack(fill="x")
-        box_bk.columnconfigure(1, weight=1)
+        self.btn_label_gen = tk.Button(
+            self.box_bk,
+            text="KHO BACKUP",
+            font=("Segoe UI", 9, "bold"),
+            fg="#FFFFFF",
+            bg="#7C3AED",
+            activebackground="#6D28D9",
+            activeforeground="#FFFFFF",
+            relief="flat",
+            bd=0,
+            padx=8,
+            pady=2,
+            cursor="hand2",
+            command=lambda: self._browse("GEN_DIR")
+        )
+        self.btn_label_gen.grid(row=0, column=0, padx=(2, 6), pady=2)
+        self.lbl_title_bk = self.btn_label_gen
 
-        btn_label_gen = tk.Button(box_bk, text=f"{Icons.FOLDER}  Chọn", font=("Segoe UI", 8, "bold"), fg="#FFFFFF", bg=COLOR_BLUE_MAIN, activebackground="#1D4ED8", activeforeground="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=lambda: self._browse("GEN_DIR"))
-        btn_label_gen.grid(row=0, column=0, padx=4, pady=2)
-
-        self.lbl_path_gen = tk.Label(box_bk, text=DEFAULT_SETTINGS["generalBackupDir"], font=("Consolas", 8), fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_INNER, anchor="w", cursor="hand2")
-        self.lbl_path_gen.grid(row=0, column=1, sticky="ew", padx=3, pady=2)
+        self.lbl_path_gen = tk.Label(
+            self.box_bk,
+            text=DEFAULT_SETTINGS["generalBackupDir"],
+            font=("Segoe UI", 10, "bold"),
+            fg="#000000",
+            bg="#FFFFFF",
+            anchor="w",
+            cursor="hand2"
+        )
+        self.lbl_path_gen.grid(row=0, column=1, sticky="ew", padx=(0, 6), pady=2)
         self.lbl_path_gen.bind("<Button-1>", lambda e: self._browse("GEN_DIR"))
+        self.box_bk.bind("<Button-1>", lambda e: self._browse("GEN_DIR"))
 
         box_chk = tk.Frame(box_top, bg=COLOR_KHO_BG)
         box_chk.grid(row=0, column=1, sticky="e", padx=(8, 0), pady=(4, 0))
@@ -2036,8 +2108,18 @@ class App(tk.Tk):
         self.var_lite = tk.BooleanVar(value=True)
         tk.Checkbutton(box_chk, text="Gỡ TikTok Lite", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_BG, selectcolor=COLOR_KHO_INNER, activebackground=COLOR_KHO_BG, activeforeground=COLOR_TEXT_WHITE, variable=self.var_lite, command=self._save_settings_from_ui).pack(side="left", padx=4)
 
-        self.btn_start_backup = tk.Button(f, text=f"{Icons.SAVE}  BẮT ĐẦU SAO LƯU (BACKUP ALL)", font=("Segoe UI", 10, "bold"), bg=COLOR_BLUE_MAIN, activebackground="#1D4ED8", fg="#FFFFFF", relief="flat", bd=0, cursor="hand2", command=self.start_backup_all)
-        self.btn_start_backup.pack(fill="x", padx=2, pady=(1, 2), ipady=4)
+        self.btn_start_backup = GradientButton(
+            f,
+            text=f"{Icons.SAVE}  BẮT ĐẦU SAO LƯU (BACKUP ALL)",
+            height=38,
+            radius=6,
+            stops=[(0.0, "#7C3AED"), (0.5, "#6D28D9"), (1.0, "#2563EB")],
+            hover_stops=[(0.0, "#8B5CF6"), (0.5, "#7C3AED"), (1.0, "#3B82F6")],
+            border_color="#A78BFA",
+            font=("Segoe UI", 10, "bold"),
+            command=self.start_backup_all
+        )
+        self.btn_start_backup.pack(fill="x", padx=2, pady=(1, 2))
 
     # ---------------- TAB SWITCH ----------------
     def _switch_to_restore(self):
@@ -2801,15 +2883,16 @@ class App(tk.Tk):
 
                     # === TỰ ĐỘNG ACTIVATE SAU RESTORE (nếu bật) ===
                     if auto_activate:
-                        self.log(target_udid, "⚡ Auto Activate sau Restore: đang chờ thiết bị reboot...")
                         transitioned = operation_reserved and self.operations.transition(
                             target_udid, "restore", "auto_activate"
                         )
-                        threading.Thread(
-                            target=self._post_restore_activate_worker,
-                            args=(target_udid, set_language, language_preset, transitioned),
-                            daemon=True
-                        ).start()
+                        if transitioned:
+                            self._queue_auto_activate(
+                                target_udid, set_language, language_preset, transitioned
+                            )
+                            self.log(target_udid, "⚡ Đã đưa vào hàng chờ Auto Activate của cả đợt Restore.")
+                        else:
+                            self.log(target_udid, "Không thể đặt Auto Activate: trạng thái Restore đã thay đổi.", is_err=True)
                     # (Thông báo rút máy sẽ hiện sau khi TẤT CẢ máy trong đợt hoàn tất — xem finally bên dưới)
 
                 except Exception as e:
@@ -2831,6 +2914,8 @@ class App(tk.Tk):
             SEMAPHORE.release()
             if operation_reserved:
                 self.operations.end(target_udid, "restore")
+            if _all_done and auto_activate:
+                self._start_auto_activate_batch_if_ready()
             # === THÔNG BÁO RÚT MÁY KHI TẤT CẢ ĐỢT XONG (chỉ khi Auto Activate TẮT) ===
             if _all_done and not auto_activate:
                 done_count = self.restore_done_count
@@ -2886,6 +2971,77 @@ class App(tk.Tk):
                 row.push_step(text)
         except Exception:
             pass
+
+    def _queue_auto_activate(self, udid, set_language, language_preset, operation_reserved):
+        """Giữ máy đã restore trong hàng chờ cho Auto Activate theo cả đợt."""
+        with self.lock:
+            if any(job[0] == udid for job in self.auto_activate_queue):
+                return False
+            self.auto_activate_queue.append((udid, set_language, language_preset, operation_reserved))
+            return True
+
+    def _start_auto_activate_batch_if_ready(self):
+        """Chỉ khởi chạy Auto sau khi không còn Restore nào trong đợt."""
+        with self.lock:
+            if self.active_restores or self.auto_activate_batch_active or not self.auto_activate_queue:
+                return False
+            jobs = list(self.auto_activate_queue)
+            self.auto_activate_queue.clear()
+            self.auto_activate_batch_active = True
+
+        threading.Thread(
+            target=self._run_auto_activate_batch,
+            args=(jobs,),
+            daemon=True,
+        ).start()
+        return True
+
+    def _run_auto_activate_batch(self, jobs):
+        """Khởi chạy đúng Batch Activate cho từng máy sau khi USB ổn định."""
+        pending = {job[0]: job for job in jobs}
+        stable_samples = {udid: 0 for udid in pending}
+        launched = set()
+        try:
+            total = len(pending)
+            self.log("SYSTEM", f"⚡ Auto Activate theo đợt: {total} máy. Chờ {AUTO_ACTIVATE_SETTLE_SECONDS}s để iPhone reboot hoàn toàn...")
+            time.sleep(AUTO_ACTIVATE_SETTLE_SECONDS)
+
+            for _ in range(AUTO_ACTIVATE_READY_CHECKS):
+                connected = set(get_connected_udids())
+                for udid, job in tuple(pending.items()):
+                    if udid in connected:
+                        stable_samples[udid] += 1
+                    else:
+                        stable_samples[udid] = 0
+
+                    if stable_samples[udid] < AUTO_ACTIVATE_STABLE_SAMPLES:
+                        continue
+
+                    launched.add(udid)
+                    pending.pop(udid)
+                    _, set_language, language_preset, operation_reserved = job
+                    self.log(udid, "USB đã ổn định. Bắt đầu Auto Activate bằng pipeline Batch Activate.")
+                    threading.Thread(
+                        target=self._batch_activate_worker,
+                        args=(udid, set_language, language_preset, operation_reserved, "auto_activate"),
+                        daemon=True,
+                    ).start()
+
+                if not pending:
+                    break
+                time.sleep(AUTO_ACTIVATE_READY_INTERVAL_SECONDS)
+
+            for udid, (_, _, _, operation_reserved) in pending.items():
+                self.log(udid, "Không thấy lại thiết bị USB đủ ổn định sau Restore. Bỏ qua Auto Activate cho máy này.", is_err=True)
+                if operation_reserved:
+                    self.operations.end(udid, "auto_activate")
+
+            if pending:
+                self.log("SYSTEM", f"⚠️ Không thấy lại {len(pending)} máy; {len(launched)} máy còn lại đã chạy Auto Activate.", is_warn=True)
+        finally:
+            with self.lock:
+                self.auto_activate_batch_active = False
+            self._start_auto_activate_batch_if_ready()
 
     def _post_restore_activate_worker(self, udid, set_language=False, language_preset=None, operation_reserved=False):
         """Sau khi Restore xong, chờ đúng 100 giây cho iPhone khởi động hoàn tất rồi tự động Batch Activate."""

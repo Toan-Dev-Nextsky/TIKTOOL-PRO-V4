@@ -1,28 +1,26 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-05 12:05:00  
-**Phiên bản**: `4.8.2 Rounded Gradient Buttons Edition`  
-**Trạng thái**: Hoàn thiện toàn diện 100% trong môi trường sản xuất thực tế. Đã tích hợp thành công hệ thống **GradientButton bo góc tròn (`radius=6px`) và dải màu gradient đa điểm dừng** cho các nút bấm chính (`BATCH ACTIVATE (ALL)` và `BẮT ĐẦU RESTORE PRO (A->B & B->A)`), hoàn thiện giao diện **Soft Charcoal Slate Dark Theme** nhẹ nhàng, dịu mắt (`#1A1D23` / `#22262E` / `#262A33` / `#1E2229` / `#3A414F`), duy trì trọn vẹn hệ thống **Windows Segoe MDL2 Assets Icon Font** chuẩn vector sắc nét, giữ vững 100% Zero-Pip dependency và tỷ lệ vượt qua 24/24 unit test.
+**Thời gian cập nhật**: 2026-09-05 14:15:00  
+**Phiên bản**: `4.8.3 High-Contrast Store Selection Boxes Edition`  
+**Trạng thái**: Hoàn thiện toàn diện 100% trong môi trường sản xuất thực tế. Đã tích hợp thành công hệ thống **Hộp chọn kho High-Contrast** (nền trắng `#FFFFFF`, viền màu 2px, badge màu trực tiếp trong hộp, đường dẫn chữ đen to đậm `Segoe UI 10 Bold`), kết hợp hài hòa với hệ thống **GradientButton bo góc tròn (`radius=6px`) và dải màu gradient đa điểm dừng**, giao diện **Soft Charcoal Slate Dark Theme** nhẹ nhàng, dịu mắt, duy trì trọn vẹn **Windows Segoe MDL2 Assets Icon Font**, giữ vững 100% Zero-Pip dependency và 24/24 unit test.
 
 ---
 
 ## 📍 Đang làm & Tiến độ
 
-* **Phiên bản**: `4.8.2 Rounded Gradient Buttons Edition`
+* **Phiên bản**: `4.8.3 High-Contrast Store Selection Boxes Edition`
 * **Tiến độ**: Toàn bộ hệ thống giao diện và động cơ xử lý USB đa luồng đã hoàn tất:
-  - **Rounded Gradient Buttons System (`GradientButton`)**: Kế thừa `tk.Canvas` với thuật toán hình học giải tích vẽ các lát cắt dọc 1px bo góc tròn `radius=6px`, gradient đa điểm dừng mượt mà (Emerald `#059669` ➜ `#0D9488`, Electric Blue `#2563EB` ➜ `#4F46E5` ➜ `#0284C7`), viền sáng tinh tế, hiệu ứng hover sáng và tactile feedback lún 1px khi bấm. Áp dụng cho:
-    - Nút **BATCH ACTIVATE (ALL)**: Gradient Emerald ➜ Teal bo góc 6px, viền sáng `#34D399`.
-    - Nút **BẮT ĐẦU RESTORE PRO (A ➜ B)**: Gradient Emerald ➜ Teal ➜ Sky bo góc 6px, viền sáng `#34D399`.
-    - Nút **BẮT ĐẦU RESTORE PRO (B ➜ A)**: Gradient Electric Blue ➜ Indigo ➜ Sky bo góc 6px, viền sáng `#38BDF8`.
-    - Nút phụ trợ: Logo TikTok Pro, Tạo Web App, Xác nhận / Hủy Restore.
+  - **High-Contrast Store Selection Boxes (Border & Badge Color Refinement)**:
+    - **Kho A (Mục Nhập/Xuất)**: Badge cố định màu Xanh lục `#10B981` đặc trưng (`MỤC NHẬP (KHO A)` khi chọn A ➜ B, `MỤC XUẤT (KHO A)` khi chọn B ➜ A). Khi Kho A được chọn làm nguồn thì có **border đậm Xanh lục `#10B981` (2px)**; khi không được chọn thì có **border tối `#3A414F` (1px)** như bản cũ.
+    - **Kho B (Mục Xuất/Nhập)**: Badge cố định màu Cam `#F97316` đặc trưng (`MỤC XUẤT (KHO B)` khi chọn A ➜ B, `MỤC NHẬP (KHO B)` khi chọn B ➜ A). Khi Kho B được chọn làm nguồn thì có **border đậm Cam `#F97316` (2px)**; khi không được chọn thì có **border tối `#3A414F` (1px)** như bản cũ.
+    - **KHO BACKUP**: Hộp nền trắng `#FFFFFF`, viền ngoài tím `#7C3AED` (2px), badge tím `KHO BACKUP` chữ trắng, đường dẫn chữ đen to đậm `Segoe UI 10 Bold`.
+    - **Nhận diện trực quan**: Không còn hiện tượng màu sắc badge bị hoán đổi nhảy loạn; kho nào được chọn sẽ nổi bật với viền sáng đậm màu tương ứng, kho còn lại chìm với viền tối.
+    - **Tương tác nhanh**: Nhấp chuột vào bất kỳ vị trí nào trên hộp (badge, khoảng trắng, đường dẫn) đều mở hộp thoại duyệt file (`cursor="hand2"`).
+  - **Rounded Gradient Buttons System (`GradientButton`)**: Kế thừa `tk.Canvas` với thuật toán hình học giải tích vẽ các lát cắt dọc 1px bo góc tròn `radius=6px`, gradient đa điểm dừng mượt mà (Emerald, Electric Blue, Sky, Purple), viền sáng tinh tế, hiệu ứng hover sáng và tactile feedback lún 1px khi bấm.
   - **Soft Charcoal Slate Dark Theme System**: Nền Canvas Warm Soft Slate-Charcoal `#1A1D23`, Thẻ/Panel `#22262E`, Sub-panels & Tracks `#262A33`, Terminal Log Console `#1E2229`, Buttons Elevated `#2C313C`, Clean Subtle Borders `#3A414F`, Chữ Slate (`#F8FAFC`, `#E2E8F0`, `#94A3B8`, `#64748B`), Điểm nhấn Electric Blue `#2563EB`, Emerald `#34D399`, Tech Cyan `#38BDF8`.
-  - **Windows Segoe MDL2 Assets Icon Font**: Sử dụng font vector hệ thống tích hợp sẵn trên Windows (mã PUA chuẩn: Phone `\uE8EA`, Warning `\uE7BA`, Globe `\uE774`, Gear `\uE713`, Lightning `\uE945`, Folder `\uED25`, Save `\uE74E`, Refresh `\uE72C`, Rocket `\uEB9D`, Clipboard `\uE8C8`, Lightbulb `\uEA80`, Package `\uE7B8`, Check `\uE73E`, Cancel `\uE711`, Key `\uE8D7`, Arrow `\uE72A`).
-  - **Bảng Kho Phân Cấp Dịu Mắt**: Nền Bảng Kho `#262A33`, viền ngoài `#3A414F`, nền khung bên trong `#22262E`. Nút "Bắt đầu chuyển Kho B ➜ A" màu Electric Blue `#2563EB` đậm nét, giúp Bảng Kho tách bạch hoàn toàn, nổi bật nhẹ nhàng so với dàn thẻ iPhone bên dưới.
-  - **Tách nhãn Icon và Nhãn tên thiết bị trên DeviceCard**: Icon hiển thị màu Cyan sáng `#38BDF8` khi hoạt động, Red `#EF4444` khi cảnh báo Chưa tin cậy trong khi tên máy giữ nguyên màu trắng nổi bật `#F8FAFC`.
-  - **Chỉ báo SYSTEM ENGINE ACTIVE**: Bổ sung chỉ báo trạng thái động cơ ở góc phải thanh trạng thái chân trang.
-  - **Giữ vững 100% logic lõi & độ ổn định USB**: Cơ chế đếm ngược 100s sau Restore, lọc sạch cảnh báo go-ios tunnel, xử lý êm dịu timeout SpringBoard, ô nhập link Web App để trống mặc định, menu chuột phải Dán, và chuông báo hoàn tất đợt đa giác quan.
+  - **Windows Segoe MDL2 Assets Icon Font**: Biểu tượng vector hệ thống tích hợp sẵn trên Windows (mã PUA chuẩn: Phone `\uE8EA`, Warning `\uE7BA`, Globe `\uE774`, Gear `\uE713`, Lightning `\uE945`, Folder `\uED25`, Save `\uE74E`, Refresh `\uE72C`, Rocket `\uEB9D`, Clipboard `\uE8C8`, Lightbulb `\uEA80`, Package `\uE7B8`, Check `\uE73E`, Cancel `\uE711`, Key `\uE8D7`, Arrow `\uE72A`).
+  - **Giữ vững 100% logic lõi & độ ổn định USB**: Động cơ USB đa luồng, đếm ngược 100s sau Restore, lọc cảnh báo go-ios tunnel, chuông báo hoàn tất đợt đa giác quan.
   - **Zero-pip dependency & Portability**: Ứng dụng chạy hoàn toàn dựa trên thư viện chuẩn Python 3.11 và các công cụ Windows/Apple có sẵn.
 
 ---

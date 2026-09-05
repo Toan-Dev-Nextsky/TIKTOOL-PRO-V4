@@ -2,6 +2,33 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.8.3 High-Contrast Store Selection Boxes Edition] - 2026-09-05
+
+### 📁 Nâng Cấp Hộp Chọn Kho Rõ Nét, Nền Trắng, Font To Đậm & Badge Màu Đồng Bộ
+- **Hộp chọn thư mục Kho chuẩn thiết kế tương phản cao (High-Contrast Store Input Boxes)**:
+  - **MỤC NHẬP (Kho A / Kho B)**:
+    - Viền ngoài xanh lục nổi bật `#10B981` (Emerald/Green), độ dày 2px.
+    - Nền hộp bên trong màu trắng tinh khiết `#FFFFFF`.
+    - Badge trực tiếp bên trái: Nền xanh lục `#10B981`, chữ in hoa màu trắng `MỤC NHẬP (KHO A)` font `Segoe UI 9 Bold`.
+    - Đường dẫn thư mục: Chữ màu đen tuyền `#000000`, font to đậm `Segoe UI 10 Bold`, căn trái rõ ràng, dễ đọc từ khoảng cách xa.
+  - **MỤC XUẤT (Kho B / Kho A)**:
+    - Viền ngoài màu cam nổi bật `#F97316` (Vivid Orange), độ dày 2px.
+    - Nền hộp bên trong màu trắng tinh khiết `#FFFFFF`.
+    - Badge trực tiếp bên trái: Nền màu cam `#F97316`, chữ in hoa màu trắng `MỤC XUẤT (KHO B)` font `Segoe UI 9 Bold`.
+    - Đường dẫn thư mục: Chữ màu đen tuyền `#000000`, font to đậm `Segoe UI 10 Bold`.
+  - **KHO BACKUP**:
+    - Viền ngoài màu tím nổi bật `#7C3AED` (Vivid Purple), độ dày 2px.
+    - Nền hộp bên trong màu trắng `#FFFFFF`.
+    - Badge trực tiếp bên trái: Nền tím `#7C3AED`, chữ in hoa màu trắng `KHO BACKUP` font `Segoe UI 9 Bold`.
+    - Đường dẫn thư mục: Chữ màu đen tuyền `#000000`, font to đậm `Segoe UI 10 Bold`.
+    - Nút `BẮT ĐẦU SAO LƯU (BACKUP ALL)` nâng cấp lên `GradientButton` bo góc 6px với dải màu tím sang xanh dương (`#7C3AED` ➔ `#6D28D9` ➔ `#2563EB`).
+- **Cố định màu sắc nhận diện Kho & Border thông minh theo lựa chọn**:
+  - **Kho A**: Badge luôn giữ màu Xanh lục `#10B981` đặc trưng. Khi chọn `Kho A ➜ B`, Kho A là nguồn có **border đậm Xanh lục `#10B981` (2px)**. Khi chọn `Kho B ➜ A`, Kho A là đích có **border màu tối `#3A414F` (1px)**.
+  - **Kho B**: Badge luôn giữ màu Cam `#F97316` đặc trưng. Khi chọn `Kho B ➜ A`, Kho B là nguồn có **border đậm Cam `#F97316` (2px)**. Khi chọn `Kho A ➜ B`, Kho B là đích có **border màu tối `#3A414F` (1px)**.
+  - Màu sắc không bị nhảy loạn hoặc hoán đổi giữa Kho A và Kho B; kho nào được chọn làm nguồn thì viền sáng đậm màu tương ứng, kho còn lại giữ viền tối như bản cũ.
+  - Nhấp chuột vào bất kỳ vị trí nào trên hộp (badge, khoảng trắng hoặc đường dẫn) đều mở hộp thoại duyệt thư mục nhanh chóng (`cursor="hand2"`).
+- **100% Zero-Pip Dependency**: Giữ vững cấu trúc thư viện chuẩn Python 3.11, vượt qua 24/24 unit test.
+
 ## [4.8.2 Rounded Gradient Buttons Edition] - 2026-09-05
 
 ### 🔘 Tích Hợp Nút Bấm Bo Góc & Hiệu Ứng Background Gradient (GradientButton)

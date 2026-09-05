@@ -3,13 +3,13 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-05T12:05:00+07:00"
+    "last_updated": "2026-09-05T14:15:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application (Python/Tkinter)",
-    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore trong ngày, hệ thống cảnh báo rút máy đợt âm thanh - thị giác và tạo Web App cho thiết bị iPhone qua cổng USB đa luồng trên nền giao diện Soft Charcoal Slate Dark Theme, Windows Segoe MDL2 Assets Icon Font & Gradient Rounded Buttons.",
-    "version": "4.8.2 Rounded Gradient Buttons Edition",
+    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore trong ngày, hệ thống cảnh báo rút máy đợt âm thanh - thị giác và tạo Web App cho thiết bị iPhone qua cổng USB đa luồng trên nền giao diện Soft Charcoal Slate Dark Theme, Windows Segoe MDL2 Assets Icon Font, Gradient Rounded Buttons và Hộp chọn kho High-Contrast.",
+    "version": "4.8.3 High-Contrast Store Selection Boxes Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py"
   },
@@ -62,6 +62,7 @@
         "TopCard: Header branding siêu gọn với Logo 'TikTok Pro' Electric Blue, Hộp ngôn ngữ [ja_JP|ja], Nút Popup, Đổi lệnh, Batch Activate Emerald, và Hàng Web App",
         "TabSection: Bảng Kho nâng cao nền #262A33, viền #3A414F; Tab active Electric Blue #2563EB",
         "StoreSelector: Radio chuyển kho hai chiều A ➜ B / B ➜ A kèm nút bấm đổi màu phân biệt (Emerald #059669 vs Electric Blue #2563EB)",
+        "HighContrastStoreBoxes: Hộp chọn thư mục Kho A (Badge Xanh lục #10B981), Kho B (Badge Cam #F97316) và Kho Backup (Badge Tím #7C3AED) nền trắng #FFFFFF, đường dẫn chữ đen to đậm Segoe UI 10 Bold; kho được chọn có border 2px đậm theo màu tương ứng, kho không chọn có border tối #3A414F (1px)",
         "StatsTitleBar: Thanh thống kê với 'Tổng: X (Hôm nay)' bên trái và 3 thẻ kho (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI) dạng pill #22262E viền #3A414F bên phải",
         "DeviceGrid: Lưới thẻ iPhone co giãn thông minh (Card #22262E viền #3A414F, icon điện thoại Cyan #38BDF8 hoặc Đỏ #EF4444, Slot Badge góc phải, model/ECID màu Cyan)",
         "GradientButton: Canvas vẽ lát cắt gradient đa điểm dừng bo góc radius=6px kèm viền tinh tế, hover sáng và tactile feedback khi bấm; áp dụng cho BATCH ACTIVATE (ALL), BẮT ĐẦU RESTORE PRO (A->B & B->A), TikTok Pro, Tạo Web App, Xác nhận Restore",

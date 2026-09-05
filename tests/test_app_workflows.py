@@ -172,5 +172,86 @@ class PipelineTruthTests(unittest.TestCase):
         self.assertFalse(result)
 
 
+class _ImmediateThread:
+    def __init__(self, *, target, args=(), daemon=None, **kwargs):
+        self.target = target
+        self.args = args
+
+    def start(self):
+        self.target(*self.args)
+
+
+class AutoActivateBatchTests(unittest.TestCase):
+    def make_app(self):
+        messages = []
+        app = types.SimpleNamespace(
+            lock=threading.Lock(),
+            active_restores=set(),
+            active_activates=set(),
+            auto_activate_queue=[],
+            auto_activate_batch_active=False,
+            operations=BB_RB.OperationRegistry(),
+            log=lambda *args, **kwargs: messages.append((args, kwargs)),
+            _update_card_step=lambda *args, **kwargs: None,
+            messages=messages,
+        )
+        app._run_auto_activate_batch = types.MethodType(BB_RB.App._run_auto_activate_batch, app)
+        app._start_auto_activate_batch_if_ready = types.MethodType(
+            BB_RB.App._start_auto_activate_batch_if_ready, app
+        )
+        return app
+
+    def test_auto_activate_waits_for_full_restore_batch_then_runs_batch_worker(self):
+        """Catches Auto Activate starting one device while another restore is still running."""
+        app = self.make_app()
+        app.active_restores.add("still-restoring")
+        app.operations.begin("u1", "auto_activate")
+        app.operations.begin("u2", "auto_activate")
+        calls = []
+        app._batch_activate_worker = lambda *args, **kwargs: calls.append((args, kwargs))
+
+        BB_RB.App._queue_auto_activate(app, "u1", True, "ja_JP|ja", True)
+        BB_RB.App._queue_auto_activate(app, "u2", True, "ja_JP|ja", True)
+
+        with patch.object(BB_RB.threading, "Thread", _ImmediateThread), patch.object(
+            BB_RB.time, "sleep"
+        ), patch.object(BB_RB, "get_connected_udids", return_value=["u1", "u2"]), patch.object(
+            BB_RB, "AUTO_ACTIVATE_SETTLE_SECONDS", 0
+        ), patch.object(BB_RB, "AUTO_ACTIVATE_STABLE_SAMPLES", 1):
+            self.assertFalse(BB_RB.App._start_auto_activate_batch_if_ready(app))
+            self.assertEqual([], calls)
+
+            app.active_restores.clear()
+            self.assertTrue(BB_RB.App._start_auto_activate_batch_if_ready(app))
+
+        self.assertEqual(["u1", "u2"], [args[0] for args, _ in calls])
+        self.assertTrue(all(args[3] for args, _ in calls))
+        self.assertTrue(all(args[4] == "auto_activate" for args, _ in calls))
+
+    def test_auto_activate_runs_ready_devices_without_blocking_the_whole_batch(self):
+        """Catches one disconnected iPhone preventing ready phones from using the manual Batch pipeline."""
+        app = self.make_app()
+        app.operations.begin("u1", "auto_activate")
+        app.operations.begin("u2", "auto_activate")
+        calls = []
+        app._batch_activate_worker = lambda *args, **kwargs: calls.append((args, kwargs))
+
+        BB_RB.App._queue_auto_activate(app, "u1", False, "ja_JP|ja", True)
+        BB_RB.App._queue_auto_activate(app, "u2", False, "ja_JP|ja", True)
+
+        with patch.object(BB_RB.threading, "Thread", _ImmediateThread), patch.object(
+            BB_RB.time, "sleep"
+        ), patch.object(BB_RB, "get_connected_udids", return_value=["u1"]), patch.object(
+            BB_RB, "AUTO_ACTIVATE_SETTLE_SECONDS", 0
+        ), patch.object(BB_RB, "AUTO_ACTIVATE_READY_CHECKS", 1), patch.object(
+            BB_RB, "AUTO_ACTIVATE_STABLE_SAMPLES", 1
+        ):
+            self.assertTrue(BB_RB.App._start_auto_activate_batch_if_ready(app))
+
+        self.assertEqual(["u1"], [args[0] for args, _ in calls])
+        self.assertEqual({"u1": "auto_activate"}, app.operations.snapshot())
+        self.assertTrue(any("Không thấy lại 1 máy" in str(args) for args, _ in app.messages))
+
+
 if __name__ == "__main__":
     unittest.main()
