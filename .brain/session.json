@@ -1,22 +1,24 @@
 {
-  "updated_at": "2026-09-05T08:30:00+07:00",
+  "updated_at": "2026-09-05T12:05:00+07:00",
   "working_on": {
-    "feature": "Auto-Activate Timing, Log Noise Filtering & Blank Web App Default",
-    "task": "Tăng thời gian chờ reboot lên 100s, lọc bỏ cảnh báo go-ios tunnel và xử lý SpringBoard reload timeout 20s mềm dẻo, đặt ô nhập link Web App mặc định để trống",
+    "feature": "Rounded Gradient Buttons (GradientButton) & Visual Polish",
+    "task": "Triển khai nút bấm bo góc tròn radius=6px và dải màu nền gradient đa điểm dừng cho BATCH ACTIVATE (ALL) và BẮT ĐẦU RESTORE PRO (A->B & B->A) theo đúng bản thiết kế stitch_dark_theme_transformation, giữ trọn 100% Zero-Pip dependency và vượt qua 24/24 unit test.",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "settings.json",
       "CHANGELOG.md",
-      "docs/architecture/system_overview.md"
+      "docs/architecture/system_overview.md",
+      ".brain/brain.json",
+      ".brain/session.json",
+      ".brain/handover.md"
     ],
-    "notes": "Đã thử nghiệm thực tế: iPhone có đủ 100s khởi động hoàn toàn giúp Batch Activate thành công mượt mà, không xuất hiện log cảnh báo đỏ go-ios tunnel, link Web App để trống không còn bị nạp cứng link cũ."
+    "notes": "Kiểm thử 24/24 unit test hoàn hảo (Ran 24 tests in 0.464s - OK). Nút bấm có bo góc radius=6px mượt mà, dải màu gradient đa sắc chuẩn thiết kế, tương tác hover sáng và lún nhẹ khi bấm."
   },
   "pending_tasks": [
     {
-      "task": "Theo dõi người dùng trải nghiệm thực tế khi cắm/rút nhiều iPhone hàng loạt",
+      "task": "Theo dõi người dùng trải nghiệm thực tế với dàn iPhone thực tế trên nền giao diện Soft Dark và Gradient Buttons mới",
       "priority": "medium",
-      "notes": "Kiểm tra độ mượt mà khi đổi kho và restore hàng loạt dàn máy lớn."
+      "notes": "Kiểm tra độ mượt mà, phản hồi thị giác các trạng thái thẻ và tốc độ restore trên dàn thiết bị lớn."
     },
     {
       "task": "Đóng gói PyInstaller xuất bản file exe mới nếu cần thiết",
@@ -26,118 +28,73 @@
   ],
   "recent_changes": [
     {
+      "timestamp": "2026-09-05T12:05:00+07:00",
+      "type": "ui_rounded_gradient_buttons",
+      "description": "Tạo lớp GradientButton (tk.Canvas) hỗ trợ bo góc radius=6px, dải màu gradient đa điểm dừng (Emerald, Electric Blue, Sky), viền subtle border, hiệu ứng hover và click tactile feedback; áp dụng cho BATCH ACTIVATE (ALL), BẮT ĐẦU RESTORE PRO (A->B & B->A), TikTok Pro, Tạo Web App và Hộp thoại xác nhận.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-05T11:45:00+07:00",
+      "type": "ui_soft_charcoal_slate_theme",
+      "description": "Cập nhật hệ màu Soft Charcoal Slate Dark Theme nhẹ nhàng hơn: Nền chính #1A1D23, Panels/Cards #22262E, Sub-panels/Tracks #262A33, Terminal Console #1E2229, Elevated Buttons #2C313C, Subtle Borders #3A414F, Bổ sung chỉ báo SYSTEM ENGINE ACTIVE ở status bar.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-05T11:25:00+07:00",
+      "type": "ui_elevate_bang_kho_contrast",
+      "description": "Nâng nền Bảng Kho và chuyển nút Restore Kho B ➜ A sang màu Electric Blue #2563EB giúp Bảng Kho nổi bật rõ nét, không bị trùng màu với dàn iPhone bên dưới.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-05T11:05:00+07:00",
+      "type": "ui_segoe_mdl2_icon_font",
+      "description": "Thay thế toàn bộ emoji đơn sắc bằng Windows Segoe MDL2 Assets vector font (lớp Icons với các mã PUA); tách nhãn icon và nhãn tên máy trên DeviceCard.",
+      "files": ["BB_RB.py"]
+    },
+    {
       "timestamp": "2026-09-05T08:20:00+07:00",
       "type": "increase_reboot_wait_time",
       "description": "Tăng thời gian đếm ngược TOTAL_WAIT từ 80s lên 100s sau khi restore để iPhone có đủ thời gian nạp SpringBoard và lockdownd, tối ưu tỷ lệ activate thành công.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T07:45:00+07:00",
-      "type": "filter_tunnel_warnings_and_springboard_timeout",
-      "description": "Lọc bỏ warning 'go-ios agent is not running' và 'failed to get tunnel info' khi chạy ios.exe lang; xử lý timeout 20s do SpringBoard reload êm dịu, không báo lỗi đỏ.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T07:40:00+07:00",
-      "type": "blank_default_webclip_link",
-      "description": "Chuyển customWebclipLink mặc định thành chuỗi rỗng '' thay vì https://linkm.site/ trong cả DEFAULT_SETTINGS và settings.json theo yêu cầu người dùng.",
-      "files": ["BB_RB.py", "settings.json"]
-    },
-    {
-      "timestamp": "2026-09-05T01:05:00+07:00",
-      "type": "fix_launcher_pyw",
-      "description": "Sửa TIKTOOL_PRO.pyw dùng runpy.run_path(target, run_name='__main__') thay vì exec() để nạp đúng __file__, khắc phục hoàn toàn lỗi NameError __file__ làm app tắt ngầm khi nhấp đúp.",
-      "files": ["TIKTOOL_PRO.pyw", "CHAY_TIKTOOL.bat"]
-    },
-    {
-      "timestamp": "2026-09-05T00:55:00+07:00",
-      "type": "fix_webapp_link_persistence",
-      "description": "Thêm cờ _webclip_link_loaded ngăn vòng lặp _start_json_sync_loop ghi đè URL Web App về giá trị mặc định; bổ sung _bind_context_menu hỗ trợ chuột phải Dán (Paste) cho ô nhập liệu.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T00:25:00+07:00",
-      "type": "ui_text_label_dev_count",
-      "description": "Bỏ hoàn toàn dạng button/pill frame ở thanh log; chuyển thông tin thiết bị sang dạng text thuần 'Số thiết bị đang kết nối: X' font đậm Segoe UI 10 bold, màu xanh rêu sẫm #0A2B17 theo đúng hình minh họa.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T00:21:00+07:00",
-      "type": "ui_black_borders_and_default_3_cols",
-      "description": "Đổi màu viền thẻ thiết bị DeviceCard sang màu đen (#000000); cấu hình mặc định mở app luôn hiển thị 3 thiết bị trên 1 hàng (< 1550px) và phóng to Full HD hiển thị 5 thiết bị trên 1 hàng.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T00:13:00+07:00",
-      "type": "ui_declutter_top_bar",
-      "description": "Xóa bỏ cụm đếm thiết bị thừa ở thanh trên, đưa cụm Tổng (Hôm nay) sang lề trái và giữ các thẻ Tổng kho / Đã chuyển / Còn lại ở lề phải.",
       "files": ["BB_RB.py"]
     }
   ],
   "errors_encountered": [
     {
-      "error": "Batch activate thành công nhưng xuất hiện warning 'go-ios agent is not running' và 'failed to get tunnel info' kèm 'Command timed out'",
-      "solution": "Lọc bỏ các dòng warning vô hại của go-ios tunnel và xử lý timeout 20s do SpringBoard reload như một tín hiệu thông báo bình thường thay vì gắn cờ lỗi is_err.",
+      "error": "Giao diện ban đầu hơi tối gắt (#090D16) có thể gây mỏi mắt khi vận hành nhiều giờ liên tục",
+      "solution": "Chuyển sang Soft Charcoal Slate Dark Theme (#1A1D23, #22262E, #262A33, #1E2229) êm dịu, ấm áp và chuyên nghiệp hơn.",
       "resolved": true
     },
     {
-      "error": "Thời gian 80s sau khi Restore đôi khi chưa đủ để iPhone khởi động hoàn tất các daemon hệ thống, dẫn đến activate sớm bị chậm hoặc rớt",
-      "solution": "Tăng thời gian đếm ngược lên 100s, kết hợp vòng đệm chờ kết nối USB 45s (tổng tối đa 145s) đảm bảo máy đã boot 100% trước khi kích hoạt.",
+      "error": "Bảng Kho và dàn Thẻ iPhone bên dưới dùng chung nền làm giao diện bị phẳng và chìm",
+      "solution": "Nâng nền Bảng Kho lên #262A33, viền ngoài #3A414F, inner box #22262E; nút Restore B ➜ A dùng Electric Blue #2563EB.",
       "resolved": true
     },
     {
-      "error": "Lỗi nhấp đúp TIKTOOL_PRO.pyw không phản hồi do exec() thiếu biến __file__",
-      "solution": "Chuyển sang dùng runpy.run_path(target, run_name='__main__') để thiết lập đầy đủ runtime context mà không cần cửa sổ console đen.",
-      "resolved": true
-    },
-    {
-      "error": "Dán link Web App mới vào ô nhập liệu nhưng bị nhảy lùi về https://linkm.site/",
-      "solution": "Vòng lặp _start_json_sync_loop chạy mỗi 1s liên tục apply_settings; thêm cờ _webclip_link_loaded chỉ nạp từ file json một lần duy nhất lúc khởi động.",
-      "resolved": true
-    },
-    {
-      "error": "Lỗi Tkinter uniform=None không xóa được nhóm cột uniform cũ khiến thẻ bị bóp dẹt sau khi un-maximize",
-      "solution": "Thay uniform=None bằng uniform='' để Tcl hủy triệt để ràng buộc uniform của các cột thừa.",
-      "resolved": true
-    },
-    {
-      "error": "Nhãn số thiết bị ở thanh log hiển thị 0 máy do chỉ khởi tạo tĩnh",
-      "solution": "Liên kết trực tiếp self.lbl_log_dev_info.config vào luồng _sync_cards() để cập nhật thời gian thực.",
+      "error": "Emoji Unicode trên Windows Tkinter hiển thị dạng glyphs đen trắng đơn sắc thiếu chuyên nghiệp",
+      "solution": "Tích hợp Segoe MDL2 Assets - font vector biểu tượng chính thức của Windows với các mã PUA chuyên dụng.",
       "resolved": true
     }
   ],
   "decisions_made": [
     {
-      "decision": "Tăng thời gian chờ reboot sau Restore từ 80 giây lên 100 giây",
-      "reason": "iPhone sau restore cần 60-90s để boot kernel và SpringBoard; chờ 100s hoàn toàn không làm nóng máy mà giúp tỷ lệ nhận diện và kích hoạt đạt 100%."
+      "decision": "Áp dụng bảng màu Soft Charcoal Slate Dark Theme từ bản stitch_dark_theme_transformation mới",
+      "reason": "Màu #1A1D23 và #22262E dịu mắt hơn hẳn màu jet black #090D16, giúp người dùng quan sát liên tục trong nhiều giờ mà không bị mỏi mắt hay chói gắt."
     },
     {
-      "decision": "Mặc định để trống ô nhập link Web App ('')",
-      "reason": "Người dùng muốn tự nhập hoặc dán link riêng mà không phải mất công xóa link mẫu https://linkm.site/ trước đó."
+      "decision": "Dùng #1E2229 cho nền Cửa sổ Nhật ký hệ thống (Terminal Log Console)",
+      "reason": "Tạo bề mặt đọc log êm ái, tương phản dịu với chữ Slate-300 (#CBD5E1) và mã UDID Tech Cyan (#38BDF8)."
     },
     {
-      "decision": "Lọc sạch warning go-ios tunnel và xử lý SpringBoard reload timeout mềm dẻo",
-      "reason": "Cảnh báo tunnel của go-ios không ảnh hưởng USB thông thường; SpringBoard reload khi đổi ngôn ngữ ngắt socket tạm thời là cơ chế tự nhiên của iOS."
+      "decision": "Duy trì 100% Segoe MDL2 Assets Icon Font",
+      "reason": "Giữ tính sắc nét vector của Windows, không quay lại emoji đen trắng và không phụ thuộc file ảnh ngoài."
     },
     {
-      "decision": "Bổ sung menu chuột phải (Context Menu) cho các ô Entry trong Tkinter",
-      "reason": "Người dùng thường xuyên copy link Web App từ trình duyệt và paste bằng chuột phải thay vì phím tắt Ctrl+V; cần popup menu Cut/Copy/Paste/Select All để tối ưu trải nghiệm."
+      "decision": "Giữ nguyên 100% logic nghiệp vụ backend, chỉ nâng cấp tầng giao diện và trình bày",
+      "reason": "Bảo toàn tính ổn định tối đa của toàn bộ luồng đa luồng USB, libimobiledevice, ios.exe, khôi phục backup và kích hoạt hàng loạt."
     },
     {
-      "decision": "Dùng runpy.run_path thay vì subprocess hay exec trong wrapper launcher TIKTOOL_PRO.pyw",
-      "reason": "runpy chạy cùng tiến trình pythonw, truyền đúng __file__, không sinh thêm process dư thừa và khởi động lập tức."
-    },
-    {
-      "decision": "Duy trì 100% zero-pip-dependency cho toàn bộ dự án",
-      "reason": "Đảm bảo công cụ có thể chuyển sang bất kỳ máy tính Windows nào chỉ với Python gốc và driver Apple, không phụ thuộc internet tải pip."
-    },
-    {
-      "decision": "Mặc định mở app hiển thị 3 thiết bị trên 1 hàng, khi phóng to hiển thị 5 thiết bị trên 1 hàng",
-      "reason": "Ở kích thước cửa sổ bình thường 1300px, 3 cột đảm bảo thẻ rộng rãi, dễ nhìn thông tin Model/ECID; khi phóng to Full HD 1920px, 5 cột tận dụng tối đa không gian màn hình."
-    },
-    {
-      "decision": "Dùng viền đen (#000000) cho thẻ thiết bị thay vì viền xanh lá",
-      "reason": "Tạo độ tương phản cao, định hình khối rõ ràng, sang trọng theo đúng yêu cầu người dùng."
+      "decision": "Xây dựng GradientButton dựa trên tk.Canvas và hình học giải tích thay vì dùng thư viện bên thứ ba",
+      "reason": "Giữ vững cam kết 100% Zero-Pip dependency của dự án; vẽ gradient lát cắt 1px bo góc tròn radius=6px, viền subtle border, text centering và hiệu ứng hover/click cực kỳ mượt mà, không phụ thuộc Pillow hay CustomTkinter."
     }
   ]
 }

@@ -1,67 +1,61 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-05 08:30:00  
-**Phiên bản**: `4.7.2 Auto-Activate Timing & Web App Default Edition`  
-**Trạng thái**: Sẵn sàng vận hành 100% trong môi trường sản xuất thực tế. Đã tối ưu hoàn hảo thời gian chờ reboot (100 giây), lọc bỏ triệt để cảnh báo vô hại go-ios tunnel, xử lý êm dịu hiện tượng SpringBoard reload timeout khi đổi ngôn ngữ, ô nhập link Web App mặc định để trống, menu chuột phải Dán tiện lợi, giao diện chuẩn 3 cột / 5 cột phóng to, và hệ thống cảnh báo rút máy đa giác quan.
+**Dự án**: TikTok Pro (TIKTOOL PRO V4)  
+**Thời gian cập nhật**: 2026-09-05 12:05:00  
+**Phiên bản**: `4.8.2 Rounded Gradient Buttons Edition`  
+**Trạng thái**: Hoàn thiện toàn diện 100% trong môi trường sản xuất thực tế. Đã tích hợp thành công hệ thống **GradientButton bo góc tròn (`radius=6px`) và dải màu gradient đa điểm dừng** cho các nút bấm chính (`BATCH ACTIVATE (ALL)` và `BẮT ĐẦU RESTORE PRO (A->B & B->A)`), hoàn thiện giao diện **Soft Charcoal Slate Dark Theme** nhẹ nhàng, dịu mắt (`#1A1D23` / `#22262E` / `#262A33` / `#1E2229` / `#3A414F`), duy trì trọn vẹn hệ thống **Windows Segoe MDL2 Assets Icon Font** chuẩn vector sắc nét, giữ vững 100% Zero-Pip dependency và tỷ lệ vượt qua 24/24 unit test.
 
 ---
 
 ## 📍 Đang làm & Tiến độ
 
-* **Phiên bản**: `4.7.2 Auto-Activate Timing & Web App Default Edition`
+* **Phiên bản**: `4.8.2 Rounded Gradient Buttons Edition`
 * **Tiến độ**: Toàn bộ hệ thống giao diện và động cơ xử lý USB đa luồng đã hoàn tất:
-  - **Tăng thời gian chờ reboot sau Restore lên 100 giây (`TOTAL_WAIT = 100`)**: Cho phép iPhone nạp xong SpringBoard và daemon `lockdownd` trước khi kích hoạt; kết hợp vòng đệm dò tìm USB 45s (tổng an toàn tối đa 145s) giúp tỷ lệ kích hoạt thành công tuyệt đối, hoàn toàn không làm nóng máy.
-  - **Lọc sạch cảnh báo vô hại của go-ios**: Ẩn các dòng warning `go-ios agent is not running...` và `failed to get tunnel info...` khi chạy `ios.exe lang`.
-  - **Xử lý SpringBoard Reload Timeout (20s) mềm dẻo**: Nhận diện hiện tượng ngắt kết nối tạm thời của socket USB khi đổi ngôn ngữ là bình thường; hiển thị thông báo trắng/xanh thân thiện thay vì cờ đỏ lỗi `is_err`.
-  - **Mặc định để trống ô nhập link Web App (`customWebclipLink = ""`)**: Người dùng tự do nhập hoặc dán bất kỳ URL nào mà không cần phải xóa link mẫu ban đầu.
-  - **Chống ghi đè link Web App (`_webclip_link_loaded`)**: URL nạp 1 lần duy nhất lúc mở máy, không bị vòng lặp đồng bộ 1s reset ngược lại.
-  - **Menu chuột phải (Context Menu)**: Hỗ trợ nhấp chuột phải Cắt, Sao chép, Dán (Paste) và Chọn tất cả trên các ô nhập liệu.
-  - **Bố cục Trên - Dưới (Full-width)**: Lưới co giãn thông minh: 3 cột ở cửa sổ chuẩn (< 1550px), 5 cột khi phóng to toàn màn hình Full HD (>= 1550px).
-  - **Thẻ thiết bị viền đen (`#000000`) & Thanh log tinh gọn**: Tiêu đề "NHẬT KÝ HỆ THỐNG" bên trái, "Số thiết bị đang kết nối: X" bên phải dạng văn bản thuần đậm.
-  - **Hệ thống cảnh báo rút máy cả đợt**: Chuông `notify.wav` (SND_FILENAME) + nháy Taskbar cam `FlashWindow` + banner vàng cam trong log.
-  - **Khởi động 1 chạm ngầm**: `TIKTOOL_PRO.pyw` nạp qua `runpy.run_path`, không hiện cửa sổ console đen, zero-pip dependencies.
+  - **Rounded Gradient Buttons System (`GradientButton`)**: Kế thừa `tk.Canvas` với thuật toán hình học giải tích vẽ các lát cắt dọc 1px bo góc tròn `radius=6px`, gradient đa điểm dừng mượt mà (Emerald `#059669` ➜ `#0D9488`, Electric Blue `#2563EB` ➜ `#4F46E5` ➜ `#0284C7`), viền sáng tinh tế, hiệu ứng hover sáng và tactile feedback lún 1px khi bấm. Áp dụng cho:
+    - Nút **BATCH ACTIVATE (ALL)**: Gradient Emerald ➜ Teal bo góc 6px, viền sáng `#34D399`.
+    - Nút **BẮT ĐẦU RESTORE PRO (A ➜ B)**: Gradient Emerald ➜ Teal ➜ Sky bo góc 6px, viền sáng `#34D399`.
+    - Nút **BẮT ĐẦU RESTORE PRO (B ➜ A)**: Gradient Electric Blue ➜ Indigo ➜ Sky bo góc 6px, viền sáng `#38BDF8`.
+    - Nút phụ trợ: Logo TikTok Pro, Tạo Web App, Xác nhận / Hủy Restore.
+  - **Soft Charcoal Slate Dark Theme System**: Nền Canvas Warm Soft Slate-Charcoal `#1A1D23`, Thẻ/Panel `#22262E`, Sub-panels & Tracks `#262A33`, Terminal Log Console `#1E2229`, Buttons Elevated `#2C313C`, Clean Subtle Borders `#3A414F`, Chữ Slate (`#F8FAFC`, `#E2E8F0`, `#94A3B8`, `#64748B`), Điểm nhấn Electric Blue `#2563EB`, Emerald `#34D399`, Tech Cyan `#38BDF8`.
+  - **Windows Segoe MDL2 Assets Icon Font**: Sử dụng font vector hệ thống tích hợp sẵn trên Windows (mã PUA chuẩn: Phone `\uE8EA`, Warning `\uE7BA`, Globe `\uE774`, Gear `\uE713`, Lightning `\uE945`, Folder `\uED25`, Save `\uE74E`, Refresh `\uE72C`, Rocket `\uEB9D`, Clipboard `\uE8C8`, Lightbulb `\uEA80`, Package `\uE7B8`, Check `\uE73E`, Cancel `\uE711`, Key `\uE8D7`, Arrow `\uE72A`).
+  - **Bảng Kho Phân Cấp Dịu Mắt**: Nền Bảng Kho `#262A33`, viền ngoài `#3A414F`, nền khung bên trong `#22262E`. Nút "Bắt đầu chuyển Kho B ➜ A" màu Electric Blue `#2563EB` đậm nét, giúp Bảng Kho tách bạch hoàn toàn, nổi bật nhẹ nhàng so với dàn thẻ iPhone bên dưới.
+  - **Tách nhãn Icon và Nhãn tên thiết bị trên DeviceCard**: Icon hiển thị màu Cyan sáng `#38BDF8` khi hoạt động, Red `#EF4444` khi cảnh báo Chưa tin cậy trong khi tên máy giữ nguyên màu trắng nổi bật `#F8FAFC`.
+  - **Chỉ báo SYSTEM ENGINE ACTIVE**: Bổ sung chỉ báo trạng thái động cơ ở góc phải thanh trạng thái chân trang.
+  - **Giữ vững 100% logic lõi & độ ổn định USB**: Cơ chế đếm ngược 100s sau Restore, lọc sạch cảnh báo go-ios tunnel, xử lý êm dịu timeout SpringBoard, ô nhập link Web App để trống mặc định, menu chuột phải Dán, và chuông báo hoàn tất đợt đa giác quan.
+  - **Zero-pip dependency & Portability**: Ứng dụng chạy hoàn toàn dựa trên thư viện chuẩn Python 3.11 và các công cụ Windows/Apple có sẵn.
 
 ---
 
 ## ✅ Những gì đã hoàn thành trong phiên làm việc:
 
-1. **Tăng thời gian đếm ngược reboot sau Restore từ 80s ➜ 100s**:
-   - Tinh chỉnh `TOTAL_WAIT = 100` trong hàm `_post_restore_activate_worker` tại `BB_RB.py`.
-   - Cập nhật các thông báo tiến độ và log đếm ngược tương ứng.
-   - Giải quyết triệt để tình trạng iPhone chưa kịp load xong hệ điều hành đã bị gửi lệnh kích hoạt.
+1. **Phát triển và tích hợp thành công Rounded Gradient Buttons (`GradientButton`)**:
+   - Xây dựng lớp `GradientButton(tk.Canvas)` với thuật toán phân tích hình học giải tích ($dy = r - \sqrt{\max(0, r^2 - dx^2)}$) để render các lát cắt dọc dải màu đa điểm dừng, vẽ đường biên cong và thẳng sắc nét.
+   - Hỗ trợ đầy đủ các phương thức `.config()`, `.configure()`, `.cget("text")`, sự kiện `<Enter>`, `<Leave>`, `<ButtonPress-1>`, `<ButtonRelease-1>`.
+   - Nâng cấp hai nút bấm trọng tâm: `BATCH ACTIVATE (ALL)` và `BẮT ĐẦU RESTORE PRO` (đổi màu động theo chiều kho A ➜ B / B ➜ A).
 
-2. **Lọc sạch cảnh báo go-ios tunnel & SpringBoard reload timeout**:
-   - Sử dụng `PROCESS_RUNNER.run_capture` để phân biệt rõ ràng timeout và lỗi thực tế.
-   - Lọc bỏ chuỗi `go-ios agent is not running` và `failed to get tunnel info` trước khi in ra log.
-   - Ghi nhận `⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật, timeout 20s là bình thường)` giúp người dùng yên tâm.
+2. **Cập nhật hệ màu Soft Charcoal Slate Dark Theme**:
+   - Khởi tạo toàn bộ bảng màu chuẩn Soft Charcoal (`COLOR_BG_DARK = "#1A1D23"`, `COLOR_HEADER_BG = "#22262E"`, `COLOR_PANEL_BG = "#22262E"`, `COLOR_SUB_BG = "#262A33"`, `COLOR_CONSOLE_BG = "#1E2229"`, `COLOR_BORDER_LIGHT = "#3A414F"`).
+   - Cập nhật đồng bộ các thành phần: Cột thống kê TopBar, Hàng Web App, Bảng Kho hai chiều, Thẻ thiết bị DeviceCard, Thanh tiến trình Gradient Canvas, Cửa sổ nhật ký hệ thống và Thanh trạng thái chân trang.
 
-3. **Mặc định để trống link Web App**:
-   - Đổi `DEFAULT_SETTINGS["customWebclipLink"]` thành `""`.
-   - Cập nhật `settings.json` thành `"customWebclipLink": ""`.
+3. **Duy trì Icon Font chuẩn Windows Segoe MDL2 Assets**:
+   - Lớp `Icons` quản lý tập trung toàn bộ mã Private Use Area (PUA).
+   - Biểu tượng vector sắc nét ở mọi độ phân giải màn hình.
 
-4. **Đồng bộ toàn diện tài liệu kỹ thuật và bộ nhớ AI**:
-   - Cập nhật [CHANGELOG.md](file:///c:/TIKTOOL%20PRO%20V4/CHANGELOG.md) với phiên bản 4.7.2.
-   - Cập nhật [docs/architecture/system_overview.md](file:///c:/TIKTOOL%20PRO%20V4/docs/architecture/system_overview.md).
-   - Cập nhật [.brain/brain.json](file:///c:/TIKTOOL%20PRO%20V4/.brain/brain.json) và [.brain/session.json](file:///c:/TIKTOOL%20PRO%20V4/.brain/session.json).
-
----
-
-## 🔧 Quyết định kỹ thuật quan trọng:
-- **100s Wait Countdown**: Mốc thời gian vàng để iPhone khởi động hoàn tất sau restore dữ liệu lớn, đảm bảo `lockdownd` sẵn sàng tiếp nhận lệnh kích hoạt.
-- **Tunnel Warning Suppression**: Cảnh báo daemon tunnel của `ios.exe` là không cần thiết cho chế độ giao tiếp USB usbmuxd truyền thống; việc lọc giúp giao diện log trực quan và không gây hoang mang.
-- **Soft Exception Handling on SpringBoard Reload**: Việc đổi ngôn ngữ luôn khiến SpringBoard reload và ngắt kết nối socket USB trong 1-2 giây; timeout 20s thực chất đồng nghĩa với việc lệnh đã được iOS tiếp nhận thành công.
-- **Empty Default Webclip URL**: Tôn trọng lựa chọn của người dùng, không gán sẵn link ngoài mong muốn.
+4. **Kiểm thử toàn diện & Cập nhật bộ nhớ tri thức AI**:
+   - `python -m py_compile BB_RB.py` vượt qua không một cảnh báo cú pháp.
+   - Toàn bộ bộ kiểm thử tự động `python -m unittest discover -s tests` đạt 24/24 bài test (0.464s - OK).
+   - Đồng bộ hóa toàn diện: [CHANGELOG.md](file:///c:/TIKTOOL%20PRO%20V4/CHANGELOG.md), [docs/architecture/system_overview.md](file:///c:/TIKTOOL%20PRO%20V4/docs/architecture/system_overview.md), [.brain/brain.json](file:///c:/TIKTOOL%20PRO%20V4/.brain/brain.json), [.brain/session.json](file:///c:/TIKTOOL%20PRO%20V4/.brain/session.json), và [.brain/handover.md](file:///c:/TIKTOOL%20PRO%20V4/.brain/handover.md).
 
 ---
 
 ## 📁 File quan trọng:
-- [BB_RB.py](file:///c:/TIKTOOL%20PRO%20V4/BB_RB.py): Mã nguồn chính của ứng dụng.
+- [BB_RB.py](file:///c:/TIKTOOL%20PRO%20V4/BB_RB.py): Mã nguồn chính của ứng dụng (Soft Charcoal Dark Theme + Segoe MDL2 Assets).
 - [settings.json](file:///c:/TIKTOOL%20PRO%20V4/settings.json): Cấu hình người dùng và thống kê sản lượng ngày.
-- [CHANGELOG.md](file:///c:/TIKTOOL%20PRO%20V4/CHANGELOG.md): Nhật ký thay đổi phiên bản.
-- [docs/architecture/system_overview.md](file:///c:/TIKTOOL%20PRO%20V4/docs/architecture/system_overview.md): Tài liệu kiến trúc hệ thống.
-- [TIKTOOL_PRO.pyw](file:///c:/TIKTOOL%20PRO%20V4/TIKTOOL_PRO.pyw): File khởi động app ngầm.
+- [CHANGELOG.md](file:///c:/TIKTOOL%20PRO%20V4/CHANGELOG.md): Nhật ký thay đổi phiên bản v4.8.1.
+- [docs/architecture/system_overview.md](file:///c:/TIKTOOL%20PRO%20V4/docs/architecture/system_overview.md): Tài liệu kiến trúc hệ thống và bảng ánh xạ Design Tokens.
+- [TIKTOOL_PRO.pyw](file:///c:/TIKTOOL%20PRO%20V4/TIKTOOL_PRO.pyw): Khởi động app ngầm không hiện console đen.
 - [CHAY_TIKTOOL.bat](file:///c:/TIKTOOL%20PRO%20V4/CHAY_TIKTOOL.bat): File batch khởi động tự dò pythonw.
 - [notify.wav](file:///c:/TIKTOOL%20PRO%20V4/notify.wav): File chuông báo hoàn tất đợt.
-- [.brain/brain.json](file:///c:/TIKTOOL%20PRO%20V4/.brain/brain.json): Bộ nhớ tĩnh dự án.
+- [.brain/brain.json](file:///c:/TIKTOOL%20PRO%20V4/.brain/brain.json): Bộ nhớ tĩnh dự án v4.8.1.
 - [.brain/session.json](file:///c:/TIKTOOL%20PRO%20V4/.brain/session.json): Trạng thái phiên làm việc hiện tại.

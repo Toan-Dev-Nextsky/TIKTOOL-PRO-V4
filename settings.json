@@ -1,6 +1,6 @@
 {
-  "storeA": "D:/TK 30.7H NGAM DONG40k GB  31.8 A",
-  "storeB": "D:/TK 30.7H NGAM DONG40k GB  31.8 B",
+  "storeA": "D:/TK 26.7H NGAM DONG34k GB149 XM  28.8 A",
+  "storeB": "D:/TK 26.7H NGAM DONG34k GB149 XM  28.8 B",
   "generalBackupDir": "D:/backups",
   "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
   "removeTikTok": false,
@@ -12,6 +12,6 @@
   "active": "A",
   "customWebclipLink": "",
   "dailyRestoreDate": "2026-09-05",
-  "dailyRestoreCount": 153,
+  "dailyRestoreCount": 199,
   "autoSetLangAfterRestore": true
 }

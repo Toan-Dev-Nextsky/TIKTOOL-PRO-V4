@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TIKTOK PRO - FULL RESTORE &amp; LANGUAGE ENGINE</title>
+<!-- Tailwind CSS v3 with forms plugin -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration for Soft Charcoal Slate Dark Theme -->
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            appDark: {
+              950: '#1a1d23', // Main app background: warm soft slate-charcoal
+              900: '#22262e', // Card / Section container background
+              850: '#262a33', // Input/Sub-panel background
+              800: '#2c313c', // Elevated item / button background
+              750: '#343a46', // Hover / accent borders
+              700: '#3a414f', // Clean subtle borders
+              600: '#4e5666',
+              500: '#6b7280'
+            },
+            techCyan: {
+              400: '#38bdf8',
+              500: '#0284c7',
+              600: '#0369a1'
+            },
+            techEmerald: {
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669'
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Consolas', 'Courier New', 'monospace'],
+            sans: ['Segoe UI', 'Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styles for Windows App Shell Feel -->
+<style data-purpose="app-shell">
+    /* Custom subtle scrollbar for desktop look */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1a1d23;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3a414f;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4e5666;
+    }
+    .win-btn:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+    .win-close:hover {
+      background-color: #ef4444;
+      color: white;
+    }
+  </style>
+</head>
+<body class="bg-appDark-950 text-slate-200 font-sans select-none min-h-screen flex flex-col antialiased">
+<!-- BEGIN: WindowTitleBar -->
+<!-- Topmost application titlebar mimicking modern native desktop tool -->
+<header class="h-9 bg-appDark-900 border-b border-appDark-700 flex items-center justify-between px-3 text-xs shadow-sm">
+<div class="flex items-center space-x-2">
+<!-- App Icon -->
+<div class="w-4 h-4 rounded flex items-center justify-center bg-sky-500/20 text-sky-400">
+<svg class="w-3.5 h-3.5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.68 6.34 6.34 0 0 0 9.34 22a6.33 6.33 0 0 0 6.33-6.32V8.92a8.3 8.3 0 0 0 4.92 1.6V7.08a4.85 4.85 0 0 1-1-.39z"></path>
+</svg>
+</div>
+<span class="font-semibold text-slate-200 tracking-wider">TIKTOK PRO - FULL RESTORE &amp; LANGUAGE ENGINE</span>
+</div>
+<!-- Window management control buttons -->
+<div class="flex items-center h-full -mr-3">
+<button class="win-btn w-10 h-full flex items-center justify-center text-slate-400 hover:text-white" title="Minimize">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M5 12h14"></path></svg>
+</button>
+<button class="win-btn w-10 h-full flex items-center justify-center text-slate-400 hover:text-white" title="Maximize">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="16" rx="1" width="16" x="4" y="4"></rect></svg>
+</button>
+<button class="win-btn win-close w-11 h-full flex items-center justify-center text-slate-400 hover:text-white transition-colors" title="Close">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+</button>
+</div>
+</header>
+<!-- END: WindowTitleBar -->
+<!-- BEGIN: MainContentContainer -->
+<main class="flex-1 p-2 space-y-2 flex flex-col text-xs">
+<!-- BEGIN: TopControlToolbar -->
+<!-- First command row with activation actions and shortcut links -->
+<section class="bg-appDark-900 border border-appDark-700 p-2 rounded-lg flex flex-wrap items-center justify-between gap-2 shadow-sm" data-purpose="primary-controls">
+<div class="flex flex-wrap items-center gap-2">
+<!-- TikTok Pro Brand Badge -->
+<button class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-md border border-blue-400/40 shadow-sm transition-all flex items-center space-x-1.5">
+<span>TikTok Pro</span>
+</button>
+<!-- Language Selector -->
+<div class="flex items-center space-x-1 bg-appDark-850 border border-appDark-700 px-2.5 py-1.5 rounded-md text-slate-300">
+<span class="text-slate-400">🌐 Ngôn ngữ:</span>
+<span class="font-mono text-sky-400 font-semibold cursor-pointer hover:underline">[ja_JP|ja]</span>
+</div>
+<!-- Popup Button -->
+<button class="px-2.5 py-1.5 bg-appDark-800 hover:bg-appDark-750 text-slate-200 border border-appDark-700 rounded-md flex items-center space-x-1 transition-colors">
+<span class="text-sky-400">⚙️</span>
+<span>Popup</span>
+</button>
+<!-- Change Command Button -->
+<button class="px-2.5 py-1.5 bg-appDark-800 hover:bg-appDark-750 text-slate-200 border border-appDark-700 rounded-md flex items-center space-x-1 transition-colors">
+<span class="text-blue-400">🔄</span>
+<span>Đổi lệnh</span>
+</button>
+<!-- Batch Activate Button -->
+<button class="px-4 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-md shadow border border-emerald-500/30 flex items-center space-x-1.5 tracking-wide transition-all">
+<span>⚡</span>
+<span>BATCH ACTIVATE (ALL)</span>
+</button>
+<!-- Checkbox Language After Activation -->
+<label class="flex items-center space-x-1.5 text-slate-300 ml-1 cursor-pointer select-none">
+<input checked="" class="rounded bg-appDark-850 border-appDark-700 text-blue-500 focus:ring-0 focus:ring-offset-0 w-4 h-4" type="checkbox"/>
+<span class="font-medium text-slate-200">☑ 🔍 Đặt ngôn ngữ sau Active</span>
+</label>
+</div>
+<!-- State Pipeline Flow Breadcrumbs -->
+<div class="flex items-center text-xs font-mono font-medium text-emerald-400 bg-appDark-850 px-2.5 py-1 rounded-md border border-appDark-700">
+<span>Activate</span>
+<span class="mx-1 text-slate-500">-&gt;</span>
+<span class="text-sky-400">Skip Setup</span>
+<span class="mx-1 text-slate-500">-&gt;</span>
+<span class="text-emerald-400">Set Lang</span>
+</div>
+</section>
+<!-- END: TopControlToolbar -->
+<!-- BEGIN: WebAppToolbar -->
+<!-- Second toolbar for WebClip deployment onto iOS devices -->
+<section class="bg-appDark-900 border border-appDark-700 px-2.5 py-1.5 rounded-lg flex flex-wrap items-center justify-between gap-2 shadow-sm" data-purpose="web-app-dispatch">
+<div class="flex items-center gap-2 flex-1 max-w-2xl">
+<span class="text-slate-300 font-semibold whitespace-nowrap flex items-center">
+<span class="mr-1">🌐</span> WEB APP: <span class="text-slate-400 font-normal ml-1">Link:</span>
+</span>
+<input class="bg-appDark-850 border border-appDark-700 text-slate-200 rounded-md px-2.5 py-1 text-xs w-full focus:outline-none focus:border-sky-500 font-mono placeholder:text-slate-500" placeholder="https://..." type="text"/>
+<button class="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 text-white font-medium rounded-md whitespace-nowrap flex items-center space-x-1 border border-sky-400/40 transition-colors">
+<span>🚀</span>
+<span>Tạo Web App</span>
+</button>
+<button class="px-2.5 py-1 bg-appDark-800 hover:bg-appDark-750 text-slate-200 border border-appDark-700 rounded-md whitespace-nowrap flex items-center space-x-1 transition-colors">
+<span>📱</span>
+<span>TikTok</span>
+</button>
+<button class="px-2.5 py-1 bg-appDark-800 hover:bg-appDark-750 text-slate-200 border border-appDark-700 rounded-md whitespace-nowrap flex items-center space-x-1 transition-colors">
+<span>⚡</span>
+<span>TikTok Lite</span>
+</button>
+</div>
+<!-- Quick guideline hint -->
+<div class="text-slate-400 italic text-[11px] flex items-center space-x-1">
+<span>💡</span>
+<span>Gửi WebClip profile ra màn hình chính iPhone</span>
+</div>
+</section>
+<!-- END: WebAppToolbar -->
+<!-- BEGIN: ModeTabs -->
+<!-- Section Tabs: Restore vs Backup -->
+<nav class="flex border-b border-appDark-700 text-xs font-semibold">
+<button class="px-5 py-2 bg-appDark-900 text-sky-400 rounded-t-md border-t-2 border-l border-r border-t-sky-500 border-l-appDark-700 border-r-appDark-700 shadow-sm flex items-center space-x-1.5 font-bold">
+<span>[↺]</span>
+<span class="text-slate-100">KHÔI PHỤC (RESTORE PRO)</span>
+</button>
+<button class="px-5 py-2 bg-appDark-950/70 hover:bg-appDark-900 text-slate-400 hover:text-slate-200 rounded-t-md border-t border-transparent flex items-center space-x-1.5 transition-colors">
+<span>[🗂]</span>
+<span>SAO LƯU (BACKUP)</span>
+</button>
+</nav>
+<!-- END: ModeTabs -->
+<!-- BEGIN: StorageAndPathConfiguration -->
+<!-- Source & Destination directory allocation panel -->
+<section class="bg-appDark-900 border border-appDark-700 p-2.5 rounded-lg space-y-2 shadow-sm" data-purpose="storage-mapping-panel">
+<!-- Radio Selection Bar -->
+<div class="flex items-center justify-between pb-1.5 border-b border-appDark-700/80 text-xs">
+<div class="flex items-center space-x-4">
+<span class="font-bold text-slate-200 flex items-center space-x-1">
+<span>📦</span>
+<span>CHỌN KHO NGUỒN:</span>
+</span>
+<label class="flex items-center space-x-1.5 cursor-pointer">
+<input checked="" class="text-sky-500 bg-appDark-850 border-appDark-700 focus:ring-0" name="sourceWarehouse" type="radio"/>
+<span class="text-sky-400 font-semibold">Kho A ➔ B</span>
+</label>
+<label class="flex items-center space-x-1.5 cursor-pointer">
+<input class="text-sky-500 bg-appDark-850 border-appDark-700 focus:ring-0" name="sourceWarehouse" type="radio"/>
+<span class="text-slate-400 hover:text-slate-200">Kho B ➔ A</span>
+</label>
+<div class="flex items-center space-x-1.5 text-emerald-400 font-medium pl-3 border-l border-appDark-700">
+<span>📂</span>
+<span>Nguồn Kho A (113 iPhone) ➔ Đích Kho B (36 iPhone)</span>
+</div>
+</div>
+<div class="text-sky-400 font-bold font-mono tracking-widest text-sm bg-appDark-850 px-2.5 py-0.5 rounded border border-appDark-700">
+          A ➔ B
+        </div>
+</div>
+<!-- Path Input Boxes -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+<!-- Input Folder Box -->
+<div class="space-y-1">
+<div class="text-[11px] font-semibold text-slate-300 flex items-center justify-between">
+<span>MỤC NHẬP (KHO A: 113 iPhone)</span>
+</div>
+<div class="flex items-center rounded-md border border-appDark-700 bg-appDark-850 overflow-hidden focus-within:border-teal-500">
+<button class="bg-teal-700/80 hover:bg-teal-600 text-white font-medium px-3 py-1.5 flex items-center space-x-1 border-r border-teal-600/60 transition-colors">
+<span>📁</span>
+<span>Chọn</span>
+</button>
+<input class="w-full bg-transparent border-none text-slate-200 text-xs px-2.5 py-1 font-mono focus:ring-0" readonly="" type="text" value="D:/TK 26.7H NGAM DONG34K GB149 XM 28.8 A"/>
+</div>
+</div>
+<!-- Output Folder Box -->
+<div class="space-y-1">
+<div class="text-[11px] font-semibold text-sky-400 flex items-center justify-between">
+<span>MỤC XUẤT (KHO B: 36 iPhone)</span>
+</div>
+<div class="flex items-center rounded-md border border-appDark-700 bg-appDark-850 overflow-hidden focus-within:border-sky-500">
+<button class="bg-blue-600/80 hover:bg-blue-500 text-white font-medium px-3 py-1.5 flex items-center space-x-1 border-r border-blue-500/60 transition-colors">
+<span>📁</span>
+<span>Chọn</span>
+</button>
+<input class="w-full bg-transparent border-none text-slate-200 text-xs px-2.5 py-1 font-mono focus:ring-0" readonly="" type="text" value="D:/TK 26.7H NGAM DONG34K GB149 XM 28.8 B"/>
+</div>
+</div>
+</div>
+<!-- Secondary Checkbox & Mini Tag -->
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center space-x-1.5 cursor-pointer">
+<input checked="" class="rounded bg-appDark-850 border-appDark-700 text-sky-500 focus:ring-0 focus:ring-offset-0 w-4 h-4" type="checkbox"/>
+<span class="text-sky-300 font-medium">☑ ⚡ Tự Activate sau Restore</span>
+</label>
+<span class="bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 px-2 py-0.5 rounded font-mono text-xs font-semibold">
+          Đã Restore: 2
+        </span>
+</div>
+<!-- Main Action Button -->
+<button class="w-full py-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-700 hover:from-emerald-500 hover:to-sky-600 text-white font-bold text-sm tracking-wide rounded-md shadow border border-emerald-400/30 flex items-center justify-center space-x-2 transition-all transform active:scale-[0.99]">
+<span class="text-base">⚡</span>
+<span>BẮT ĐẦU RESTORE PRO (A ➔ B • 113 iPhone)</span>
+</button>
+</section>
+<!-- END: StorageAndPathConfiguration -->
+<!-- BEGIN: QuickStatsOverview -->
+<!-- Metrics counter banner -->
+<section class="flex items-center justify-between text-xs font-medium" data-purpose="metrics-summary">
+<div class="flex items-center space-x-2 bg-appDark-900 border border-appDark-700 px-3 py-1.5 rounded-lg shadow-sm">
+<span class="text-slate-300">Tổng:</span>
+<span class="text-sky-400 font-bold font-mono text-sm">179</span>
+<span class="text-slate-400 text-[11px]">(Hôm nay)</span>
+<button class="text-slate-400 hover:text-sky-400 transition-colors ml-1" title="Refresh">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+</button>
+</div>
+<div class="flex items-center space-x-2">
+<div class="bg-appDark-900 border border-appDark-700 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-sm">
+<span class="text-slate-400">Tổng kho:</span>
+<span class="font-bold text-slate-100 font-mono text-sm">115</span>
+</div>
+<div class="bg-appDark-900 border border-emerald-700/60 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-sm text-emerald-400">
+<span>Đã chuyển:</span>
+<span class="font-bold font-mono text-sm">2</span>
+</div>
+<div class="bg-appDark-900 border border-appDark-700 px-3 py-1.5 rounded-lg flex items-center space-x-1.5 shadow-sm text-sky-400">
+<span class="text-slate-400">Còn lại:</span>
+<span class="font-bold font-mono text-sm">113</span>
+</div>
+<button class="bg-appDark-900 border border-appDark-700 hover:bg-appDark-800 p-1.5 rounded-lg text-slate-400 hover:text-sky-400 transition-colors shadow-sm" title="Reload List">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+</button>
+</div>
+</section>
+<!-- END: QuickStatsOverview -->
+<!-- BEGIN: ConnectedDeviceCardsGrid -->
+<!-- Real-time connected phones and their batch progress states -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-2.5" data-purpose="devices-viewport">
+<!-- Device Card 1 -->
+<div class="bg-appDark-900 border border-appDark-700 rounded-lg p-2.5 shadow-sm space-y-2 hover:border-sky-500/50 transition-colors">
+<div class="flex items-center justify-between border-b border-appDark-700/80 pb-1.5">
+<div class="flex items-center space-x-1.5 font-bold text-slate-100">
+<span class="text-sm">📱</span>
+<span>iPhone • iOS 26.6.1</span>
+</div>
+<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-appDark-850 text-slate-400 border border-appDark-700">Slot 01</span>
+</div>
+<div class="text-sky-400 font-mono text-xs flex items-center space-x-1.5">
+<span>Model: iPhone13,1</span>
+<span class="text-slate-500">•</span>
+<span>ECID: 3668907386732574</span>
+</div>
+<div class="space-y-1 pt-1">
+<div class="flex justify-between text-[11px]">
+<span class="text-emerald-400 font-medium">Batch Activate thành công</span>
+<span class="text-sky-400 font-mono font-bold">100%</span>
+</div>
+<!-- Progress bar track -->
+<div class="w-full bg-appDark-850 rounded-full h-2 overflow-hidden border border-appDark-700">
+<div class="bg-gradient-to-r from-blue-500 to-sky-400 h-2 rounded-full w-full shadow-sm"></div>
+</div>
+</div>
+</div>
+<!-- Device Card 2 -->
+<div class="bg-appDark-900 border border-appDark-700 rounded-lg p-2.5 shadow-sm space-y-2 hover:border-sky-500/50 transition-colors">
+<div class="flex items-center justify-between border-b border-appDark-700/80 pb-1.5">
+<div class="flex items-center space-x-1.5 font-bold text-slate-100">
+<span class="text-sm">📱</span>
+<span>iPhone • iOS 26.6.1</span>
+</div>
+<span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-appDark-850 text-slate-400 border border-appDark-700">Slot 02</span>
+</div>
+<div class="text-sky-400 font-mono text-xs flex items-center space-x-1.5">
+<span>Model: iPhone13,1</span>
+<span class="text-slate-500">•</span>
+<span>ECID: 4877983382831134</span>
+</div>
+<div class="space-y-1 pt-1">
+<div class="flex justify-between text-[11px]">
+<span class="text-emerald-400 font-medium">Batch Activate thành công</span>
+<span class="text-sky-400 font-mono font-bold">100%</span>
+</div>
+<!-- Progress bar track -->
+<div class="w-full bg-appDark-850 rounded-full h-2 overflow-hidden border border-appDark-700">
+<div class="bg-gradient-to-r from-blue-500 to-sky-400 h-2 rounded-full w-full shadow-sm"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- END: ConnectedDeviceCardsGrid -->
+<!-- BEGIN: SystemConsoleLog -->
+<!-- Real-time terminal log viewer matching screenshot output verbatim -->
+<section class="flex-1 min-h-[190px] bg-appDark-900 border border-appDark-700 rounded-lg p-2.5 flex flex-col space-y-2 shadow-inner" data-purpose="terminal-console-logger">
+<div class="flex items-center justify-between pb-1 border-b border-appDark-700/80">
+<div class="font-bold text-slate-200 uppercase tracking-wider flex items-center space-x-1.5">
+<span class="text-sky-400 font-mono">❯_</span>
+<span>NHẬT KÝ HỆ THỐNG</span>
+</div>
+<div class="font-mono text-xs text-slate-300 bg-appDark-850 px-2 py-0.5 rounded border border-appDark-700">
+          Số thiết bị đang kết nối: <span class="text-emerald-400 font-bold">2</span>
+</div>
+</div>
+<!-- Console Window Body: Soft slate-dark interior with gentle font contrast -->
+<div class="flex-1 bg-[#1e2229] rounded-md p-2.5 font-mono text-[11px] leading-relaxed text-slate-300 overflow-y-auto border border-appDark-700 select-text">
+<!-- Raw payload string output -->
+<p class="text-slate-400/90 break-all leading-tight">
+          h_MY , es_BR ], SupportedLanguages :[ ur , it , ja , id , mr , ms , nl , es-419 , es , pl , ca , ta , tr , en-IN , or , tr-CA , da , bg , te , kk-Cyrl , pt-BR , zn-Hant-HK , hr , gu","de","th","sk","ro","sl","nb","kk","en-GB","hu","zh-HK","bn","ar","it","kn","ko","uk","pa","ru","vi","zh-Hans","zh-Hant","en-AU","ml","pt-PT","tr","fi","en-US","el","cs","sv","nl","he","en","es-US"]}
+        </p>
+<!-- Log items with timestamps and identifiers -->
+<div class="mt-2 space-y-1 text-slate-200">
+<p>
+<span class="text-slate-400">[10:13:15]</span>
+<span class="text-sky-400 font-semibold">000081...:</span>
+<span class="text-emerald-300 font-medium">Batch Activate hoàn tất thành công.</span>
+</p>
+<p>
+<span class="text-slate-400">[10:13:19]</span>
+<span class="text-sky-400 font-semibold">000081...:</span>
+<span class="text-amber-300">⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật, timeout 20s là bình thường).</span>
+</p>
+<p>
+<span class="text-slate-400">[10:13:19]</span>
+<span class="text-sky-400 font-semibold">000081...:</span>
+<span class="text-emerald-300 font-medium">Batch Activate hoàn tất thành công.</span>
+</p>
+</div>
+</div>
+</section>
+<!-- END: SystemConsoleLog -->
+</main>
+<!-- END: MainContentContainer -->
+<!-- BEGIN: BottomStatusBar -->
+<!-- Footer bottom application status indicators -->
+<footer class="h-7 bg-appDark-900 border-t border-appDark-700 px-3 flex items-center justify-between text-[11px] font-mono shadow-inner" data-purpose="app-footer-statusbar">
+<div class="flex items-center space-x-3">
+<div class="flex items-center space-x-1 text-emerald-400">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+<span class="font-semibold">Trust: 2</span>
+</div>
+<span class="text-slate-600">•</span>
+<div class="text-slate-300">
+<span>Tổng:</span> <span class="text-white font-semibold">2</span>
+</div>
+<span class="text-slate-600">•</span>
+<div class="text-rose-400 font-semibold">
+<span>Not Trust: 0</span>
+</div>
+<span class="text-slate-600">•</span>
+<div class="text-sky-400 font-semibold">
+<span>Restored: 2</span>
+</div>
+</div>
+<!-- Engine Heartbeat indicator -->
+<div class="text-slate-400 text-[10px] flex items-center space-x-2">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+<span class="tracking-wider uppercase">System Engine Active</span>
+</div>
+</footer>
+<!-- END: BottomStatusBar -->
+</body></html>

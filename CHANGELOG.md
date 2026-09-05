@@ -2,6 +2,83 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.8.2 Rounded Gradient Buttons Edition] - 2026-09-05
+
+### 🔘 Tích Hợp Nút Bấm Bo Góc & Hiệu Ứng Background Gradient (GradientButton)
+- **Thiết kế Gradient Rounded Button chuẩn từ bản vẽ thiết kế**:
+  - Xây dựng widget tùy biến `GradientButton(tk.Canvas)` với khả năng vẽ dải gradient đa điểm dừng (multi-stop gradient) theo lát cắt cong phương trình đường tròn, tạo góc bo mềm mại `radius=6px` cùng viền bo nhẹ (`subtle border`).
+  - Hỗ trợ đầy đủ hiệu ứng tương tác:
+    - **Hover (`<Enter>`)**: Dải màu sáng hơn tự nhiên (như `from-emerald-500 to-teal-500`).
+    - **Click/Press (`<ButtonPress-1>`)**: Dịch chuyển text 1px tạo phản hồi bấm chân thực (tactile feedback).
+    - **Leave (`<Leave>`)**: Phục hồi màu mặc định.
+- **Áp dụng cho 2 nút hành động trọng tâm được khoanh vùng**:
+  1. **Nút BATCH ACTIVATE (ALL)**:
+     - Gradient: `from-emerald-600 to-teal-600` (`#059669` ➔ `#0D9488`), hover: `#10B981` ➔ `#14B8A6`.
+     - Bo góc: `radius=6px`, viền `#34D399` sang trọng, kích thước 215×30px.
+  2. **Nút BẮT ĐẦU RESTORE PRO**:
+     - Kho A ➜ B: Gradient 3 điểm dừng `from-emerald-600 via-teal-600 to-sky-700` (`#059669` ➔ `#0D9488` ➔ `#0369A1`), hover `#10B981` ➔ `#14B8A6` ➔ `#0284C7`, viền `#34D399`.
+     - Kho B ➜ A: Gradient 3 điểm dừng `from-blue-600 via-indigo-600 to-sky-700` (`#2563EB` ➔ `#4F46E5` ➔ `#0284C7`), hover `#3B82F6` ➔ `#6366F1` ➔ `#38BDF8`, viền `#38BDF8`.
+     - Bo góc: `radius=6px`, chiều cao 38px trải rộng `sticky="ew"`.
+- **Áp dụng bổ trợ cho các nút quan trọng khác**:
+  - Logo `TikTok Pro`: Bo góc 6px, gradient Electric Blue (`#2563EB` ➔ `#1D4ED8`).
+  - Nút `Tạo Web App`: Bo góc 6px, gradient Sky Blue (`#0284C7` ➔ `#0369A1`).
+  - Hộp thoại Xác nhận: Nút `XÁC NHẬN RESTORE CHUYỂN KHO` (Gradient Emerald/Teal/Sky) & `HỦY BỎ` (Gradient Red).
+- **100% Thuần Python - Zero Pip Dependency**:
+  - Vẽ bằng toán học hình học giải tích trên nền `tk.Canvas`, không dùng thư viện ngoài, đảm bảo tương thích 100% trên mọi máy tính.
+
+## [4.8.1 Soft Charcoal Slate Dark Theme Edition] - 2026-09-05
+
+### 🎨 Chuyển Đổi Sang Soft Charcoal Slate Dark Theme (Nhẹ Nhàng & Dịu Mắt)
+- **Hệ màu Warm Soft Slate-Charcoal cao cấp từ bản thiết kế mới**:
+  - Nền chính ứng dụng: `#1A1D23` (appDark-950: warm soft slate-charcoal, thay vì màu đen kịt `#090D16`, giúp làm việc liên tục cả ngày không mỏi mắt).
+  - Nền Panels / Container / Thẻ thiết bị: `#22262E` (appDark-900).
+  - Nền Sub-panels / Input / Khối lồng / Slot Tag / Rãnh tiến độ: `#262A33` (appDark-850).
+  - Nền Buttons elevated / Nút chức năng: `#2C313C` (appDark-800).
+  - Nền Cửa sổ Nhật ký hệ thống (Terminal Log Console): `#1E2229` (êm dịu, dễ đọc text payload và log UDID).
+  - Hệ thống viền tinh tế (Clean Subtle Borders): `#3A414F` (appDark-700) và `#343A46` (appDark-750).
+- **Cải tiến hiển thị thanh thống kê & Bảng Kho**:
+  - Thanh thống kê giữa (Quick Stats Overview): Nền trong suốt `#1A1D23` kết hợp các thẻ pill `#22262E` viền `#3A414F`, số liệu nổi bật rõ ràng.
+  - Bảng Kho (Restore & Backup Panel): Nền `#262A33` viền `#3A414F`, các hộp chọn thư mục `#22262E` tạo chiều sâu phân cấp thị giác nhẹ nhàng và hài hòa.
+  - Bổ sung chỉ báo trạng thái động cơ `SYSTEM ENGINE ACTIVE` ở góc phải thanh trạng thái chân trang.
+- **Giữ trọn 100% Hệ Thống Icon Font Segoe MDL2 Assets & Logic Lõi**:
+  - Toàn bộ vector icon PUA Windows tiếp tục hiển thị sắc nét trên nền giao diện soft dark mới.
+  - Zero-pip dependency, vượt qua 24/24 unit test.
+
+## [4.8.0 Stitch Dark Theme & Windows Segoe MDL2 Icon Font Edition] - 2026-09-05
+
+### 🎨 Chuyển Đổi Toàn Diện Sang Giao Diện Stitch Dark Theme
+- **Bảng màu Tech Dark Slate & Cyan/Emerald cao cấp**:
+  - Nền ứng dụng chính: `#090D16` (appDark-950).
+  - Nền Panels / Header / Cards: `#0F172A` (appDark-900).
+  - Khối con / Sub-cards: `#131E33` (appDark-850).
+  - Bảng Kho nâng cao (Restore/Backup Panel): `#16233B` (appDark-850+) với viền `#2E446B`.
+  - Nút bấm thứ cấp / Badge: `#1E293B` (appDark-800).
+  - Hệ thống viền vi tinh chỉnh: `#26344B` (appDark-750) và `#334155`.
+  - Hệ thống chữ Slate: `#F8FAFC` (Slate-50), `#E2E8F0` (Slate-200), `#94A3B8` (Slate-400), `#64748B` (Slate-500).
+  - Điểm nhấn: Tech Cyan `#38BDF8`, Tech Emerald `#34D399` / `#059669`, Electric Blue `#2563EB`.
+- **Thanh Tiêu Đề Tối Chuẩn Windows (Windows Dark Titlebar)**:
+  - Tích hợp hàm `DwmSetWindowAttribute(DWMWA_USE_IMMERSIVE_DARK_MODE)` qua thư viện `ctypes.windll.dwmapi`.
+- **Thanh Tiến Trình Gradient Mượt Mà (Canvas GradientProgressBar)**:
+  - Vẽ dải chuyển màu liền mạch từ Electric Blue `#2563EB` sang Tech Cyan `#38BDF8`, rãnh trượt tối chìm `#090D16`.
+
+### 🔣 Tích Hợp Icon Font Chính Thức Của Windows (Segoe MDL2 Assets)
+- **Thay thế 100% Emoji đen trắng thô sơ**:
+  - Toàn bộ các emoji cũ (`⚙️`, `🌐`, `📂`, `📱`, `⚡`, `🚀`, `💡`, `📦`, `💾`, `↺`, `🔑`) đã được thay thế bằng các glyph vector Private Use Area của font `Segoe MDL2 Assets`.
+  - Bổ sung lớp hằng số `Icons` quản lý tập trung: `PHONE`, `WARNING`, `GLOBE`, `GEAR`, `LIGHTNING`, `FOLDER`, `SAVE`, `REFRESH`, `ROCKET`, `CLIPBOARD`, `LIGHTBULB`, `PACKAGE`, `CHECK`, `CANCEL`, `KEY`, `ARROW_RIGHT`.
+- **Tách Màu Icon Riêng Biệt Cho Thẻ iPhone (DeviceCard)**:
+  - Nhãn icon điện thoại riêng biệt: hiển thị màu Tech Cyan `#38BDF8` khi máy Trusted và màu Đỏ `#EF4444` khi Not Trust.
+  - Tên máy và phiên bản iOS hiển thị trắng sáng sắc nét `#F8FAFC`.
+
+### 🎛️ Nâng Tông & Tách Biệt Thị Giác Cho Bảng Kho (Restore & Backup Panel)
+- **Khắc phục hiện tượng Bảng Kho tiệp màu với các thẻ iPhone bên dưới**:
+  - Nâng màu nền Bảng Kho lên `#16233B` cùng viền `#2E446B` và các ô lồng `#0B111D`.
+  - Tab `KHÔI PHỤC (RESTORE PRO)`: Dùng màu Electric Blue `#2563EB` sang trọng.
+  - Nút `BẮT ĐẦU RESTORE PRO`:
+    - Khi chọn Kho A ➜ B: Màu Xanh Lục Emerald `#059669`.
+    - Khi chọn Kho B ➜ A: Màu Xanh Electric Blue `#2563EB` (thay vì cyan `#0284C7`), tạo độ tương phản cao và không trùng với text của iPhone cards.
+
+---
+
 ## [4.7.2 Auto-Activate Timing & Web App Default Edition] - 2026-09-05
 
 ### ⏳ Tăng Thời Gian Chờ Reboot Sau Restore (80s ➜ 100s)

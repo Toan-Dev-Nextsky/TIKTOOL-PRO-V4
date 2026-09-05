@@ -3,19 +3,19 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-05T08:30:00+07:00"
+    "last_updated": "2026-09-05T12:05:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application (Python/Tkinter)",
-    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore trong ngày, hệ thống cảnh báo rút máy đợt âm thanh - thị giác và tạo Web App cho thiết bị iPhone qua cổng USB đa luồng.",
-    "version": "4.7.2 Auto-Activate Timing & Web App Default Edition",
+    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore trong ngày, hệ thống cảnh báo rút máy đợt âm thanh - thị giác và tạo Web App cho thiết bị iPhone qua cổng USB đa luồng trên nền giao diện Soft Charcoal Slate Dark Theme, Windows Segoe MDL2 Assets Icon Font & Gradient Rounded Buttons.",
+    "version": "4.8.2 Rounded Gradient Buttons Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py"
   },
   "tech_stack": {
     "language": "Python 3.11",
-    "gui_framework": "Tkinter / ttk (Vanilla GUI, Custom Canvas Components, Modern Light Dashboard, Black Card Borders & Responsive Grid)",
+    "gui_framework": "Tkinter / ttk (Vanilla GUI, Custom Canvas Gradient Components, Soft Charcoal Slate Dark Theme, Windows Segoe MDL2 Assets Icon Font, DWM Dark Titlebar)",
     "external_binaries": {
       "libimobiledevice": [
         "ideviceinfo.exe",
@@ -32,30 +32,43 @@
   },
   "architecture": {
     "ui_layer": {
-      "theme": "Modern Light Dashboard (Nền Slate-100 dịu mắt, card viền đen sắc nét #000000, điểm nhấn Soft Indigo & Emerald, layout trên - dưới chuẩn)",
+      "theme": "Soft Charcoal Slate Dark Theme (App #1A1D23, Panels #22262E, Sub-panels #262A33, Terminal #1E2229, Elevated Buttons #2C313C, Borders #3A414F, Text Slate-50/200/400, Accent Cyan & Emerald & Electric Blue, Icon Font Windows Segoe MDL2 Assets)",
       "color_tokens": {
-        "bg_main": "#F8FAFC (Slate-100)",
-        "surface_card": "#FFFFFF (Trắng tinh tế)",
-        "card_border": "#000000 (Viền đen sắc nét tương phản cao)",
-        "border": "#E2E8F0 (Slate-200)",
-        "text_primary": "#0F172A (Slate-900 sắc nét)",
-        "text_muted": "#64748B (Slate-500)",
-        "accent_indigo": "#4F46E5 / #6366F1 (Soft Indigo)",
-        "accent_emerald": "#10B981 / #059669 (Restore Pro Kho A ➜ B & Trust)",
-        "accent_ocean": "#0284C7 (Restore Pro Kho B ➜ A)",
-        "accent_alert": "#F59E0B (Vàng cam cảnh báo rút máy)",
-        "gradient_progress_start": "#06B6D4 (Cyan)",
-        "gradient_progress_end": "#2563EB (Electric Blue)"
+        "bg_main": "#1A1D23 (appDark-950: warm soft slate-charcoal)",
+        "surface_panel": "#22262E (appDark-900: section container)",
+        "surface_card": "#22262E (appDark-900)",
+        "surface_kho_elevated": "#262A33 (Bảng Kho nâng cao appDark-850)",
+        "surface_sub": "#262A33 (appDark-850)",
+        "surface_console": "#1E2229 (Cửa sổ nhật ký hệ thống mềm mại)",
+        "surface_btn_elevated": "#2C313C (Nút elevated / icon button appDark-800)",
+        "inner_dark": "#262A33 (Input / Box lồng)",
+        "border_kho": "#3A414F (Viền Bảng Kho rõ nét appDark-700)",
+        "border_main": "#3A414F (appDark-700)",
+        "border_hover": "#343A46 (appDark-750)",
+        "border_light": "#3A414F (appDark-700)",
+        "text_white": "#F8FAFC (Slate-50)",
+        "text_main": "#E2E8F0 (Slate-200)",
+        "text_muted": "#94A3B8 (Slate-400)",
+        "text_dim": "#64748B (Slate-500)",
+        "accent_cyan": "#38BDF8 (Tech Cyan sáng)",
+        "accent_emerald": "#34D399 / #059669 (Emerald chính / Restore Kho A ➜ B / Batch Activate)",
+        "accent_blue": "#2563EB (Electric Blue chính / Restore Kho B ➜ A / Tab active)",
+        "accent_red": "#EF4444 (Not Trust / Lỗi)",
+        "gradient_progress_start": "#2563EB (Electric Blue)",
+        "gradient_progress_end": "#38BDF8 (Tech Cyan)"
       },
+      "icon_system": "Windows Segoe MDL2 Assets (PUA vector glyphs: Phone \\uE8EA, Warning \\uE7BA, Globe \\uE774, Gear \\uE713, Lightning \\uE945, Folder \\uED25, Save \\uE74E, Refresh \\uE72C, Rocket \\uEB9D, Clipboard \\uE8C8, Lightbulb \\uEA80, Package \\uE7B8, Check \\uE73E, Cancel \\uE711, Key \\uE8D7, Arrow \\uE72A)",
       "components": [
-        "TopCard: Header branding siêu gọn với Logo 'TikTok Pro', Cụm ngôn ngữ, Hàng 2 Batch Activate, và Hàng 3 Tạo Web App",
-        "TabSection: Chuyển đổi Khôi phục (Restore Pro) & Sao lưu (Backup All)",
-        "StoreSelector: Radio chuyển kho hai chiều A ➜ B / B ➜ A kèm nút bấm đổi màu phân biệt (Emerald vs Ocean Blue)",
-        "StatsTitleBar: Thanh thống kê gọn gàng với 'Tổng: X (Hôm nay) ↺' bên trái và 3 thẻ kho (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI) bên phải",
-        "DeviceGrid: Lưới thẻ iPhone co giãn thông minh (mặc định 3 cột ở cửa sổ chuẩn, tự động dàn 5 cột khi phóng to Full HD), viền thẻ màu đen",
-        "BottomStatusBar: Thanh trạng thái đáy tinh gọn dưới dạng chuỗi text kèm vạch ' | '",
+        "TopCard: Header branding siêu gọn với Logo 'TikTok Pro' Electric Blue, Hộp ngôn ngữ [ja_JP|ja], Nút Popup, Đổi lệnh, Batch Activate Emerald, và Hàng Web App",
+        "TabSection: Bảng Kho nâng cao nền #262A33, viền #3A414F; Tab active Electric Blue #2563EB",
+        "StoreSelector: Radio chuyển kho hai chiều A ➜ B / B ➜ A kèm nút bấm đổi màu phân biệt (Emerald #059669 vs Electric Blue #2563EB)",
+        "StatsTitleBar: Thanh thống kê với 'Tổng: X (Hôm nay)' bên trái và 3 thẻ kho (TỔNG KHO, ĐÃ CHUYỂN, CÒN LẠI) dạng pill #22262E viền #3A414F bên phải",
+        "DeviceGrid: Lưới thẻ iPhone co giãn thông minh (Card #22262E viền #3A414F, icon điện thoại Cyan #38BDF8 hoặc Đỏ #EF4444, Slot Badge góc phải, model/ECID màu Cyan)",
+        "GradientButton: Canvas vẽ lát cắt gradient đa điểm dừng bo góc radius=6px kèm viền tinh tế, hover sáng và tactile feedback khi bấm; áp dụng cho BATCH ACTIVATE (ALL), BẮT ĐẦU RESTORE PRO (A->B & B->A), TikTok Pro, Tạo Web App, Xác nhận Restore",
+        "GradientProgressBar: Canvas vẽ gradient mượt mà từ #2563EB sang #38BDF8 full chiều ngang card",
+        "BottomStatusBar: Thanh trạng thái đáy tinh gọn #22262E viền #3A414F, chỉ báo 'SYSTEM ENGINE ACTIVE' góc phải",
         "ConfirmZone: Bảng phân bổ ghép nối 2-layer xác nhận trước khi chạy restore",
-        "LogConsole: Terminal Dark Box ghi nhật ký thời gian thực; thanh tiêu đề chứa 'NHẬT KÝ HỆ THỐNG' bên trái và 'Số thiết bị đang kết nối: X' dạng text đậm bên phải",
+        "LogConsole: Terminal Soft Charcoal Box #1E2229 viền #3A414F; thanh tiêu đề chứa '❯_ NHẬT KÝ HỆ THỐNG' bên trái và 'Số thiết bị đang kết nối: X' bên phải",
         "CloseSafetyHandler: Cảnh báo nguy cơ treo táo khi người dùng bấm dấu [X] trong lúc đang Restore/Backup"
       ]
     },
@@ -79,23 +92,28 @@
   },
   "knowledge_items": {
     "gotchas": [
+      "Soft Charcoal Slate Dark Theme: Nền OLED quá đen (#090D16) có thể gây mỏi mắt và tương phản gắt khi kỹ thuật viên làm việc liên tục 8-12 tiếng. Bản thiết kế mới Soft Charcoal (#1A1D23, #22262E, #262A33, #1E2229) tạo cảm giác ấm áp, dịu mắt, chuyển tiếp êm ái giữa các thành phần.",
+      "Windows Segoe MDL2 Assets Icon Font: Tkinter trên Windows vẽ các emoji thông thường bằng GDI font Segoe UI Emoji ở chế độ monochrome đen trắng thô sơ. Bắt buộc sử dụng mã Private Use Area (PUA) của font chính thức Windows 'Segoe MDL2 Assets' (\\uE8EA, \\uE7BA, \\uE713, \\uE774, \\uED25, \\uE74E, \\uE72C...) để hiển thị icon vector sắc nét.",
+      "Card Icon Separation for Vivid Accent: Trong Tkinter Label, không thể gán 2 màu chữ khác nhau trong cùng một Label. Muốn icon có màu Cyan/Red trong khi chữ màu Trắng, phải tách icon thành một tk.Label riêng biệt với font Segoe MDL2 Assets và màu điểm nhấn.",
+      "Bảng Kho Visual Hierarchy & Contrast: Bảng Kho nâng lên nền #262A33 viền #3A414F với các ô lồng #22262E tạo độ tương phản và phân cấp thị giác nhẹ nhàng, nổi bật trên nền app #1A1D23 và tách biệt với dàn thẻ iPhone bên dưới.",
+      "Button Contrast on Dual-Store Switch: Khi chuyển kho B ➜ A, nút Bắt Đầu Restore cần dùng màu Electric Blue #2563EB (thay vì #0284C7 cyan) để tránh trùng lặp màu với các nhãn Model/ECID của thẻ iPhone bên dưới.",
       "go-ios Tunnel Warnings on iOS 17+: Khi gọi ios.exe lang/prepare mà không chạy daemon go-ios, binary có thể log cảnh báo 'go-ios agent is not running' và 'failed to get tunnel info'. Đây chỉ là cảnh báo cho tunnel mode (chạy daemon thử nghiệm), các tác vụ qua USB lockdown/usbmuxd vẫn thành công 100%. Cần lọc các dòng cảnh báo này trong output hiển thị để tránh làm người dùng hoang mang.",
       "Post-Restore Boot Timing (100s vs 80s): Khi iPhone restore bản backup lớn, hệ thống mất từ 60-90 giây để nạp xong SpringBoard và khởi động daemon lockdownd. Thiết lập 100s kèm tối đa 45s chờ nhận diện USB (tổng 145s) giúp tránh lỗi timeout hoặc rớt kết nối khi kích hoạt quá sớm, và hoàn toàn không làm nóng máy.",
       "Background Sync Overwrite on UI Inputs: Các vòng lặp đồng bộ nền (như _start_json_sync_loop chạy mỗi 1s) không được ghi đè các StringVar đang cho phép người dùng nhập tự do (như var_custom_webclip_link). Cần sử dụng cờ nạp 1 lần (_webclip_link_loaded) hoặc kiểm tra focus để tránh làm mất nội dung đang gõ hoặc dán.",
       "Tkinter Entry Context Menu: Windows Tkinter Entry mặc định không có menu chuột phải (Cut/Copy/Paste). Cần tạo tk.Menu và gán sự kiện <Button-3> (_bind_context_menu) để hỗ trợ thao tác dán link thuận tiện.",
       "Python Wrapper Script __file__ Gotcha: Sử dụng exec() trong file wrapper .pyw không tự động truyền __file__, làm các script phụ thuộc vào os.path.abspath(__file__) bị văng lỗi NameError: name '__file__' is not defined trong âm thầm. Phải dùng runpy.run_path(target, run_name='__main__').",
       "Zero-Pip Portability: Toàn bộ ứng dụng sử dụng 100% Python Standard Library, chỉ cần Python 3.10/3.11 64-bit và Apple Mobile Device Driver (iTunes/3uTools) là có thể copy chạy ngay trên mọi máy tính.",
+      "Tkinter Button Radius & Multi-stop Gradient: Standard Win32 tk.Button và ttk.Button trong Tkinter không hỗ trợ thuộc tính border-radius hoặc dải màu linear-gradient. Để đáp ứng yêu cầu thiết kế hiện đại bo góc radius=6px kèm gradient mượt mà mà vẫn giữ 100% Zero-Pip dependency (không dùng PIL/Pillow/customtkinter), giải pháp tối ưu là lớp GradientButton kế thừa tk.Canvas: tính toán hình học giải tích (dy = r - sqrt(max(0, r^2 - dx^2))) để vẽ các lát cắt dọc 1px, bo viền create_arc / create_line và định vị chữ/icon qua create_text.",
       "Tkinter Column Weight Uniform Reset: Tkinter columnconfigure(col, uniform=None) không gỡ bỏ nhóm uniform trong Tcl; bắt buộc dùng uniform='' để gỡ triệt để ràng buộc, tránh lỗi thẻ bị bóp dẹt khi un-maximize cửa sổ.",
       "Windows Sound Scheme Muting: Cấu hình 'No Sounds' của Windows sẽ chặn các sự kiện alias như SystemAsterisk. Phải dùng winsound.PlaySound(path, winsound.SND_FILENAME) với file wav tích hợp trong app và gọi User32 FlashWindow nháy taskbar khi máy bị mute volume.",
       "Batch Notification Timing: Thông báo rút máy phải được đặt trong khối finally của _restore_worker, kiểm tra len(active_restores) == 0 dưới threading.Lock để đảm bảo chỉ kích hoạt một lần duy nhất cho toàn đợt.",
       "SpringBoard Reload on Lang Change: Lệnh ios.exe lang làm khởi động lại giao diện SpringBoard của iOS, dẫn đến mất kết nối USB tạm thời. Cần hạ timeout xuống 20s và bọc exception mềm dẻo tránh treo 80%.",
-      "Staging Cleanliness: Thư mục .tiktool_work dùng làm workspace tạm phải luôn được xóa thư mục cha sau khi xóa job con trong cleanup_owned_job nếu nó rỗng để tránh lộ folder rác ra Explorer.",
-      "Daily Counter Date Transition: Kiểm tra dailyRestoreDate so với ngày hiện tại (YYYY-MM-DD); nếu khác ngày lập tức reset dailyRestoreCount = 0 và cập nhật ngày mới vào settings.json.",
-      "Reboot Detection: Thiết bị iPhone sau khi restore sẽ tự khởi động lại. Cần dùng reboot_tracker khóa trạng thái để tránh luồng Polling hiểu nhầm là Not Trust."
+      "Staging Cleanliness: Thư mục .tiktool_work dùng làm workspace tạm phải luôn được xóa thư mục cha sau khi xóa job con trong cleanup_owned_job nếu nó rỗng để tránh lộ folder rác ra Explorer."
     ],
     "conventions": [
       "Luôn acquire SEMAPHORE trước khi thực hiện các tác vụ nặng (Backup, Restore, Activate) để kiểm soát tải CPU và băng thông USB.",
-      "Giao diện Modern Light Dashboard sử dụng các mã màu: nền #F8FAFC, card #FFFFFF, viền đen #000000, text chính #0F172A, accent Indigo #4F46E5.",
+      "Giao diện Soft Charcoal Slate Dark Theme sử dụng các mã màu: nền chính #1A1D23, panel/card #22262E, sub-panel/track #262A33, terminal console #1E2229, elevated buttons #2C313C, borders #3A414F, text Slate-50/200/400, accent Cyan #38BDF8, Emerald #059669, Blue #2563EB.",
+      "Hệ thống icon sử dụng lớp Icons chuẩn Windows Segoe MDL2 Assets với FONT_MDL2.",
       "Tất cả các cập nhật GUI từ worker thread phải điều hướng qua queue hoặc self.after(0, ...) để tránh xung đột luồng Tkinter."
     ]
   }

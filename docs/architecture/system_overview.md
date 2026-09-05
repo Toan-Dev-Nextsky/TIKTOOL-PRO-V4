@@ -1,9 +1,7 @@
 # 📘 TÀI LIỆU KIẾN TRÚC HỆ THỐNG: TIKTOK PRO (TIKTOOL PRO V4)
 
 ## 1. Giới Thiệu Tổng Quan
-**TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) cho số lượng lớn iPhone thông qua kết nối USB trên nền tảng Windows.
-
-- **Phiên bản hiện tại**: `4.7.2 Auto-Activate Timing & Web App Default Edition`
+**TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) - **Phiên bản hiện tại**: `4.8.0 Stitch Dark Theme & Windows Segoe MDL2 Icon Font Edition`
 - **Tập tin chạy chính**: `BB_RB.py` (hoặc mở ngầm qua `TIKTOOL_PRO.pyw` / `CHAY_TIKTOOL.bat`)
 - **Ngôn ngữ & Thư viện**: Python 3.11 (100% Python Standard Library, Zero-Pip Dependencies), Tkinter GUI, Custom Canvas Components, Threading đa luồng, Semaphore, SQLite3, Plistlib, Runpy.
 - **Công cụ nhị phân tích hợp**: `libimobiledevice` (Windows x64) và `ios.exe`.
@@ -14,12 +12,12 @@
 
 ### 2.1. Khôi Phục Chuyển Kho Hai Chiều (Dual Store Restore)
 - **Cơ chế chọn kho**: Hỗ trợ chuyển dữ liệu linh hoạt:
-  - **Kho A ➜ Kho B**: Dữ liệu từ Kho A (Mục Nhập, viền Xanh Ngọc `#34D399`) sau khi nạp xong sẽ tự động chuyển sang Kho B (Mục Xuất, viền Cam `#FBBF24`).
+  - **Kho A ➜ Kho B**: Dữ liệu từ Kho A (Mục Nhập, viền Xanh Lục `#34D399`) sau khi nạp xong sẽ tự động chuyển sang Kho B (Mục Xuất, viền Xanh Dương `#2563EB`).
   - **Kho B ➜ Kho A**: Dữ liệu từ Kho B (Mục Nhập) tự động nạp và chuyển sang Kho A (Mục Xuất).
 - **Lưu trữ trạng thái kho bền vững**: Lựa chọn kho nguồn A/B được lưu trực tiếp vào `settings.json` và nạp đồng bộ ngay khi khởi động app, không bị reset về A.
 - **Bộ đếm kho thông minh (Real-time Store Counter)**:
   - **TỔNG KHO**: Tổng phạm vi các bản backup thuộc kho đang thao tác (`CÒN LẠI + ĐÃ CHUYỂN`).
-  - **ĐÃ CHUYỂN**: Số lượng thiết bị iPhone đã restore và di chuyển thư mục qua kho đích thành công (có nút `↺` để reset về 0).
+  - **ĐÃ CHUYỂN**: Số lượng thiết bị iPhone đã restore và di chuyển thư mục qua kho đích thành công (có nút `` để reset về 0).
   - **CÒN LẠI**: Số lượng bản backup còn lại thực tế trong thư mục kho nguồn.
 - **Động cơ phân bổ 2 lớp (2-Layer Matching Engine)**:
   - *Lớp 1 (Ưu tiên cao nhất)*: Tìm bản backup có UDID trùng khớp chính xác với UDID của iPhone.
@@ -40,7 +38,7 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
 ### 2.3. Sao Lưu Dữ Liệu (Backup All)
 - Tự động sao lưu toàn bộ thiết bị đang cắm qua lệnh `idevicebackup2.exe backup --full`.
 - Cơ chế tự động đổi tên thư mục backup chuẩn hóa: `1_iPhone`, `2_iPhone`... tránh trùng lặp.
-- Tùy chọn tự động gỡ bỏ TikTok / TikTok Lite sau khi hoàn tất backup.
+- Tự động gỡ bỏ TikTok / TikTok Lite sau khi hoàn tất backup.
 - Mỗi tác vụ ghi vào một job riêng trong `.tiktool_work`; lỗi tác vụ không xóa hay ghi đè thư mục backup cũ.
 
 ### 2.4. Restore bất biến backup nguồn
@@ -58,7 +56,7 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
 - **Nạp cấu hình trực tiếp qua cổng USB**:
   - Thực thi qua lệnh:
     ```powershell
-    ios.exe profile add <path.mobileconfig> --udid=<udid> --nojson
+    ios.exe profile add --path={profile_path} --udid={udid}
     ```
   - Khi gửi thành công, người dùng chỉ cần bấm xác nhận trên màn hình iPhone để icon xuất hiện ngay ngoài màn hình chính.
 - **Tiện ích thao tác nhanh trên giao diện (Hàng 3 Top Card)**:
@@ -84,21 +82,25 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
 
 ---
 
-## 3. Kiến Trúc Giao Diện (Modern Light Dashboard & Responsive Grid)
-Thiết kế tinh tế, gọn nhẹ, tối ưu không gian hiển thị:
+## 3. Kiến Trúc Giao Diện (Soft Charcoal Slate Dark Theme & Segoe MDL2 Icon Font)
+Thiết kế cao cấp theo phong cách Soft Charcoal Slate Dark Theme (nhẹ nhàng, dịu mắt, chống mỏi mắt khi vận hành cả ngày):
 
 | Vùng giao diện | Vai trò | Thiết kế & Màu sắc |
 | :--- | :--- | :--- |
-| **Nền ứng dụng** | Khung chứa toàn bộ giao diện | Slate-100 dịu mắt `#F8FAFC`, sạch sẽ |
-| **Top Card** | Logo, Đổi ngôn ngữ, Batch Activate, Tạo Web App Hàng 3 | Thiết kế siêu gọn gàng, nền trắng `#FFFFFF`, viền Slate `#E2E8F0` |
-| **Tab Section** | Chuyển đổi giữa Restore Pro và Backup | Tab active `#4F46E5` (Soft Indigo), inactive `#E2E8F0` |
-| **Stats Title Bar** | Hiển thị bộ đếm kho và thống kê ngày | Nhãn `Tổng: X (Hôm nay)` bên trái cùng cụm 3 thẻ BỘ ĐẾM KHO bên phải |
-| **Device Grid** | Lưới thẻ iPhone co giãn thông minh (Responsive Grid) | Card trắng viền đen `#000000` sắc nét; mặc định 3 cột, Full HD 5 cột |
-| **Thanh tiến trình** | Hiển thị % và tiến trình làm việc | Gradient Cyan `#06B6D4` ➜ Electric Blue `#2563EB` |
-| **Dòng trạng thái thẻ** | Hiển thị tác vụ hiện tại và số % bên trên bar | Chữ trạng thái `#059669`, % font Consolas `#0284C7` |
-| **Thanh trạng thái đáy** | Hiển thị tổng kết kết nối, thiết bị và đã restore | Chuỗi text tinh gọn, chia vạch ` | `, không dùng nút hộp thô cứng |
-| **Log Terminal Header** | Tiêu đề log và bộ đếm thiết bị kết nối | Trái: `NHẬT KÝ HỆ THỐNG`, Phải: `Số thiết bị đang kết nối: X` (text đậm `#0A2B17`) |
-| **Log Terminal** | Nhật ký hệ thống thời gian thực | Dark Box OLED `#050811`, chữ trắng `#F0FAF4` |
+| **Nền ứng dụng** | Khung chứa toàn bộ giao diện | Warm Soft Slate-Charcoal `#1A1D23` (appDark-950) |
+| **Thanh tiêu đề OS** | Titlebar của Windows | Windows Dark Titlebar qua DWM (`DwmSetWindowAttribute`) |
+| **Top Card** | Logo, Đổi ngôn ngữ, Batch Activate, Tạo Web App Hàng 2 | Nền `#22262E` (appDark-900), viền `#3A414F`, chữ `#F8FAFC`, icon Segoe MDL2 Assets |
+| **Batch Activate Button** | Nút kích hoạt toàn bộ thiết bị hàng 1 | `GradientButton` bo góc 6px, gradient `#059669` ➔ `#0D9488`, viền `#34D399` |
+| **Bảng Kho (Control Deck)**| Khung chuyển tab và cấu hình kho Restore / Backup | Nền nâng cao `#262A33` (appDark-850), viền `#3A414F`, ô lồng `#22262E` tạo chiều sâu êm dịu |
+| **Nút Bắt Đầu Restore** | Nút hành động chính tại Bảng Kho | `GradientButton` bo góc 6px; Kho A ➔ B: Gradient 3 điểm dừng Emerald ➔ Teal ➔ Sky (`#059669` ➔ `#0D9488` ➔ `#0369A1`); Kho B ➔ A: Gradient Electric Blue ➔ Indigo ➔ Sky (`#2563EB` ➔ `#4F46E5` ➔ `#0284C7`) |
+| **Thanh Tab** | Chuyển đổi giữa Restore Pro và Backup | Tab active `#2563EB` (Electric Blue), inactive `#2C313C` (appDark-800) |
+| **Stats Title Bar** | Hiển thị bộ đếm kho và thống kê ngày | Nền `#1A1D23` với các pill card `#22262E` viền `#3A414F`, số liệu `#38BDF8` & `#34D399` |
+| **Device Grid** | Lưới thẻ iPhone co giãn thông minh (Responsive Grid) | Card `#22262E` viền `#3A414F`, slot tag `#262A33`, icon điện thoại Tech Cyan `#38BDF8` (hoặc Đỏ `#EF4444` khi Not Trust) |
+| **Thanh tiến trình** | Hiển thị % và tiến trình làm việc | Canvas Gradient mượt mà từ Electric Blue `#2563EB` sang Tech Cyan `#38BDF8`, rãnh trượt `#262A33` viền `#3A414F` |
+| **Dòng trạng thái thẻ** | Hiển thị tác vụ hiện tại và số % bên trên bar | Chữ trạng thái `#34D399` / `#38BDF8`, % font Consolas `#38BDF8` |
+| **Thanh trạng thái đáy** | Hiển thị tổng kết kết nối, thiết bị và đã restore | Nền `#22262E` viền `#3A414F`, chỉ báo `SYSTEM ENGINE ACTIVE` góc phải |
+| **Log Terminal Header** | Tiêu đề log và bộ đếm thiết bị kết nối | Trái: `❯_ NHẬT KÝ HỆ THỐNG`, Phải: `Số thiết bị đang kết nối: X` (badge `#262A33` viền `#3A414F`, số `#34D399`) |
+| **Log Terminal** | Nhật ký hệ thống thời gian thực | Soft Charcoal Console `#1E2229` viền `#3A414F`, text Consolas `#CBD5E1`, êm dịu dễ đọc |
 
 ---
 
