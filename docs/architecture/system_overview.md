@@ -27,13 +27,16 @@
   - Tự động patch ngôn ngữ / locale vào cơ sở dữ liệu `Manifest.db` nếu bật tùy chọn.
 
 ### 2.2. Kích Hoạt Thiết Bị Hàng Loạt (Batch Activate Pipeline)
-Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng:
-1. **Giai đoạn 1 (Activate)**: Gọi `ideviceactivation.exe activate -u {udid} -b` để kích hoạt thiết bị với Apple Server.
+Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng (kèm **tiền kiểm công cụ**: thiếu `ideviceactivation.exe` hoặc `ios.exe` sẽ dừng và báo đỏ ngay, áp dụng cho cả luồng thủ công và Auto):
+1. **Giai đoạn 1 (Activate)**: Gọi `ideviceactivation.exe activate -u {udid} -b` để kích hoạt thiết bị với Apple Server. Sau đó **xác minh lại bằng `ideviceactivation state`**: nếu thiết bị trả về `Unactivated` / `FactoryActivated` thì báo lỗi, không tin exit code.
 2. **Giai đoạn 2 (Skip Setup Assistant)**: Gọi `ios.exe prepare --skip-all --udid={udid} --nojson` để bỏ qua toàn bộ các bước thiết lập ban đầu (Hello screen, Wifi, FaceID, Passcode).
+   - Kết quả được phân loại tri-state: `ok` (iPhone xác nhận) → mới báo thành công; `sent` (timeout 40s, đã gửi lại tối đa 3 lần, không có phản hồi) → báo vàng `Skip Setup chưa xác nhận`; `failed` (lỗi thật) → báo đỏ kèm nội dung lỗi gốc và dừng luồng.
+   - Lỗi thuộc nhóm `lockdownd` / `connection` / `pair` / `not trusted` sẽ tự chạy `idevicepair validate` rồi thử lại (3 lần).
+   - Mọi `CommandResult.error` (ví dụ `[WinError 2]` khi thiếu binary) đều được ghi nguyên văn vào nhật ký, không bị nuốt.
 3. **Giai đoạn 3 (Set Language / Locale)**: Tùy chọn gọi `ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson` để đưa máy về ngôn ngữ mong muốn (ví dụ: Nhật Bản `ja_JP|ja`, Việt Nam `vi_VN|vi`).
    - Tự động lọc bỏ các cảnh báo vô hại về go-ios tunnel (`go-ios agent is not running...`, `failed to get tunnel info...`).
    - Phân biệt timeout 20s do SpringBoard reload (bình thường, máy đã nhận lệnh) và ghi nhận log thông báo màu xanh/trắng, không gắn cờ đỏ lỗi.
-4. **Tự động kích hoạt sau khi Restore (Auto Activate)**: Đếm ngược **100 giây** cho iPhone reboot hoàn tất (kèm vòng đệm 45s phát hiện USB) rồi tự động kích hoạt toàn bộ luồng trên mà không cần can thiệp thủ công.
+4. **Tự động kích hoạt sau khi Restore (Auto Activate)**: Sau khi **toàn bộ đợt Restore** kết thúc, coordinator chờ **100 giây** cho iPhone reboot rồi quét USB (`idevice_id -l`, timeout 8s) tối đa 30 lần cách nhau 3 giây; một UDID phải xuất hiện 3 lần liên tiếp mới được chạy. Mỗi máy sẵn sàng đi qua `_auto_activate_launch`: **chờ lockdownd phản hồi (tối đa 30s) và xác thực lại pairing (`idevicepair`)** trước khi vào đúng pipeline `_batch_activate_worker` của nút Batch thủ công. Máy không trở lại USB được báo rõ và giải phóng operation, không chặn các máy khác.
 
 ### 2.3. Sao Lưu Dữ Liệu (Backup All)
 - Tự động sao lưu toàn bộ thiết bị đang cắm qua lệnh `idevicebackup2.exe backup --full`.

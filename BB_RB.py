@@ -128,6 +128,7 @@ AUTO_ACTIVATE_SETTLE_SECONDS = 100
 AUTO_ACTIVATE_READY_CHECKS = 30
 AUTO_ACTIVATE_READY_INTERVAL_SECONDS = 3
 AUTO_ACTIVATE_STABLE_SAMPLES = 3
+AUTO_ACTIVATE_LOCKDOWN_TIMEOUT = 30
 CONFIRM_GRID_COLUMNS = 3
 PAIR_LOCK = threading.Lock()
 PROCESS_RUNNER = ProcessRunner()
@@ -347,13 +348,38 @@ def run_stream(cmd_list, on_line=None, timeout=7200):
         on_line(result.error, is_err=True)
     return result.returncode, list(result.lines[-200:])
 
-def get_connected_udids():
+def get_connected_udids(timeout=2):
     exe = which_tool("idevice_id")
     if not exe: return []
-    rc, out = run_capture([exe, "-l"], timeout=2)
+    rc, out = run_capture([exe, "-l"], timeout=timeout)
     if rc != 0:
         return []
     return [line.strip() for line in out.splitlines() if re.fullmatch(r"[0-9a-fA-F-]{16,}", line.strip())]
+
+def query_activation_state(udid):
+    """Đọc trạng thái kích hoạt thật của thiết bị bằng `ideviceactivation state`."""
+    idevact = which_tool("ideviceactivation")
+    if not idevact:
+        return ""
+    rc, out = run_capture([idevact, "state", "-u", udid, "-b"], timeout=20)
+    if rc != 0:
+        return ""
+    for line in reversed((out or "").splitlines()):
+        token = line.strip()
+        if token:
+            return token
+    return ""
+
+def activation_state_is_activated(state):
+    """True/False khi đọc được trạng thái, None khi không xác định được."""
+    low = (state or "").strip().lower()
+    if not low:
+        return None
+    if "unactivated" in low or "factoryactivated" in low:
+        return False
+    if "activated" in low:
+        return True
+    return None
 
 def ideviceinfo_k(u, k):
     exe = which_tool("ideviceinfo")
@@ -1521,10 +1547,27 @@ class App(tk.Tk):
             ACTIVATE_SEMAPHORE.acquire()
 
         try:
+            # === TIỀN KIỂM: CÔNG CỤ BẮT BUỘC PHẢI TỒN TẠI THẬT ===
+            # Auto Activate không đi qua hộp thoại kiểm tra của nút Batch thủ công,
+            # nên phải tự kiểm tra tại đây thay vì để lệnh chạy lỗi 127 rồi bị bỏ qua.
+            idevact = which_tool("ideviceactivation")
+            ios_ok, ios_msg = _ios_usable()
+            ios_exe = _fixed_ios_exe()
+            if not idevact or not ios_ok:
+                missing = []
+                if not idevact:
+                    missing.append("ideviceactivation.exe")
+                if not ios_ok:
+                    missing.append("ios.exe")
+                self._update_card_progress(udid, pct=0, task=f"{task} lỗi", step="Thiếu công cụ")
+                self.log(udid, f"Thiếu công cụ bắt buộc: {', '.join(missing)}. Không thể Activate.", is_err=True)
+                if not ios_ok:
+                    self.log(udid, ios_msg, is_err=True)
+                return False
+
             # === GIAI ĐOẠN 1: ideviceactivation activate (5% → 40%) ===
             self._update_card_progress(udid, pct=5, task=f"{task} 5%", step="Đang kích hoạt...")
 
-            idevact = which_tool("ideviceactivation")
             cmd = [idevact, "activate", "-u", udid, "-b"]
             self.log(udid, "RUN: " + " ".join(cmd))
 
@@ -1550,14 +1593,26 @@ class App(tk.Tk):
                 self.log(udid, "Kích hoạt thất bại!", is_err=True)
                 return False
 
+            # === XÁC MINH GIAI ĐOẠN 1: hỏi lại chính thiết bị, không tin mỗi exit code ===
+            state_after_activate = query_activation_state(udid)
+            if state_after_activate:
+                self.log(udid, f"Trạng thái kích hoạt sau lệnh Activate: {state_after_activate}")
+            if activation_state_is_activated(state_after_activate) is False:
+                self._update_card_progress(udid, task=f"{task} lỗi", step=f"Chưa Activate ({state_after_activate})")
+                self.log(udid, f"Lệnh Activate báo OK nhưng thiết bị vẫn ở trạng thái {state_after_activate}. Dừng lại để không báo thành công sai.", is_err=True)
+                return False
+
             # === GIAI ĐOẠN 2: ios.exe prepare --skip-all (45% → 75%) ===
             self._update_card_progress(udid, pct=45, task=f"{task} 45%", step="Skip Setup Assistant...")
 
-            ios_exe = _fixed_ios_exe()
             cmd2 = [ios_exe, "prepare", "--skip-all", f"--udid={udid}", "--nojson"]
             self.log(udid, "RUN: " + " ".join(cmd2))
 
-            skip_ok = False
+            # "ok"    = iPhone xác nhận đã bỏ qua Setup Assistant
+            # "sent"  = đã gửi lệnh nhưng KHÔNG có phản hồi (timeout) → không được coi là thành công
+            # "failed"= lỗi thật, phải báo đỏ và dừng luồng
+            skip_state = "failed"
+            skip_detail = ""
             for skip_attempt in range(1, 4):
                 _res2 = PROCESS_RUNNER.run_capture(cmd2, timeout=40)
                 rc2 = _res2.returncode
@@ -1570,45 +1625,58 @@ class App(tk.Tk):
                     and "failed to get tunnel info" not in ln
                     and ln.strip()
                 ]
+                if _res2.error and not _res2.timed_out:
+                    _skip_display_lines.append(_res2.error)
                 _skip_display_out = "\n".join(_skip_display_lines)
+                low2 = (_skip_display_out or "").lower()
 
                 if _res2.timed_out:
-                    # Timeout thường do go-ios tunnel hoặc lockdownd phản hồi chậm
-                    # Lệnh prepare thực tế vẫn có thể đã được iPhone tiếp nhận
-                    self.log(udid, f"⚡ Lệnh Skip Setup đã gửi (timeout 40s, lần {skip_attempt}/3 — iPhone có thể đã nhận lệnh).")
-                    skip_ok = True  # Coi như thành công, tiếp tục luồng
+                    # Timeout thường do go-ios tunnel hoặc lockdownd phản hồi chậm.
+                    # iPhone CÓ THỂ đã nhận lệnh, nhưng không có gì xác nhận -> không báo thành công.
+                    skip_state = "sent"
+                    skip_detail = "timeout 40s, không có phản hồi"
+                    self.log(udid, f"⚠️ Lệnh Skip Setup đã gửi nhưng KHÔNG có phản hồi (timeout 40s, lần {skip_attempt}/3).", is_warn=True)
+                    if skip_attempt < 3:
+                        self._update_card_progress(udid, step=f"Gửi lại Skip Setup ({skip_attempt}/3)...")
+                        continue
                     break
-                else:
+
+                if (rc2 == 0) or ('"ok"' in low2) or (low2.strip() == "ok"):
+                    skip_state = "ok"
                     if _skip_display_out:
-                        low2 = _skip_display_out.lower()
-                    else:
-                        low2 = ""
+                        self.log(udid, _skip_display_out)
+                    break
 
-                    skip_ok = (rc2 == 0) or ('"ok"' in low2) or (low2.strip() == "ok")
+                skip_detail = _skip_display_out or f"rc={rc2}"
+                self.log(udid, skip_detail, is_err=True)
 
-                    if skip_ok:
-                        if _skip_display_out:
-                            self.log(udid, _skip_display_out)
-                        break
+                _retryable = any(
+                    marker in low2
+                    for marker in (
+                        "lockdownd", "could not connect", "failed to connect", "connection",
+                        "pair", "not trusted", "denied", "no device found", "device not found",
+                    )
+                ) or not low2.strip()
 
-                    # Nếu lỗi lockdownd/connection → retry
-                    if skip_attempt < 3 and ("lockdownd" in low2 or "could not connect" in low2 or "failed to connect" in low2 or "connection" in low2):
-                        self.log(udid, f"⚠️ Skip Setup: lockdownd đang bận, thử lại sau 5s (lần {skip_attempt}/3)...")
-                        self._update_card_progress(udid, step=f"Retry Skip Setup ({skip_attempt}/3)...")
-                        time.sleep(5)
-                    else:
-                        # Lỗi khác nhưng không chặn — log cảnh báo và tiếp tục
-                        if _skip_display_out:
-                            self.log(udid, _skip_display_out, is_err=True)
-                        self.log(udid, f"⚠️ Skip Setup trả về rc={rc2}, tiếp tục luồng Batch Activate...")
-                        skip_ok = True  # Không chặn cứng; iPhone thường đã nhận lệnh
-                        break
+                if skip_attempt < 3 and _retryable:
+                    self.log(udid, f"⚠️ Skip Setup lỗi kết nối/pairing. Xác thực lại pairing rồi thử lại sau 5s (lần {skip_attempt}/3)...", is_warn=True)
+                    self._update_card_progress(udid, step=f"Re-pair & retry Skip Setup ({skip_attempt}/3)...")
+                    pair_validate(udid, log_fn=lambda s, **_: self.log(udid, s))
+                    time.sleep(5)
+                    continue
+                break
 
-            if not skip_ok:
-                self._update_card_progress(udid, task=f"{task} cảnh báo", step="Skip Setup lỗi (tiếp tục)")
-                self.log(udid, "⚠️ Skip Setup Assistant không phản hồi rõ ràng, tiếp tục Batch Activate...", is_err=False)
+            if skip_state == "failed":
+                self._update_card_progress(udid, pct=45, task=f"{task} lỗi", step="Skip Setup thất bại")
+                self.log(udid, f"Skip Setup Assistant THẤT BẠI ({skip_detail}). iPhone vẫn đang ở màn hình cài đặt ban đầu — cần chạy lại Batch Activate.", is_err=True)
+                return False
 
-            self._update_card_progress(udid, pct=80, task=f"{task} 80%", step="Skip Setup OK")
+            self._update_card_progress(
+                udid,
+                pct=80,
+                task=f"{task} 80%",
+                step="Skip Setup OK" if skip_state == "ok" else "Skip Setup chưa xác nhận",
+            )
 
             # === GIAI ĐOẠN 3: Set Language & Locale (80% → 100%) ===
             if bool(set_language):
@@ -1631,6 +1699,8 @@ class App(tk.Tk):
                     and "failed to get tunnel info" not in ln
                     and ln.strip()
                 ]
+                if _res3.error and not _res3.timed_out:
+                    _display_lines.append(_res3.error)
                 _display_out = "\n".join(_display_lines)
 
                 if _res3.timed_out:
@@ -1647,6 +1717,20 @@ class App(tk.Tk):
                         # Khi iPhone đổi ngôn ngữ, SpringBoard reload làm ngắt kết nối socket tạm thời
                         # khiến lệnh phản hồi trễ; nhưng thực tế iPhone đã nhận lệnh và đổi xong
                         self.log(udid, f"⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật: {_display_out or rc3}).")
+
+            # === KIỂM TRA LẠI LẦN CUỐI TRƯỚC KHI DÁM BÁO THÀNH CÔNG ===
+            final_state = query_activation_state(udid)
+            if final_state:
+                self.log(udid, f"Kiểm tra lại trạng thái kích hoạt: {final_state}")
+            if activation_state_is_activated(final_state) is False:
+                self._update_card_progress(udid, task=f"{task} lỗi", step=f"Chưa Activate ({final_state})")
+                self.log(udid, f"Thiết bị vẫn CHƯA được kích hoạt (state={final_state}).", is_err=True)
+                return False
+
+            if skip_state != "ok":
+                self._update_card_progress(udid, pct=100, task=f"{task} cần kiểm tra", step="Skip Setup chưa xác nhận")
+                self.log(udid, f"⚠️ Batch Activate chạy xong nhưng Skip Setup không có phản hồi xác nhận ({skip_detail}). Hãy xem màn hình iPhone; nếu vẫn ở màn hình Hello thì bấm lại BATCH ACTIVATE (ALL).", is_warn=True)
+                return False
 
             # === HOÀN TẤT ===
             self._update_card_progress(udid, pct=100, task=f"{task} thành công", step=f"Đã kích hoạt {Icons.CHECK}")
@@ -3031,7 +3115,7 @@ class App(tk.Tk):
             time.sleep(AUTO_ACTIVATE_SETTLE_SECONDS)
 
             for _ in range(AUTO_ACTIVATE_READY_CHECKS):
-                connected = set(get_connected_udids())
+                connected = set(get_connected_udids(timeout=8))
                 for udid, job in tuple(pending.items()):
                     if udid in connected:
                         stable_samples[udid] += 1
@@ -3046,8 +3130,8 @@ class App(tk.Tk):
                     _, set_language, language_preset, operation_reserved = job
                     self.log(udid, "USB đã ổn định. Bắt đầu Auto Activate bằng pipeline Batch Activate.")
                     threading.Thread(
-                        target=self._batch_activate_worker,
-                        args=(udid, set_language, language_preset, operation_reserved, "auto_activate"),
+                        target=self._auto_activate_launch,
+                        args=(udid, set_language, language_preset, operation_reserved),
                         daemon=True,
                     ).start()
 
@@ -3067,87 +3151,32 @@ class App(tk.Tk):
                 self.auto_activate_batch_active = False
             self._start_auto_activate_batch_if_ready()
 
-    def _post_restore_activate_worker(self, udid, set_language=False, language_preset=None, operation_reserved=False):
-        """Sau khi Restore xong, chờ đúng 100 giây cho iPhone khởi động hoàn tất rồi tự động Batch Activate."""
-        with self.lock:
-            self.active_activates.add(udid)
-        try:
-            TOTAL_WAIT = 100  # Đợi đúng 100 giây
-            self.log(udid, f"⏳ Restore hoàn tất. Bắt đầu đếm ngược ({TOTAL_WAIT}s) cho iPhone khởi động hoàn toàn...")
+    def _auto_activate_launch(self, udid, set_language, language_preset, operation_reserved):
+        """Chờ lockdownd và xác thực lại pairing trước khi chạy pipeline Batch Activate.
 
-            start_time = time.time()
-            last_log_time = start_time
+        Sau Restore + reboot, pairing record cũ có thể bị ghi đè và lockdownd chưa
+        sẵn sàng dù thiết bị đã hiện trên USB. Bỏ hai bước này là nguyên nhân
+        Auto Activate thất bại trên máy tính chưa từng pair với dàn iPhone đó.
+        """
+        self._update_card_step(udid, "Chờ lockdownd...")
+        lockdown_ready = False
+        deadline = time.time() + AUTO_ACTIVATE_LOCKDOWN_TIMEOUT
+        while time.time() < deadline:
+            if ideviceinfo_k(udid, "DeviceName"):
+                lockdown_ready = True
+                break
+            time.sleep(2)
 
-            while True:
-                elapsed = int(time.time() - start_time)
-                remaining = TOTAL_WAIT - elapsed
-                if remaining <= 0:
-                    break
-
-                self._update_card_step(udid, f"Chờ khởi động ({remaining}s)...")
-
-                # Cứ mỗi 20 giây log tiến độ một lần
-                if time.time() - last_log_time >= 20:
-                    self.log(udid, f"⏳ Đang chờ iPhone khởi động lại: còn {remaining}s...")
-                    last_log_time = time.time()
-
-                time.sleep(2)
-
-            # Hết thời gian chờ, kiểm tra kết nối thiết bị
-            self.log(udid, "⌛ Đã hết 100 giây chờ! Đang kiểm tra kết nối thiết bị...")
-            self._update_card_step(udid, "Kiểm tra kết nối...")
-
-            # Chờ tối đa 45 giây nếu thiết bị chưa kịp hiện trong danh sách USB
-            check_deadline = time.time() + 45
-            connected = False
-            while time.time() < check_deadline:
-                if udid in get_connected_udids():
-                    connected = True
-                    break
-                time.sleep(2)
-
-            if not connected:
-                self.log(udid, "⚠️ Không tìm thấy thiết bị kết nối USB sau thời gian chờ. Bỏ qua Auto Activate.", is_err=True)
-                self._update_card_step(udid, "Không thấy thiết bị – Bỏ qua")
-                return
-
-            # Chờ lockdownd thật sự sẵn sàng (ideviceinfo phản hồi được) trước khi activate
-            self.log(udid, "🔄 Đang chờ lockdownd sẵn sàng...")
-            self._update_card_step(udid, "Chờ lockdownd...")
-            lockdown_ready = False
-            lockdown_deadline = time.time() + 30
-            while time.time() < lockdown_deadline:
-                name = ideviceinfo_k(udid, "DeviceName")
-                if name:
-                    lockdown_ready = True
-                    break
-                time.sleep(2)
-
-            if not lockdown_ready:
-                self.log(udid, "⚠️ lockdownd chưa sẵn sàng sau 30s chờ thêm. Thử Activate anyway...", is_err=False)
-
-            # Re-pair thiết bị sau restore+reboot (backup có thể ghi đè pairing records cũ)
-            self.log(udid, "🔑 Xác thực lại pairing trên máy hiện tại...")
-            self._update_card_step(udid, "Re-pair thiết bị...")
+        if lockdown_ready:
+            self._update_card_step(udid, "Xác thực pairing...")
             if not pair_validate(udid, log_fn=lambda s, **_: self.log(udid, s)):
-                self.log(udid, "⚠️ Re-pair thất bại, thử Activate anyway...", is_err=False)
+                self.log(udid, "⚠️ Xác thực pairing thất bại, vẫn thử Activate.", is_warn=True)
+        else:
+            self.log(udid, f"⚠️ lockdownd chưa phản hồi sau {AUTO_ACTIVATE_LOCKDOWN_TIMEOUT}s (thiết bị chưa Activate thường chưa trả lời). Tiếp tục Activate.", is_warn=True)
 
-            self.log(udid, "✅ iPhone đã khởi động xong & kết nối ổn định ➔ Bắt đầu Batch Activate...")
-            self._update_card_step(udid, "Bắt đầu Auto Activate")
-
-            # Chạy toàn bộ pipeline Batch Activate 3 giai đoạn
-            self._batch_activate_worker(
-                udid,
-                set_language=set_language,
-                language_preset=language_preset,
-                operation_reserved=operation_reserved,
-                operation_kind="auto_activate",
-            )
-        finally:
-            with self.lock:
-                self.active_activates.discard(udid)
-            if operation_reserved:
-                self.operations.end(udid, "auto_activate")
+        return self._batch_activate_worker(
+            udid, set_language, language_preset, operation_reserved, "auto_activate"
+        )
 
     def _on_app_close(self):
         """Xử lý sự kiện khi người dùng bấm dấu X tắt app.

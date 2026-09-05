@@ -1,6 +1,6 @@
 {
-  "storeA": "D:/TK 26.7H NGAM DONG34k GB149 XM  28.8 A",
-  "storeB": "D:/TK 26.7H NGAM DONG34k GB149 XM  28.8 B",
+  "storeA": "D:/TKBAND DONG MOI 3.9 A",
+  "storeB": "D:/TKBAND DONG MOI 3.9 B",
   "generalBackupDir": "D:/backups",
   "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
   "removeTikTok": false,
@@ -9,9 +9,9 @@
   "langLocale": "ja_JP|ja",
   "setLangAfterActive": true,
   "autoActivateAfterRestore": true,
-  "active": "A",
+  "active": "B",
   "customWebclipLink": "",
   "dailyRestoreDate": "2026-09-05",
-  "dailyRestoreCount": 300,
+  "dailyRestoreCount": 314,
   "autoSetLangAfterRestore": true
 }

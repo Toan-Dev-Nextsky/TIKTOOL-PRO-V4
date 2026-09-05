@@ -2,6 +2,22 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.8.4 Honest Activation Verification Edition] - 2026-09-05
+
+### 🛠️ Sửa Lỗi Auto Activate "Báo Thành Công Nhưng iPhone Chưa Được Kích Hoạt"
+- **Nguyên nhân gốc**: Giai đoạn 2 `ios.exe prepare --skip-all` gán `skip_ok = True` cho **mọi** trường hợp lỗi (timeout 40s, `rc=127` do không tìm thấy `ios.exe`, lỗi khác), sau đó pipeline luôn nhảy tới dòng `Batch Activate hoàn tất thành công` và thanh tiến trình 100%. Trên máy tính khác (thiếu `ios.exe`/bị antivirus chặn, chưa có pairing record, lockdownd chưa sẵn sàng), lệnh thất bại nhưng nhật ký vẫn báo thành công nên phải Activate lại bằng tay.
+- **Tiền kiểm công cụ trong worker (`_batch_activate_worker`)**: Kiểm tra `ideviceactivation.exe` và `ios.exe` tồn tại thật trước khi chạy; thiếu file sẽ báo đỏ `Thiếu công cụ bắt buộc` và dừng. Trước đây chỉ nút Batch thủ công kiểm tra, luồng Auto đi tắt nên không được bảo vệ.
+- **Xác minh trạng thái kích hoạt thật (`ideviceactivation state`)**: Thêm `query_activation_state()` và `activation_state_is_activated()`; sau Giai đoạn 1 và trước khi kết luận, ứng dụng hỏi lại chính thiết bị. Nếu thiết bị trả về `Unactivated` / `FactoryActivated`, pipeline báo lỗi thay vì báo thành công theo exit code.
+- **Giai đoạn 2 báo cáo trung thực (tri-state `ok` / `sent` / `failed`)**:
+  - `ok`: iPhone xác nhận đã bỏ qua Setup Assistant → mới được báo `hoàn tất thành công`.
+  - `sent`: timeout 40s không có phản hồi (đã tự gửi lại tối đa 3 lần) → báo vàng `Skip Setup chưa xác nhận`, nhắc kiểm tra màn hình iPhone.
+  - `failed`: lỗi thật → báo đỏ `Skip Setup Assistant THẤT BẠI` kèm nội dung lỗi gốc và dừng luồng.
+- **Tự động re-pair khi gặp lỗi kết nối**: Giai đoạn 2 gặp lỗi `lockdownd` / `connection` / `pair` / `not trusted` sẽ chạy `idevicepair validate` rồi thử lại (3 lần).
+- **Không còn nuốt lỗi tiến trình**: `CommandResult.error` (ví dụ `[WinError 2] The system cannot find the file specified`) được ghi thẳng vào nhật ký ở cả Giai đoạn 2 và 3.
+- **Luồng Auto Activate được chuẩn bị thiết bị đúng cách (`_auto_activate_launch`)**: Chờ lockdownd phản hồi (tối đa 30s) và xác thực lại pairing trước khi chạy pipeline — hai bước này trước đây nằm trong `_post_restore_activate_worker` nhưng hàm đó đã trở thành code chết không ai gọi. Đã xoá hàm chết và gộp logic vào coordinator.
+- **Quét USB ổn định hơn**: `get_connected_udids(timeout=...)` cho phép nâng thời gian chờ; coordinator Auto Activate dùng `timeout=8` để `idevice_id -l` không bị cắt sớm khi cắm dàn 16 máy, tránh reset bộ đếm ổn định.
+- **Kiểm thử**: Bổ sung 5 bài test chống báo thành công sai (thiếu công cụ, Skip Setup lỗi, thiết bị vẫn `Unactivated`, timeout không xác nhận, re-pair trước khi Activate). Toàn bộ đạt **33/33**.
+
 ## [4.8.3 High-Contrast Store Selection Boxes Edition] - 2026-09-05
 
 ### 📁 Nâng Cấp Hộp Chọn Kho Rõ Nét, Nền Trắng, Font To Đậm & Badge Màu Đồng Bộ
