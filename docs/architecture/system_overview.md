@@ -86,6 +86,16 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng (kèm **tiền
 
 ---
 
+### 2.7. Astro Bot Companion State Engine
+- `AstroBotCompanion(tk.Frame)` nằm giữa thống kê ngày và thống kê kho, gồm Canvas vector 76×52 px và speech capsule co giãn.
+- Animation loop dùng `after(80, ...)` (~12 FPS), chỉ di chuyển tag Canvas theo dao động sin 2 px; không tạo thread, không đọc file ảnh và không thêm dependency.
+- `_resolve_mascot_state()` ưu tiên công việc theo thứ tự Restore → Activate/WebClip/Language → Backup → Auto Activate/Reboot → Not Trust → Ready/Empty.
+- `_set_mascot_state()` tự đưa cập nhật từ worker về UI queue; `_refresh_mascot_state()` chạy sau polling, tính số máy và tiến độ Restore trung bình từ card hiện tại.
+- Tám trạng thái hình ảnh: `idle_empty`, `idle_ready`, `restore`, `reboot`, `activate`, `celebrate`, `alert`, `backup`. Celebration có thời gian giữ để polling không ghi đè tức thời.
+- Trạng thái `activate` làm mắt sao sáng mạnh bằng halo tím và lõi trắng, đồng thời vẽ thêm các tia lửa điện tag `spark` quanh thân robot theo chu kỳ tick; cả hai tự xóa khi đổi trạng thái.
+
+---
+
 ## 3. Kiến Trúc Giao Diện (Soft Charcoal Slate Dark Theme & Segoe MDL2 Icon Font)
 Thiết kế cao cấp theo phong cách Soft Charcoal Slate Dark Theme (nhẹ nhàng, dịu mắt, chống mỏi mắt khi vận hành cả ngày):
 

@@ -62,6 +62,7 @@ def make_worker_app():
         after=lambda delay, callback, *args: callback(*args),
         messages=messages,
         _update_card_progress=lambda *args, **kwargs: None,
+        _set_mascot_state=lambda *args, **kwargs: None,
         restore_done_count=0,
     )
 
@@ -330,6 +331,67 @@ class PipelineTruthTests(unittest.TestCase):
         self.assertFalse(result)
 
 
+class MascotStateTests(unittest.TestCase):
+    def test_work_state_takes_priority_over_connection_warnings(self):
+        self.assertEqual(
+            "restore",
+            BB_RB.App._resolve_mascot_state({"u1": "restore"}, 10, 1),
+        )
+        self.assertEqual(
+            "activate",
+            BB_RB.App._resolve_mascot_state({"u1": "activate"}, 10, 0),
+        )
+        self.assertEqual(
+            "reboot",
+            BB_RB.App._resolve_mascot_state({"u1": "auto_activate"}, 0, 0, True),
+        )
+
+    def test_idle_and_alert_states_follow_connected_devices(self):
+        self.assertEqual("idle_empty", BB_RB.App._resolve_mascot_state({}, 0, 0))
+        self.assertEqual("idle_ready", BB_RB.App._resolve_mascot_state({}, 10, 0))
+        self.assertEqual("alert", BB_RB.App._resolve_mascot_state({}, 10, 2))
+
+    def test_idle_animation_has_a_visible_four_pixel_peak(self):
+        """Catches Astro's floating motion becoming too subtle to notice."""
+        moves = []
+        canvas = types.SimpleNamespace(
+            move=lambda *args: moves.append(args),
+            itemconfigure=lambda *args, **kwargs: None,
+        )
+        bot = types.SimpleNamespace(
+            winfo_exists=lambda: True,
+            tick=7,
+            _bob=0,
+            state="idle_ready",
+            STATE_STYLES=BB_RB.AstroBotCompanion.STATE_STYLES,
+            canvas=canvas,
+            status_dot=types.SimpleNamespace(itemconfigure=lambda *args, **kwargs: None),
+            dot_id=1,
+            after=lambda *args, **kwargs: None,
+            _animate_loop=lambda: None,
+        )
+        bot._shade = types.MethodType(BB_RB.AstroBotCompanion._shade, bot)
+
+        BB_RB.AstroBotCompanion._animate_loop(bot)
+
+        self.assertEqual(("robot", 0, 4), moves[0])
+
+    def test_robot_stays_inside_canvas_at_both_animation_extremes(self):
+        """Catches Astro's antenna or feet being clipped while floating."""
+        root = BB_RB.tk.Tk()
+        root.withdraw()
+        try:
+            bot = BB_RB.AstroBotCompanion(root)
+            top = bot.canvas.bbox("robot")[1]
+            bottom = bot.canvas.bbox("robot")[3]
+            canvas_height = int(bot.canvas.cget("height"))
+
+            self.assertGreaterEqual(top - 4, 0)
+            self.assertLessEqual(bottom + 4, canvas_height)
+        finally:
+            root.destroy()
+
+
 class _ImmediateThread:
     def __init__(self, *, target, args=(), daemon=None, **kwargs):
         self.target = target
@@ -351,6 +413,7 @@ class AutoActivateBatchTests(unittest.TestCase):
             operations=BB_RB.OperationRegistry(),
             log=lambda *args, **kwargs: messages.append((args, kwargs)),
             _update_card_step=lambda *args, **kwargs: None,
+            _set_mascot_state=lambda *args, **kwargs: None,
             messages=messages,
         )
         app._run_auto_activate_batch = types.MethodType(BB_RB.App._run_auto_activate_batch, app)
@@ -387,7 +450,7 @@ class AutoActivateBatchTests(unittest.TestCase):
 
         self.assertEqual(["u1", "u2"], [args[0] for args, _ in calls])
         self.assertTrue(all(args[3] for args, _ in calls))
-        self.assertTrue(all(args[4] == "auto_activate" for args, _ in calls))
+        self.assertTrue(all(args[4] == "activate" for args, _ in calls))
 
     def test_auto_activate_runs_ready_devices_without_blocking_the_whole_batch(self):
         """Catches one disconnected iPhone preventing ready phones from using the manual Batch pipeline."""
@@ -412,12 +475,13 @@ class AutoActivateBatchTests(unittest.TestCase):
             self.assertTrue(BB_RB.App._start_auto_activate_batch_if_ready(app))
 
         self.assertEqual(["u1"], [args[0] for args, _ in calls])
-        self.assertEqual({"u1": "auto_activate"}, app.operations.snapshot())
+        self.assertEqual({"u1": "activate"}, app.operations.snapshot())
         self.assertTrue(any("Không thấy lại 1 máy" in str(args) for args, _ in app.messages))
 
     def test_auto_activate_revalidates_pairing_before_running_pipeline(self):
         """Catches Auto Activate skipping the re-pair that a fresh PC needs after restore."""
         app = self.make_app()
+        app.operations.begin("u1", "auto_activate")
         calls = []
         app._batch_activate_worker = lambda *args, **kwargs: calls.append((args, kwargs))
 
@@ -429,6 +493,8 @@ class AutoActivateBatchTests(unittest.TestCase):
         self.assertEqual(1, paired.call_count)
         self.assertEqual("u1", paired.call_args.args[0])
         self.assertEqual(["u1"], [args[0] for args, _ in calls])
+        self.assertEqual("activate", calls[0][0][4])
+        self.assertEqual({"u1": "activate"}, app.operations.snapshot())
 
 
 if __name__ == "__main__":

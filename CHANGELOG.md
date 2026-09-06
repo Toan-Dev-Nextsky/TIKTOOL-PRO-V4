@@ -2,6 +2,17 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.8.6 Astro Bot Companion Edition] - 2026-09-06
+
+### Astro Bot — Linh Vật Đồng Hành Theo Trạng Thái Công Việc
+- Thêm `AstroBotCompanion(tk.Frame)` bằng Canvas vector thuần Tkinter, không ảnh ngoài và không thêm dependency.
+- Astro Bot lơ lửng mượt ở khoảng 12 FPS, chớp mắt tự nhiên, đèn antenna và LED trạng thái phát sáng theo ngữ cảnh; nhấp vào bot để bot nhảy nhẹ và đổi lời động viên.
+- Tám sắc thái tự động: chờ cắm máy, máy sẵn sàng, Restore, chờ reboot, Batch Activate, Backup, cảnh báo chưa Trust/lỗi và ăn mừng hoàn tất.
+- Bong bóng thoại hiển thị số máy, tiến độ Restore trung bình và hướng dẫn ngắn phù hợp với trạng thái hiện tại.
+- Trạng thái Activate có **mắt sao sáng mạnh hơn** (halo tím + lõi trắng) và thêm **hiệu ứng tia lửa điện** quanh thân Astro Bot, thay đổi theo chu kỳ animation để dễ nhận biết pipeline đang kích hoạt.
+- Tích hợp an toàn với UI queue: worker nền không chạm trực tiếp Tkinter; trạng thái được gửi về UI thread qua `_set_mascot_state()`.
+- Thêm bộ phân giải ưu tiên trạng thái `_resolve_mascot_state()` và 2 unit tests; toàn bộ đạt **37/37 tests**, kiểm tra render đủ 8 trạng thái thành công.
+
 ## [4.8.5 Instant Restore Preparation Edition] - 2026-09-05
 
 ### ⚡ Xoá Bỏ 10-15 Giây Chờ "Check" Mỗi Lần Ấn Restore

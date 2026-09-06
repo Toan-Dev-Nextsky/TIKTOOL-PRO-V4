@@ -1,9 +1,19 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-05 20:50:00  
-**Phiên bản**: `4.8.5 Instant Restore Preparation Edition`  
-**Trạng thái**: Hoàn thiện toàn diện 100% trong môi trường sản xuất thực tế. Đã tối ưu hóa **Instant In-Place Restore Preparation** (chỉ 0.004s/máy, không copy staging, không hash SHA-256 byte, có rollback an toàn), giải quyết triệt để vấn đề delay 10-15s khi ấn Restore; đồng thời **sửa lỗi Auto Activate báo thành công ảo** bằng cơ chế tiền kiểm công cụ, xác minh trạng thái thực tế bằng `ideviceactivation state`, tri-state Skip Setup, tự động re-pair và chờ lockdownd sau reboot. Duy trì 100% Zero-Pip dependency và 35/35 unit test đạt tuyệt đối.
+**Thời gian cập nhật**: 2026-09-06 10:00:00  
+**Phiên bản**: `4.8.6 Astro Bot Companion Edition`  
+**Trạng thái**: Hoàn thiện Astro Bot Companion — linh vật vector hoạt hình thuần Tkinter với tám sắc thái theo workflow, bong bóng thoại động, hiệu ứng lơ lửng/chớp mắt/LED và tương tác poke. Giữ nguyên Instant Restore 0.004s/máy, Honest Auto Activate Verification, Zero-Pip dependency; toàn bộ 37/37 tests và kiểm tra render tám trạng thái đạt.
+
+---
+
+## Astro Bot Companion — cập nhật 2026-09-06
+
+- `AstroBotCompanion(tk.Frame)` được đặt giữa thống kê ngày và thống kê kho, không chiếm lưới thiết bị.
+- Canvas vector 76×52 px mô phỏng Astro Bot với thân trắng, visor đen, mắt LED, ear pods và antenna phát sáng; hoạt hình `after(80)` khoảng 12 FPS.
+- Tám trạng thái: chờ cắm máy, sẵn sàng, Restore, reboot, Activate (mắt sao sáng halo tím + lõi trắng, kèm tia lửa điện `spark`), Backup, cảnh báo và ăn mừng hoàn tất.
+- Bong bóng thoại hiển thị số máy và tiến độ Restore trung bình; click bot để nhảy nhẹ và luân phiên lời động viên.
+- `_resolve_mascot_state()` chọn trạng thái theo operation registry; `_set_mascot_state()` bảo đảm worker nền cập nhật qua UI queue.
 
 ---
 

@@ -66,6 +66,12 @@ Quy trình 3 giai đoạn tự động qua cổng USB:
 - **Khóa chống Treo Táo (`WM_DELETE_WINDOW`)**: Chặn sự kiện đóng ứng dụng khi có thiết bị đang trong quá trình ghi dữ liệu hoặc khởi động lại.
 - **Reboot Tracker**: Khóa trạng thái thiết bị trong 135 giây khi máy khởi động lại để tránh luồng Polling hiểu nhầm là mất kết nối hoặc Not Trust.
 
+### 2.7. Astro Bot — Linh Vật Đồng Hành
+- Astro Bot vector được vẽ hoàn toàn bằng Tkinter Canvas, chuyển động lơ lửng và chớp mắt tự nhiên mà không cần thư viện hoặc file ảnh ngoài.
+- Mắt LED, antenna, đèn trạng thái và bong bóng thoại tự đổi theo tám trạng thái: chờ máy, sẵn sàng, Restore, reboot, Activate, Backup, cảnh báo và hoàn tất.
+- Khi đang Activate, mắt Astro Bot sáng mạnh hơn với halo tím và lõi trắng, đồng thời phát thêm tia lửa điện quanh thân để dễ nhận biết pipeline đang chạy.
+- Hiển thị trực tiếp số thiết bị và tiến độ trung bình của cả đợt; nhấp vào Astro để nhận lời động viên ngẫu nhiên.
+
 ---
 
 ## 📁 3. Cấu Trúc Thư Mục Dự Án

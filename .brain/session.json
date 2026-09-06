@@ -1,19 +1,17 @@
 {
-  "updated_at": "2026-09-05T20:50:00+07:00",
+  "updated_at": "2026-09-06T10:00:00+07:00",
   "working_on": {
-    "feature": "Instant Restore Preparation & Honest Auto Activate Verification",
-    "task": "Loại bỏ hoàn toàn 10-15s chờ check staging khi Restore; sửa lỗi báo thành công ảo của Auto Activate",
+    "feature": "Astro Bot Companion",
+    "task": "Tạo linh vật Astro Bot hoạt hình phản ánh trạng thái công việc và truyền cảm hứng vận hành",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "tiktool_core.py",
       "tests/test_app_workflows.py",
-      "tests/test_tiktool_core.py",
       "CHANGELOG.md",
       "README.md",
       "docs/architecture/system_overview.md"
     ],
-    "notes": "1) Restore: Chuyển sang prepare_restore_in_place (0.004s/máy thay vì 2.8s), nạp trực tiếp tại kho gốc, hỗ trợ rollback_restore_info khi lỗi; không copy staging, không hash byte. 2) Auto Activate: tiền kiểm công cụ bắt buộc, xác minh trạng thái thật qua ideviceactivation state, tri-state ở Stage 2 Skip Setup, re-pair và chờ lockdownd sau reboot. 35/35 unit test đạt 100%."
+    "notes": "AstroBotCompanion được vẽ vector thuần Tkinter, hoạt hình lơ lửng 12 FPS, chớp mắt, LED đổi màu, 8 trạng thái theo workflow, bong bóng thoại có số máy/tiến độ, click poke đổi lời động viên. Trạng thái Activate có tia lửa điện tag spark theo chu kỳ tick. Worker cập nhật an toàn qua UI queue. 37/37 unit test và kiểm tra render 8 trạng thái đạt."
   },
   "pending_tasks": [
     {
@@ -33,6 +31,12 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-06T10:00:00+07:00",
+      "type": "astro_bot_companion",
+      "description": "Thêm Astro Bot vector hoạt hình trên thanh thống kê: lơ lửng, chớp mắt, LED đa sắc, 8 trạng thái workflow, bong bóng thoại theo số máy và tiến độ, tương tác poke. Tích hợp UI queue và state resolver; 37/37 tests đạt.",
+      "files": ["BB_RB.py", "tests/test_app_workflows.py", "CHANGELOG.md", "README.md", "docs/architecture/system_overview.md"]
+    },
     {
       "timestamp": "2026-09-05T20:50:00+07:00",
       "type": "instant_restore_and_honest_activate",

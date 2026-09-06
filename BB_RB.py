@@ -847,6 +847,179 @@ class DeviceCard(tk.Frame):
                 self.lbl_step.config(text=text, fg=self._determine_step_color(text))
         except Exception: pass
 
+class AstroBotCompanion(tk.Frame):
+    CANVAS_HEIGHT = 64
+    BOT_Y_OFFSET = 6
+
+    STATE_STYLES = {
+        "idle_empty": ("#38BDF8", "Sẵn sàng cày cuốc! Cắm dàn máy vào chiến thôi..."),
+        "idle_ready": ("#34D399", "Đã kết nối {count} máy sẵn sàng. Sếp bấm nút là nạp ngay!"),
+        "restore": ("#38BDF8", "Đang nạp {count} máy cực cháy. Tiến độ cả đợt: {progress}%"),
+        "reboot": ("#FBBF24", "Dàn máy đang khởi động lại. Đừng rút cáp nha sếp!"),
+        "activate": ("#A78BFA", "Đang kích hoạt và vượt màn hình Hello cho {count} máy..."),
+        "celebrate": ("#FACC15", "Tuyệt vời! Đã xong trọn vẹn cả đợt, cắm mẻ mới nào!"),
+        "alert": ("#FB7185", "Có {count} máy chưa Tin Cậy. Kiểm tra cáp và màn hình iPhone nhé!"),
+        "backup": ("#C084FC", "Đang sao lưu an toàn cho {count} máy. Astro canh dữ liệu đây!"),
+    }
+
+    POKE_LINES = (
+        "Astro vẫn đang canh dàn máy cùng sếp!",
+        "Hôm nay mình cùng phá kỷ lục sản lượng nhé!",
+        "Nhớ uống nước nha sếp, phần máy móc để Astro lo!",
+        "Tín hiệu USB ổn định. Tiếp tục chiến thôi!",
+    )
+
+    def __init__(self, master):
+        super().__init__(master, bg=COLOR_BG_DARK, cursor="hand2")
+        self.state = "idle_empty"
+        self.tick = 0
+        self._bob = 0
+        self._poke_index = 0
+        self._context = {"count": 0, "progress": 0}
+        self.canvas = tk.Canvas(
+            self,
+            width=76,
+            height=self.CANVAS_HEIGHT,
+            bg=COLOR_BG_DARK,
+            highlightthickness=0,
+            cursor="hand2",
+        )
+        self.canvas.pack(side="left", padx=(2, 5))
+        self.bubble = tk.Frame(self, bg=COLOR_PANEL_BG, highlightbackground=COLOR_CYAN_ACCENT, highlightthickness=1, cursor="hand2")
+        self.bubble.pack(side="left", fill="x", expand=True, pady=3)
+        self.status_dot = tk.Canvas(self.bubble, width=12, height=12, bg=COLOR_PANEL_BG, highlightthickness=0)
+        self.status_dot.pack(side="left", padx=(8, 3))
+        self.dot_id = self.status_dot.create_oval(2, 2, 10, 10, fill=COLOR_CYAN_ACCENT, outline="")
+        self.message = tk.Label(self.bubble, text="", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_MAIN, bg=COLOR_PANEL_BG, anchor="w")
+        self.message.pack(side="left", fill="x", expand=True, padx=(2, 9), pady=6)
+        self._draw_bot()
+        for widget in (self, self.canvas, self.bubble, self.message, self.status_dot):
+            widget.bind("<Button-1>", self._poke)
+        self.set_state("idle_empty")
+        self.after(80, self._animate_loop)
+
+    def _draw_bot(self):
+        c = self.canvas
+        c.create_oval(26, 2, 50, 26, fill="#12375A", outline="", tags=("robot", "glow"))
+        c.create_line(38, 9, 38, 4, fill="#CBD5E1", width=2, tags="robot")
+        c.create_oval(35, 0, 41, 6, fill=COLOR_CYAN_ACCENT, outline="#E0F2FE", tags=("robot", "antenna"))
+        c.create_oval(13, 13, 63, 47, fill="#EAF4FA", outline="#FFFFFF", width=2, tags="robot")
+        c.create_oval(8, 22, 18, 37, fill="#CBD5E1", outline="#38BDF8", width=2, tags="robot")
+        c.create_oval(58, 22, 68, 37, fill="#CBD5E1", outline="#38BDF8", width=2, tags="robot")
+        c.create_oval(18, 17, 58, 42, fill="#08111F", outline="#64748B", width=1, tags="robot")
+        c.create_arc(21, 19, 55, 36, start=35, extent=110, style="arc", outline="#334155", width=2, tags="robot")
+        c.create_oval(25, 43, 34, 50, fill="#DDEBF3", outline="#94A3B8", tags="robot")
+        c.create_oval(42, 43, 51, 50, fill="#DDEBF3", outline="#94A3B8", tags="robot")
+        self._draw_eyes()
+        c.move("robot", 0, self.BOT_Y_OFFSET)
+
+    def _draw_eyes(self):
+        c = self.canvas
+        c.delete("eyes")
+        color = self.STATE_STYLES[self.state][0]
+        y = 29 + self.BOT_Y_OFFSET + self._bob
+        if self.state == "reboot":
+            c.create_line(27, y, 33, y, fill=color, width=2, tags=("robot", "eyes"))
+            c.create_line(43, y, 49, y, fill=color, width=2, tags=("robot", "eyes"))
+        elif self.state == "alert":
+            for x in (30, 46):
+                c.create_line(x, y - 4, x, y + 1, fill=color, width=2, tags=("robot", "eyes"))
+                c.create_oval(x - 1, y + 4, x + 1, y + 6, fill=color, outline="", tags=("robot", "eyes"))
+        elif self.state == "celebrate":
+            for x in (30, 46):
+                pts = []
+                for i in range(10):
+                    a = -math.pi / 2 + i * math.pi / 5
+                    r = 5 if i % 2 == 0 else 2
+                    pts.extend((x + math.cos(a) * r, y + math.sin(a) * r))
+                c.create_polygon(pts, fill=color, outline="#FFF7AE", tags=("robot", "eyes"))
+        elif self.state == "activate":
+            pulse = 1 if self.tick % 8 < 5 else 0
+            # Halo ngoài lớn, lõi trắng sáng mạnh + viền vàng để mắt nổi bật rõ trên visor tối.
+            halo = "#F5F3FF" if pulse else "#C4B5FD"
+            core = "#FFFFFF" if pulse else "#EDE9FE"
+            ring = "#FDE68A" if pulse else "#A78BFA"
+            for x in (30, 46):
+                c.create_oval(x - 9, y - 9, x + 9, y + 9, fill=halo, outline=ring, width=2, tags=("robot", "eyes"))
+                c.create_oval(x - 5, y - 5, x + 5, y + 5, fill=color, outline="#FFFFFF", width=1, tags=("robot", "eyes"))
+                c.create_oval(x - 2, y - 2, x + 2, y + 2, fill=core, outline="", tags=("robot", "eyes"))
+        elif self.state in ("idle_ready", "backup"):
+            c.create_arc(25, y - 3, 35, y + 6, start=20, extent=140, style="arc", outline=color, width=2, tags=("robot", "eyes"))
+            c.create_arc(41, y - 3, 51, y + 6, start=20, extent=140, style="arc", outline=color, width=2, tags=("robot", "eyes"))
+        elif self.state == "restore":
+            c.create_line(25, y - 3, 33, y, 25, y + 3, fill=color, width=2, tags=("robot", "eyes"))
+            c.create_line(51, y - 3, 43, y, 51, y + 3, fill=color, width=2, tags=("robot", "eyes"))
+        else:
+            c.create_oval(27, y - 4, 33, y + 4, fill=color, outline="#BAE6FD", tags=("robot", "eyes"))
+            c.create_oval(43, y - 4, 49, y + 4, fill=color, outline="#BAE6FD", tags=("robot", "eyes"))
+
+    def set_state(self, state, count=None, progress=None, message=None):
+        if state not in self.STATE_STYLES:
+            state = "idle_empty"
+        if count is not None:
+            self._context["count"] = count
+        if progress is not None:
+            self._context["progress"] = progress
+        changed = state != self.state
+        self.state = state
+        color, default_message = self.STATE_STYLES[state]
+        text = message or default_message.format(**self._context)
+        self.message.config(text=text, fg=color if state in ("alert", "celebrate") else COLOR_TEXT_MAIN)
+        self.bubble.config(highlightbackground=color)
+        self.status_dot.itemconfigure(self.dot_id, fill=color)
+        self.canvas.itemconfigure("antenna", fill=color)
+        self.canvas.itemconfigure("glow", fill=self._shade(color, 0.28))
+        if changed:
+            self.canvas.delete("spark")
+            self._draw_eyes()
+
+    def _shade(self, color, factor):
+        values = [int(color[i:i + 2], 16) for i in (1, 3, 5)]
+        return "#" + "".join(f"{max(0, min(255, int(v * factor))):02X}" for v in values)
+
+    def _poke(self, _event=None):
+        self._poke_index = (self._poke_index + 1) % len(self.POKE_LINES)
+        self.set_state(self.state, message=self.POKE_LINES[self._poke_index])
+        self.canvas.move("robot", 0, -3)
+        self._bob -= 3
+        self.after(180, lambda: self.set_state(self.state, **self._context))
+
+    def _animate_loop(self):
+        if not self.winfo_exists():
+            return
+        self.tick += 1
+        target = round(math.sin(self.tick / 5) * 4)
+        delta = target - self._bob
+        if delta:
+            self.canvas.move("robot", 0, delta)
+            self._bob = target
+        if self.tick % 42 == 0 and self.state in ("idle_empty", "idle_ready"):
+            self.canvas.itemconfigure("eyes", state="hidden")
+            self.after(120, lambda: self.canvas.itemconfigure("eyes", state="normal") if self.winfo_exists() else None)
+        if self.state == "activate":
+            self._draw_electric_sparks()
+            self._draw_eyes()
+        color = self.STATE_STYLES[self.state][0]
+        self.status_dot.itemconfigure(self.dot_id, fill=color if self.tick % 10 < 7 else self._shade(color, 0.55))
+        self.after(80, self._animate_loop)
+
+    def _draw_electric_sparks(self):
+        """Tia lửa điện ngắn, sắc nét bằng hình học xác định để giữ zero-pip."""
+        c = self.canvas
+        c.delete("spark")
+        base_color = self.STATE_STYLES["activate"][0]
+        sparks = (
+            ((12, 16, 19, 9, 25, 14), 0),
+            ((59, 9, 66, 16, 62, 23), 1),
+            ((30, 9, 38, 1, 46, 9), 2),
+        )
+        for points, phase in sparks:
+            if (self.tick + phase) % 3 == 0:
+                color = "#FDE68A" if phase == 2 else base_color
+                c.create_line(*points, fill=color, width=2, tags=("robot", "spark"))
+                c.create_oval(points[0] - 2, points[1] - 2, points[0] + 2, points[1] + 2, fill="#FFF7AE", outline="", tags=("robot", "spark"))
+        c.move("spark", 0, self.BOT_Y_OFFSET + self._bob)
+
 # ================== MAIN APP (BB MANAGER PRO) ==================
 class App(tk.Tk):
     def _bind_context_menu(self, widget):
@@ -1212,6 +1385,9 @@ class App(tk.Tk):
         )
         btn_reset_daily.pack(side="left", padx=(0, 3), pady=2, ipadx=3)
 
+        self.astro_bot = AstroBotCompanion(dev_title_bar)
+        self.astro_bot.pack(side="left", fill="x", expand=True, padx=12)
+
         self.dev_canvas = tk.Canvas(self.frame_dev_zone, bg=COLOR_BG_DARK, highlightthickness=0)
         self.dev_scrollbar = ttk.Scrollbar(self.frame_dev_zone, orient="vertical", command=self.dev_canvas.yview)
         self.grid_container = tk.Frame(self.dev_canvas, bg=COLOR_BG_DARK)
@@ -1520,7 +1696,10 @@ class App(tk.Tk):
         """Worker xử lý kích hoạt từng thiết bị: 3 giai đoạn Activate → Skip Setup → Set Lang"""
         with self.lock:
             self.active_activates.add(udid)
+            active_count = len(self.active_activates)
+        self._set_mascot_state("activate", count=active_count)
         task = "Batch Activate"
+        activation_succeeded = False
         row = self.rows.get(udid)
 
         # Quản lý semaphore kích hoạt song song toàn bộ máy
@@ -1718,11 +1897,26 @@ class App(tk.Tk):
             # === HOÀN TẤT ===
             self._update_card_progress(udid, pct=100, task=f"{task} thành công", step=f"Đã kích hoạt {Icons.CHECK}")
             self.log(udid, "Batch Activate hoàn tất thành công.")
+            activation_succeeded = True
             return True
 
         finally:
             with self.lock:
                 self.active_activates.discard(udid)
+                all_activates_done = not self.active_activates
+            if activation_succeeded and all_activates_done:
+                self._set_mascot_state(
+                    "celebrate",
+                    message="Astro xác nhận cả đợt đã kích hoạt thành công!",
+                    hold_seconds=10,
+                )
+            elif not activation_succeeded:
+                self._set_mascot_state(
+                    "alert",
+                    count=1,
+                    message="Có máy kích hoạt chưa thành công. Sếp xem dòng log đỏ nhé!",
+                    hold_seconds=8,
+                )
             ACTIVATE_SEMAPHORE.release()
             if operation_reserved:
                 self.operations.end(udid, operation_kind)
@@ -2366,6 +2560,62 @@ class App(tk.Tk):
             except Exception:
                 pass
 
+    @staticmethod
+    def _resolve_mascot_state(operations, connected_count, untrusted_count, auto_batch_active=False):
+        kinds = set(operations.values())
+        if "restore" in kinds:
+            return "restore"
+        if kinds.intersection(("activate", "language", "webclip")):
+            return "activate"
+        if "backup" in kinds:
+            return "backup"
+        if "auto_activate" in kinds or auto_batch_active:
+            return "reboot"
+        if untrusted_count:
+            return "alert"
+        return "idle_ready" if connected_count else "idle_empty"
+
+    def _set_mascot_state(self, state, count=None, progress=None, message=None, hold_seconds=0):
+        if not self._is_ui_thread():
+            self._post_ui(self._set_mascot_state, state, count, progress, message, hold_seconds)
+            return
+        if not hasattr(self, "astro_bot"):
+            return
+        self.astro_bot.set_state(state, count=count, progress=progress, message=message)
+        if hold_seconds:
+            self._mascot_hold_until = time.time() + hold_seconds
+
+    def _refresh_mascot_state(self, connected_count, untrusted_count):
+        if time.time() < getattr(self, "_mascot_hold_until", 0):
+            return
+        operations = self.operations.snapshot()
+        state = self._resolve_mascot_state(
+            operations, connected_count, untrusted_count, self.auto_activate_batch_active
+        )
+        active_count = sum(1 for kind in operations.values() if kind == "restore")
+        if state == "activate":
+            active_count = sum(1 for kind in operations.values() if kind in ("activate", "language", "webclip"))
+        elif state == "reboot":
+            active_count = sum(1 for kind in operations.values() if kind == "auto_activate")
+        elif state == "backup":
+            active_count = sum(1 for kind in operations.values() if kind == "backup")
+        elif state == "alert":
+            active_count = untrusted_count
+        else:
+            active_count = connected_count
+
+        progress_values = []
+        if state == "restore":
+            for udid, kind in operations.items():
+                row = self.rows.get(udid)
+                if kind == "restore" and row and hasattr(row, "pb"):
+                    try:
+                        progress_values.append(float(row.pb["value"]))
+                    except (TypeError, ValueError, tk.TclError):
+                        pass
+        progress = round(sum(progress_values) / len(progress_values)) if progress_values else 0
+        self.astro_bot.set_state(state, count=active_count, progress=progress)
+
     def _queue_poll_sync(self, udids, trust_results, info_results):
         with self._poll_lock:
             self._poll_latest = (udids, trust_results, info_results)
@@ -2622,6 +2872,7 @@ class App(tk.Tk):
                 self.lbl_stat_total_dev.config(text=str(dev_cnt))
             if hasattr(self, "lbl_log_dev_info"):
                 self.lbl_log_dev_info.config(text=f"Số thiết bị đang kết nối: {dev_cnt}")
+            self._refresh_mascot_state(dev_cnt, untrusted_cnt)
 
     # BẢNG PHÂN BỔ HIỂN THỊ CHI TIẾT
     def _show_confirm_frame(self, confirm_items):
@@ -2755,6 +3006,8 @@ class App(tk.Tk):
     def _backup_worker(self, udid, target_root, reserved_name=None, remove_tiktok=False, remove_tiktok_lite=False, operation_reserved=False):
         with self.lock:
             self.active_backups.add(udid)
+            active_count = len(self.active_backups)
+        self._set_mascot_state("backup", count=active_count)
         row = self.rows.get(udid)
         if not SEMAPHORE.acquire(timeout=1):
             if row: row.push_step("Đang chờ slot...")
@@ -2909,6 +3162,8 @@ class App(tk.Tk):
     def _restore_worker(self, target_udid, backup_folder_full, target_after_restore, source_store="A", auto_activate=False, set_language=False, language_preset=None, operation_reserved=False):
         with self.lock:
             self.active_restores.add(target_udid)
+            active_count = len(self.active_restores)
+        self._set_mascot_state("restore", count=active_count, progress=0)
         row = self.rows.get(target_udid)
         original_info = None
         restore_ok = False
@@ -3012,10 +3267,18 @@ class App(tk.Tk):
             if operation_reserved:
                 self.operations.end(target_udid, "restore")
             if _all_done and auto_activate:
+                queued_count = len(self.auto_activate_queue)
+                self._set_mascot_state("reboot", count=queued_count)
                 self._start_auto_activate_batch_if_ready()
             # === THÔNG BÁO RÚT MÁY KHI TẤT CẢ ĐỢT XONG (chỉ khi Auto Activate TẮT) ===
             if _all_done and not auto_activate:
                 done_count = self.restore_done_count
+                self._set_mascot_state(
+                    "celebrate",
+                    count=done_count,
+                    message=f"Tuyệt vời! Đã hoàn tất {done_count} máy. Cắm mẻ mới nào!",
+                    hold_seconds=12,
+                )
                 banner = "=" * 58
                 self.log("SYSTEM", banner, is_warn=True)
                 self.log("SYSTEM", f"🔔 ĐÃ RESTORE XONG {done_count} MÁY – RÚT TẤT CẢ RA & CẮM ĐỢT MỚI!", is_warn=True)
@@ -3100,6 +3363,11 @@ class App(tk.Tk):
         launched = set()
         try:
             total = len(pending)
+            self._set_mascot_state(
+                "reboot",
+                count=total,
+                message=f"{total} máy đang khởi động lại. Đừng rút cáp nha sếp!",
+            )
             self.log("SYSTEM", f"⚡ Auto Activate theo đợt: {total} máy. Chờ {AUTO_ACTIVATE_SETTLE_SECONDS}s để iPhone reboot hoàn toàn...")
             time.sleep(AUTO_ACTIVATE_SETTLE_SECONDS)
 
@@ -3163,8 +3431,18 @@ class App(tk.Tk):
         else:
             self.log(udid, f"⚠️ lockdownd chưa phản hồi sau {AUTO_ACTIVATE_LOCKDOWN_TIMEOUT}s (thiết bị chưa Activate thường chưa trả lời). Tiếp tục Activate.", is_warn=True)
 
+        if operation_reserved and not self.operations.transition(
+            udid, "auto_activate", "activate"
+        ):
+            self.log(
+                udid,
+                "Không thể bắt đầu Auto Activate: trạng thái thiết bị đã thay đổi.",
+                is_err=True,
+            )
+            return False
+
         return self._batch_activate_worker(
-            udid, set_language, language_preset, operation_reserved, "auto_activate"
+            udid, set_language, language_preset, operation_reserved, "activate"
         )
 
     def _on_app_close(self):

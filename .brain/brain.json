@@ -3,13 +3,13 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-05T20:50:00+07:00"
+    "last_updated": "2026-09-06T10:00:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application (Python/Tkinter)",
     "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore trong ngày, hệ thống cảnh báo rút máy đợt âm thanh - thị giác và tạo Web App cho thiết bị iPhone qua cổng USB đa luồng trên nền giao diện Soft Charcoal Slate Dark Theme, Windows Segoe MDL2 Assets Icon Font, Gradient Rounded Buttons và Hộp chọn kho High-Contrast.",
-    "version": "4.8.5 Instant Restore Preparation Edition",
+    "version": "4.8.6 Astro Bot Companion Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py"
   },
