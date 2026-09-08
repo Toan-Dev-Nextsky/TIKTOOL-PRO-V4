@@ -1,7 +1,7 @@
 # 📘 TÀI LIỆU KIẾN TRÚC HỆ THỐNG: TIKTOK PRO (TIKTOOL PRO V4)
 
 ## 1. Giới Thiệu Tổng Quan
-**TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) - **Phiên bản hiện tại**: `4.8.3 High-Contrast Store Selection Boxes Edition`
+**TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) - **Phiên bản hiện tại**: `4.8.7 Batch Activate Timing Edition`
 - **Tập tin chạy chính**: `BB_RB.py` (hoặc mở ngầm qua `TIKTOOL_PRO.pyw` / `CHAY_TIKTOOL.bat`)
 - **Ngôn ngữ & Thư viện**: Python 3.11 (100% Python Standard Library, Zero-Pip Dependencies), Tkinter GUI, Custom Canvas Components, Threading đa luồng, Semaphore, SQLite3, Plistlib, Runpy.
 - **Công cụ nhị phân tích hợp**: `libimobiledevice` (Windows x64) và `ios.exe`.
@@ -35,7 +35,7 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng (kèm **tiền
    - Mọi `CommandResult.error` (ví dụ `[WinError 2]` khi thiếu binary) đều được ghi nguyên văn vào nhật ký, không bị nuốt.
 3. **Giai đoạn 3 (Set Language / Locale)**: Tùy chọn gọi `ios.exe lang --setlocale={locale} --setlang={lang} --udid={udid} --nojson` để đưa máy về ngôn ngữ mong muốn (ví dụ: Nhật Bản `ja_JP|ja`, Việt Nam `vi_VN|vi`).
    - Tự động lọc bỏ các cảnh báo vô hại về go-ios tunnel (`go-ios agent is not running...`, `failed to get tunnel info...`).
-   - Phân biệt timeout 20s do SpringBoard reload (bình thường, máy đã nhận lệnh) và ghi nhận log thông báo màu xanh/trắng, không gắn cờ đỏ lỗi.
+   - Phân biệt timeout 15s do SpringBoard reload (bình thường, máy đã nhận lệnh) và ghi nhận log thông báo màu xanh/trắng, không gắn cờ đỏ lỗi. Timeout giảm từ 20s xuống 15s dựa trên số liệu 6 đợt thật: 8s có máy vẫn tiếng Anh (cắt sớm), 15s cân bằng tốt.
 4. **Tự động kích hoạt sau khi Restore (Auto Activate)**: Sau khi **toàn bộ đợt Restore** kết thúc, coordinator chờ **100 giây** cho iPhone reboot rồi quét USB (`idevice_id -l`, timeout 8s) tối đa 30 lần cách nhau 3 giây; một UDID phải xuất hiện 3 lần liên tiếp mới được chạy. Mỗi máy sẵn sàng đi qua `_auto_activate_launch`: **chờ lockdownd phản hồi (tối đa 30s) và xác thực lại pairing (`idevicepair`)** trước khi vào đúng pipeline `_batch_activate_worker` của nút Batch thủ công. Máy không trở lại USB được báo rõ và giải phóng operation, không chặn các máy khác.
 
 ### 2.3. Sao Lưu Dữ Liệu (Backup All)
@@ -124,6 +124,8 @@ Thiết kế cao cấp theo phong cách Soft Charcoal Slate Dark Theme (nhẹ nh
 - **Kiểm soát luồng với Semaphore**: Sử dụng `threading.Semaphore` để giới hạn số tác vụ đồng thời, đảm bảo đường truyền USB không bị nghẽn và CPU không quá tải.
 - **Bảo vệ an toàn khi đóng ứng dụng (`WM_DELETE_WINDOW`)**: Bắt sự kiện khi người dùng bấm dấu `[X]`, nếu còn thiết bị đang Restore/Backup sẽ bật hộp thoại cảnh báo nguy cơ treo táo / hỏng backup, tránh ngắt đột ngột.
 - **Giới hạn đồng thời có cấu hình**: Giá trị lấy từ `apps_config.json`, mặc định 4 và được giới hạn trong khoảng 1–8 để tránh nghẽn USB.
+- **Nhật ký đo thời gian (`⏱`)**: 8 mốc `time.monotonic()` trong `_batch_activate_worker` và `_run_auto_activate_batch` — chờ slot, từng giai đoạn (Activate / Skip Setup / Set Language), xác minh state, tổng mỗi máy, USB ổn định. Phục vụ tối ưu dựa trên số liệu thật thay vì đoán.
+- **Timeout Set Language 15s**: Giảm từ 20s xuống 15s dựa trên số liệu 6 đợt thật trên dàn 10 máy. 8s có máy vẫn tiếng Anh (cắt sớm), 15s cân bằng — máy nhận lệnh, tiết kiệm ~5s/máy.
 - **Operation registry theo UDID**: Một thiết bị chỉ có một thao tác thay đổi trạng thái tại một thời điểm; luồng Restore có thể chuyển quyền sở hữu sang Auto Activate.
 - **Polling nền có coalesce**: Đọc metadata ngoài UI thread và chỉ giữ bản cập nhật giao diện mới nhất, tránh tích tụ callback.
 - **Theo dõi reboot độc lập USB**: Card thiết bị được giữ trong lúc máy biến mất tạm thời và trạng thái chỉ xóa khi reconnect đã xác minh hoặc hết hạn.

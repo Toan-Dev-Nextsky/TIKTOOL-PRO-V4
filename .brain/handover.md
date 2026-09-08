@@ -1,9 +1,32 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-06 10:00:00  
-**Phiên bản**: `4.8.6 Astro Bot Companion Edition`  
-**Trạng thái**: Hoàn thiện Astro Bot Companion — linh vật vector hoạt hình thuần Tkinter với tám sắc thái theo workflow, bong bóng thoại động, hiệu ứng lơ lửng/chớp mắt/LED và tương tác poke. Giữ nguyên Instant Restore 0.004s/máy, Honest Auto Activate Verification, Zero-Pip dependency; toàn bộ 37/37 tests và kiểm tra render tám trạng thái đạt.
+**Thời gian cập nhật**: 2026-09-08  
+**Phiên bản**: `4.8.7 Batch Activate Timing Edition`  
+**Trạng thái**: Hoàn thiện Astro Bot Companion — linh vật vector hoạt hình thuần Tkinter với tám sắc thái theo workflow, bong bóng thoại động, hiệu ứng lơ lửng/chớp mắt/LED và tương tác poke. Giữ nguyên Instant Restore 0.004s/máy, Honest Auto Activate Verification, Zero-Pip dependency; toàn bộ 39/39 tests đạt.
+
+---
+
+## ⏱ Tối ưu thời gian Batch Activate — cập nhật 2026-09-08
+
+Vấn đề: Batch Activate chậm. Thay vì đoán, thêm log `⏱` đo thời gian từng giai đoạn rồi chạy 6 đợt thật trên dàn 10 máy.
+
+**Thay đổi duy nhất áp dụng**: Giảm timeout `ios lang` **20s → 15s**.
+- 20s (bản gốc): lệnh luôn hết timeout do SpringBoard reload → 20s chết/máy.
+- 8s: có máy vẫn tiếng Anh (cắt trước khi iPhone nhận lệnh).
+- 15s: cân bằng — máy nhận lệnh, tiết kiệm ~5s/máy.
+
+**Thử và loại bỏ**:
+- Giảm `ACTIVATE_SEMAPHORE` 32→16: `Chờ slot = 0.0s` ở mọi đợt → semaphore không phải bottleneck; giảm làm tệ hơn (Skip Setup timeout tăng, 2 máy `sent`).
+- Bỏ retry Skip Setup khi timeout: gây hồi quy "báo hoàn thành nhưng máy chưa active" → retry là cơ chế chính, giữ nguyên.
+
+**Giữ nguyên**: timeout 40s Skip Setup, retry ×3, xác minh state 2 lần, semaphore 32, `AUTO_ACTIVATE_SETTLE_SECONDS = 100`.
+
+**Nhật ký `⏱`** (giữ lại): 8 mốc đo thời gian — chờ slot, GĐ1 Activate, xác minh state, GĐ2 Skip Setup (kèm kết quả), GĐ3 Set Language, xác minh state lần cuối, tổng mỗi máy, USB ổn định Auto Activate.
+
+**Số liệu 6 đợt thật** (10 máy, semaphore 32, lang 15s): tổng đợt 37–49s, 0 máy `sent` ở 2 đợt cuối. Bottleneck còn lại: Skip Setup bị nghẽn usbmuxd tăng dần theo số máy — đặc tính phần cứng/driver.
+
+**Kiểm thử**: 39/39 PASS, `py_compile` sạch. Tính trung thực báo cáo giữ nguyên.
 
 ---
 

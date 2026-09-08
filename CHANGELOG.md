@@ -2,6 +2,22 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.8.7 Batch Activate Timing Edition] - 2026-09-08
+
+### ⏱ Tối Ưu Thời Gian Giai Đoạn Set Language Dựa Trên Số Liệu Thật
+
+Thay vì đoán, thêm nhật ký đo thời gian từng giai đoạn (`⏱`) rồi chạy 6 đợt thật trên dàn 10 máy để xác định bottleneck và tối ưu dựa trên số liệu.
+
+- **Nhật ký đo thời gian (`⏱`)**: Thêm 8 mốc `self.log()` dùng `time.monotonic()` — chờ slot, Giai đoạn 1 Activate, xác minh state sau Activate, Giai đoạn 2 Skip Setup (kèm kết quả `ok`/`sent`/`failed`), Giai đoạn 3 Set Language, xác minh state lần cuối, tổng mỗi máy, và thời điểm USB ổn định trong Auto Activate. **Không thay đổi logic pipeline, timeout, retry hay semaphore** — chỉ đo.
+- **Giảm timeout `ios lang` 20s → 15s**: Số liệu 6 đợt cho thấy:
+  - Timeout 20s (bản gốc): lệnh gần như luôn hết 20s do SpringBoard reload → 20s chết mỗi máy.
+  - Timeout 8s: có máy vẫn tiếng Anh (lệnh bị cắt trước khi iPhone kịp nhận).
+  - Timeout 15s: cân bằng tốt — 1 số máy nhận phản hồi thật (6–12s), còn lại timeout 15s nhưng iPhone đã nhận lệnh và đổi ngôn ngữ. Tiết kiệm ~5s/máy so với bản gốc.
+- **`ACTIVATE_SEMAPHORE` giữ nguyên 32**: Số liệu `Chờ slot = 0.0s` ở mọi đợt chứng minh semaphore không phải bottleneck với 10–16 máy. Thử giảm 32→16 làm tệ hơn (Skip Setup timeout tăng, 2 máy `sent`).
+- **Skip Setup giữ nguyên timeout 40s + retry ×3**: Thử bỏ retry gây hồi quy "báo hoàn thành nhưng máy chưa active" — retry là cơ chế hoạt động chính, không phải vô ích.
+- **Kiểm thử**: 39/39 tests pass, `py_compile` sạch. Tính trung thực báo cáo giữ nguyên (xác minh `ideviceactivation state` 2 lần, tri-state `ok`/`sent`/`failed`).
+- **Số liệu 6 đợt thật** (10 máy, semaphore 32, lang 15s): tổng đợt 37–49s, 0 máy `sent` ở 2 đợt cuối. Bottleneck còn lại là Skip Setup bị nghẽn usbmuxd tăng dần theo số máy — đặc tính phần cứng/driver, không khắc phục được bằng code.
+
 ## [4.8.6 Astro Bot Companion Edition] - 2026-09-06
 
 ### Astro Bot — Linh Vật Đồng Hành Theo Trạng Thái Công Việc

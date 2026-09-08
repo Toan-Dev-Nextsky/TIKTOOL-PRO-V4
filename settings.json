@@ -1,6 +1,6 @@
 {
-  "storeA": "D:/TKBAND DONG MOI 3.9 A",
-  "storeB": "D:/TKBAND DONG MOI 3.9 B",
+  "storeA": "D:/NICKBIXACMINHNGAM T8 A",
+  "storeB": "D:/NICKBIXACMINHNGAM T8 B",
   "generalBackupDir": "D:/backups",
   "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
   "removeTikTok": false,
@@ -11,7 +11,11 @@
   "autoActivateAfterRestore": true,
   "active": "B",
   "customWebclipLink": "",
-  "dailyRestoreDate": "2026-09-06",
-  "dailyRestoreCount": 20,
+  "dailyRestoreDate": "2026-09-08",
+  "dailyRestoreCount": 242,
+  "hourlyRestoreDate": "2026-09-08",
+  "hourlyRestoreCounts": {
+    "10": 20
+  },
   "autoSetLangAfterRestore": true
 }

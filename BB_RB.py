@@ -16,17 +16,21 @@ from concurrent.futures import ThreadPoolExecutor
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from tiktool_core import (
+    HourlyRestoreStats,
     OperationRegistry,
     ProcessRunner,
     RebootTracker,
     cleanup_owned_job,
     create_backup_job,
+    format_hourly_restore_history,
+    hour_window,
     load_concurrency,
     prepare_restore_in_place,
     rollback_restore_info,
     normalize_url as core_normalize_url,
     redact_log,
     repair_ipas_path,
+    restore_star_rating,
     validate_backup,
 )
 
@@ -151,7 +155,9 @@ DEFAULT_SETTINGS = {
     "active": "A",                        # Kho nguồn mặc định: "A" (A->B) hoặc "B" (B->A)
     "customWebclipLink": "",                      # Để trống, người dùng tự nhập link
     "dailyRestoreDate": "",
-    "dailyRestoreCount": 0
+    "dailyRestoreCount": 0,
+    "hourlyRestoreDate": "",
+    "hourlyRestoreCounts": {}
 }
 
 def _ts(): return datetime.now().strftime("%H:%M:%S")
@@ -1063,6 +1069,7 @@ class App(tk.Tk):
         self.restore_done_count = 0  # Bộ đếm restore thành công trong phiên
         self.daily_restore_date = datetime.now().strftime("%Y-%m-%d")
         self.daily_restore_count = 0  # Bộ đếm nick đã restore trong ngày
+        self.hourly_restore_stats = HourlyRestoreStats(self.daily_restore_date, {})
         self._last_progress_log = {}  # Lưu % log gần nhất cho mỗi UDID để chống nghẽn log
         self._backup_name_counters = {}  # Đếm STT thư mục backup độc lập cho từng kho
         self._poll_lock = threading.Lock()
@@ -1352,24 +1359,110 @@ class App(tk.Tk):
         btn_reset_cnt = tk.Button(right_stat_bar, text=Icons.REFRESH, font=(FONT_MDL2, 8), fg=COLOR_TEXT_MUTED, bg=COLOR_BTN_ELEVATED, activebackground=COLOR_WHITE_BORDER, activeforeground=COLOR_TEXT_WHITE, relief="flat", bd=0, cursor="hand2", highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1, command=self._reset_restore_counter)
         btn_reset_cnt.pack(side="left", padx=(3, 2), ipady=1, ipadx=4)
 
-        # Cụm BỘ ĐẾM NICK ĐÃ RESTORE TRONG NGÀY (Hình minh họa: Tổng: X) - đặt bên lề trái
+        # Cụm đánh giá sản lượng theo khung giờ cố định và tổng trong ngày
         daily_stat_bar = tk.Frame(dev_title_bar, bg=COLOR_BG_DARK)
         daily_stat_bar.pack(side="left", padx=8, pady=1)
 
-        card_daily = tk.Frame(daily_stat_bar, bg=COLOR_PANEL_BG, highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1)
+        card_daily = tk.Frame(
+            daily_stat_bar,
+            bg=COLOR_PANEL_BG,
+            highlightbackground=COLOR_CYAN_MAIN,
+            highlightthickness=1,
+        )
         card_daily.pack(padx=2, pady=1)
 
-        lbl_daily_t = tk.Label(card_daily, text="Tổng:", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_PANEL_BG)
-        lbl_daily_t.pack(side="left", padx=(8, 3), pady=2)
+        hourly_row = tk.Frame(card_daily, bg=COLOR_PANEL_BG)
+        hourly_row.pack(fill="x", padx=(8, 4), pady=(3, 0))
 
-        self.lbl_stat_daily_restore = tk.Label(card_daily, text=str(self.daily_restore_count), font=("Segoe UI", 12, "bold"), fg=COLOR_CYAN_ACCENT, bg=COLOR_PANEL_BG)
-        self.lbl_stat_daily_restore.pack(side="left", padx=(0, 4), pady=2)
+        tk.Label(
+            hourly_row,
+            text="HIỆU SUẤT",
+            font=("Segoe UI", 7, "bold"),
+            fg=COLOR_TEXT_MUTED,
+            bg=COLOR_PANEL_BG,
+        ).pack(side="left", padx=(0, 5))
+        self.lbl_stat_hour_window = tk.Label(
+            hourly_row,
+            text="00:00–00:59",
+            font=("Consolas", 8, "bold"),
+            fg=COLOR_CYAN_ACCENT,
+            bg=COLOR_PANEL_BG,
+        )
+        self.lbl_stat_hour_window.pack(side="left", padx=(0, 7))
+        self.lbl_stat_hour_count = tk.Label(
+            hourly_row,
+            text="0 máy",
+            font=("Segoe UI", 10, "bold"),
+            fg=COLOR_TEXT_WHITE,
+            bg=COLOR_PANEL_BG,
+        )
+        self.lbl_stat_hour_count.pack(side="left", padx=(0, 4))
+        rating_box = tk.Frame(hourly_row, bg=COLOR_SUB_BG)
+        rating_box.pack(side="left", padx=(0, 4))
+        self.lbl_stat_hour_rating = tk.Label(
+            rating_box,
+            text="★",
+            font=("Segoe UI Symbol", 11, "bold"),
+            fg="#FACC15",
+            bg=COLOR_SUB_BG,
+            padx=0,
+            pady=1,
+        )
+        self.lbl_stat_hour_rating.pack(side="left")
+        self.lbl_stat_hour_rating_empty = tk.Label(
+            rating_box,
+            text="☆☆☆☆",
+            font=("Segoe UI Symbol", 11, "bold"),
+            fg="#64748B",
+            bg=COLOR_SUB_BG,
+            padx=0,
+            pady=1,
+        )
+        self.lbl_stat_hour_rating_empty.pack(side="left")
 
-        lbl_daily_sub = tk.Label(card_daily, text="(Hôm nay)", font=("Segoe UI", 8), fg=COLOR_TEXT_DIM, bg=COLOR_PANEL_BG)
-        lbl_daily_sub.pack(side="left", padx=(0, 6), pady=2)
+        daily_row = tk.Frame(card_daily, bg=COLOR_PANEL_BG)
+        daily_row.pack(fill="x", padx=(8, 3), pady=(0, 3))
+        self.lbl_stat_daily_restore = tk.Label(
+            daily_row,
+            text="Tổng hôm nay:",
+            font=("Segoe UI", 8, "bold"),
+            fg=COLOR_TEXT_MUTED,
+            bg=COLOR_PANEL_BG,
+        )
+        self.lbl_stat_daily_restore.pack(side="left", padx=(0, 4))
+
+        daily_value_box = tk.Frame(
+            daily_row,
+            bg=COLOR_SUB_BG,
+            highlightbackground="#FACC15",
+            highlightthickness=1,
+        )
+        daily_value_box.pack(side="left", padx=(0, 7))
+        self.lbl_stat_daily_restore_value = tk.Label(
+            daily_value_box,
+            text=str(self.daily_restore_count),
+            font=("Segoe UI", 14, "bold"),
+            fg="#FACC15",
+            bg=COLOR_SUB_BG,
+        )
+        self.lbl_stat_daily_restore_value.pack(padx=5, pady=0)
+
+        tk.Button(
+            daily_row,
+            text="Chi tiết",
+            font=("Segoe UI", 7, "bold"),
+            fg=COLOR_CYAN_ACCENT,
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            activeforeground=COLOR_TEXT_WHITE,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            command=self._show_hourly_restore_history,
+        ).pack(side="left", padx=(0, 3), ipadx=3)
 
         btn_reset_daily = tk.Button(
-            card_daily,
+            daily_row,
             text=Icons.REFRESH,
             font=(FONT_MDL2, 8),
             fg=COLOR_TEXT_MUTED,
@@ -1381,9 +1474,9 @@ class App(tk.Tk):
             cursor="hand2",
             highlightbackground=COLOR_BORDER_LIGHT,
             highlightthickness=1,
-            command=self._reset_daily_restore_counter
+            command=self._confirm_reset_daily_restore_counter
         )
-        btn_reset_daily.pack(side="left", padx=(0, 3), pady=2, ipadx=3)
+        btn_reset_daily.pack(side="left", padx=(0, 1), ipadx=3)
 
         self.astro_bot = AstroBotCompanion(dev_title_bar)
         self.astro_bot.pack(side="left", fill="x", expand=True, padx=12)
@@ -1701,6 +1794,7 @@ class App(tk.Tk):
         task = "Batch Activate"
         activation_succeeded = False
         row = self.rows.get(udid)
+        _t_queued = time.monotonic()
 
         # Quản lý semaphore kích hoạt song song toàn bộ máy
         if not ACTIVATE_SEMAPHORE.acquire(timeout=1):
@@ -1709,6 +1803,9 @@ class App(tk.Tk):
             ACTIVATE_SEMAPHORE.acquire()
 
         try:
+            # Chỉ đo thời gian, không thay đổi hành vi pipeline.
+            _t_worker = time.monotonic()
+            self.log(udid, f"⏱ Chờ slot Activate: {_t_worker - _t_queued:.1f}s")
             # === TIỀN KIỂM: CÔNG CỤ BẮT BUỘC PHẢI TỒN TẠI THẬT ===
             # Auto Activate không đi qua hộp thoại kiểm tra của nút Batch thủ công,
             # nên phải tự kiểm tra tại đây thay vì để lệnh chạy lỗi 127 rồi bị bỏ qua.
@@ -1734,6 +1831,7 @@ class App(tk.Tk):
             self.log(udid, "RUN: " + " ".join(cmd))
 
             activate_ok = False
+            _t_stage = time.monotonic()
             for attempt in range(1, 4):
                 rc, out = run_capture(cmd)
                 self.log(udid, out or f"exit {rc}", is_err=(rc != 0))
@@ -1749,6 +1847,7 @@ class App(tk.Tk):
                     time.sleep(5)
                 else:
                     break
+            self.log(udid, f"⏱ Giai đoạn 1 Activate: {time.monotonic() - _t_stage:.1f}s")
 
             if not activate_ok:
                 self._update_card_progress(udid, task=f"{task} lỗi", step="Activate thất bại")
@@ -1756,7 +1855,9 @@ class App(tk.Tk):
                 return False
 
             # === XÁC MINH GIAI ĐOẠN 1: hỏi lại chính thiết bị, không tin mỗi exit code ===
+            _t_stage = time.monotonic()
             state_after_activate = query_activation_state(udid)
+            self.log(udid, f"⏱ Xác minh state sau Activate: {time.monotonic() - _t_stage:.1f}s")
             if state_after_activate:
                 self.log(udid, f"Trạng thái kích hoạt sau lệnh Activate: {state_after_activate}")
             if activation_state_is_activated(state_after_activate) is False:
@@ -1775,6 +1876,7 @@ class App(tk.Tk):
             # "failed"= lỗi thật, phải báo đỏ và dừng luồng
             skip_state = "failed"
             skip_detail = ""
+            _t_stage = time.monotonic()
             for skip_attempt in range(1, 4):
                 _res2 = PROCESS_RUNNER.run_capture(cmd2, timeout=40)
                 rc2 = _res2.returncode
@@ -1827,6 +1929,7 @@ class App(tk.Tk):
                     time.sleep(5)
                     continue
                 break
+            self.log(udid, f"⏱ Giai đoạn 2 Skip Setup: {time.monotonic() - _t_stage:.1f}s (kết quả: {skip_state})")
 
             if skip_state == "failed":
                 self._update_card_progress(udid, pct=45, task=f"{task} lỗi", step="Skip Setup thất bại")
@@ -1848,9 +1951,11 @@ class App(tk.Tk):
                 cmd3 = [ios_exe, "lang", f"--setlocale={locale}", f"--setlang={lang}", f"--udid={udid}", "--nojson"]
                 self.log(udid, "RUN: " + " ".join(cmd3))
 
-                # Đổi ngôn ngữ thường mất 3-10s; giới hạn timeout 20s tránh treo luồng
+                # Đổi ngôn ngữ thường mất 5-15s; giới hạn timeout 15s tránh treo luồng.
+                # Quá ngắn (8s) có thể cắt lệnh trước khi iPhone kịp nhận → máy vẫn tiếng Anh.
                 # Dùng PROCESS_RUNNER trực tiếp để phân biệt timeout vs lỗi thực
-                _res3 = PROCESS_RUNNER.run_capture(cmd3, timeout=20)
+                _t_stage = time.monotonic()
+                _res3 = PROCESS_RUNNER.run_capture(cmd3, timeout=15)
                 rc3 = _res3.returncode
                 out3 = _res3.output
 
@@ -1868,7 +1973,7 @@ class App(tk.Tk):
                 if _res3.timed_out:
                     # SpringBoard reload ngắt kết nối USB tạm thời → timeout là bình thường
                     # iPhone đã nhận lệnh và đổi ngôn ngữ xong trong thực tế
-                    self.log(udid, f"⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật, timeout 20s là bình thường).")
+                    self.log(udid, f"⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật, timeout 15s là bình thường).")
                 else:
                     if _display_out:
                         self.log(udid, _display_out, is_err=(rc3 != 0))
@@ -1879,9 +1984,12 @@ class App(tk.Tk):
                         # Khi iPhone đổi ngôn ngữ, SpringBoard reload làm ngắt kết nối socket tạm thời
                         # khiến lệnh phản hồi trễ; nhưng thực tế iPhone đã nhận lệnh và đổi xong
                         self.log(udid, f"⚡ Lệnh đổi ngôn ngữ đã gửi (SpringBoard đang cập nhật: {_display_out or rc3}).")
+                self.log(udid, f"⏱ Giai đoạn 3 Set Language: {time.monotonic() - _t_stage:.1f}s")
 
             # === KIỂM TRA LẠI LẦN CUỐI TRƯỚC KHI DÁM BÁO THÀNH CÔNG ===
+            _t_stage = time.monotonic()
             final_state = query_activation_state(udid)
+            self.log(udid, f"⏱ Xác minh state lần cuối: {time.monotonic() - _t_stage:.1f}s")
             if final_state:
                 self.log(udid, f"Kiểm tra lại trạng thái kích hoạt: {final_state}")
             if activation_state_is_activated(final_state) is False:
@@ -1901,6 +2009,7 @@ class App(tk.Tk):
             return True
 
         finally:
+            self.log(udid, f"⏱ TỔNG Batch Activate: {time.monotonic() - _t_worker:.1f}s (kể cả chờ slot: {time.monotonic() - _t_queued:.1f}s)")
             with self.lock:
                 self.active_activates.discard(udid)
                 all_activates_done = not self.active_activates
@@ -2133,11 +2242,13 @@ class App(tk.Tk):
         self.restore_done_count += 1
 
         # Cập nhật số nick restore trong ngày
-        today = datetime.now().strftime("%Y-%m-%d")
+        now = datetime.now()
+        today = now.strftime("%Y-%m-%d")
         if self.daily_restore_date != today:
             self.daily_restore_date = today
             self.daily_restore_count = 0
         self.daily_restore_count += 1
+        self.hourly_restore_stats.record(now)
         self._save_daily_restore_stats()
 
         self._update_restore_counter()
@@ -2149,12 +2260,35 @@ class App(tk.Tk):
         self._on_store_switch()
 
     def _reset_daily_restore_counter(self):
+        now = datetime.now()
         self.daily_restore_count = 0
-        self.daily_restore_date = datetime.now().strftime("%Y-%m-%d")
+        self.daily_restore_date = now.strftime("%Y-%m-%d")
+        self.hourly_restore_stats.reset(now)
         self._save_daily_restore_stats()
-        if hasattr(self, "lbl_stat_daily_restore"):
-            self.lbl_stat_daily_restore.config(text="0")
+        self._update_restore_counter()
         self.log("SYSTEM", "Đã đặt lại bộ đếm Restore trong ngày về 0.")
+
+    def _confirm_reset_daily_restore_counter(self):
+        if messagebox.askyesno(
+            "Đặt lại thống kê",
+            "Xóa tổng Restore hôm nay và toàn bộ kết quả theo giờ?",
+        ):
+            self._reset_daily_restore_counter()
+
+    def _show_hourly_restore_history(self):
+        history = format_hourly_restore_history(self.hourly_restore_stats.snapshot())
+        if not history:
+            history = "Chưa có máy Restore thành công trong hôm nay."
+        messagebox.showinfo(
+            "Sản lượng Restore theo giờ",
+            f"KẾT QUẢ HÔM NAY\n\n{history}\n\n"
+            "GIẢI THÍCH SỐ SAO\n"
+            "★☆☆☆☆  Dưới 90 máy/giờ  •  Chưa đạt\n"
+            "★★☆☆☆  90–99 máy/giờ  •  Đạt\n"
+            "★★★☆☆  100–109 máy/giờ  •  Khá\n"
+            "★★★★☆  110–119 máy/giờ  •  Tốt\n"
+            "★★★★★  120–124: Rất tốt  •  Từ 125: Xuất sắc",
+        )
 
     def _save_daily_restore_stats(self):
         try:
@@ -2164,6 +2298,8 @@ class App(tk.Tk):
                     data = json.load(f)
             data["dailyRestoreDate"] = self.daily_restore_date
             data["dailyRestoreCount"] = self.daily_restore_count
+            data["hourlyRestoreDate"] = self.hourly_restore_stats.date
+            data["hourlyRestoreCounts"] = self.hourly_restore_stats.snapshot()
             with open(SETTINGS_FP, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
             self.last_json_mtime = os.path.getmtime(SETTINGS_FP)
@@ -2171,14 +2307,33 @@ class App(tk.Tk):
             pass
 
     def _update_restore_counter(self):
+        now = datetime.now()
+        today = now.strftime("%Y-%m-%d")
+        if self.daily_restore_date != today:
+            self.daily_restore_date = today
+            self.daily_restore_count = 0
+            self.hourly_restore_stats.reset(now)
+            self._save_daily_restore_stats()
+        hour_count = self.hourly_restore_stats.current_count(now)
+        _, window_label = hour_window(now)
+        star_rating = restore_star_rating(hour_count)
         if hasattr(self, "lbl_restore_done"):
             self.lbl_restore_done.config(text=f"Đã Restore: {self.restore_done_count}")
         if hasattr(self, "lbl_restore_done_status"):
             self.lbl_restore_done_status.config(text=f"Restored: {self.restore_done_count}")
         if hasattr(self, "lbl_stat_da_chuyen"):
             self.lbl_stat_da_chuyen.config(text=str(self.restore_done_count))
-        if hasattr(self, "lbl_stat_daily_restore"):
-            self.lbl_stat_daily_restore.config(text=str(self.daily_restore_count))
+        if hasattr(self, "lbl_stat_daily_restore_value"):
+            self.lbl_stat_daily_restore_value.config(text=str(self.daily_restore_count))
+        if hasattr(self, "lbl_stat_hour_window"):
+            self.lbl_stat_hour_window.config(text=window_label)
+        if hasattr(self, "lbl_stat_hour_count"):
+            self.lbl_stat_hour_count.config(text=f"{hour_count} máy")
+        if hasattr(self, "lbl_stat_hour_rating"):
+            filled, separator, empty = star_rating.partition("☆")
+            self.lbl_stat_hour_rating.config(text=filled or "")
+            if hasattr(self, "lbl_stat_hour_rating_empty"):
+                self.lbl_stat_hour_rating_empty.config(text=(separator + empty) if separator else "")
 
     def _on_canvas_configure(self, event):
         self.dev_canvas.itemconfig(self.dev_canvas_window, width=event.width)
@@ -2455,6 +2610,7 @@ class App(tk.Tk):
                             data = json.load(f)
                             self._apply_settings_to_ui(data)
             except Exception: pass
+            self._update_restore_counter()
             self.after(1000, _check)
 
         self.after(500, _check)
@@ -2490,8 +2646,24 @@ class App(tk.Tk):
                 self.daily_restore_date = today
             elif not saved_date:
                 self.daily_restore_date = today
-        if hasattr(self, "lbl_stat_daily_restore"):
-            self.lbl_stat_daily_restore.config(text=str(self.daily_restore_count))
+
+        saved_hourly_date = str(data.get("hourlyRestoreDate", ""))
+        saved_hourly_counts = data.get("hourlyRestoreCounts", {})
+        if saved_hourly_date == today:
+            saved_stats = HourlyRestoreStats(today, saved_hourly_counts)
+            current_counts = (
+                self.hourly_restore_stats.snapshot()
+                if self.hourly_restore_stats.date == today
+                else {}
+            )
+            merged_counts = saved_stats.snapshot()
+            for hour, count in current_counts.items():
+                merged_counts[hour] = max(count, merged_counts.get(hour, 0))
+            self.hourly_restore_stats = HourlyRestoreStats(today, merged_counts)
+        elif self.hourly_restore_stats.date != today:
+            self.hourly_restore_stats = HourlyRestoreStats(today, {})
+
+        self._update_restore_counter()
 
         self._on_store_switch()
 
@@ -2515,6 +2687,8 @@ class App(tk.Tk):
             data["customWebclipLink"] = self.var_custom_webclip_link.get().strip()
             data["dailyRestoreDate"] = self.daily_restore_date
             data["dailyRestoreCount"] = self.daily_restore_count
+            data["hourlyRestoreDate"] = self.hourly_restore_stats.date
+            data["hourlyRestoreCounts"] = self.hourly_restore_stats.snapshot()
 
             with open(SETTINGS_FP, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
@@ -3369,6 +3543,7 @@ class App(tk.Tk):
                 message=f"{total} máy đang khởi động lại. Đừng rút cáp nha sếp!",
             )
             self.log("SYSTEM", f"⚡ Auto Activate theo đợt: {total} máy. Chờ {AUTO_ACTIVATE_SETTLE_SECONDS}s để iPhone reboot hoàn toàn...")
+            _t_batch = time.monotonic()
             time.sleep(AUTO_ACTIVATE_SETTLE_SECONDS)
 
             for _ in range(AUTO_ACTIVATE_READY_CHECKS):
@@ -3385,7 +3560,7 @@ class App(tk.Tk):
                     launched.add(udid)
                     pending.pop(udid)
                     _, set_language, language_preset, operation_reserved = job
-                    self.log(udid, "USB đã ổn định. Bắt đầu Auto Activate bằng pipeline Batch Activate.")
+                    self.log(udid, f"USB đã ổn định. Bắt đầu Auto Activate bằng pipeline Batch Activate. ⏱ Chờ reboot + ổn định: {time.monotonic() - _t_batch:.0f}s")
                     threading.Thread(
                         target=self._auto_activate_launch,
                         args=(udid, set_language, language_preset, operation_reserved),

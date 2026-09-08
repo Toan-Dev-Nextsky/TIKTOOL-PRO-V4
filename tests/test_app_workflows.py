@@ -6,6 +6,8 @@ import threading
 import types
 import unittest
 import queue
+import json
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -16,7 +18,12 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import BB_RB  # noqa: E402
 from tests.test_tiktool_core import make_backup, read_udid  # noqa: E402
-from tiktool_core import CommandResult, RebootTracker, backup_fingerprint  # noqa: E402
+from tiktool_core import (  # noqa: E402
+    CommandResult,
+    HourlyRestoreStats,
+    RebootTracker,
+    backup_fingerprint,
+)
 
 
 def cmd_result(returncode=0, output="", timed_out=False, error=""):
@@ -210,6 +217,110 @@ class RebootTests(unittest.TestCase):
         tracker.clear("u1")
 
         self.assertFalse(tracker.is_waiting("u1", now=101))
+
+
+class HourlyRestoreUiTests(unittest.TestCase):
+    def test_successful_restore_is_recorded_in_the_current_clock_hour(self):
+        """Catches successful restores updating only the daily total, not the hourly bucket."""
+        app = types.SimpleNamespace(
+            restore_done_count=0,
+            daily_restore_date="2026-09-08",
+            daily_restore_count=12,
+            hourly_restore_stats=HourlyRestoreStats("2026-09-08", {"09": 4}),
+            _save_daily_restore_stats=lambda: None,
+            _update_restore_counter=lambda: None,
+            _on_store_switch=lambda: None,
+        )
+
+        with patch.object(BB_RB, "datetime") as clock:
+            clock.now.return_value = datetime(2026, 9, 8, 10, 25)
+            BB_RB.App._count_restore_done(app)
+
+        self.assertEqual(13, app.daily_restore_count)
+        self.assertEqual({"09": 4, "10": 1}, app.hourly_restore_stats.snapshot())
+
+    def test_hourly_counts_are_persisted_with_the_daily_total(self):
+        """Catches restarting the app erasing the hourly comparison data."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            settings_path = Path(temp_dir, "settings.json")
+            settings_path.write_text(json.dumps({"storeA": "A"}), encoding="utf-8")
+            app = types.SimpleNamespace(
+                daily_restore_date="2026-09-08",
+                daily_restore_count=212,
+                hourly_restore_stats=HourlyRestoreStats(
+                    "2026-09-08", {"09": 100, "10": 112}
+                ),
+                last_json_mtime=0,
+            )
+
+            with patch.object(BB_RB, "SETTINGS_FP", str(settings_path)):
+                BB_RB.App._save_daily_restore_stats(app)
+
+            saved = json.loads(settings_path.read_text(encoding="utf-8"))
+            self.assertEqual("2026-09-08", saved["hourlyRestoreDate"])
+            self.assertEqual({"09": 100, "10": 112}, saved["hourlyRestoreCounts"])
+
+    def test_counter_labels_show_hour_range_count_rating_and_daily_total(self):
+        """Catches the new hourly evaluation being calculated but not shown to the operator."""
+        class Label:
+            def __init__(self):
+                self.values = {}
+
+            def config(self, **kwargs):
+                self.values.update(kwargs)
+
+        app = types.SimpleNamespace(
+            restore_done_count=8,
+            daily_restore_date="2026-09-08",
+            daily_restore_count=212,
+            hourly_restore_stats=HourlyRestoreStats("2026-09-08", {"10": 110}),
+            lbl_stat_hour_window=Label(),
+            lbl_stat_hour_count=Label(),
+            lbl_stat_hour_rating=Label(),
+            lbl_stat_hour_rating_empty=Label(),
+            lbl_stat_daily_restore=Label(),
+            lbl_stat_daily_restore_value=Label(),
+        )
+
+        with patch.object(BB_RB, "datetime") as clock:
+            clock.now.return_value = datetime(2026, 9, 8, 10, 30)
+            BB_RB.App._update_restore_counter(app)
+
+        self.assertEqual("10:00–10:59", app.lbl_stat_hour_window.values["text"])
+        self.assertEqual("110 máy", app.lbl_stat_hour_count.values["text"])
+        self.assertEqual("★★★★", app.lbl_stat_hour_rating.values["text"])
+        self.assertEqual("☆", app.lbl_stat_hour_rating_empty.values["text"])
+        self.assertEqual("212", app.lbl_stat_daily_restore_value.values["text"])
+
+    def test_reset_confirmation_can_preserve_existing_statistics(self):
+        """Catches an accidental click erasing daily and hourly production immediately."""
+        calls = []
+        app = types.SimpleNamespace(
+            _reset_daily_restore_counter=lambda: calls.append("reset")
+        )
+
+        with patch.object(BB_RB.messagebox, "askyesno", return_value=False):
+            BB_RB.App._confirm_reset_daily_restore_counter(app)
+
+        self.assertEqual([], calls)
+
+    def test_hourly_history_is_available_to_the_operator(self):
+        """Catches retained hourly buckets having no user-visible comparison view."""
+        app = types.SimpleNamespace(
+            hourly_restore_stats=HourlyRestoreStats(
+                "2026-09-08", {"09": 90, "10": 125}
+            )
+        )
+
+        with patch.object(BB_RB.messagebox, "showinfo") as shown:
+            BB_RB.App._show_hourly_restore_history(app)
+
+        message = shown.call_args.args[1]
+        self.assertIn("09:00–09:59  •  90 máy  •  ĐẠT", message)
+        self.assertIn("10:00–10:59  •  125 máy  •  XUẤT SẮC", message)
+        self.assertIn("★☆☆☆☆  Dưới 90 máy/giờ  •  Chưa đạt", message)
+        self.assertIn("★★☆☆☆  90–99 máy/giờ  •  Đạt", message)
+        self.assertIn("★★★★★  120–124: Rất tốt  •  Từ 125: Xuất sắc", message)
 
 
 class PipelineTruthTests(unittest.TestCase):

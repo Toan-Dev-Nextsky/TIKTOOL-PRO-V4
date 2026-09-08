@@ -4,6 +4,7 @@ import plistlib
 import sys
 import tempfile
 import unittest
+from datetime import datetime
 from pathlib import Path
 
 
@@ -14,15 +15,20 @@ if str(PROJECT_ROOT) not in sys.path:
 from tiktool_core import (  # noqa: E402
     OperationRegistry,
     ProcessRunner,
+    HourlyRestoreStats,
     backup_fingerprint,
     check_license_file,
     cleanup_owned_job,
     load_concurrency,
+    format_hourly_restore_history,
+    hour_window,
     make_license_key,
     normalize_url,
     prepare_restore_in_place,
     repair_ipas_path,
     redact_log,
+    restore_performance_rating,
+    restore_star_rating,
     rollback_restore_info,
     transfer_backup_immutable,
     validate_license_key,
@@ -185,6 +191,78 @@ class RegistryConfigTests(unittest.TestCase):
             self.assertEqual(32, load_concurrency(str(config)))
             config.write_text(json.dumps({"threads": 0}), encoding="utf-8")
             self.assertEqual(1, load_concurrency(str(config)))
+
+
+class HourlyRestoreStatsTests(unittest.TestCase):
+    def test_rating_uses_the_approved_hourly_thresholds(self):
+        """Catches boundary mistakes that assign a production count to the wrong tier."""
+        cases = (
+            (0, "Chưa đạt"),
+            (89, "Chưa đạt"),
+            (90, "Đạt"),
+            (99, "Đạt"),
+            (100, "Khá"),
+            (109, "Khá"),
+            (110, "Tốt"),
+            (119, "Tốt"),
+            (120, "Rất tốt"),
+            (124, "Rất tốt"),
+            (125, "Xuất sắc"),
+            (200, "Xuất sắc"),
+        )
+
+        for count, expected in cases:
+            with self.subTest(count=count):
+                self.assertEqual(expected, restore_performance_rating(count))
+
+    def test_star_rating_replaces_pressure_labels_with_one_to_five_stars(self):
+        """Catches the compact UI showing a harsh text label or the wrong star tier."""
+        cases = (
+            (0, "★☆☆☆☆"),
+            (89, "★☆☆☆☆"),
+            (90, "★★☆☆☆"),
+            (99, "★★☆☆☆"),
+            (100, "★★★☆☆"),
+            (109, "★★★☆☆"),
+            (110, "★★★★☆"),
+            (119, "★★★★☆"),
+            (120, "★★★★★"),
+            (125, "★★★★★"),
+        )
+
+        for count, expected in cases:
+            with self.subTest(count=count):
+                self.assertEqual(expected, restore_star_rating(count))
+
+    def test_records_restore_in_fixed_clock_hour_buckets(self):
+        """Catches rolling-window logic or an hour change overwriting the previous hour."""
+        stats = HourlyRestoreStats("2026-09-08", {})
+
+        self.assertEqual(1, stats.record(datetime(2026, 9, 8, 10, 59, 59)))
+        self.assertEqual(2, stats.record(datetime(2026, 9, 8, 10, 59, 59)))
+        self.assertEqual(1, stats.record(datetime(2026, 9, 8, 11, 0, 0)))
+
+        self.assertEqual({"10": 2, "11": 1}, stats.snapshot())
+        self.assertEqual(("11", "11:00–11:59"), hour_window(datetime(2026, 9, 8, 11, 0)))
+
+    def test_previous_day_hourly_counts_are_discarded(self):
+        """Catches yesterday's hourly production leaking into today's evaluation."""
+        stats = HourlyRestoreStats("2026-09-07", {"23": 125})
+
+        self.assertEqual(0, stats.current_count(datetime(2026, 9, 8, 0, 5)))
+        self.assertEqual({}, stats.snapshot())
+        self.assertEqual("2026-09-08", stats.date)
+
+    def test_history_lists_completed_hour_buckets_in_time_order(self):
+        """Catches saved hourly results being inaccessible or sorted lexicographically wrong."""
+        history = format_hourly_restore_history({"14": 125, "09": 90, "10": 100})
+
+        self.assertEqual(
+            "09:00–09:59  •  90 máy  •  ĐẠT\n"
+            "10:00–10:59  •  100 máy  •  KHÁ\n"
+            "14:00–14:59  •  125 máy  •  XUẤT SẮC",
+            history,
+        )
 
 
 class SettingsLicenseTests(unittest.TestCase):

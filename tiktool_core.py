@@ -268,6 +268,101 @@ class RebootTracker:
             self._deadlines.pop(udid, None)
 
 
+def hour_window(now: datetime) -> tuple[str, str]:
+    """Return the fixed clock-hour key and its user-facing time range."""
+    hour = now.strftime("%H")
+    return hour, f"{hour}:00–{hour}:59"
+
+
+def restore_performance_rating(count: int) -> str:
+    """Classify completed restores using the approved per-hour thresholds."""
+    value = max(0, int(count))
+    if value >= 125:
+        return "Xuất sắc"
+    if value >= 120:
+        return "Rất tốt"
+    if value >= 110:
+        return "Tốt"
+    if value >= 100:
+        return "Khá"
+    if value >= 90:
+        return "Đạt"
+    return "Chưa đạt"
+
+
+def restore_star_rating(count: int) -> str:
+    """Return a friendly one-to-five-star hourly production rating."""
+    value = max(0, int(count))
+    if value >= 120:
+        stars = 5
+    elif value >= 110:
+        stars = 4
+    elif value >= 100:
+        stars = 3
+    elif value >= 90:
+        stars = 2
+    else:
+        stars = 1
+    return "★" * stars + "☆" * (5 - stars)
+
+
+def format_hourly_restore_history(counts: dict[str, int]) -> str:
+    """Format saved hourly production as a compact, chronological summary."""
+    rows = []
+    for hour in sorted(counts, key=lambda value: int(value)):
+        count = max(0, int(counts[hour]))
+        rows.append(
+            f"{int(hour):02d}:00–{int(hour):02d}:59  •  {count} máy  •  "
+            f"{restore_performance_rating(count).upper()}"
+        )
+    return "\n".join(rows)
+
+
+@dataclass
+class HourlyRestoreStats:
+    """Track successful restores in fixed clock-hour buckets for one day."""
+
+    date: str
+    counts: dict[str, int]
+
+    def __post_init__(self) -> None:
+        cleaned = {}
+        if isinstance(self.counts, dict):
+            for key, value in self.counts.items():
+                hour = str(key).zfill(2)
+                if hour not in {f"{item:02d}" for item in range(24)}:
+                    continue
+                try:
+                    cleaned[hour] = max(0, int(value))
+                except (TypeError, ValueError):
+                    continue
+        self.counts = cleaned
+
+    def _ensure_day(self, now: datetime) -> None:
+        today = now.strftime("%Y-%m-%d")
+        if self.date != today:
+            self.date = today
+            self.counts.clear()
+
+    def record(self, now: datetime) -> int:
+        self._ensure_day(now)
+        hour, _ = hour_window(now)
+        self.counts[hour] = self.counts.get(hour, 0) + 1
+        return self.counts[hour]
+
+    def current_count(self, now: datetime) -> int:
+        self._ensure_day(now)
+        hour, _ = hour_window(now)
+        return self.counts.get(hour, 0)
+
+    def reset(self, now: datetime) -> None:
+        self.date = now.strftime("%Y-%m-%d")
+        self.counts.clear()
+
+    def snapshot(self) -> dict[str, int]:
+        return dict(self.counts)
+
+
 @dataclass(frozen=True)
 class BackupJob:
     job_root: str
