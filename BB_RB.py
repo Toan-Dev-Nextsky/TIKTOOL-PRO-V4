@@ -163,6 +163,44 @@ DEFAULT_SETTINGS = {
 def _ts(): return datetime.now().strftime("%H:%M:%S")
 
 
+def performance_card_theme():
+    """Visual tokens extracted from the approved Hiệu suất widget design."""
+    return {
+        "surface": "#0F172A",
+        "cyan": "#38BDF8",
+        "amber": "#FACC15",
+        "time_badge": "#083344",
+        "divider": "#1E293B",
+        "muted": "#94A3B8",
+    }
+
+
+def performance_star_glow_profile(stars, tick=0):
+    """Return the animated visual treatment for the hourly performance stars."""
+    stars = max(0, min(5, int(stars)))
+    pulse = tick % 2
+    if stars >= 5:
+        return {
+            "mode": "sparkle",
+            "star_color": "#FFF7C2" if pulse else "#FDE68A",
+            "halo_color": performance_card_theme()["surface"],
+            "border_width": 0,
+        }
+    if stars == 4:
+        return {
+            "mode": "glow",
+            "star_color": "#FDE68A" if pulse else "#FACC15",
+            "halo_color": performance_card_theme()["surface"],
+            "border_width": 0,
+        }
+    return {
+        "mode": "plain",
+        "star_color": "#FACC15",
+        "halo_color": performance_card_theme()["surface"],
+        "border_width": 0,
+    }
+
+
 def configure_canvas_scroller(host, canvas, scrollbar, content):
     """Place a vertical scrollbar beside a canvas and keep its content full width."""
     host.columnconfigure(0, weight=1)
@@ -1360,53 +1398,75 @@ class App(tk.Tk):
         btn_reset_cnt.pack(side="left", padx=(3, 2), ipady=1, ipadx=4)
 
         # Cụm đánh giá sản lượng theo khung giờ cố định và tổng trong ngày
+        perf_theme = performance_card_theme()
         daily_stat_bar = tk.Frame(dev_title_bar, bg=COLOR_BG_DARK)
-        daily_stat_bar.pack(side="left", padx=8, pady=1)
+        daily_stat_bar.pack(side="left", padx=4, pady=1)
 
         card_daily = tk.Frame(
             daily_stat_bar,
-            bg=COLOR_PANEL_BG,
-            highlightbackground=COLOR_CYAN_MAIN,
+            bg=perf_theme["surface"],
+            highlightbackground="#0E7490",
             highlightthickness=1,
         )
         card_daily.pack(padx=2, pady=1)
+        card_daily.bind("<Enter>", lambda _e: card_daily.config(highlightbackground=perf_theme["cyan"]))
+        card_daily.bind("<Leave>", lambda _e: card_daily.config(highlightbackground="#0E7490"))
 
-        hourly_row = tk.Frame(card_daily, bg=COLOR_PANEL_BG)
-        hourly_row.pack(fill="x", padx=(8, 4), pady=(3, 0))
+        hourly_row = tk.Frame(card_daily, bg=perf_theme["surface"])
+        hourly_row.pack(fill="x", padx=(7, 6), pady=(3, 1))
+
+        self.perf_dot = tk.Canvas(
+            hourly_row,
+            width=5,
+            height=5,
+            bg=perf_theme["surface"],
+            highlightthickness=0,
+            bd=0,
+        )
+        self.perf_dot.create_oval(0, 0, 5, 5, fill=perf_theme["cyan"], outline="")
+        self.perf_dot.pack(side="left", padx=(0, 3))
 
         tk.Label(
             hourly_row,
             text="HIỆU SUẤT",
             font=("Segoe UI", 7, "bold"),
-            fg=COLOR_TEXT_MUTED,
-            bg=COLOR_PANEL_BG,
-        ).pack(side="left", padx=(0, 5))
+            fg="#94A3B8",
+            bg=perf_theme["surface"],
+        ).pack(side="left", padx=(0, 4))
         self.lbl_stat_hour_window = tk.Label(
             hourly_row,
             text="00:00–00:59",
             font=("Consolas", 8, "bold"),
-            fg=COLOR_CYAN_ACCENT,
-            bg=COLOR_PANEL_BG,
+            fg=perf_theme["cyan"],
+            bg=perf_theme["surface"],
+            padx=0,
+            pady=0,
         )
-        self.lbl_stat_hour_window.pack(side="left", padx=(0, 7))
+        self.lbl_stat_hour_window.pack(side="left", padx=(0, 6))
         self.lbl_stat_hour_count = tk.Label(
             hourly_row,
             text="0 máy",
-            font=("Segoe UI", 10, "bold"),
+            font=("Consolas", 9, "bold"),
             fg=COLOR_TEXT_WHITE,
-            bg=COLOR_PANEL_BG,
+            bg=perf_theme["surface"],
         )
         self.lbl_stat_hour_count.pack(side="left", padx=(0, 4))
-        rating_box = tk.Frame(hourly_row, bg=COLOR_SUB_BG)
-        rating_box.pack(side="left", padx=(0, 4))
+        self.rating_box = tk.Frame(
+            hourly_row,
+            bg=perf_theme["surface"],
+            highlightthickness=0,
+            bd=0,
+        )
+        rating_box = self.rating_box
+        rating_box.pack(side="left", padx=(0, 2))
         self.lbl_stat_hour_rating = tk.Label(
             rating_box,
             text="★",
             font=("Segoe UI Symbol", 11, "bold"),
-            fg="#FACC15",
-            bg=COLOR_SUB_BG,
+            fg=perf_theme["amber"],
+            bg=perf_theme["surface"],
             padx=0,
-            pady=1,
+            pady=0,
         )
         self.lbl_stat_hour_rating.pack(side="left")
         self.lbl_stat_hour_rating_empty = tk.Label(
@@ -1414,69 +1474,84 @@ class App(tk.Tk):
             text="☆☆☆☆",
             font=("Segoe UI Symbol", 11, "bold"),
             fg="#64748B",
-            bg=COLOR_SUB_BG,
+            bg=perf_theme["surface"],
             padx=0,
-            pady=1,
+            pady=0,
         )
         self.lbl_stat_hour_rating_empty.pack(side="left")
 
-        daily_row = tk.Frame(card_daily, bg=COLOR_PANEL_BG)
-        daily_row.pack(fill="x", padx=(8, 3), pady=(0, 3))
+        daily_row = tk.Frame(card_daily, bg=perf_theme["surface"])
+        daily_row.pack(fill="x", padx=(7, 6), pady=(1, 3))
         self.lbl_stat_daily_restore = tk.Label(
             daily_row,
             text="Tổng hôm nay:",
             font=("Segoe UI", 8, "bold"),
-            fg=COLOR_TEXT_MUTED,
-            bg=COLOR_PANEL_BG,
+            fg="#CBD5E1",
+            bg=perf_theme["surface"],
         )
-        self.lbl_stat_daily_restore.pack(side="left", padx=(0, 4))
+        self.lbl_stat_daily_restore.pack(side="left", padx=(0, 3))
 
         daily_value_box = tk.Frame(
             daily_row,
-            bg=COLOR_SUB_BG,
-            highlightbackground="#FACC15",
+            bg="#2C2508",
+            highlightbackground=perf_theme["amber"],
             highlightthickness=1,
         )
-        daily_value_box.pack(side="left", padx=(0, 7))
+        daily_value_box.pack(side="left", padx=(0, 6))
         self.lbl_stat_daily_restore_value = tk.Label(
             daily_value_box,
             text=str(self.daily_restore_count),
             font=("Segoe UI", 14, "bold"),
-            fg="#FACC15",
-            bg=COLOR_SUB_BG,
+            fg=perf_theme["amber"],
+            bg="#2C2508",
+            padx=4,
+            pady=0,
         )
-        self.lbl_stat_daily_restore_value.pack(padx=5, pady=0)
+        self.lbl_stat_daily_restore_value.pack()
 
-        tk.Button(
+        def _on_val_box_enter(_e):
+            daily_value_box.config(highlightbackground="#FDE047")
+        def _on_val_box_leave(_e):
+            daily_value_box.config(highlightbackground=perf_theme["amber"])
+        daily_value_box.bind("<Enter>", _on_val_box_enter)
+        daily_value_box.bind("<Leave>", _on_val_box_leave)
+        self.lbl_stat_daily_restore_value.bind("<Enter>", _on_val_box_enter)
+        self.lbl_stat_daily_restore_value.bind("<Leave>", _on_val_box_leave)
+
+        btn_history = tk.Button(
             daily_row,
             text="Chi tiết",
-            font=("Segoe UI", 7, "bold"),
-            fg=COLOR_CYAN_ACCENT,
-            bg=COLOR_BTN_ELEVATED,
-            activebackground=COLOR_WHITE_BORDER,
-            activeforeground=COLOR_TEXT_WHITE,
+            font=("Segoe UI", 8, "bold"),
+            fg=perf_theme["cyan"],
+            bg=perf_theme["surface"],
+            activebackground=perf_theme["surface"],
+            activeforeground="#7DD3FC",
             relief="flat",
             bd=0,
             cursor="hand2",
             command=self._show_hourly_restore_history,
-        ).pack(side="left", padx=(0, 3), ipadx=3)
+        )
+        btn_history.pack(side="left", padx=(0, 3), ipadx=2)
+        btn_history.bind("<Enter>", lambda _e: btn_history.config(fg="#7DD3FC"))
+        btn_history.bind("<Leave>", lambda _e: btn_history.config(fg=perf_theme["cyan"]))
 
         btn_reset_daily = tk.Button(
             daily_row,
             text=Icons.REFRESH,
             font=(FONT_MDL2, 8),
-            fg=COLOR_TEXT_MUTED,
-            bg=COLOR_BTN_ELEVATED,
-            activebackground=COLOR_WHITE_BORDER,
+            fg=perf_theme["muted"],
+            bg=perf_theme["surface"],
+            activebackground=perf_theme["surface"],
             activeforeground=COLOR_TEXT_WHITE,
             relief="flat",
             bd=0,
             cursor="hand2",
-            highlightbackground=COLOR_BORDER_LIGHT,
-            highlightthickness=1,
+            highlightthickness=0,
             command=self._confirm_reset_daily_restore_counter
         )
-        btn_reset_daily.pack(side="left", padx=(0, 1), ipadx=3)
+        btn_reset_daily.pack(side="left", padx=(0, 1), ipadx=2)
+        btn_reset_daily.bind("<Enter>", lambda _e: btn_reset_daily.config(fg="#38BDF8"))
+        btn_reset_daily.bind("<Leave>", lambda _e: btn_reset_daily.config(fg=perf_theme["muted"]))
 
         self.astro_bot = AstroBotCompanion(dev_title_bar)
         self.astro_bot.pack(side="left", fill="x", expand=True, padx=12)
@@ -2306,6 +2381,43 @@ class App(tk.Tk):
         except Exception as e:
             pass
 
+    def _apply_performance_star_style(self, stars):
+        """Paint the rating badge with the current high-performance glow phase."""
+        profile = performance_star_glow_profile(
+            stars, getattr(self, "_performance_glow_tick", 0)
+        )
+        if hasattr(self, "lbl_stat_hour_rating"):
+            self.lbl_stat_hour_rating.config(
+                fg=profile["star_color"], bg=profile["halo_color"]
+            )
+        if hasattr(self, "lbl_stat_hour_rating_empty"):
+            self.lbl_stat_hour_rating_empty.config(bg=profile["halo_color"])
+        if hasattr(self, "rating_box"):
+            self.rating_box.config(
+                bg=profile["halo_color"],
+                highlightthickness=profile["border_width"],
+            )
+
+    def _animate_performance_star_glow(self):
+        """Keep the halo moving gently while the application is open."""
+        self._performance_glow_tick = getattr(self, "_performance_glow_tick", 0) + 1
+        if hasattr(self, "_apply_performance_star_style"):
+            self._apply_performance_star_style(
+                getattr(self, "_performance_star_count", 0)
+            )
+        if hasattr(self, "perf_dot") and self.perf_dot:
+            pulse = self._performance_glow_tick % 2
+            dot_color = "#38BDF8" if pulse else "#0284C7"
+            try:
+                self.perf_dot.delete("all")
+                self.perf_dot.create_oval(0, 0, 5, 5, fill=dot_color, outline="")
+            except Exception:
+                pass
+        if hasattr(self, "after"):
+            cb = getattr(self, "_animate_performance_star_glow", None)
+            if cb:
+                self.after(850, cb)
+
     def _update_restore_counter(self):
         now = datetime.now()
         today = now.strftime("%Y-%m-%d")
@@ -2334,6 +2446,11 @@ class App(tk.Tk):
             self.lbl_stat_hour_rating.config(text=filled or "")
             if hasattr(self, "lbl_stat_hour_rating_empty"):
                 self.lbl_stat_hour_rating_empty.config(text=(separator + empty) if separator else "")
+            self._performance_star_count = len(filled)
+            App._apply_performance_star_style(self, self._performance_star_count)
+            if hasattr(self, "after") and not getattr(self, "_performance_glow_started", False):
+                self._performance_glow_started = True
+                self.after(850, self._animate_performance_star_glow)
 
     def _on_canvas_configure(self, event):
         self.dev_canvas.itemconfig(self.dev_canvas_window, width=event.width)

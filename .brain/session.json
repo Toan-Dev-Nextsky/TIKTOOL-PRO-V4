@@ -1,28 +1,20 @@
 {
-  "updated_at": "2026-09-06T10:00:00+07:00",
+  "updated_at": "2026-09-09T10:55:00+07:00",
   "working_on": {
-    "feature": "Astro Bot Companion",
-    "task": "Tạo linh vật Astro Bot hoạt hình phản ánh trạng thái công việc và truyền cảm hứng vận hành",
+    "feature": "Modern Animated Performance Widget Redesign",
+    "task": "Tối ưu hóa gọn nhẹ: loại bỏ toàn bộ border và padding thừa để tiết kiệm không gian tối đa",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "tests/test_app_workflows.py",
-      "CHANGELOG.md",
-      "README.md",
-      "docs/architecture/system_overview.md"
+      "tests/test_app_workflows.py"
     ],
-    "notes": "AstroBotCompanion được vẽ vector thuần Tkinter, hoạt hình lơ lửng 12 FPS, chớp mắt, LED đổi màu, 8 trạng thái theo workflow, bong bóng thoại có số máy/tiến độ, click poke đổi lời động viên. Trạng thái Activate có tia lửa điện tag spark theo chu kỳ tick. Worker cập nhật an toàn qua UI queue. 37/37 unit test và kiểm tra render 8 trạng thái đạt."
+    "notes": "Đã giữ lại viền ngoài cyan #0E7490 cho card_daily để tách nền, và thêm lại khung viền vàng hổ phách #FACC15 tinh tế cho số sản lượng tổng hôm nay (kèm hover glow). 54/54 tests PASS."
   },
   "pending_tasks": [
     {
-      "task": "Kiểm chứng Auto Activate và Restore tức thì trên dàn 10-16 iPhone thực tế",
-      "priority": "high",
-      "notes": "Xác nhận các máy nạp ngay lập tức không bị delay, và Auto Activate thành công thật sự trên màn hình iPhone."
-    },
-    {
-      "task": "Theo dõi người dùng trải nghiệm thực tế với dàn iPhone thực tế trên nền giao diện Soft Dark, Gradient Buttons và Store Boxes mới",
+      "task": "Theo dõi người dùng trải nghiệm thực tế với widget Hiệu suất mới",
       "priority": "medium",
-      "notes": "Kiểm tra độ mượt mà, phản hồi thị giác các trạng thái thẻ và tốc độ restore trên dàn thiết bị lớn."
+      "notes": "Kiểm tra độ phản hồi thị giác và sự mượt mà trên dàn máy thật."
     },
     {
       "task": "Đóng gói PyInstaller xuất bản file exe mới nếu cần thiết",
@@ -31,6 +23,12 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-09T10:55:00+07:00",
+      "type": "performance_widget_animated_redesign",
+      "description": "Tích hợp hoàn thiện bản thiết kế stitch_modern_animated_redesign: thẻ Navy #0F172A, viền #0E7490 hover cyan, live pulse dot breathing indicator, star sparkle/glow, hộp số vàng hover glow, nút Chi tiết và nút Refresh có visual hover states. 54/54 unit tests đạt.",
+      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
+    },
     {
       "timestamp": "2026-09-06T10:00:00+07:00",
       "type": "astro_bot_companion",

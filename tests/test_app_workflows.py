@@ -220,6 +220,81 @@ class RebootTests(unittest.TestCase):
 
 
 class HourlyRestoreUiTests(unittest.TestCase):
+    def test_performance_card_theme_matches_the_approved_navy_cyan_design(self):
+        """Catches the refreshed performance widget drifting back to the old gray styling."""
+        theme = BB_RB.performance_card_theme()
+
+        self.assertEqual("#0F172A", theme["surface"])
+        self.assertEqual("#38BDF8", theme["cyan"])
+        self.assertEqual("#FACC15", theme["amber"])
+        self.assertEqual("#083344", theme["time_badge"])
+
+    def test_device_cards_keep_the_standard_square_frame_style(self):
+        """Catches a rounded-corner wrapper being left on the device cards."""
+        self.assertIs(BB_RB.tk.Frame, BB_RB.DeviceCard.__bases__[0])
+
+    def test_high_performance_star_profiles_keep_the_badge_background_transparent(self):
+        """Catches sparkle styling reintroducing a coloured panel or border behind the stars."""
+        four_star = BB_RB.performance_star_glow_profile(4, tick=0)
+        five_star = BB_RB.performance_star_glow_profile(5, tick=0)
+
+        self.assertEqual("glow", four_star["mode"])
+        self.assertEqual("sparkle", five_star["mode"])
+        self.assertNotEqual(four_star["star_color"], five_star["star_color"])
+        self.assertEqual(BB_RB.performance_card_theme()["surface"], four_star["halo_color"])
+        self.assertEqual(BB_RB.performance_card_theme()["surface"], five_star["halo_color"])
+        self.assertEqual(0, four_star["border_width"])
+        self.assertEqual(0, five_star["border_width"])
+
+    def test_five_star_rating_applies_sparkle_without_a_badge_panel(self):
+        """Catches five-star sparkle bringing back a background or outline around the stars."""
+        class Widget:
+            def __init__(self):
+                self.values = {}
+
+            def config(self, **kwargs):
+                self.values.update(kwargs)
+
+        app = types.SimpleNamespace(
+            lbl_stat_hour_rating=Widget(),
+            rating_box=Widget(),
+            _performance_glow_tick=0,
+        )
+
+        BB_RB.App._apply_performance_star_style(app, 5)
+
+        self.assertEqual("#FDE68A", app.lbl_stat_hour_rating.values["fg"])
+        self.assertEqual(BB_RB.performance_card_theme()["surface"], app.rating_box.values["bg"])
+        self.assertEqual(0, app.rating_box.values["highlightthickness"])
+
+    def test_perf_dot_pulses_during_animate_glow(self):
+        """Catches the live performance dot indicator failing to animate."""
+        drawn = []
+        class MockCanvas:
+            def delete(self, tag):
+                pass
+            def create_oval(self, *coords, **kwargs):
+                drawn.append(kwargs)
+
+        scheduled = []
+        app = types.SimpleNamespace(
+            perf_dot=MockCanvas(),
+            lbl_stat_hour_rating=types.SimpleNamespace(config=lambda **kw: None),
+            lbl_stat_hour_rating_empty=types.SimpleNamespace(config=lambda **kw: None),
+            rating_box=types.SimpleNamespace(config=lambda **kw: None),
+            _performance_glow_tick=0,
+            _performance_star_count=5,
+            _animate_performance_star_glow=lambda: None,
+            after=lambda delay, func: scheduled.append((delay, func)),
+        )
+
+        BB_RB.App._animate_performance_star_glow(app)
+
+        self.assertEqual(1, len(drawn))
+        self.assertEqual("#38BDF8", drawn[0]["fill"])
+        self.assertEqual(1, len(scheduled))
+        self.assertEqual(850, scheduled[0][0])
+
     def test_successful_restore_is_recorded_in_the_current_clock_hour(self):
         """Catches successful restores updating only the daily total, not the hourly bucket."""
         app = types.SimpleNamespace(

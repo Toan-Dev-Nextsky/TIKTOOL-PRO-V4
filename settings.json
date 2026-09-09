@@ -1,6 +1,6 @@
 {
-  "storeA": "D:/NICKBIXACMINHNGAM T8 A",
-  "storeB": "D:/NICKBIXACMINHNGAM T8 B",
+  "storeA": "D:/TK 4.8H NGAM DONG40k GB196  7.9 A",
+  "storeB": "D:/TK 4.8H NGAM DONG40k GB196  7.9 B",
   "generalBackupDir": "D:/backups",
   "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
   "removeTikTok": false,
@@ -9,13 +9,17 @@
   "langLocale": "ja_JP|ja",
   "setLangAfterActive": true,
   "autoActivateAfterRestore": true,
-  "active": "B",
-  "customWebclipLink": "",
-  "dailyRestoreDate": "2026-09-08",
-  "dailyRestoreCount": 242,
-  "hourlyRestoreDate": "2026-09-08",
+  "active": "A",
+  "customWebclipLink": "https://linkm.site/",
+  "dailyRestoreDate": "2026-09-09",
+  "dailyRestoreCount": 233,
+  "hourlyRestoreDate": "2026-09-09",
   "hourlyRestoreCounts": {
-    "10": 20
+    "07": 36,
+    "08": 32,
+    "09": 112,
+    "10": 130,
+    "11": 10
   },
   "autoSetLangAfterRestore": true
 }
