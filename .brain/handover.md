@@ -1,9 +1,9 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-09  
-**Phiên bản**: `4.8.8 Modern Animated Performance Widget Edition`  
-**Trạng thái**: Hoàn thiện tích hợp thiết kế Modern Animated Performance Widget (`stitch_modern_animated_redesign`): thẻ Navy `#0F172A`, viền ngoài cyan `#0E7490` (hover `#38BDF8`), đèn live pulse breathing dot 5×5 (850ms), hộp số hôm nay viền vàng hổ phách `#FACC15` 14pt bold (hover `#FDE047`), đánh giá sao sparkle/glow, tối ưu hóa viền và không gian; toàn bộ 54/54 unit tests đạt 100%.
+**Thời gian cập nhật**: 2026-09-10  
+**Phiên bản**: `4.9.0 IPA Installer Edition`  
+**Trạng thái**: Hoàn thiện Tab CÀI IPA HÀNG LOẠT: quét file .ipa tự động, checkbox chọn lọc từng file, gỡ app cũ trước khi cài, cài song song toàn dàn; 54/54 unit tests PASS.
 
 ---
 

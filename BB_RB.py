@@ -512,6 +512,16 @@ def uninstall_app_any(udid, bundle_ids, label_name, card, log_fn):
     if card: card.push_step(f"Gỡ {label_name} {'thành công' if ok else 'bỏ qua'}")
     return ok
 
+def install_ipa(udid, ipa_path, label_name, card, log_fn):
+    """Cài file .ipa vào thiết bị qua ideviceinstaller."""
+    if card: card.push_step(f"Cài {label_name}...")
+    cmd = ["ideviceinstaller", "-u", udid, "install", ipa_path]
+    rc, _ = run_stream(cmd, on_line=lambda s, is_err=False: log_fn(s, is_err=is_err))
+    ok = (rc == 0)
+    if card: card.push_step(f"Cài {label_name} {'thành công ✓' if ok else 'thất bại ✗'}")
+    return ok
+
+
 # ================== THANH TIẾN TRÌNH GRADIENT HIỆN ĐẠI ==================
 class GradientProgressBar(tk.Canvas):
     def __init__(self, master, height=8, trough_color=COLOR_INNER_DARK,
@@ -1341,7 +1351,10 @@ class App(tk.Tk):
         self.btn_tab_restore.pack(side="left", padx=(0, 3), ipady=3, expand=True, fill="x")
 
         self.btn_tab_backup = tk.Button(self.frame_tab_control, text=f"{Icons.SAVE}  SAO LƯU (BACKUP)", font=("Segoe UI", 9, "bold"), bg=COLOR_DISABLED, fg=COLOR_TEXT_MUTED, relief="flat", bd=0, command=self._switch_to_backup, cursor="hand2")
-        self.btn_tab_backup.pack(side="left", ipady=3, expand=True, fill="x")
+        self.btn_tab_backup.pack(side="left", padx=(0, 3), ipady=3, expand=True, fill="x")
+
+        self.btn_tab_ipa = tk.Button(self.frame_tab_control, text=f"{Icons.PACKAGE}  CÀI IPA", font=("Segoe UI", 9, "bold"), bg=COLOR_DISABLED, fg=COLOR_TEXT_MUTED, relief="flat", bd=0, command=self._switch_to_ipa, cursor="hand2")
+        self.btn_tab_ipa.pack(side="left", ipady=3, expand=True, fill="x")
 
         # Nội dung panel bên trong
         self.panel_content = tk.Frame(self.frame_tab_section, bg=COLOR_KHO_BG)
@@ -1349,9 +1362,11 @@ class App(tk.Tk):
 
         self.frame_restore_panel = tk.Frame(self.panel_content, bg=COLOR_KHO_BG)
         self.frame_backup_panel = tk.Frame(self.panel_content, bg=COLOR_KHO_BG)
+        self.frame_ipa_panel = tk.Frame(self.panel_content, bg=COLOR_KHO_BG)
 
         self._setup_restore_panel()
         self._setup_backup_panel()
+        self._setup_ipa_panel()
         self._switch_to_restore()
 
         # 3. CONTAINER GIỮA (LƯỚI THIẾT BỊ KẾT NỐI / BẢNG PHÂN BỔ)
@@ -2609,6 +2624,159 @@ class App(tk.Tk):
         # Quét số lượng backup ban đầu
         self.after(500, self._on_store_switch)
 
+    # ---------------- BẢNG CÀI IPA ----------------
+    def _setup_ipa_panel(self):
+        f = self.frame_ipa_panel
+        f.columnconfigure(0, weight=1)
+
+        # --- Hàng 1: Đường dẫn thư mục IPA ---
+        row_dir = tk.Frame(f, bg=COLOR_KHO_BG)
+        row_dir.pack(fill="x", padx=2, pady=(3, 1))
+        row_dir.columnconfigure(1, weight=1)
+
+        tk.Label(row_dir, text=f"{Icons.FOLDER} THƯ MỤC IPA:", font=("Segoe UI", 8, "bold"),
+                 fg=COLOR_TEXT_MUTED, bg=COLOR_KHO_BG).grid(row=0, column=0, sticky="w", padx=(2, 4))
+
+        self.lbl_ipa_dir = tk.Label(row_dir, text=IPAS_DIR,
+                                    font=("Segoe UI", 8), fg="#000000", bg="#FFFFFF",
+                                    anchor="w", cursor="hand2", relief="flat")
+        self.lbl_ipa_dir.grid(row=0, column=1, sticky="ew", padx=(0, 4))
+        self.lbl_ipa_dir.bind("<Button-1>", lambda e: self._browse_ipa_dir())
+
+        btn_browse_ipa = tk.Button(row_dir, text="Chọn",
+                                   font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_WHITE,
+                                   bg=COLOR_BTN_ELEVATED, activebackground=COLOR_BORDER_MD,
+                                   relief="flat", bd=0, cursor="hand2",
+                                   command=self._browse_ipa_dir)
+        btn_browse_ipa.grid(row=0, column=2, padx=(0, 2))
+
+        btn_refresh_ipa = tk.Button(row_dir, text=f"{Icons.REFRESH}",
+                                    font=(FONT_MDL2, 9), fg=COLOR_CYAN_ACCENT,
+                                    bg=COLOR_KHO_BG, activebackground=COLOR_KHO_BG,
+                                    relief="flat", bd=0, cursor="hand2",
+                                    command=self._refresh_ipa_list)
+        btn_refresh_ipa.grid(row=0, column=3, padx=(0, 4))
+
+        # --- Hàng 2: Danh sách file IPA ---
+        row_list = tk.Frame(f, bg=COLOR_KHO_BG)
+        row_list.pack(fill="x", padx=2, pady=(1, 0))
+
+        self._ipa_vars = {}      # {filename: BooleanVar}
+        self._ipa_frame_list = tk.Frame(row_list, bg=COLOR_KHO_INNER,
+                                        highlightbackground=COLOR_BORDER_LIGHT,
+                                        highlightthickness=1)
+        self._ipa_frame_list.pack(fill="x", pady=(0, 2))
+
+        # placeholder — được thay thế bởi _refresh_ipa_list()
+        self._ipa_no_file_lbl = tk.Label(self._ipa_frame_list,
+                                          text="  Chưa có file .ipa trong thư mục. Thêm file rồi bấm 🔄",
+                                          font=("Segoe UI", 8, "italic"), fg=COLOR_TEXT_DIM,
+                                          bg=COLOR_KHO_INNER, anchor="w")
+        self._ipa_no_file_lbl.pack(fill="x", padx=4, pady=4)
+
+        # --- Hàng 3: Tùy chọn ---
+        row_opts = tk.Frame(f, bg=COLOR_KHO_BG)
+        row_opts.pack(fill="x", padx=2, pady=(0, 1))
+
+        self.var_ipa_uninstall_first = tk.BooleanVar(value=True)
+        chk_uninst = tk.Checkbutton(
+            row_opts,
+            text="Gỡ app cũ trước khi cài",
+            font=("Segoe UI", 8, "bold"),
+            fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_BG,
+            selectcolor=COLOR_KHO_INNER,
+            activebackground=COLOR_KHO_BG, activeforeground=COLOR_TEXT_WHITE,
+            variable=self.var_ipa_uninstall_first
+        )
+        chk_uninst.pack(side="left", padx=6)
+
+        # --- Hàng 4: Nút cài (hàng riêng fill="x") ---
+        self.btn_install_ipa = GradientButton(
+            f,
+            text=f"{Icons.PACKAGE}  CÀI IPA HÀNG LOẠT (ALL)",
+            height=38,
+            radius=6,
+            stops=[(0.0, "#6D28D9"), (0.5, "#7C3AED"), (1.0, "#5B21B6")],
+            hover_stops=[(0.0, "#7C3AED"), (0.5, "#8B5CF6"), (1.0, "#6D28D9")],
+            border_color="#A78BFA",
+            font=("Segoe UI", 10, "bold"),
+            command=self.start_install_ipa_all
+        )
+        self.btn_install_ipa.pack(fill="x", padx=2, pady=(1, 2))
+
+    def _browse_ipa_dir(self):
+        p = filedialog.askdirectory(initialdir=self.lbl_ipa_dir.cget("text") or IPAS_DIR)
+        if p:
+            self.lbl_ipa_dir.config(text=p)
+            self._refresh_ipa_list()
+
+    def _refresh_ipa_list(self):
+        """Quét thư mục IPA và rebuild danh sách checkbox."""
+        ipa_dir = self.lbl_ipa_dir.cget("text").strip()
+        for w in self._ipa_frame_list.winfo_children():
+            w.destroy()
+        self._ipa_vars.clear()
+
+        try:
+            files = sorted(
+                [fn for fn in os.listdir(ipa_dir) if fn.lower().endswith(".ipa")]
+            )
+        except Exception:
+            files = []
+
+        if not files:
+            lbl = tk.Label(self._ipa_frame_list,
+                           text="  Chưa có file .ipa trong thư mục. Thêm file rồi bấm 🔄",
+                           font=("Segoe UI", 8, "italic"), fg=COLOR_TEXT_DIM,
+                           bg=COLOR_KHO_INNER, anchor="w")
+            lbl.pack(fill="x", padx=4, pady=4)
+            return
+
+        # Header select-all
+        hdr = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
+        hdr.pack(fill="x", padx=2, pady=(2, 0))
+        self._var_ipa_all = tk.BooleanVar(value=True)
+
+        def _toggle_all():
+            v = self._var_ipa_all.get()
+            for bv in self._ipa_vars.values():
+                bv.set(v)
+
+        tk.Checkbutton(hdr, text="Chọn tất cả", font=("Segoe UI", 8, "bold"),
+                       fg=COLOR_TEXT_WHITE, bg=COLOR_KHO_INNER,
+                       selectcolor=COLOR_BTN_ELEVATED,
+                       activebackground=COLOR_KHO_INNER, activeforeground=COLOR_TEXT_WHITE,
+                       variable=self._var_ipa_all, command=_toggle_all).pack(side="left", padx=4)
+
+        sep = tk.Frame(self._ipa_frame_list, bg=COLOR_BORDER_LIGHT, height=1)
+        sep.pack(fill="x", padx=4, pady=(2, 0))
+
+        for fn in files:
+            full_path = os.path.join(ipa_dir, fn)
+            size_mb = os.path.getsize(full_path) / (1024 * 1024)
+            bv = tk.BooleanVar(value=True)
+            self._ipa_vars[fn] = bv
+
+            row = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
+            row.pack(fill="x", padx=2, pady=1)
+
+            tk.Checkbutton(row, variable=bv,
+                           bg=COLOR_KHO_INNER, selectcolor=COLOR_BTN_ELEVATED,
+                           activebackground=COLOR_KHO_INNER,
+                           relief="flat", bd=0).pack(side="left", padx=(4, 0))
+
+            tk.Label(row, text=f"{Icons.PACKAGE}", font=(FONT_MDL2, 9),
+                     fg="#A78BFA", bg=COLOR_KHO_INNER).pack(side="left", padx=(2, 4))
+
+            name_short = fn if len(fn) <= 60 else fn[:57] + "..."
+            tk.Label(row, text=name_short, font=("Segoe UI", 8),
+                     fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_INNER,
+                     anchor="w").pack(side="left", fill="x", expand=True)
+
+            tk.Label(row, text=f"{size_mb:.1f} MB",
+                     font=("Segoe UI", 8), fg=COLOR_TEXT_MUTED,
+                     bg=COLOR_KHO_INNER).pack(side="right", padx=8)
+
     # ---------------- BẢNG CẤU HÌNH BACKUP ----------------
     def _setup_backup_panel(self):
         f = self.frame_backup_panel
@@ -2683,17 +2851,32 @@ class App(tk.Tk):
         self.current_mode = "RESTORE"
         self.btn_tab_restore.config(bg=COLOR_BLUE_MAIN, fg="#FFFFFF")
         self.btn_tab_backup.config(bg=COLOR_DISABLED, fg=COLOR_TEXT_MUTED)
+        self.btn_tab_ipa.config(bg=COLOR_DISABLED, fg=COLOR_TEXT_MUTED)
 
         self.frame_backup_panel.pack_forget()
+        self.frame_ipa_panel.pack_forget()
         self.frame_restore_panel.pack(fill="x")
 
     def _switch_to_backup(self):
         self.current_mode = "BACKUP"
         self.btn_tab_backup.config(bg=COLOR_BLUE_MAIN, fg="#FFFFFF")
         self.btn_tab_restore.config(bg=COLOR_DISABLED, fg=COLOR_TEXT_MUTED)
+        self.btn_tab_ipa.config(bg=COLOR_DISABLED, fg=COLOR_TEXT_MUTED)
 
         self.frame_restore_panel.pack_forget()
+        self.frame_ipa_panel.pack_forget()
         self.frame_backup_panel.pack(fill="x")
+
+    def _switch_to_ipa(self):
+        self.current_mode = "IPA"
+        self.btn_tab_ipa.config(bg="#7C3AED", fg="#FFFFFF")
+        self.btn_tab_restore.config(bg=COLOR_DISABLED, fg=COLOR_TEXT_MUTED)
+        self.btn_tab_backup.config(bg=COLOR_DISABLED, fg=COLOR_TEXT_MUTED)
+
+        self.frame_restore_panel.pack_forget()
+        self.frame_backup_panel.pack_forget()
+        self.frame_ipa_panel.pack(fill="x")
+        self._refresh_ipa_list()
 
     # ---------------- LOAD SETTINGS KHỞI ĐỘNG ----------------
     def _load_initial_settings(self):
@@ -3227,6 +3410,76 @@ class App(tk.Tk):
             ).start()
         
         self.after(1200, self._hide_confirm_frame)
+
+    # ================== WORKER CÀI IPA HÀNG LOẠT ==================
+    def start_install_ipa_all(self):
+        if not self._require_license():
+            return
+        if not self.rows:
+            messagebox.showwarning("CẢNH BÁO", "Không có thiết bị kết nối!")
+            return
+
+        ipa_dir = self.lbl_ipa_dir.cget("text").strip()
+        selected_ipas = [
+            os.path.join(ipa_dir, fn)
+            for fn, bv in self._ipa_vars.items()
+            if bv.get()
+        ]
+
+        if not selected_ipas:
+            messagebox.showwarning("CẢNH BÁO", "Chưa chọn file .ipa nào!")
+            return
+
+        uninstall_first = self.var_ipa_uninstall_first.get()
+        udids = list(self.rows.keys())
+
+        for udid in udids:
+            if not self._begin_operation(udid, "install_ipa"):
+                continue
+            threading.Thread(
+                target=self._install_ipa_worker,
+                args=(udid, selected_ipas, uninstall_first, True),
+                daemon=True,
+            ).start()
+
+    def _install_ipa_worker(self, udid, ipa_paths, uninstall_first=True, operation_reserved=False):
+        row = self.rows.get(udid)
+        if not SEMAPHORE.acquire(timeout=1):
+            if row: row.push_step("Chờ slot...")
+            SEMAPHORE.acquire()
+        try:
+            if not pair_validate(udid, log_fn=lambda s, **_: self.log(udid, s)):
+                if row: row.push_step("Lỗi Pair")
+                return
+
+            total = len(ipa_paths)
+            for idx, ipa_path in enumerate(ipa_paths, 1):
+                label = os.path.basename(ipa_path)
+
+                # Gỡ app cũ dựa theo tên file ipa (phát hiện tiktok / tiktok lite)
+                if uninstall_first:
+                    fn_lower = label.lower()
+                    if "tiktok.lite" in fn_lower or "musicallylite" in fn_lower:
+                        uninstall_app_any(udid, BIDS_TIKTOK_LITE, "TikTok Lite", row,
+                                          lambda s, is_err=False: self.log(udid, s, is_err=is_err))
+                    elif "tiktok" in fn_lower or "musically" in fn_lower or "ugc" in fn_lower:
+                        uninstall_app_any(udid, BIDS_TIKTOK, "TikTok", row,
+                                          lambda s, is_err=False: self.log(udid, s, is_err=is_err))
+
+                if row: row.push_step(f"[{idx}/{total}] Cài {label[:30]}...")
+                ok = install_ipa(
+                    udid, ipa_path, label,
+                    row,
+                    lambda s, is_err=False: self.log(udid, s, is_err=is_err)
+                )
+                status = "✓" if ok else "✗"
+                self.log(udid, f"[{idx}/{total}] Cài {label} {status}")
+
+            if row: row.push_step("Cài IPA xong")
+        finally:
+            SEMAPHORE.release()
+            if operation_reserved:
+                self.operations.end(udid, "install_ipa")
 
     # ================== WORKER BACKUP (CƠ CHẾ ĐẶT TÊN 1_iPhone, 2_iPhone...) ==================
     def start_backup_all(self):
