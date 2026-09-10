@@ -1,7 +1,7 @@
 # 📘 TÀI LIỆU KIẾN TRÚC HỆ THỐNG: TIKTOK PRO (TIKTOOL PRO V4)
 
 ## 1. Giới Thiệu Tổng Quan
-**TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) - **Phiên bản hiện tại**: `4.8.7 Batch Activate Timing Edition`
+**TikTok Pro** (trước đây là BB Manager Pro) là công cụ kỹ thuật chuyên dụng phục vụ việc quản lý, kích hoạt hàng loạt (Batch Activate), sao lưu dữ liệu (Backup) và khôi phục chuyển kho hai chiều (Restore chuyển kho A ➜ B / B ➜ A) - **Phiên bản hiện tại**: `4.8.8 Modern Animated Performance Widget Edition`
 - **Tập tin chạy chính**: `BB_RB.py` (hoặc mở ngầm qua `TIKTOOL_PRO.pyw` / `CHAY_TIKTOOL.bat`)
 - **Ngôn ngữ & Thư viện**: Python 3.11 (100% Python Standard Library, Zero-Pip Dependencies), Tkinter GUI, Custom Canvas Components, Threading đa luồng, Semaphore, SQLite3, Plistlib, Runpy.
 - **Công cụ nhị phân tích hợp**: `libimobiledevice` (Windows x64) và `ios.exe`.
@@ -96,6 +96,25 @@ Quy trình 3 giai đoạn tự động qua lệnh USB đa luồng (kèm **tiền
 
 ---
 
+### 2.8. Động Cơ Thẻ Hiệu Suất Sinh Động (Modern Animated Performance Widget Engine)
+- **Giao diện Navy & Cyan hiện đại (`performance_card_theme`)**:
+  - Thẻ thông tin sản lượng và hiệu suất sử dụng nền Navy sâu `#0F172A`, viền ngoài cyan `#0E7490` tinh tế để phân tách rõ ràng với nền ứng dụng, kèm hiệu ứng hover glow sáng `#38BDF8`.
+  - Tối ưu không gian: loại bỏ viền thừa bên trong ở khung giờ và nút bấm, tạo bố cục thoáng đãng và tập trung vào số liệu.
+- **Đèn chỉ báo trực tiếp nhịp thở (Live Pulse Dot Indicator)**:
+  - Canvas vector `self.perf_dot` (5×5 px) đặt cạnh tiêu đề "HIỆU SUẤT".
+  - Hoạt ảnh nhịp thở tự động luân phiên đổi màu giữa cyan sáng `#38BDF8` và cyan đậm `#0284C7` với chu kỳ 850ms, phản ánh trạng thái live của dây chuyền xử lý thiết bị.
+- **Hộp sản lượng tổng hôm nay (`daily_value_box`)**:
+  - Đóng khung viền vàng hổ phách 1px `#FACC15` trên nền tối `#2C2508`, chữ số to đậm `Segoe UI 14 Bold` màu vàng `#FACC15`.
+  - Hiệu ứng hover glow viền chuyển sang vàng sáng `#FDE047` khi rê chuột.
+- **Khung giờ làm việc linh hoạt (`lbl_stat_hour_window`)**:
+  - Hiển thị khoảng giờ hiện tại (ví dụ `11:00–11:59`) trên nền `#083344`, chữ cyan `#38BDF8`, thiết kế không viền sạch gọn.
+- **Hệ thống đánh giá hiệu suất sao (`performance_star_glow_profile`)**:
+  - 5 sao: Hiệu ứng sparkle lấp lánh vàng nhạt/vàng sáng (`#FFF7C2` / `#FDE68A`).
+  - 4 sao: Hiệu ứng glow vàng hổ phách (`#FDE68A` / `#FACC15`).
+  - Nền badge sao giữ trong suốt (khớp màu surface thẻ) theo đúng tiêu chuẩn thiết kế.
+
+---
+
 ## 3. Kiến Trúc Giao Diện (Soft Charcoal Slate Dark Theme & Segoe MDL2 Icon Font)
 Thiết kế cao cấp theo phong cách Soft Charcoal Slate Dark Theme (nhẹ nhàng, dịu mắt, chống mỏi mắt khi vận hành cả ngày):
 
@@ -110,7 +129,7 @@ Thiết kế cao cấp theo phong cách Soft Charcoal Slate Dark Theme (nhẹ nh
 | **Nút Bắt Đầu Restore** | Nút hành động chính tại Bảng Kho | `GradientButton` bo góc 6px; Kho A ➜ B: Gradient 3 điểm dừng Emerald ➔ Teal ➔ Sky (`#059669` ➔ `#0D9488` ➔ `#0369A1`); Kho B ➔ A: Gradient Electric Blue ➔ Indigo ➔ Sky (`#2563EB` ➔ `#4F46E5` ➔ `#0284C7`) |
 | **Nút Bắt Đầu Backup** | Nút sao lưu dữ liệu tại Tab Backup | `GradientButton` bo góc 6px; Gradient dải màu Tím sang Xanh dương (`#7C3AED` ➔ `#6D28D9` ➔ `#2563EB`), viền `#A78BFA` |
 | **Thanh Tab** | Chuyển đổi giữa Restore Pro và Backup | Tab active `#2563EB` (Electric Blue), inactive `#2C313C` (appDark-800) |
-| **Stats Title Bar** | Hiển thị bộ đếm kho và thống kê ngày | Nền `#1A1D23` với các pill card `#22262E` viền `#3A414F`, số liệu `#38BDF8` & `#34D399` |
+| **Stats Title Bar** | Thống kê sản lượng ngày & Hiệu suất sinh động | Thẻ Navy `#0F172A`, viền `#0E7490` hover `#38BDF8`, live breathing dot 5×5, hộp số vàng `#FACC15` 14pt bold, rating star glow, cùng các pill card kho `#22262E` viền `#3A414F` |
 | **Device Grid** | Lưới thẻ iPhone co giãn thông minh (Responsive Grid) | Card `#22262E` viền `#3A414F`, slot tag `#262A33`, icon điện thoại Tech Cyan `#38BDF8` (hoặc Đỏ `#EF4444` khi Not Trust) |
 | **Thanh tiến trình** | Hiển thị % và tiến trình làm việc | Canvas Gradient mượt mà từ Electric Blue `#2563EB` sang Tech Cyan `#38BDF8`, rãnh trượt `#262A33` viền `#3A414F` |
 | **Dòng trạng thái thẻ** | Hiển thị tác vụ hiện tại và số % bên trên bar | Chữ trạng thái `#34D399` / `#38BDF8`, % font Consolas `#38BDF8` |

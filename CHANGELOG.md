@@ -2,6 +2,25 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.8.8 Modern Animated Performance Widget Edition] - 2026-09-09
+
+### 🌟 Tái Thiết Kế Thẻ Hiệu Suất Sinh Động & Tối Ưu Viền Không Gian (stitch_modern_animated_redesign)
+- **Tích hợp giao diện Navy & Cyan hiện đại**: Thiết kế lại thẻ thông tin sản lượng và hiệu suất theo bản thiết kế `stitch_modern_animated_redesign` với bảng màu chuẩn: nền thẻ Navy sâu `#0F172A`, viền ngoài cyan `#0E7490` tinh tế với hiệu ứng hover glow sáng `#38BDF8`.
+- **Đèn chỉ báo trực tiếp dạng nhịp thở (Live Pulse Breathing Dot)**:
+  - Bổ sung `self.perf_dot` bằng Canvas vector 5×5 px tích hợp ngay trước nhãn "HIỆU SUẤT".
+  - Hoạt ảnh nhịp thở tự động luân phiên đổi màu giữa cyan sáng `#38BDF8` và cyan đậm `#0284C7` mỗi 850ms, trực quan hóa luồng máy đang hoạt động theo thời gian thực mà không tốn tài nguyên.
+- **Tối ưu hóa viền và độ tương phản theo phản hồi người dùng**:
+  - Giữ lại viền ngoài 1px `#0E7490` cho thẻ để không bị chìm vào nền tối xung quanh, kèm hover tương tác.
+  - Loại bỏ các viền thừa bên trong ở khung giờ và nút bấm để tiết kiệm không gian hiển thị, giữ giao diện sạch gọn.
+  - Hộp số sản lượng hôm nay (`daily_value_box`): Đóng khung viền vàng hổ phách 1px `#FACC15` trên nền tối `#2C2508`, chữ số to đậm `Segoe UI 14 Bold` sắc nét, kèm hiệu ứng hover glow viền chuyển `#FDE047`.
+- **Hệ thống đánh giá hiệu suất sao (Performance Star Rating System)**:
+  - 5 sao: Hiệu ứng sparkle lấp lánh vàng nhạt/vàng sáng (`#FFF7C2` / `#FDE68A`).
+  - 4 sao: Hiệu ứng glow vàng hổ phách ấm áp (`#FDE68A` / `#FACC15`).
+  - Nền badge sao giữ trong suốt (khớp màu surface thẻ) theo đúng tiêu chuẩn thiết kế.
+- **Bảo toàn tính an toàn cấu trúc**:
+  - `DeviceCard` duy trì thừa kế trực tiếp từ `tk.Frame` với viền chữ nhật tiêu chuẩn, không bị ảnh hưởng bởi component con.
+- **Kiểm thử tự động nâng lên 54 bài test**: Thêm 5 bài unit test cho theme tokens, Canvas live dot, profile sao, hover states và cấu trúc DeviceCard; toàn bộ **54/54 tests PASS** (0.297s), `py_compile` sạch 100%.
+
 ## [4.8.7 Batch Activate Timing Edition] - 2026-09-08
 
 ### ⏱ Tối Ưu Thời Gian Giai Đoạn Set Language Dựa Trên Số Liệu Thật

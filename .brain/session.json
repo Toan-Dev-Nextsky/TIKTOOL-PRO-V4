@@ -1,14 +1,19 @@
 {
-  "updated_at": "2026-09-09T10:55:00+07:00",
+  "updated_at": "2026-09-09T11:35:00+07:00",
   "working_on": {
     "feature": "Modern Animated Performance Widget Redesign",
-    "task": "Tối ưu hóa gọn nhẹ: loại bỏ toàn bộ border và padding thừa để tiết kiệm không gian tối đa",
+    "task": "Hoàn tất tái thiết kế thẻ hiệu suất sinh động, tối ưu viền ngoài & hộp số, kiểm thử và lưu tri thức",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "tests/test_app_workflows.py"
+      "tests/test_app_workflows.py",
+      "CHANGELOG.md",
+      "docs/architecture/system_overview.md",
+      ".brain/brain.json",
+      ".brain/handover.md",
+      ".brain/session.json"
     ],
-    "notes": "Đã giữ lại viền ngoài cyan #0E7490 cho card_daily để tách nền, và thêm lại khung viền vàng hổ phách #FACC15 tinh tế cho số sản lượng tổng hôm nay (kèm hover glow). 54/54 tests PASS."
+    "notes": "Đã giữ lại viền ngoài cyan #0E7490 cho card_daily kèm hover #38BDF8 để tách nền, và thêm khung viền vàng hổ phách #FACC15 tinh tế cho hộp số sản lượng hôm nay (14pt bold, hover glow viền #FDE047). Toàn bộ 54/54 unit tests đạt 100%."
   },
   "pending_tasks": [
     {
@@ -125,6 +130,18 @@
     {
       "decision": "Auto Activate chạy theo đợt Restore và tái sử dụng pipeline Batch Activate",
       "reason": "Nút Batch thủ công chạy được trong khi Auto từng máy lỗi phụ thuộc thời điểm reboot. Điều phối theo đợt loại bỏ chênh lệch thời điểm, vẫn cho 10-16 máy chạy song song và tránh dùng một pipeline Auto riêng khác với Batch."
+    },
+    {
+      "decision": "Tách biệt viền ngoài và loại bỏ viền con trong thẻ hiệu suất",
+      "reason": "Viền ngoài #0E7490 (hover #38BDF8) giữ cho thẻ không bị lẫn vào nền tối #1A1D23. Bỏ viền các nút và khung giờ bên trong giúp tiết kiệm diện tích tối đa và bố cục thoáng đãng."
+    },
+    {
+      "decision": "Tạo hộp số sản lượng vàng hổ phách #FACC15 với font Segoe UI 14 Bold",
+      "reason": "Giúp con số sản lượng 223/233 nổi bật rõ ràng từ xa, viền vàng 1px kèm hover glow #FDE047 tạo điểm nhấn cao cấp."
+    },
+    {
+      "decision": "Dùng Canvas 5x5 làm Live Pulse Dot với chu kỳ nhịp thở 850ms",
+      "reason": "Trực quan hóa luồng máy đang live mà không làm tăng tải CPU hay phụ thuộc thư viện đồ họa ngoài."
     }
   ]
 }
