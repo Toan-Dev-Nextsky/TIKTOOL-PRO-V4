@@ -3,13 +3,13 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-11T15:15:00+07:00"
+    "last_updated": "2026-09-11T17:30:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application Suite (Python/Tkinter/ttkbootstrap)",
-    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore, tích hợp công cụ TIK SIGNER PRO ký IPA hàng loạt tốc độ cao theo UDID và công nghệ Smart UDID Matching tự động ghép đúng file IPA cho từng máy khi cài đặt.",
-    "version": "4.8.9 Batch IPA Signer & Smart UDID Installer Edition",
+    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore, tích hợp công cụ TIK SIGNER PRO ký IPA hàng loạt tốc độ cao theo UDID và công nghệ Smart UDID Matching tự động ghép đúng file IPA cho từng máy khi cài đặt, danh sách IPA dạng Lưới Grid 3 Cột siêu gọn gàng.",
+    "version": "4.9.0 Grid IPA Layout & Real-time Progress Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py",
     "companion_signer_tool": "TIK_SIGNER.py (CHAY_SIGNER.bat)"
@@ -35,6 +35,7 @@
   "architecture": {
     "ui_layer": {
       "theme": "Soft Charcoal Slate Dark Theme (App #1A1D23, Panels #22262E, Sub-panels #262A33, Terminal #1E2229, Elevated Buttons #2C313C, Borders #3A414F, Text Slate-50/200/400, Accent Cyan & Emerald & Electric Blue, Icon Font Windows Segoe MDL2 Assets)",
+      "ipa_grid_layout": "Lưới Grid 3 Cột (uniform='ipa_col') tiết kiệm 64% chiều cao, xếp theo số thứ tự Slot 01->10, mini card viền Emerald/Đỏ/Slate, bấm mọi vị trí để toggle checkbox",
       "signer_ui": "ttkbootstrap 2.2.2 Darkly Theme (Slate Charcoal, Badge Info/Success/Warning, Treeview phân cấp thiết bị & kho chứng chỉ)",
       "color_tokens": {
         "bg_main": "#1A1D23 (appDark-950: warm soft slate-charcoal)",
@@ -64,6 +65,7 @@
     "pipelines": {
       "batch_ipa_signer": "Quét thiết bị USB -> Thu thập UDID -> Quét kho certs/ (.p12, .mobileprovision) -> Tự động ánh xạ UDID -> Gọi zsign.exe -k -p -m -o -z 9 -E -W ký song song từng máy -> Xuất file TikTok_Lite_<UDID>_Signed.ipa vào ipas/",
       "smart_udid_matching_installer": "Khi người dùng chọn đồng loạt nhiều file IPA trong TIKTOOL PRO V4: _install_ipa_worker kiểm tra mã UDID của máy với tên file được chọn. Nếu có file chứa UDID của máy, máy CHỈ cài đúng file đó, không cài file của máy khác; tự gỡ bản cũ trước khi cài.",
+      "realtime_install_progress": "Đọc từng dòng output từ ideviceinstaller.exe theo thời gian thực; trích xuất percentage Copying... để hiển thị 'Đang chép file... (XX%)' và thanh tiến độ tương ứng trên từng thẻ thiết bị.",
       "webclip_pipeline": "Tạo cấu hình Apple Configuration Profile (.mobileconfig) com.apple.webClip.managed, nạp icon toàn năng 3D Glassmorphic webapp.png cho mọi link web, mặc định để trống URL custom, nạp qua ios.exe profile add",
       "batch_activate_pipeline": [
         "Giai đoạn 1: ideviceactivation activate -u {udid} -b",
@@ -79,6 +81,8 @@
   },
   "knowledge_items": {
     "gotchas": [
+      "ideviceinstaller Copying Stage Buffer Delay: Khi cài file IPA >400MB, ideviceinstaller tốn 30-60s để nạp file qua USB. Nếu chỉ đọc output khi tiến trình kết thúc, giao diện sẽ đứng ở 'Đang cài đặt...' khiến người dùng tưởng bị đơ. Cần đọc từng dòng stdout qua pipe và phân tích 'Copying ... to device (XX%)' để hiển thị tiến độ tức thì.",
+      "Concurrent dict modification in Tkinter poll loop: Lặp trực tiếp qua self.rows ở background thread (như _update_all_cards_ipa_status hay _sync_cards) có thể dính RuntimeError: dictionary size changed during iteration khi thiết bị cắm/rút. Phải bọc list(self.rows.items()) hoặc list(self.rows.keys()) để tạo bản sao an toàn trước khi lặp.",
       "MismatchedApplicationIdentifierEntitlement on In-place Upgrade: iOS cấm cài đè bản cập nhật nếu team-id trong application-identifier của file mới khác với bản cũ đang có trên máy. Bắt buộc phải gỡ sạch app cũ qua ideviceinstaller uninstall trước khi cài.",
       "Filename Normalization in App Uninstall Detection: Tên file IPA thường dùng dấu gạch dưới (TikTok_Lite_xxx.ipa). Nếu code kiểm tra 'tiktok.lite' (chứa dấu chấm), kiểm tra sẽ trượt và nhảy nhầm vào nhánh gỡ TikTok thường. Phải chuẩn hóa dấu gạch dưới/ngang/cách thành dấu chấm trước khi so sánh, đồng thời đọc Bundle ID từ Info.plist bên trong IPA làm fallback.",
       "iOS 16+ Developer Mode Requirement: Từ iOS 16 trở lên, app cài qua chứng chỉ cá nhân/doanh nghiệp bắt buộc phải bật Developer Mode (Chế độ nhà phát triển) trên iPhone và khởi động lại. Máy tiếng Nhật nằm tại: Cài đặt (設定) -> Quyền riêng tư & Bảo mật (プライバシーとセキュリティ) -> Chế độ nhà phát triển (デベロッパモード) -> Bật (ON) -> Khởi động lại (再起動) -> Bật (有効にする).",
@@ -89,6 +93,7 @@
     ],
     "conventions": [
       "Đặt tên file IPA đã ký: Luôn dùng cú pháp TikTok_Lite_<UDID>_Signed.ipa chứa đầy đủ mã UDID để công cụ cài đặt tự động đối soát chính xác 100%.",
+      "Lưới Grid 3 Cột cho danh sách IPA: Sử dụng uniform='ipa_col' và sắp xếp theo Slot máy để đảm bảo giao diện luôn cân xứng và khớp số thứ tự với dàn máy bên dưới.",
       "Cấu trúc thư mục certs: Mỗi bộ chứng chỉ nằm trong 1 thư mục con riêng biệt trong certs/ (hoặc theo tên UDID), chứa ít nhất 1 file .p12, 1 file .mobileprovision và tùy chọn pass.txt.",
       "Luôn acquire SEMAPHORE trước khi thực hiện các tác vụ nặng (Backup, Restore, Activate, Install IPA) để kiểm soát tải CPU và băng thông USB.",
       "Tất cả các cập nhật GUI từ worker thread phải điều hướng qua queue hoặc self.after(0, ...) để tránh xung đột luồng Tkinter."

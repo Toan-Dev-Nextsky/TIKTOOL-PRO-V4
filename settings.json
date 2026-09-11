@@ -1,19 +1,21 @@
 {
-  "storeA": "D:/TK 4.8H NGAM DONG40k GB196  7.9 A",
-  "storeB": "D:/TK 4.8H NGAM DONG40k GB196  7.9 B",
-  "generalBackupDir": "D:/backups",
+  "storeA": "F:/PHOI NGAM MMO/phoi mau",
+  "storeB": "F:/backups",
+  "generalBackupDir": "F:/PHOI NGAM MMO/PHOI NGAM 11.9",
   "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
-  "removeTikTok": false,
-  "removeTikTokLite": false,
+  "removeTikTok": true,
+  "removeTikTokLite": true,
   "deepFlags": true,
   "langLocale": "ja_JP|ja",
   "setLangAfterActive": true,
-  "autoActivateAfterRestore": true,
-  "active": "B",
+  "autoActivateAfterRestore": false,
+  "active": "A",
   "customWebclipLink": "https://linkm.site/",
   "dailyRestoreDate": "2026-09-11",
-  "dailyRestoreCount": 0,
+  "dailyRestoreCount": 10,
   "hourlyRestoreDate": "2026-09-11",
-  "hourlyRestoreCounts": {},
+  "hourlyRestoreCounts": {
+    "17": 10
+  },
   "autoSetLangAfterRestore": true
 }

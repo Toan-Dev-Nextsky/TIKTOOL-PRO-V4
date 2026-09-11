@@ -17,3 +17,4 @@ certs/*
 !certs/README_CERTS.txt
 *.zip
 danh_sach_*.txt
+ipas.rar

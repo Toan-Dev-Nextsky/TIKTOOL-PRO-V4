@@ -1,107 +1,92 @@
 {
-  "updated_at": "2026-09-11T15:15:00+07:00",
+  "updated_at": "2026-09-11T17:30:00+07:00",
   "working_on": {
-    "feature": "Batch IPA Signer & Smart UDID Multi-Device Installer",
-    "task": "Hoàn tất phát triển TIK SIGNER PRO (ký IPA hàng loạt) và nâng cấp thuật toán Smart UDID Matching trong TIKTOOL PRO V4",
+    "feature": "3-Column Grid IPA List & Real-time Installer Progress",
+    "task": "Tái thiết kế danh sách file IPA thành lưới Grid 3 cột đồng bộ với dàn máy, hiển thị tiến độ chép file % thời gian thực và sửa lỗi luồng",
     "status": "completed",
     "files": [
-      "TIK_SIGNER.py",
-      "CHAY_SIGNER.bat",
-      "certs/README_CERTS.txt",
       "BB_RB.py",
       "CHANGELOG.md",
       ".brain/session.json",
       ".brain/brain.json",
       ".brain/handover.md"
     ],
-    "notes": "Đã phát triển hoàn chỉnh TIK SIGNER PRO bằng ttkbootstrap 2.2.2 (Darkly theme). Tinh gọn chỉ tập trung vào Ký IPA hàng loạt và quản lý UDID/Cert. Đồng thời nâng cấp thuật toán tự động nhận diện đúng file IPA theo UDID máy trong TIKTOOL PRO V4 để cài 10 máy riêng lẻ song song không bao giờ bị nhầm file."
+    "notes": "Đã hoàn thành xuất sắc tái thiết kế giao diện danh sách IPA dạng Grid 3 cột siêu gọn gàng trong BB_RB.py, phân loại màu sắc và xếp thứ tự theo Slot máy (Slot 01->10), hiển thị trực tiếp tiến độ Copying... của ideviceinstaller, và fix lỗi luồng dictionary size changed."
   },
   "pending_tasks": [
     {
-      "task": "Xuất danh sách UDID dàn máy gửi bên bán cert",
-      "priority": "high",
-      "notes": "Bấm nút 'Sao chép 10 UDID' hoặc 'Xuất file UDID' trong TIK SIGNER PRO để gửi cho shop."
-    },
-    {
-      "task": "Thả các bộ chứng chỉ nhận về vào thư mục certs/",
-      "priority": "high",
-      "notes": "Mỗi bộ cert nằm trong 1 thư mục con (chứa .p12, .mobileprovision, pass.txt)."
-    },
-    {
-      "task": "Chạy CHAY_SIGNER.bat bấm 'KÝ IPA HÀNG LOẠT'",
-      "priority": "high",
-      "notes": "Tool tự sinh ra các file TikTok_Lite_<UDID>_Signed.ipa vào thư mục ipas/."
-    },
-    {
-      "task": "Mở TIKTOOL PRO V4 chọn các file IPA và bấm 'CÀI IPA HÀNG LOẠT'",
+      "task": "Test thực tế cài đặt 10 máy song song với giao diện Grid 3 cột mới",
       "priority": "medium",
-      "notes": "TIKTOOL PRO tự nhận đúng file của từng máy và cài đặt song song."
+      "notes": "Quan sát thanh tiến độ % hiển thị mượt mà trên từng thẻ máy trong suốt quá trình chép file và cài đặt."
     }
   ],
   "recent_changes": [
     {
+      "timestamp": "2026-09-11T17:20:00+07:00",
+      "type": "grid_3_column_ipa_layout",
+      "description": "Tái thiết kế toàn diện _refresh_ipa_list trong BB_RB.py sang dạng lưới Grid 3 cột (uniform='ipa_col'): giảm 64% chiều cao dọc (11 file từ 11 hàng còn 4 hàng), tự động sắp xếp theo thứ tự Slot 01->10, thẻ card mini có viền màu phân cấp (xanh cho khớp máy, đỏ cho chưa ký, xám cho chưa cắm), click mọi vị trí trên card để toggle checkbox, header hiển thị tổng file và badge tóm tắt.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-11T17:00:00+07:00",
+      "type": "realtime_ideviceinstaller_progress_streaming",
+      "description": "Nâng cấp _install_ipa_worker bắt luồng stdout trực tiếp từ ideviceinstaller, bóc tách tiến độ 'Copying ... to device (XX%)' và cập nhật 'Đang chép file... (XX%)' cùng thanh tiến độ % trên từng thẻ thiết bị theo thời gian thực.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-11T16:50:00+07:00",
+      "type": "fix_dict_size_changed_thread_race",
+      "description": "Khắc phục triệt để lỗi RuntimeError: dictionary size changed during iteration trong các luồng quét ngầm bằng cách bọc list(self.rows.items()).",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-11T16:40:00+07:00",
+      "type": "device_card_ipa_match_indicator_and_udid",
+      "description": "Hiển thị UDID trên từng thẻ thiết bị và thêm phương thức set_ipa_match: thẻ nào có IPA ký khớp UDID sẽ có viền sáng Emerald #10B981, tag Slot XX [✔ IPA], và nhãn ✔ CÓ IPA KÝ màu xanh #34D399.",
+      "files": ["BB_RB.py"]
+    },
+    {
       "timestamp": "2026-09-11T15:10:00+07:00",
       "type": "smart_udid_matching_installer",
-      "description": "Nâng cấp hàm _install_ipa_worker trong BB_RB.py: tự động đối soát mã UDID của từng máy với tên file IPA được chọn; máy nào chỉ cài đúng file mang mã UDID của máy đó. Loại bỏ hoàn toàn lỗi cài nhầm file của máy khác khi dùng chứng chỉ cá nhân mua lẻ.",
+      "description": "Nâng cấp hàm _install_ipa_worker trong BB_RB.py: tự động đối soát mã UDID của từng máy với tên file IPA được chọn; máy nào chỉ cài đúng file mang mã UDID của máy đó.",
       "files": ["BB_RB.py"]
     },
     {
       "timestamp": "2026-09-11T15:05:00+07:00",
       "type": "batch_ipa_signer_tool",
-      "description": "Tạo công cụ mới TIK SIGNER PRO (TIK_SIGNER.py + CHAY_SIGNER.bat) bằng ttkbootstrap Darkly: quét thiết bị, xuất UDID, quét kho certs/, gọi zsign đa luồng ký IPA hàng loạt tốc độ cao, xuất file chứa trọn vẹn UDID vào ipas/.",
+      "description": "Tạo công cụ mới TIK SIGNER PRO (TIK_SIGNER.py + CHAY_SIGNER.bat) bằng ttkbootstrap Darkly: quét thiết bị, xuất UDID, quét kho certs/, gọi zsign đa luồng ký IPA hàng loạt tốc độ cao.",
       "files": ["TIK_SIGNER.py", "CHAY_SIGNER.bat", "certs/README_CERTS.txt"]
-    },
-    {
-      "timestamp": "2026-09-11T14:35:00+07:00",
-      "type": "fix_uninstall_separator_and_bundle_id_fallback",
-      "description": "Sửa lỗi không gỡ được TikTok Lite cũ do chuỗi tên file dùng dấu gạch dưới thay vì dấu chấm; bổ sung hàm _extract_bundle_id_from_ipa() đọc trực tiếp Info.plist làm fallback thông minh.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-09T10:55:00+07:00",
-      "type": "performance_widget_animated_redesign",
-      "description": "Tích hợp hoàn thiện bản thiết kế stitch_modern_animated_redesign: thẻ Navy #0F172A, viền #0E7490 hover cyan, live pulse dot breathing indicator, star sparkle/glow, hộp số vàng hover glow, nút Chi tiết và nút Refresh có visual hover states. 54/54 unit tests đạt.",
-      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
     }
   ],
   "errors_encountered": [
     {
-      "error": "Lỗi MismatchedApplicationIdentifierEntitlement khi cài đè TikTok Lite ký bằng Team ID mới",
-      "solution": "Chuẩn hóa dấu gạch dưới thành dấu chấm khi nhận diện tên app để gỡ sạch bản cũ trước khi cài; đồng thời trích xuất Bundle ID thật từ file IPA làm fallback.",
+      "error": "ideviceinstaller có độ trễ khoảng 1 phút khiến người dùng tưởng bị đơ trước khi bắt đầu cài đặt",
+      "solution": "Bắt luồng stdout từ subprocess để bóc tách tiến độ 'Copying ... (XX%)' và cập nhật ngay lên UI: 'Đang chép file... (XX%)' kèm thanh tiến độ thời gian thực.",
       "resolved": true
     },
     {
-      "error": "Popup 'Developer Mode Required' (デベロッパモードが必要です) xuất hiện khi mở app trên iOS 16+ tiếng Nhật",
-      "solution": "Hướng dẫn người dùng thao tác bật Developer Mode chuẩn giao diện tiếng Nhật: Cài đặt (設定) -> Quyền riêng tư & Bảo mật (プライバシーとセキュリティ) -> Chế độ nhà phát triển (デベロッパモード) -> Bật và Reboot.",
+      "error": "RuntimeError: dictionary size changed during iteration khi lặp qua self.rows ở background thread",
+      "solution": "Bọc list(self.rows.items()) và list(self.rows.keys()) để tạo bản sao snapshot độc lập luồng trước khi lặp.",
       "resolved": true
     },
     {
-      "error": "AttributeError: module 'ttkbootstrap' has no attribute 'PanedWindow'",
-      "solution": "Đổi ttk.PanedWindow thành ttk.Panedwindow (chữ w thường) theo đúng quy chuẩn API của thư viện ttkbootstrap 2.x.",
-      "resolved": true
-    },
-    {
-      "error": "Nguy cơ cài nhầm file IPA giữa 10 iPhone khi mỗi máy có 1 file ký theo UDID riêng",
-      "solution": "Tích hợp tính năng Smart UDID Matching trong _install_ipa_worker của BB_RB.py: tự động lọc danh sách file được chọn để máy nào chỉ nạp đúng file chứa UDID của máy đó.",
+      "error": "Giao diện danh sách IPA dạng 1 cột chiếm quá nhiều diện tích chiều dọc khi có 10-15 file",
+      "solution": "Chuyển đổi thành Lưới Grid 3 Cột (uniform='ipa_col') với mini-card phân cấp màu sắc, rút gọn 64% chiều cao, thẳng hàng với 3 cột thiết bị iPhone.",
       "resolved": true
     }
   ],
   "decisions_made": [
     {
-      "decision": "Sử dụng ttkbootstrap Darkly Theme cho TIK SIGNER PRO",
-      "reason": "Mang lại giao diện Desktop bóng bẩy, hiện đại, chuẩn chuyên nghiệp mà vẫn chạy trực tiếp qua Python/BAT không cần setup webview phức tạp."
+      "decision": "Thiết kế danh sách IPA thành Lưới 3 Cột (Grid 3 columns) thay vì danh sách cuộn dọc",
+      "reason": "Khớp hoàn hảo với 3 cột iPhone bên dưới, tiết kiệm tối đa diện tích màn hình, hiển thị được trọn vẹn 10-12 file mà không chiếm quá 110px chiều cao."
     },
     {
-      "decision": "Tách riêng TIK SIGNER PRO làm công cụ Ký IPA chuyên biệt thay vì nhồi nhét thêm vào BB_RB.py",
-      "reason": "Giữ cho TIKTOOL PRO V4 ổn định tuyệt đối, không làm nặng codebase chính, đồng thời người dùng có một tool ký tập trung, thao tác cực nhanh."
+      "decision": "Sắp xếp danh sách IPA theo thứ tự Slot (Slot 01 -> Slot 10)",
+      "reason": "Người dùng nhìn vào danh sách IPA là thấy ngay từng file tương ứng với máy ở Slot nào bên dưới theo đúng thứ tự logic, không bị lộn xộn theo bảng chữ cái."
     },
     {
-      "decision": "Đặt tên file IPA đã ký chứa trọn vẹn UDID máy (TikTok_Lite_<UDID>_Signed.ipa)",
-      "reason": "Loại bỏ hoàn toàn rủi ro trùng lặp mã máy và cho phép TIKTOOL PRO nhận diện tự động 100% khi bấm Cài đặt hàng loạt."
-    },
-    {
-      "decision": "Máy đích đã có sẵn app TikTok Lite từ App Store thì không cần bật Developer Mode và không cần mua cert khi nhận restore phôi",
-      "reason": "Bản restore của iOS chỉ nạp container data (Documents/Preferences/Cookies) vào đúng Bundle ID com.ss.iphone.ugc.tiktok.lite có sẵn trên máy."
+      "decision": "Bắt stdout thời gian thực của ideviceinstaller",
+      "reason": "File IPA nặng 400MB+ tốn 30-60s để nạp vào iPhone qua USB; hiển thị tiến độ chép file % giúp người dùng yên tâm thiết bị vẫn đang chạy bình thường."
     }
   ]
 }

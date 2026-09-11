@@ -515,7 +515,10 @@ def uninstall_app_any(udid, bundle_ids, label_name, card, log_fn):
         cmd = ["ideviceinstaller", "-u", udid, "uninstall", bid]
         rc, _ = run_stream(cmd, on_line=on_output)
         if rc == 0: ok = True; break
-    if card: card.push_step(f"Gỡ {label_name} {'thành công' if ok else 'bỏ qua'}")
+    if card:
+        if ok:
+            card.set_pct(100)
+        card.push_step(f"Gỡ {label_name} {'thành công' if ok else 'bỏ qua'}")
     return ok
 
 def _extract_bundle_id_from_ipa(ipa_path):
@@ -1067,6 +1070,7 @@ class AstroBotCompanion(tk.Frame):
         "restore": ("#38BDF8", "Đang nạp {count} máy cực cháy. Tiến độ cả đợt: {progress}%"),
         "reboot": ("#FBBF24", "Dàn máy đang khởi động lại. Đừng rút cáp nha sếp!"),
         "activate": ("#A78BFA", "Đang kích hoạt và vượt màn hình Hello cho {count} máy..."),
+        "install": ("#60A5FA", "Đang cài IPA cho {count} máy. Tiến độ: {progress}%"),
         "celebrate": ("#FACC15", "Tuyệt vời! Đã xong trọn vẹn cả đợt, cắm mẻ mới nào!"),
         "alert": ("#FB7185", "Có {count} máy chưa Tin Cậy. Kiểm tra cáp và màn hình iPhone nhé!"),
         "backup": ("#C084FC", "Đang sao lưu an toàn cho {count} máy. Astro canh dữ liệu đây!"),
@@ -1153,7 +1157,7 @@ class AstroBotCompanion(tk.Frame):
                 c.create_oval(x - 9, y - 9, x + 9, y + 9, fill=halo, outline=ring, width=2, tags=("robot", "eyes"))
                 c.create_oval(x - 5, y - 5, x + 5, y + 5, fill=color, outline="#FFFFFF", width=1, tags=("robot", "eyes"))
                 c.create_oval(x - 2, y - 2, x + 2, y + 2, fill=core, outline="", tags=("robot", "eyes"))
-        elif self.state in ("idle_ready", "backup"):
+        elif self.state in ("idle_ready", "backup", "install"):
             c.create_arc(25, y - 3, 35, y + 6, start=20, extent=140, style="arc", outline=color, width=2, tags=("robot", "eyes"))
             c.create_arc(41, y - 3, 51, y + 6, start=20, extent=140, style="arc", outline=color, width=2, tags=("robot", "eyes"))
         elif self.state == "restore":
@@ -2933,33 +2937,17 @@ class App(tk.Tk):
                 slot_no = getattr(c, "slot_num", idx)
                 dev_slots[u.lower()] = (slot_no, u)
 
-        # Header select-all
-        hdr = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
-        hdr.pack(fill="x", padx=2, pady=(2, 0))
-        self._var_ipa_all = tk.BooleanVar(value=True)
-
-        def _toggle_all():
-            v = self._var_ipa_all.get()
-            for bv in self._ipa_vars.values():
-                bv.set(v)
-
-        tk.Checkbutton(hdr, text="Chọn tất cả", font=("Segoe UI", 8, "bold"),
-                       fg=COLOR_TEXT_WHITE, bg=COLOR_KHO_INNER,
-                       selectcolor=COLOR_BTN_ELEVATED,
-                       activebackground=COLOR_KHO_INNER, activeforeground=COLOR_TEXT_WHITE,
-                       variable=self._var_ipa_all, command=_toggle_all).pack(side="left", padx=4)
-
-        sep = tk.Frame(self._ipa_frame_list, bg=COLOR_BORDER_LIGHT, height=1)
-        sep.pack(fill="x", padx=4, pady=(2, 0))
-
+        # Chuẩn bị dữ liệu và tìm slot khớp cho từng file
+        file_items = []
+        matched_cnt = 0
+        unsigned_cnt = 0
         for fn in files:
             full_path = os.path.join(ipa_dir, fn)
-            size_mb = os.path.getsize(full_path) / (1024 * 1024)
+            try:
+                size_mb = os.path.getsize(full_path) / (1024 * 1024)
+            except Exception:
+                size_mb = 0.0
             is_unsigned = "und3fined" in fn.lower() or "unsigned" in fn.lower()
-            bv = tk.BooleanVar(value=not is_unsigned)
-            self._ipa_vars[fn] = bv
-
-            # Tìm xem file này có khớp với máy nào đang cắm không
             matched_slot = None
             if not is_unsigned:
                 fn_lower = fn.lower()
@@ -2969,39 +2957,189 @@ class App(tk.Tk):
                     if u_lower in fn_lower or u_clean in fn_clean:
                         matched_slot = slot_no
                         break
-
-            row = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
-            row.pack(fill="x", padx=2, pady=1)
-
-            tk.Checkbutton(row, variable=bv,
-                           bg=COLOR_KHO_INNER, selectcolor=COLOR_BTN_ELEVATED,
-                           activebackground=COLOR_KHO_INNER,
-                           relief="flat", bd=0).pack(side="left", padx=(4, 0))
-
-            icon_color = COLOR_TEXT_DIM if is_unsigned else ("#10B981" if matched_slot is not None else "#A78BFA")
-            tk.Label(row, text=f"{Icons.PACKAGE}", font=(FONT_MDL2, 9),
-                     fg=icon_color, bg=COLOR_KHO_INNER).pack(side="left", padx=(2, 4))
-
-            name_short = fn if len(fn) <= 60 else fn[:57] + "..."
-            text_color = COLOR_TEXT_DIM if is_unsigned else ("#FFFFFF" if matched_slot is not None else COLOR_TEXT_MAIN)
-            lbl_name = tk.Label(row, text=name_short, font=("Segoe UI", 8, "bold" if matched_slot is not None else "normal"),
-                                fg=text_color, bg=COLOR_KHO_INNER,
-                                anchor="w")
-            lbl_name.pack(side="left", fill="x", expand=True)
-
             if is_unsigned:
-                tk.Label(row, text="[Chưa Ký]", font=("Segoe UI", 8, "italic"),
-                         fg="#EF4444", bg=COLOR_KHO_INNER).pack(side="right", padx=(2, 6))
+                unsigned_cnt += 1
             elif matched_slot is not None:
-                tk.Label(row, text=f"[✔ Khớp Slot {matched_slot:02d}]", font=("Segoe UI", 8, "bold"),
-                         fg="#10B981", bg=COLOR_KHO_INNER).pack(side="right", padx=(2, 6))
-            else:
-                tk.Label(row, text="[Chưa cắm máy]", font=("Segoe UI", 8, "italic"),
-                         fg="#64748B", bg=COLOR_KHO_INNER).pack(side="right", padx=(2, 6))
+                matched_cnt += 1
 
-            tk.Label(row, text=f"{size_mb:.1f} MB",
-                     font=("Segoe UI", 8), fg=COLOR_TEXT_MUTED,
-                     bg=COLOR_KHO_INNER).pack(side="right", padx=6)
+            file_items.append({
+                "fn": fn,
+                "size_mb": size_mb,
+                "is_unsigned": is_unsigned,
+                "matched_slot": matched_slot
+            })
+
+        # Sắp xếp danh sách thông minh:
+        # 1. Các file khớp máy xếp trước theo số thứ tự Slot (Slot 01 -> Slot 10...)
+        # 2. Các file đã ký nhưng chưa cắm máy
+        # 3. Các file chưa ký (unsigned/undefined) xếp cuối cùng
+        def _sort_key(item):
+            if item["matched_slot"] is not None:
+                return (0, item["matched_slot"], item["fn"])
+            if not item["is_unsigned"]:
+                return (1, 9999, item["fn"])
+            return (2, 9999, item["fn"])
+
+        file_items.sort(key=_sort_key)
+
+        # Header select-all & tóm tắt thống kê
+        hdr = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
+        hdr.pack(fill="x", padx=6, pady=(4, 2))
+        self._var_ipa_all = tk.BooleanVar(value=True)
+
+        def _toggle_all():
+            v = self._var_ipa_all.get()
+            for bv in self._ipa_vars.values():
+                bv.set(v)
+
+        def _on_sub_check(*args):
+            if not self._ipa_vars:
+                return
+            all_on = all(bv.get() for bv in self._ipa_vars.values())
+            self._var_ipa_all.set(all_on)
+
+        # Checkbox chọn tất cả
+        chk_all = tk.Checkbutton(
+            hdr,
+            text=f" Chọn tất cả ({len(file_items)} file IPA)",
+            font=("Segoe UI", 8, "bold"),
+            fg=COLOR_TEXT_WHITE, bg=COLOR_KHO_INNER,
+            selectcolor=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_KHO_INNER, activeforeground=COLOR_TEXT_WHITE,
+            variable=self._var_ipa_all, command=_toggle_all
+        )
+        chk_all.pack(side="left")
+
+        # Badges tóm tắt bên phải header
+        if unsigned_cnt > 0:
+            badge_uns = tk.Label(
+                hdr,
+                text=f"⚠ {unsigned_cnt} chưa ký",
+                font=("Segoe UI", 7, "bold"),
+                fg="#FCA5A5", bg="#451A1A",
+                padx=6, pady=1
+            )
+            badge_uns.pack(side="right", padx=(3, 2))
+
+        if matched_cnt > 0:
+            badge_mat = tk.Label(
+                hdr,
+                text=f"✔ {matched_cnt} khớp máy",
+                font=("Segoe UI", 7, "bold"),
+                fg="#34D399", bg="#064E3B",
+                padx=6, pady=1
+            )
+            badge_mat.pack(side="right", padx=(3, 2))
+
+        sep = tk.Frame(self._ipa_frame_list, bg=COLOR_BORDER_LIGHT, height=1)
+        sep.pack(fill="x", padx=6, pady=(2, 4))
+
+        # Lưới hiển thị 3 cột (Grid 3 items/hàng)
+        grid_frame = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
+        grid_frame.pack(fill="x", padx=4, pady=(0, 4))
+        for c in range(3):
+            grid_frame.columnconfigure(c, weight=1, uniform="ipa_col")
+
+        for idx, item in enumerate(file_items):
+            fn = item["fn"]
+            size_mb = item["size_mb"]
+            is_unsigned = item["is_unsigned"]
+            matched_slot = item["matched_slot"]
+
+            bv = tk.BooleanVar(value=not is_unsigned)
+            bv.trace_add("write", _on_sub_check)
+            self._ipa_vars[fn] = bv
+
+            r = idx // 3
+            c = idx % 3
+
+            # Màu sắc phân cấp cho từng thẻ IPA
+            if is_unsigned:
+                card_bg = "#231B1E"
+                border_color = "#7F1D1D"
+                icon_color = COLOR_TEXT_DIM
+                text_color = COLOR_TEXT_DIM
+                badge_text = "Chưa Ký"
+                badge_fg = "#EF4444"
+                badge_bg = "#451A1A"
+            elif matched_slot is not None:
+                card_bg = "#162320"
+                border_color = "#059669"
+                icon_color = "#10B981"
+                text_color = "#FFFFFF"
+                badge_text = f"✔ Slot {matched_slot:02d}"
+                badge_fg = "#10B981"
+                badge_bg = "#064E3B"
+            else:
+                card_bg = COLOR_KHO_INNER
+                border_color = COLOR_BORDER_LIGHT
+                icon_color = "#A78BFA"
+                text_color = COLOR_TEXT_MAIN
+                badge_text = "Chưa cắm"
+                badge_fg = "#94A3B8"
+                badge_bg = "#1E2229"
+
+            cell = tk.Frame(grid_frame, bg=card_bg,
+                            highlightbackground=border_color,
+                            highlightthickness=1, bd=0)
+            cell.grid(row=r, column=c, padx=3, pady=2, sticky="ew")
+
+            # Checkbox
+            chk = tk.Checkbutton(
+                cell, variable=bv,
+                bg=card_bg, selectcolor=COLOR_BTN_ELEVATED,
+                activebackground=card_bg,
+                relief="flat", bd=0
+            )
+            chk.pack(side="left", padx=(3, 0))
+
+            # Icon package
+            ico = tk.Label(cell, text=f"{Icons.PACKAGE}", font=(FONT_MDL2, 8),
+                           fg=icon_color, bg=card_bg)
+            ico.pack(side="left", padx=(1, 3))
+
+            # Badge trạng thái bên phải
+            badge = tk.Label(
+                cell,
+                text=badge_text,
+                font=("Segoe UI", 7, "bold" if matched_slot is not None else "normal"),
+                fg=badge_fg, bg=badge_bg,
+                padx=4, pady=1
+            )
+            badge.pack(side="right", padx=(2, 4), pady=2)
+
+            # Dung lượng file
+            lbl_sz = tk.Label(
+                cell,
+                text=f"{size_mb:.0f}M" if size_mb >= 100 else f"{size_mb:.1f}M",
+                font=("Segoe UI", 7),
+                fg=COLOR_TEXT_MUTED, bg=card_bg
+            )
+            lbl_sz.pack(side="right", padx=(2, 2))
+
+            # Tên file rút gọn thông minh
+            if len(fn) <= 34:
+                name_disp = fn
+            else:
+                name_disp = fn[:31] + "..."
+
+            lbl_name = tk.Label(
+                cell,
+                text=name_disp,
+                font=("Segoe UI", 8, "bold" if matched_slot is not None else "normal"),
+                fg=text_color, bg=card_bg,
+                anchor="w"
+            )
+            lbl_name.pack(side="left", fill="x", expand=True, padx=(0, 2))
+
+            # Nhấp vào bất kỳ đâu trên thẻ để chọn/bỏ chọn
+            def _make_toggle(v=bv):
+                return lambda e: v.set(not v.get())
+
+            toggle_cmd = _make_toggle(bv)
+            for w in (cell, lbl_name, lbl_sz, badge, ico):
+                w.bind("<Button-1>", toggle_cmd)
+                w.config(cursor="hand2")
 
         # Đồng bộ màu sắc cho toàn bộ thẻ thiết bị bên dưới
         self._update_all_cards_ipa_status()
@@ -3268,6 +3406,8 @@ class App(tk.Tk):
         kinds = set(operations.values())
         if "restore" in kinds:
             return "restore"
+        if "install_ipa" in kinds:
+            return "install"
         if kinds.intersection(("activate", "language", "webclip")):
             return "activate"
         if "backup" in kinds:
@@ -3298,6 +3438,8 @@ class App(tk.Tk):
         active_count = sum(1 for kind in operations.values() if kind == "restore")
         if state == "activate":
             active_count = sum(1 for kind in operations.values() if kind in ("activate", "language", "webclip"))
+        elif state == "install":
+            active_count = sum(1 for kind in operations.values() if kind == "install_ipa")
         elif state == "reboot":
             active_count = sum(1 for kind in operations.values() if kind == "auto_activate")
         elif state == "backup":
@@ -3308,10 +3450,10 @@ class App(tk.Tk):
             active_count = connected_count
 
         progress_values = []
-        if state == "restore":
+        if state in ("restore", "install"):
             for udid, kind in operations.items():
                 row = self.rows.get(udid)
-                if kind == "restore" and row and hasattr(row, "pb"):
+                if kind == ("restore" if state == "restore" else "install_ipa") and row and hasattr(row, "pb"):
                     try:
                         progress_values.append(float(row.pb["value"]))
                     except (TypeError, ValueError, tk.TclError):
@@ -3667,14 +3809,18 @@ class App(tk.Tk):
         uninstall_first = self.var_ipa_uninstall_first.get()
         udids = list(self.rows.keys())
 
+        started_count = 0
         for udid in udids:
             if not self._begin_operation(udid, "install_ipa"):
                 continue
+            started_count += 1
             threading.Thread(
                 target=self._install_ipa_worker,
                 args=(udid, selected_ipas, uninstall_first, True),
                 daemon=True,
             ).start()
+        if started_count:
+            self._set_mascot_state("install", count=started_count, progress=0)
 
     def _install_ipa_worker(self, udid, ipa_paths, uninstall_first=True, operation_reserved=False):
         row = self.rows.get(udid)

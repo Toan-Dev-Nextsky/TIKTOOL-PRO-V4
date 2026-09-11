@@ -2,6 +2,31 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.0 Grid IPA Layout & Real-time Progress Edition] - 2026-09-11
+
+### 🎨 Tái Thiết Kế Danh Sách File IPA Dạng Lưới Grid 3 Cột Siêu Gọn
+- **Chuyển đổi từ danh sách dọc 1 cột sang Lưới Grid 3 Cột (`uniform="ipa_col"`)**:
+  - Với 11 file IPA, chiều cao giao diện giảm từ 11 hàng xuống còn 4 hàng, tiết kiệm hơn **64% diện tích chiều dọc**.
+  - 3 cột file IPA căn chỉnh hoàn hảo, đối xứng với 3 cột thẻ thiết bị iPhone bên dưới.
+- **Thuật toán sắp xếp thông minh theo số thứ tự Slot máy (Slot 01 ➔ Slot 10)**:
+  - Tự động đối chiếu UDID trong tên file với các iPhone đang cắm, xếp các file khớp máy lên đầu theo đúng thứ tự slot thiết bị.
+  - Các file đã ký nhưng máy chưa cắm xếp tiếp theo; các file chưa ký (`[Chưa Ký]`) gom ở cuối cùng.
+- **Thẻ Card Mini Tương Tác Trực Quan (Interactive Mini Cards)**:
+  - Viền màu phân cấp rõ nét: Xanh Emerald (`#059669`) cho file khớp máy, Đỏ cảnh báo (`#7F1D1D`) cho file chưa ký, Slate xám cho file chưa cắm.
+  - Tích hợp nhấp chuột nhanh: Bấm vào bất kỳ đâu trên thẻ (icon, tên, dung lượng, nhãn) để chọn/bỏ chọn checkbox.
+- **Thanh Header Tóm Tắt & Đồng Bộ 2 Chiều**:
+  - Hiển thị tổng số file (`Chọn tất cả (11 file IPA)`) kèm các tag tóm tắt (`✔ 10 khớp máy`, `⚠ 1 chưa ký`).
+  - Ô "Chọn tất cả" tự động kiểm tra và phản ánh trạng thái khi người dùng bật/tắt từng file riêng rẽ.
+
+### ⚡ Cải Tiến Luồng Cài Đặt IPA & Bắt Tiến Độ Thời Gian Thực (Real-time Progress)
+- **Hiển thị tiến độ chép file từng %**:
+  - Bắt luồng xuất chuẩn (stdout) theo thời gian thực từ `ideviceinstaller.exe`.
+  - Phân tích cú pháp các giai đoạn nạp file `Copying ... to device (XX%)` để cập nhật trực tiếp nhãn *"Đang chép file... (XX%)"* và thanh tiến độ thời gian thực trên từng thẻ thiết bị, giải quyết triệt để thắc mắc chờ đợi của người dùng khi cài file nặng (>400MB).
+- **Phân biệt màu sắc & Hiển thị UDID trên từng thẻ iPhone**:
+  - Mỗi thẻ thiết bị tự động hiển thị mã UDID và dòng trạng thái: `✔ CÓ IPA KÝ` (sáng xanh `#34D399` kèm viền Emerald `#10B981` và nhãn `Slot XX [✔ IPA]`) hoặc `(Chưa có IPA ký)` (chữ xám).
+- **Khắc phục lỗi đa luồng `RuntimeError: dictionary size changed during iteration`**:
+  - Bọc bản sao an toàn `list(self.rows.items())` trong các vòng lặp kiểm tra trạng thái thiết bị và cập nhật danh sách IPA chạy nền.
+
 ## [4.8.9 Batch IPA Signer & Smart UDID Installer Edition] - 2026-09-11
 
 ### ⚡ Phát Triển Công Cụ Tự Động Ký IPA Hàng Loạt (TIK SIGNER PRO)

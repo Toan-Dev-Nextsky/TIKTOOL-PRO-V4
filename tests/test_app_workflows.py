@@ -94,6 +94,31 @@ class BackupWorkflowTests(unittest.TestCase):
             self.assertEqual(b"keep me", valuable.read_bytes())
 
 
+class UninstallProgressTests(unittest.TestCase):
+    def test_successful_uninstall_completes_card_progress(self):
+        """Catches a successful uninstall leaving the device card at the tool's last 90% update."""
+        class Card:
+            def __init__(self):
+                self.steps = []
+                self.percentages = []
+
+            def push_step(self, text):
+                self.steps.append(text)
+
+            def set_pct(self, value):
+                self.percentages.append(value)
+
+        card = Card()
+        with patch.object(BB_RB, "run_stream", return_value=(0, ["Uninstall: Complete (90%)"])):
+            result = BB_RB.uninstall_app_any(
+                "TEST-UDID", ["com.zhiliaoapp.musically.go"], "TikTok Lite", card, lambda *_args, **_kwargs: None
+            )
+
+        self.assertTrue(result)
+        self.assertEqual("Gỡ TikTok Lite thành công", card.steps[-1])
+        self.assertEqual([100], card.percentages)
+
+
 class RestoreWorkflowTests(unittest.TestCase):
     def test_failed_restore_does_not_change_source_backup(self):
         """Catches restore preparation patching the stored source Info.plist."""
@@ -518,6 +543,13 @@ class PipelineTruthTests(unittest.TestCase):
 
 
 class MascotStateTests(unittest.TestCase):
+    def test_ipa_install_operation_puts_astro_in_install_state(self):
+        """Catches IPA installation being rendered as Astro's idle-ready state."""
+        self.assertEqual(
+            "install",
+            BB_RB.App._resolve_mascot_state({"u1": "install_ipa"}, 10, 0),
+        )
+
     def test_work_state_takes_priority_over_connection_warnings(self):
         self.assertEqual(
             "restore",
