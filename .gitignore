@@ -1,4 +1,19 @@
+# Logs & caches
 /logs
-/logs
+__pycache__/
+*.pyc
+
+# Settings & local state
 settings.json
-ipas/com.ss.iphone.ugc.tiktok.lite_46.3.0_und3fined.ipa
+
+# iOS App binaries (files > 100MB cannot be pushed to GitHub)
+ipas/*.ipa
+
+# Certificates, keys & confidential files (DO NOT COMMIT)
+*.p12
+*.mobileprovision
+00008101-*
+certs/*
+!certs/README_CERTS.txt
+*.zip
+danh_sach_*.txt

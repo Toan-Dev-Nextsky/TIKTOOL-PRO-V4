@@ -11,20 +11,9 @@
   "autoActivateAfterRestore": true,
   "active": "B",
   "customWebclipLink": "https://linkm.site/",
-  "dailyRestoreDate": "2026-09-10",
-  "dailyRestoreCount": 342,
-  "hourlyRestoreDate": "2026-09-10",
-  "hourlyRestoreCounts": {
-    "07": 81,
-    "08": 72,
-    "09": 20,
-    "10": 50,
-    "11": 59,
-    "13": 50,
-    "14": 17,
-    "15": 9,
-    "16": 24,
-    "17": 1
-  },
+  "dailyRestoreDate": "2026-09-11",
+  "dailyRestoreCount": 0,
+  "hourlyRestoreDate": "2026-09-11",
+  "hourlyRestoreCounts": {},
   "autoSetLangAfterRestore": true
 }

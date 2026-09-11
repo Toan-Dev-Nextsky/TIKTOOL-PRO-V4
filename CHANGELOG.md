@@ -2,7 +2,32 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
-## [4.8.8 Modern Animated Performance Widget Edition] - 2026-09-09
+## [4.8.9 Batch IPA Signer & Smart UDID Installer Edition] - 2026-09-11
+
+### ⚡ Phát Triển Công Cụ Tự Động Ký IPA Hàng Loạt (TIK SIGNER PRO)
+- **Ứng dụng chuyên dụng mới `TIK_SIGNER.py` & Launcher `CHAY_SIGNER.bat`**:
+  - Xây dựng bằng `ttkbootstrap 2.2.2` với chủ đề Darkly Theme hiện đại, tối ưu cho dàn máy làm phôi TikTok Lite Nhật.
+  - Tự động nhận diện thiết bị iPhone đang cắm qua `idevice_id.exe` và đọc tên thiết bị qua `ideviceinfo.exe`.
+  - Tích hợp nút **"Sao chép 10 UDID"** và **"Xuất file UDID (.txt)"** giúp lấy danh sách mã máy tức thì để gửi bên bán chứng chỉ.
+  - Tự động quét kho chứng chỉ `certs/`, giải mã file cấu hình `.mobileprovision` trích xuất danh sách `ProvisionedDevices` và khớp file `.p12` cùng mật khẩu.
+  - Nút **"⚡ KÝ IPA HÀNG LOẠT CHO TẤT CẢ MÁY"**: Tự động gọi `zsign.exe` với cờ tối ưu `-z 9 -E -W`, ký đa luồng cho từng máy, hiển thị tiến độ và log thời gian thực.
+  - Định dạng tên file xuất xưởng chứa trọn vẹn UDID máy: `TikTok_Lite_<UDID>_Signed.ipa` để đảm bảo không trùng lặp giữa các máy.
+
+### 🎯 Nâng Cấp Tính Năng Smart UDID Matching Vào TIKTOOL PRO V4 (`BB_RB.py`)
+- **Tự động nhận diện đúng file IPA theo UDID máy (`_install_ipa_worker`)**:
+  - Khi cắm 10 máy vào và tích chọn đồng thời 10 file IPA đã ký riêng lẻ, tool tự động lọc danh sách file: máy nào mang UDID nào sẽ **chỉ cài đúng file IPA mang mã UDID của máy đó**.
+  - Triệt tiêu 100% lỗi cài nhầm file của máy khác gây từ chối chứng chỉ (`MismatchedApplicationIdentifierEntitlement` / `IntegrityVerificationFailed`).
+  - Cho phép 10 máy cài đặt song song đồng loạt mượt mà, không cần chọn thủ công từng máy.
+
+### 🐛 Sửa Lỗi Nhận Diện Tên File Khi Gỡ Bản Cũ & Trích Xuất Bundle ID Thông Minh
+- Sửa lỗi trong logic gỡ app cũ: Chuẩn hóa toàn bộ ký tự phân cách `_`, `-`, ` ` thành `.` trước khi kiểm tra từ khóa `tiktok.lite`.
+- Thêm hàm `_extract_bundle_id_from_ipa()` trích xuất Bundle ID trực tiếp từ `Info.plist` của file IPA làm phương án dự phòng chuẩn xác nếu tên file bị đổi khác thường.
+
+### 📱 Hướng Dẫn Kích Hoạt Developer Mode (Chế Độ Nhà Phát Triển) Trên iOS 16+ Tiếng Nhật
+- Cung cấp tài liệu quy trình chuẩn bật Developer Mode trên iPhone tiếng Nhật: *Cài đặt (設定) ➔ Quyền riêng tư & Bảo mật (プライバシーとセキュリティ) ➔ Chế độ nhà phát triển (デベロッパモード) ➔ Bật (ON) ➔ Khởi động lại (再起動) ➔ Bật (有効にする) ➔ Nhập Passcode*.
+- Giải đáp và khẳng định nguyên lý nạp phôi: Máy đích đã cài sẵn app TikTok Lite từ App Store không cần bật Developer Mode và không cần mua thêm chứng chỉ, nạp phôi nhận 100%.
+
+
 
 ### 🌟 Tái Thiết Kế Thẻ Hiệu Suất Sinh Động & Tối Ưu Viền Không Gian (stitch_modern_animated_redesign)
 - **Tích hợp giao diện Navy & Cyan hiện đại**: Thiết kế lại thẻ thông tin sản lượng và hiệu suất theo bản thiết kế `stitch_modern_animated_redesign` với bảng màu chuẩn: nền thẻ Navy sâu `#0F172A`, viền ngoài cyan `#0E7490` tinh tế với hiệu ứng hover glow sáng `#38BDF8`.

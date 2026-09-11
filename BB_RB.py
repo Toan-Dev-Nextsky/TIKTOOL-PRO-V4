@@ -512,6 +512,22 @@ def uninstall_app_any(udid, bundle_ids, label_name, card, log_fn):
     if card: card.push_step(f"Gỡ {label_name} {'thành công' if ok else 'bỏ qua'}")
     return ok
 
+def _extract_bundle_id_from_ipa(ipa_path):
+    """Trích xuất bundle ID từ file IPA (đọc Info.plist trong zip)."""
+    try:
+        import zipfile, plistlib
+        with zipfile.ZipFile(ipa_path, 'r') as z:
+            for name in z.namelist():
+                # Info.plist nằm ở Payload/AppName.app/Info.plist (depth = 3)
+                parts = name.split('/')
+                if len(parts) == 3 and parts[0] == 'Payload' and parts[2] == 'Info.plist':
+                    with z.open(name) as pf:
+                        plist = plistlib.load(pf)
+                        return plist.get('CFBundleIdentifier', '')
+    except Exception:
+        pass
+    return ''
+
 def install_ipa(udid, ipa_path, label_name, card, log_fn):
     """Cài file .ipa vào thiết bị qua ideviceinstaller."""
     if card: card.push_step(f"Cài {label_name}...")
@@ -3452,19 +3468,48 @@ class App(tk.Tk):
                 if row: row.push_step("Lỗi Pair")
                 return
 
-            total = len(ipa_paths)
-            for idx, ipa_path in enumerate(ipa_paths, 1):
+            # TỰ ĐỘNG NHẬN DIỆN THÔNG MINH THEO UDID:
+            # Nếu danh sách file IPA có chứa file mang mã UDID của máy này,
+            # máy sẽ CHỈ CÀI ĐÚNG FILE ĐÓ (không bao giờ bị cài nhầm file của máy khác).
+            udid_clean = udid.lower().replace("-", "")
+            matched_ipas = [
+                p for p in ipa_paths
+                if udid.lower() in os.path.basename(p).lower()
+                or udid_clean in os.path.basename(p).lower().replace("-", "")
+            ]
+            if matched_ipas:
+                target_ipas = matched_ipas
+                self.log(udid, f"🎯 Khớp file IPA theo UDID: {os.path.basename(matched_ipas[0])}")
+            else:
+                target_ipas = ipa_paths
+
+            total = len(target_ipas)
+            for idx, ipa_path in enumerate(target_ipas, 1):
                 label = os.path.basename(ipa_path)
 
                 # Gỡ app cũ dựa theo tên file ipa (phát hiện tiktok / tiktok lite)
                 if uninstall_first:
                     fn_lower = label.lower()
-                    if "tiktok.lite" in fn_lower or "musicallylite" in fn_lower:
+                    # Chuẩn hóa: đổi dấu gạch dưới, gạch ngang, dấu cách thành dấu chấm
+                    fn_norm = fn_lower.replace("_", ".").replace("-", ".").replace(" ", ".")
+                    uninstalled = False
+
+                    if "tiktok.lite" in fn_norm or "musicallylite" in fn_norm:
                         uninstall_app_any(udid, BIDS_TIKTOK_LITE, "TikTok Lite", row,
                                           lambda s, is_err=False: self.log(udid, s, is_err=is_err))
-                    elif "tiktok" in fn_lower or "musically" in fn_lower or "ugc" in fn_lower:
+                        uninstalled = True
+                    elif "tiktok" in fn_norm or "musically" in fn_norm or "ugc" in fn_norm:
                         uninstall_app_any(udid, BIDS_TIKTOK, "TikTok", row,
                                           lambda s, is_err=False: self.log(udid, s, is_err=is_err))
+                        uninstalled = True
+
+                    # Fallback: Trích xuất bundle ID thực từ file IPA nếu tên file không khớp
+                    if not uninstalled:
+                        bid = _extract_bundle_id_from_ipa(ipa_path)
+                        if bid:
+                            self.log(udid, f"Gỡ app cũ (bundle: {bid})...")
+                            uninstall_app_any(udid, [bid], bid, row,
+                                              lambda s, is_err=False: self.log(udid, s, is_err=is_err))
 
                 if row: row.push_step(f"[{idx}/{total}] Cài {label[:30]}...")
                 ok = install_ipa(

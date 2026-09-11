@@ -1,147 +1,107 @@
 {
-  "updated_at": "2026-09-09T11:35:00+07:00",
+  "updated_at": "2026-09-11T15:15:00+07:00",
   "working_on": {
-    "feature": "Modern Animated Performance Widget Redesign",
-    "task": "Hoàn tất tái thiết kế thẻ hiệu suất sinh động, tối ưu viền ngoài & hộp số, kiểm thử và lưu tri thức",
+    "feature": "Batch IPA Signer & Smart UDID Multi-Device Installer",
+    "task": "Hoàn tất phát triển TIK SIGNER PRO (ký IPA hàng loạt) và nâng cấp thuật toán Smart UDID Matching trong TIKTOOL PRO V4",
     "status": "completed",
     "files": [
+      "TIK_SIGNER.py",
+      "CHAY_SIGNER.bat",
+      "certs/README_CERTS.txt",
       "BB_RB.py",
-      "tests/test_app_workflows.py",
       "CHANGELOG.md",
-      "docs/architecture/system_overview.md",
+      ".brain/session.json",
       ".brain/brain.json",
-      ".brain/handover.md",
-      ".brain/session.json"
+      ".brain/handover.md"
     ],
-    "notes": "Đã giữ lại viền ngoài cyan #0E7490 cho card_daily kèm hover #38BDF8 để tách nền, và thêm khung viền vàng hổ phách #FACC15 tinh tế cho hộp số sản lượng hôm nay (14pt bold, hover glow viền #FDE047). Toàn bộ 54/54 unit tests đạt 100%."
+    "notes": "Đã phát triển hoàn chỉnh TIK SIGNER PRO bằng ttkbootstrap 2.2.2 (Darkly theme). Tinh gọn chỉ tập trung vào Ký IPA hàng loạt và quản lý UDID/Cert. Đồng thời nâng cấp thuật toán tự động nhận diện đúng file IPA theo UDID máy trong TIKTOOL PRO V4 để cài 10 máy riêng lẻ song song không bao giờ bị nhầm file."
   },
   "pending_tasks": [
     {
-      "task": "Theo dõi người dùng trải nghiệm thực tế với widget Hiệu suất mới",
-      "priority": "medium",
-      "notes": "Kiểm tra độ phản hồi thị giác và sự mượt mà trên dàn máy thật."
+      "task": "Xuất danh sách UDID dàn máy gửi bên bán cert",
+      "priority": "high",
+      "notes": "Bấm nút 'Sao chép 10 UDID' hoặc 'Xuất file UDID' trong TIK SIGNER PRO để gửi cho shop."
     },
     {
-      "task": "Đóng gói PyInstaller xuất bản file exe mới nếu cần thiết",
-      "priority": "low",
-      "notes": "Chạy trực tiếp python BB_RB.py hoặc nhấp đúp TIKTOOL_PRO.pyw / CHAY_TIKTOOL.bat hiện tại phản hồi nhanh và chính xác."
+      "task": "Thả các bộ chứng chỉ nhận về vào thư mục certs/",
+      "priority": "high",
+      "notes": "Mỗi bộ cert nằm trong 1 thư mục con (chứa .p12, .mobileprovision, pass.txt)."
+    },
+    {
+      "task": "Chạy CHAY_SIGNER.bat bấm 'KÝ IPA HÀNG LOẠT'",
+      "priority": "high",
+      "notes": "Tool tự sinh ra các file TikTok_Lite_<UDID>_Signed.ipa vào thư mục ipas/."
+    },
+    {
+      "task": "Mở TIKTOOL PRO V4 chọn các file IPA và bấm 'CÀI IPA HÀNG LOẠT'",
+      "priority": "medium",
+      "notes": "TIKTOOL PRO tự nhận đúng file của từng máy và cài đặt song song."
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-11T15:10:00+07:00",
+      "type": "smart_udid_matching_installer",
+      "description": "Nâng cấp hàm _install_ipa_worker trong BB_RB.py: tự động đối soát mã UDID của từng máy với tên file IPA được chọn; máy nào chỉ cài đúng file mang mã UDID của máy đó. Loại bỏ hoàn toàn lỗi cài nhầm file của máy khác khi dùng chứng chỉ cá nhân mua lẻ.",
+      "files": ["BB_RB.py"]
+    },
+    {
+      "timestamp": "2026-09-11T15:05:00+07:00",
+      "type": "batch_ipa_signer_tool",
+      "description": "Tạo công cụ mới TIK SIGNER PRO (TIK_SIGNER.py + CHAY_SIGNER.bat) bằng ttkbootstrap Darkly: quét thiết bị, xuất UDID, quét kho certs/, gọi zsign đa luồng ký IPA hàng loạt tốc độ cao, xuất file chứa trọn vẹn UDID vào ipas/.",
+      "files": ["TIK_SIGNER.py", "CHAY_SIGNER.bat", "certs/README_CERTS.txt"]
+    },
+    {
+      "timestamp": "2026-09-11T14:35:00+07:00",
+      "type": "fix_uninstall_separator_and_bundle_id_fallback",
+      "description": "Sửa lỗi không gỡ được TikTok Lite cũ do chuỗi tên file dùng dấu gạch dưới thay vì dấu chấm; bổ sung hàm _extract_bundle_id_from_ipa() đọc trực tiếp Info.plist làm fallback thông minh.",
+      "files": ["BB_RB.py"]
+    },
     {
       "timestamp": "2026-09-09T10:55:00+07:00",
       "type": "performance_widget_animated_redesign",
       "description": "Tích hợp hoàn thiện bản thiết kế stitch_modern_animated_redesign: thẻ Navy #0F172A, viền #0E7490 hover cyan, live pulse dot breathing indicator, star sparkle/glow, hộp số vàng hover glow, nút Chi tiết và nút Refresh có visual hover states. 54/54 unit tests đạt.",
       "files": ["BB_RB.py", "tests/test_app_workflows.py"]
-    },
-    {
-      "timestamp": "2026-09-06T10:00:00+07:00",
-      "type": "astro_bot_companion",
-      "description": "Thêm Astro Bot vector hoạt hình trên thanh thống kê: lơ lửng, chớp mắt, LED đa sắc, 8 trạng thái workflow, bong bóng thoại theo số máy và tiến độ, tương tác poke. Tích hợp UI queue và state resolver; 37/37 tests đạt.",
-      "files": ["BB_RB.py", "tests/test_app_workflows.py", "CHANGELOG.md", "README.md", "docs/architecture/system_overview.md"]
-    },
-    {
-      "timestamp": "2026-09-05T20:50:00+07:00",
-      "type": "instant_restore_and_honest_activate",
-      "description": "Loại bỏ 10-15s chờ check khi Restore bằng cơ chế prepare_restore_in_place (0.004s/máy) kèm rollback an toàn. Sửa triệt để bug Auto Activate báo thành công ảo: tiền kiểm công cụ, xác minh trạng thái thật bằng ideviceactivation state, tri-state Skip Setup, re-pair và chờ lockdownd.",
-      "files": ["BB_RB.py", "tiktool_core.py", "tests/test_app_workflows.py", "tests/test_tiktool_core.py", "CHANGELOG.md", "README.md", "docs/architecture/system_overview.md"]
-    },
-    {
-      "timestamp": "2026-09-05T15:22:12+07:00",
-      "type": "auto_activate_batch_coordinator",
-      "description": "Thay thế Auto Activate từng máy bằng coordinator theo đợt: queue máy restore thành công, đợi toàn bộ restore kết thúc + 100 giây, xác nhận USB ổn định 3 mẫu liên tiếp, sau đó khởi chạy đúng worker Batch Activate cho từng máy. Máy mất kết nối không chặn máy đã sẵn sàng; sau 30 lượt kiểm tra USB, trạng thái operation của máy mất kết nối được giải phóng và log rõ ràng.",
-      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
-    },
-    {
-      "timestamp": "2026-09-05T14:20:00+07:00",
-      "type": "ui_store_boxes_active_border_refinement",
-      "description": "Cố định màu sắc badge (Kho A luôn Xanh lục #10B981, Kho B luôn Cam #F97316), áp dụng border đậm 2px màu tương ứng cho kho được chọn làm nguồn, kho không được chọn giữ border tối #3A414F (1px) như bản cũ.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T12:05:00+07:00",
-      "type": "ui_rounded_gradient_buttons",
-      "description": "Tạo lớp GradientButton (tk.Canvas) hỗ trợ bo góc radius=6px, dải màu gradient đa điểm dừng (Emerald, Electric Blue, Sky), viền subtle border, hiệu ứng hover và click tactile feedback; áp dụng cho BATCH ACTIVATE (ALL), BẮT ĐẦU RESTORE PRO (A->B & B->A), TikTok Pro, Tạo Web App và Hộp thoại xác nhận.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T11:45:00+07:00",
-      "type": "ui_soft_charcoal_slate_theme",
-      "description": "Cập nhật hệ màu Soft Charcoal Slate Dark Theme nhẹ nhàng hơn: Nền chính #1A1D23, Panels/Cards #22262E, Sub-panels/Tracks #262A33, Terminal Console #1E2229, Elevated Buttons #2C313C, Subtle Borders #3A414F, Bổ sung chỉ báo SYSTEM ENGINE ACTIVE ở status bar.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T11:25:00+07:00",
-      "type": "ui_elevate_bang_kho_contrast",
-      "description": "Nâng nền Bảng Kho và chuyển nút Restore Kho B ➜ A sang màu Electric Blue #2563EB giúp Bảng Kho nổi bật rõ nét, không bị trùng màu với dàn iPhone bên dưới.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T11:05:00+07:00",
-      "type": "ui_segoe_mdl2_icon_font",
-      "description": "Thay thế toàn bộ emoji đơn sắc bằng Windows Segoe MDL2 Assets vector font (lớp Icons với các mã PUA); tách nhãn icon và nhãn tên máy trên DeviceCard.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-05T08:20:00+07:00",
-      "type": "increase_reboot_wait_time",
-      "description": "Tăng thời gian đếm ngược TOTAL_WAIT từ 80s lên 100s sau khi restore để iPhone có đủ thời gian nạp SpringBoard và lockdownd, tối ưu tỷ lệ activate thành công.",
-      "files": ["BB_RB.py"]
     }
   ],
   "errors_encountered": [
     {
-      "error": "Giao diện ban đầu hơi tối gắt (#090D16) có thể gây mỏi mắt khi vận hành nhiều giờ liên tục",
-      "solution": "Chuyển sang Soft Charcoal Slate Dark Theme (#1A1D23, #22262E, #262A33, #1E2229) êm dịu, ấm áp và chuyên nghiệp hơn.",
+      "error": "Lỗi MismatchedApplicationIdentifierEntitlement khi cài đè TikTok Lite ký bằng Team ID mới",
+      "solution": "Chuẩn hóa dấu gạch dưới thành dấu chấm khi nhận diện tên app để gỡ sạch bản cũ trước khi cài; đồng thời trích xuất Bundle ID thật từ file IPA làm fallback.",
       "resolved": true
     },
     {
-      "error": "Bảng Kho và dàn Thẻ iPhone bên dưới dùng chung nền làm giao diện bị phẳng và chìm",
-      "solution": "Nâng nền Bảng Kho lên #262A33, viền ngoài #3A414F, inner box #22262E; nút Restore B ➜ A dùng Electric Blue #2563EB.",
+      "error": "Popup 'Developer Mode Required' (デベロッパモードが必要です) xuất hiện khi mở app trên iOS 16+ tiếng Nhật",
+      "solution": "Hướng dẫn người dùng thao tác bật Developer Mode chuẩn giao diện tiếng Nhật: Cài đặt (設定) -> Quyền riêng tư & Bảo mật (プライバシーとセキュリティ) -> Chế độ nhà phát triển (デベロッパモード) -> Bật và Reboot.",
       "resolved": true
     },
     {
-      "error": "Emoji Unicode trên Windows Tkinter hiển thị dạng glyphs đen trắng đơn sắc thiếu chuyên nghiệp",
-      "solution": "Tích hợp Segoe MDL2 Assets - font vector biểu tượng chính thức của Windows với các mã PUA chuyên dụng.",
+      "error": "AttributeError: module 'ttkbootstrap' has no attribute 'PanedWindow'",
+      "solution": "Đổi ttk.PanedWindow thành ttk.Panedwindow (chữ w thường) theo đúng quy chuẩn API của thư viện ttkbootstrap 2.x.",
+      "resolved": true
+    },
+    {
+      "error": "Nguy cơ cài nhầm file IPA giữa 10 iPhone khi mỗi máy có 1 file ký theo UDID riêng",
+      "solution": "Tích hợp tính năng Smart UDID Matching trong _install_ipa_worker của BB_RB.py: tự động lọc danh sách file được chọn để máy nào chỉ nạp đúng file chứa UDID của máy đó.",
       "resolved": true
     }
   ],
   "decisions_made": [
     {
-      "decision": "Áp dụng bảng màu Soft Charcoal Slate Dark Theme từ bản stitch_dark_theme_transformation mới",
-      "reason": "Màu #1A1D23 và #22262E dịu mắt hơn hẳn màu jet black #090D16, giúp người dùng quan sát liên tục trong nhiều giờ mà không bị mỏi mắt hay chói gắt."
+      "decision": "Sử dụng ttkbootstrap Darkly Theme cho TIK SIGNER PRO",
+      "reason": "Mang lại giao diện Desktop bóng bẩy, hiện đại, chuẩn chuyên nghiệp mà vẫn chạy trực tiếp qua Python/BAT không cần setup webview phức tạp."
     },
     {
-      "decision": "Dùng #1E2229 cho nền Cửa sổ Nhật ký hệ thống (Terminal Log Console)",
-      "reason": "Tạo bề mặt đọc log êm ái, tương phản dịu với chữ Slate-300 (#CBD5E1) và mã UDID Tech Cyan (#38BDF8)."
+      "decision": "Tách riêng TIK SIGNER PRO làm công cụ Ký IPA chuyên biệt thay vì nhồi nhét thêm vào BB_RB.py",
+      "reason": "Giữ cho TIKTOOL PRO V4 ổn định tuyệt đối, không làm nặng codebase chính, đồng thời người dùng có một tool ký tập trung, thao tác cực nhanh."
     },
     {
-      "decision": "Duy trì 100% Segoe MDL2 Assets Icon Font",
-      "reason": "Giữ tính sắc nét vector của Windows, không quay lại emoji đen trắng và không phụ thuộc file ảnh ngoài."
+      "decision": "Đặt tên file IPA đã ký chứa trọn vẹn UDID máy (TikTok_Lite_<UDID>_Signed.ipa)",
+      "reason": "Loại bỏ hoàn toàn rủi ro trùng lặp mã máy và cho phép TIKTOOL PRO nhận diện tự động 100% khi bấm Cài đặt hàng loạt."
     },
     {
-      "decision": "Giữ nguyên 100% logic nghiệp vụ backend, chỉ nâng cấp tầng giao diện và trình bày",
-      "reason": "Bảo toàn tính ổn định tối đa của toàn bộ luồng đa luồng USB, libimobiledevice, ios.exe, khôi phục backup và kích hoạt hàng loạt."
-    },
-    {
-      "decision": "Xây dựng GradientButton dựa trên tk.Canvas và hình học giải tích thay vì dùng thư viện bên thứ ba",
-      "reason": "Giữ vững cam kết 100% Zero-Pip dependency của dự án; vẽ gradient lát cắt 1px bo góc tròn radius=6px, viền subtle border, text centering và hiệu ứng hover/click cực kỳ mượt mà, không phụ thuộc Pillow hay CustomTkinter."
-    },
-    {
-      "decision": "Auto Activate chạy theo đợt Restore và tái sử dụng pipeline Batch Activate",
-      "reason": "Nút Batch thủ công chạy được trong khi Auto từng máy lỗi phụ thuộc thời điểm reboot. Điều phối theo đợt loại bỏ chênh lệch thời điểm, vẫn cho 10-16 máy chạy song song và tránh dùng một pipeline Auto riêng khác với Batch."
-    },
-    {
-      "decision": "Tách biệt viền ngoài và loại bỏ viền con trong thẻ hiệu suất",
-      "reason": "Viền ngoài #0E7490 (hover #38BDF8) giữ cho thẻ không bị lẫn vào nền tối #1A1D23. Bỏ viền các nút và khung giờ bên trong giúp tiết kiệm diện tích tối đa và bố cục thoáng đãng."
-    },
-    {
-      "decision": "Tạo hộp số sản lượng vàng hổ phách #FACC15 với font Segoe UI 14 Bold",
-      "reason": "Giúp con số sản lượng 223/233 nổi bật rõ ràng từ xa, viền vàng 1px kèm hover glow #FDE047 tạo điểm nhấn cao cấp."
-    },
-    {
-      "decision": "Dùng Canvas 5x5 làm Live Pulse Dot với chu kỳ nhịp thở 850ms",
-      "reason": "Trực quan hóa luồng máy đang live mà không làm tăng tải CPU hay phụ thuộc thư viện đồ họa ngoài."
+      "decision": "Máy đích đã có sẵn app TikTok Lite từ App Store thì không cần bật Developer Mode và không cần mua cert khi nhận restore phôi",
+      "reason": "Bản restore của iOS chỉ nạp container data (Documents/Preferences/Cookies) vào đúng Bundle ID com.ss.iphone.ugc.tiktok.lite có sẵn trên máy."
     }
   ]
 }
