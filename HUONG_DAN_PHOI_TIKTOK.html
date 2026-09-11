@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cẩm Nang Toàn Tập: Quy Trình Làm Phôi TikTok Lite, Chứng Chỉ & Sideload IPA | TIKTOOL PRO V4</title>
+  <meta name="description" content="Tài liệu phân tích chuyên sâu về chứng chỉ Apple Developer không bảo hành, quy trình làm phôi sạch, tối ưu mạng proxy/VPN Nhật và so sánh cài đặt IPA qua USB vs App Store cho dàn máy TikTok Lite.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS v4 Browser Build -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --color-brand-bg: #0B0F17;
+      --color-brand-card: #131B2A;
+      --color-brand-sub: #1A2436;
+      --color-brand-border: #223147;
+      --color-brand-cyan: #06B6D4;
+      --color-brand-emerald: #10B981;
+      --color-brand-purple: #8B5CF6;
+      --color-brand-amber: #F59E0B;
+    }
+  </style>
+
+  <!-- Fallback Styles & Custom Animations -->
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0B0F17;
+      color: #E2E8F0;
+      scroll-behavior: smooth;
+    }
+    code, pre {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glass-panel {
+      background: rgba(19, 27, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+    }
+    .glow-purple {
+      box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.25);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .glass-panel {
+        background: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- Header / Navigation Bar -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-purple-600 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-cyan-500/20">
+          ⚡
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-white font-extrabold text-lg tracking-tight">TIKTOOL PRO V4</span>
+            <span class="px-2 py-0.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full">Kỹ Thuật Chuyên Sâu</span>
+          </div>
+          <p class="text-xs text-slate-400">Cẩm Nang Làm Phôi TikTok Lite Nhật &amp; Sideload IPA</p>
+        </div>
+      </div>
+
+      <nav class="hidden md:flex items-center gap-1.5 text-xs font-medium text-slate-300">
+        <a href="#section-cert" class="px-3 py-1.5 rounded-lg hover:bg-slate-800/80 hover:text-cyan-400 transition-colors">1. Chứng Chỉ &amp; Revoke</a>
+        <a href="#section-phoi" class="px-3 py-1.5 rounded-lg hover:bg-slate-800/80 hover:text-emerald-400 transition-colors">2. Quy Trình Tạo Phôi</a>
+        <a href="#section-network" class="px-3 py-1.5 rounded-lg hover:bg-slate-800/80 hover:text-purple-400 transition-colors">3. Proxy vs Quên WiFi</a>
+        <a href="#section-compare" class="px-3 py-1.5 rounded-lg hover:bg-slate-800/80 hover:text-amber-400 transition-colors">4. IPA USB vs App Store</a>
+        <a href="#section-sop" class="px-3 py-1.5 rounded-lg hover:bg-slate-800/80 hover:text-white transition-colors">5. Sơ Đồ SOP</a>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="no-print px-3 py-1.5 text-xs font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg flex items-center gap-1.5 cursor-pointer transition">
+          🖨️ <span class="hidden sm:inline">In / Xuất PDF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden pt-12 pb-16 px-4 lg:px-8 border-b border-slate-800/60">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(6,182,212,0.15),rgba(255,255,255,0))]"></div>
+    <div class="max-w-5xl mx-auto relative text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-6">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        Giải Đáp 100% Thắc Mắc Kỹ Thuật Thực Tế
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">
+        CẨM NANG TOÀN TẬP:<br>
+        <span class="bg-gradient-to-r from-cyan-400 via-emerald-400 to-purple-400 bg-clip-text text-transparent">LÀM PHÔI TIKTOK LITE, CHỨNG CHỈ &amp; SIDELOAD IPA</span>
+      </h1>
+      <p class="text-slate-300 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed mb-8">
+        Tổng hợp phân tích toàn diện về cơ chế chứng chỉ không bảo hành, kỹ thuật xoá app làm sạch phôi, chiến lược mạng Proxy/VPN Nhật không cần quên WiFi, và so sánh bản chất giữa cài IPA qua USB vs tải từ App Store.
+      </p>
+
+      <!-- Metric Highlights -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto text-left">
+        <div class="glass-panel p-3.5 rounded-xl border border-slate-800/80">
+          <div class="text-cyan-400 text-xs font-semibold uppercase tracking-wider">Tốc Độ Cài Dàn Máy</div>
+          <div class="text-xl sm:text-2xl font-black text-white mt-1">10–20s <span class="text-xs text-slate-400 font-normal">/ 10 máy</span></div>
+          <p class="text-[11px] text-slate-400 mt-0.5">Nạp trực tiếp qua cáp USB</p>
+        </div>
+        <div class="glass-panel p-3.5 rounded-xl border border-slate-800/80">
+          <div class="text-emerald-400 text-xs font-semibold uppercase tracking-wider">Độ Khớp Dữ Liệu</div>
+          <div class="text-xl sm:text-2xl font-black text-white mt-1">100% <span class="text-xs text-emerald-400 font-normal">Khớp Chuẩn</span></div>
+          <p class="text-[11px] text-slate-400 mt-0.5">Sandbox trùng với App Store</p>
+        </div>
+        <div class="glass-panel p-3.5 rounded-xl border border-slate-800/80">
+          <div class="text-purple-400 text-xs font-semibold uppercase tracking-wider">Tiết Kiệm Diện Tích</div>
+          <div class="text-xl sm:text-2xl font-black text-white mt-1">64% <span class="text-xs text-purple-400 font-normal">Chiều dọc</span></div>
+          <p class="text-[11px] text-slate-400 mt-0.5">Lưới Grid 3 cột thông minh</p>
+        </div>
+        <div class="glass-panel p-3.5 rounded-xl border border-slate-800/80">
+          <div class="text-amber-400 text-xs font-semibold uppercase tracking-wider">Apple ID Yêu Cầu</div>
+          <div class="text-xl sm:text-2xl font-black text-white mt-1">0 Acc <span class="text-xs text-amber-400 font-normal">Không cần</span></div>
+          <p class="text-[11px] text-slate-400 mt-0.5">Máy trắng tinh nạp được ngay</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="max-w-6xl mx-auto px-4 lg:px-8 py-12 space-y-16">
+
+    <!-- ==================== SECTION 1 ==================== -->
+    <section id="section-cert" class="scroll-mt-24 space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 font-black text-sm border border-cyan-500/40">1</span>
+        <div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Chứng Chỉ "Không Bảo Hành" &amp; Bản Chất Khi Apple Thu Hồi (Revoke)</h2>
+          <p class="text-xs text-slate-400">Giải đáp: "Mua cert không bảo hành, app đã ký rồi có cài được không? Bị thu hồi thì sao?"</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Card 1.1 -->
+        <div class="glass-panel rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">GIAI ĐOẠN 1: CERT CHƯA BỊ THU HỒI</span>
+              <span class="text-emerald-400 text-lg">✅ Cài vô tư 100%</span>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Cài Đi Cài Lại Hàng Nghìn Lần Vẫn Hoạt Động Bình Thường</h3>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+              Về mặt kỹ thuật, chứng chỉ Apple Developer có thời hạn <strong class="text-white">1 năm</strong>. Thuật ngữ <em>"không bảo hành"</em> chỉ mang ý nghĩa thương mại giữa bạn và bên bán: nếu tài khoản Dev bị Apple quét trúng và thu hồi, bên bán sẽ không cấp miễn phí cert khác.
+            </p>
+            <div class="bg-slate-900/80 rounded-xl p-3.5 border border-slate-800 text-xs text-slate-300 space-y-1.5">
+              <div class="flex items-center gap-2 text-emerald-400 font-semibold">
+                <span>✔</span> Không giới hạn số lần cài đặt trên các UDID đã đăng ký.
+              </div>
+              <div class="flex items-center gap-2 text-emerald-400 font-semibold">
+                <span>✔</span> Thoải mái xoá app ➔ cài lại ➔ làm phôi liên tục.
+              </div>
+              <div class="flex items-center gap-2 text-emerald-400 font-semibold">
+                <span>✔</span> Tốc độ cài qua cáp USB TIKTOOL PRO chỉ 10–20 giây.
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs text-slate-400">
+            👉 <strong>Khuyên dùng:</strong> Tranh thủ lúc cert đang sống, làm phôi liên tục và Backup lưu trữ sẵn trong ổ cứng.
+          </div>
+        </div>
+
+        <!-- Card 1.2 -->
+        <div class="glass-panel rounded-2xl p-6 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">GIAI ĐOẠN 2: KHI APPLE QUÉT THU HỒI (REVOKE)</span>
+              <span class="text-rose-400 text-lg">⚠️ Bị chặn cài mới</span>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Cơ Chế Kiểm Tra Thu Hồi Của Hệ Điều Hành iOS</h3>
+            <p class="text-sm text-slate-300 leading-relaxed mb-4">
+              Khi bạn cắm máy bấm cài đặt mới file IPA, daemon <code class="text-cyan-300">installd</code> trên iPhone sẽ kết nối tới máy chủ Apple qua giao thức OCSP (<code class="text-slate-200">ocsp.apple.com</code>). Nếu Apple đã đưa cert vào danh sách đen:
+            </p>
+            <div class="bg-slate-900/80 rounded-xl p-3.5 border border-slate-800 text-xs text-slate-300 space-y-1.5">
+              <div class="flex items-center gap-2 text-rose-400 font-semibold">
+                <span>✕</span> <strong>Khi cài mới:</strong> Báo lỗi <code>IntegrityVerificationFailed</code>.
+              </div>
+              <div class="flex items-center gap-2 text-rose-400 font-semibold">
+                <span>✕</span> <strong>Mở app có sẵn:</strong> Báo <em>"Không thể xác minh ứng dụng"</em>.
+              </div>
+              <div class="flex items-center gap-2 text-cyan-300 font-semibold">
+                <span>💡</span> <strong>Khắc phục:</strong> Ký lại bằng chứng chỉ mới qua TIK SIGNER PRO (1-Click).
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800/80 text-xs text-slate-400">
+            👉 Giá cert cá nhân mua lẻ rất rẻ (vài chục nghìn), chi phí chia trên hàng trăm phôi làm ra là không đáng kể.
+          </div>
+        </div>
+      </div>
+
+      <!-- Anti-Revoke Tip Box -->
+      <div class="glass-panel rounded-2xl p-6 border border-cyan-500/30 bg-cyan-950/20 relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 text-cyan-400 font-bold text-sm uppercase tracking-wider">
+              <span>🛡️</span> TUYỆT CHIÊU: CHẶN APPLE THU HỒI (ANTI-REVOKE DNS) TRÊN MÁY PHÔI
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 max-w-3xl">
+              iPhone chỉ biết chứng chỉ bị thu hồi khi nó kết nối được tới 2 máy chủ xác minh của Apple. Nếu bạn cấu hình Router WiFi hoặc Profile chặn 2 tên miền này thì <strong>dù Apple có thu hồi cert bên ngoài, dàn máy phôi của bạn vẫn cài đi cài lại và mở app bình thường!</strong>
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2 shrink-0">
+            <div class="px-3 py-2 bg-slate-950 rounded-lg border border-slate-800 text-xs font-mono text-cyan-300 select-all">
+              ocsp.apple.com
+            </div>
+            <div class="px-3 py-2 bg-slate-950 rounded-lg border border-slate-800 text-xs font-mono text-cyan-300 select-all">
+              ppq.apple.com
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================== SECTION 2 ==================== -->
+    <section id="section-phoi" class="scroll-mt-24 space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 font-black text-sm border border-emerald-500/40">2</span>
+        <div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Quy Trình Chuẩn Tạo Phôi Mới: Cài ➔ Lướt Thả Tim ➔ Backup ➔ Gỡ App</h2>
+          <p class="text-xs text-slate-400">Giải đáp: "Cài xong TikTok Lite, mở app lướt thả tim rồi backup sau đó gỡ app là được một mẻ phôi phải không?"</p>
+        </div>
+      </div>
+
+      <!-- Step by Step Workflow Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Step 1 -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 relative hover:border-emerald-500/40 transition">
+          <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 font-bold flex items-center justify-center text-sm mb-3">01</div>
+          <h3 class="font-bold text-white text-base mb-1">Cài IPA Mới Tinh</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">
+            Bấm <strong>CÀI IPA HÀNG LOẠT</strong> trên TIKTOOL PRO. 10 máy nạp file riêng theo đúng mã UDID qua cáp USB.
+          </p>
+          <div class="text-[11px] font-semibold text-cyan-400 bg-cyan-950/40 px-2.5 py-1 rounded border border-cyan-800/40">
+            Trắng sạch 100%, không rác cũ
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 relative hover:border-emerald-500/40 transition">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm mb-3">02</div>
+          <h3 class="font-bold text-white text-base mb-1">Lướt &amp; Thả Tim ("Làm Ấm")</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">
+            Mở app, chọn 2–3 sở thích, xem 3–5 video (khoảng 1–2 phút), bấm tim. TikTok sinh ra <code>device_id</code> và token người dùng thật.
+          </p>
+          <div class="text-[11px] font-semibold text-emerald-400 bg-emerald-950/40 px-2.5 py-1 rounded border border-emerald-800/40">
+            Tạo độ Trust cao, chống bot quét
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 relative hover:border-emerald-500/40 transition">
+          <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-sm mb-3">03</div>
+          <h3 class="font-bold text-white text-base mb-1">Bấm BACKUP (Lưu Phôi)</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">
+            Chuyển sang tab <strong>SAO LƯU</strong> trên TIKTOOL PRO. Toàn bộ container dữ liệu (Cookies, Session) được đóng gói thành 1 phôi chuẩn.
+          </p>
+          <div class="text-[11px] font-semibold text-purple-400 bg-purple-950/40 px-2.5 py-1 rounded border border-purple-800/40">
+            Lưu vào Kho A hoặc Kho B máy tính
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 relative hover:border-emerald-500/40 transition">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center text-sm mb-3">04</div>
+          <h3 class="font-bold text-white text-base mb-1">Gỡ App TikTok Lite</h3>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">
+            Tích chọn <em>"Gỡ app cũ trước khi cài"</em> hoặc gỡ nhanh trên màn hình. Xoá sạch toàn bộ sandbox, máy sẵn sàng làm mẻ phôi tiếp theo.
+          </p>
+          <div class="text-[11px] font-semibold text-amber-400 bg-amber-950/40 px-2.5 py-1 rounded border border-amber-800/40">
+            Triệt tiêu 100% nguy cơ dính chùm
+          </div>
+        </div>
+      </div>
+
+      <!-- Golden Tips Accordion / Callouts -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+          <div class="font-bold text-sm text-emerald-300 flex items-center gap-2 mb-1.5">
+            <span>🎯</span> Phân biệt: Phôi Nhận Ref Link vs Phôi Nuôi Acc
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • <strong>Phôi nhận Ref (Link mời kiếm tiền):</strong> Tuyệt đối <u>không đăng nhập tài khoản</u>. Giữ nguyên ở trạng thái khách (Guest), lướt tương tác rồi Backup.<br>
+            • <strong>Phôi nuôi tài khoản:</strong> Đăng nhập tài khoản vào, tương tác thêm 1–2 video rồi mới Backup.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
+          <div class="font-bold text-sm text-cyan-300 flex items-center gap-2 mb-1.5">
+            <span>⏱️</span> Bí quyết tương tác: Không nên quá vội vàng
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Nếu vừa mở app lên chỉ 5 giây bấm tim rồi tắt ngay, thuật toán chống gian lận của ByteDance sẽ đánh dấu cờ tài khoản bất thường. Hãy dành 1–2 phút lướt tự nhiên để phôi đạt chất lượng ăn điểm 100%.
+          </p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================== SECTION 3 ==================== -->
+    <section id="section-network" class="scroll-mt-24 space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 font-black text-sm border border-purple-500/40">3</span>
+        <div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Chiến Lược Mạng: Chỉ Cần Bắt Proxy / VPN Nhật, Không Cần Quên WiFi</h2>
+          <p class="text-xs text-slate-400">Giải đáp: "Không cần phải quên mạng làm gì mất thời gian, cứ bắt proxy hay VPN Nhật là được"</p>
+        </div>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-slate-800">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div class="space-y-4">
+            <div class="inline-block px-2.5 py-1 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30 text-xs font-bold">
+              KẾT LUẬN: BẠN HOÀN TOÀN CHÍNH XÁC!
+            </div>
+            <h3 class="text-xl font-bold text-white">Vì Sao Bắt Proxy / VPN Nhật Là Đủ &amp; Quên WiFi Là Lãng Phí Công Sức?</h3>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              Trong cộng đồng nuôi tài khoản, nhiều người truyền tai nhau mẹo thủ công: <em>"mỗi lần đổi acc phải vào Cài đặt ➔ Quên mạng WiFi rồi nhập lại pass"</em>. Với dàn 10–20 máy, việc này gây <strong>kiệt sức, chậm tiến độ và không có giá trị kỹ thuật thực chất</strong>.
+            </p>
+            <div class="space-y-2.5 text-xs text-slate-300">
+              <div class="flex items-start gap-2.5">
+                <span class="text-emerald-400 text-sm">✔</span>
+                <div>
+                  <strong class="text-white">TikTok chỉ quan tâm IP Public đầu ra:</strong> Khi bạn gắn Proxy hoặc bật VPN Nhật, toàn bộ gói tin HTTP/HTTPS từ app TikTok Lite đều được định tuyến qua dải IP Nhật Bản.
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="text-emerald-400 text-sm">✔</span>
+                <div>
+                  <strong class="text-white">TIKTOOL PRO đã chuẩn hoá môi trường:</strong> Chức năng <code>ja_JP</code> tự động đổi Ngôn ngữ máy, Locale, Bàn phím và Múi giờ sang Tokyo (GMT+9).
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="text-emerald-400 text-sm">✔</span>
+                <div>
+                  <strong class="text-white">App vừa gỡ cài lại sạch 100%:</strong> Không hề tồn tại cookie hay cache WiFi của mẻ trước.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comparison visual box -->
+          <div class="space-y-3">
+            <div class="p-4 rounded-xl bg-rose-950/20 border border-rose-800/40 text-xs text-slate-300">
+              <div class="text-rose-400 font-bold mb-1 flex items-center gap-1.5">
+                <span>❌</span> CÁCH CŨ: QUÊN MẠNG WIFI (THỦ CÔNG, MẤT THỜI GIAN)
+              </div>
+              <p class="text-slate-400">
+                10 máy × Phải bấm Quên mạng ➔ Tìm lại tên WiFi ➔ Nhập lại mật khẩu từng máy ➔ Tốn 5–10 phút mỗi lượt chỉ để làm việc vô ích.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-xs text-slate-300">
+              <div class="text-emerald-400 font-bold mb-1 flex items-center gap-1.5">
+                <span>✅</span> CÁCH CHUẨN: GIỮ NGUYÊN WIFI + PROXY / VPN NHẬT
+              </div>
+              <p class="text-slate-400">
+                WiFi giữ nguyên kết nối cố định. Cần đổi IP thì chỉ việc đổi cổng/IP proxy hoặc bấm switch trên app VPN ➔ Chỉ tốn 3 giây, tự động và năng suất gấp 10 lần.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================== SECTION 4 ==================== -->
+    <section id="section-compare" class="scroll-mt-24 space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 font-black text-sm border border-amber-500/40">4</span>
+        <div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">So Sánh Bản Chất: Cài Trực Tiếp File IPA Qua USB vs Cài Trên App Store</h2>
+          <p class="text-xs text-slate-400">Giải đáp: "Cài trực tiếp file IPA thế này với cài trên App Store có khác nhau gì không?"</p>
+        </div>
+      </div>
+
+      <!-- Big Comparison Table -->
+      <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-900/90 border-b border-slate-800 text-slate-400 uppercase text-[11px] tracking-wider">
+                <th class="py-3.5 px-4 font-bold">Tiêu Chí Đánh Giá</th>
+                <th class="py-3.5 px-4 font-bold text-cyan-400 w-5/12 bg-cyan-950/20 border-x border-cyan-900/40">Cài Trực Tiếp File IPA (TIKTOOL PRO)</th>
+                <th class="py-3.5 px-4 font-bold text-slate-300 w-5/12">Tải Trực Tiếp Từ App Store</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/70 text-slate-300">
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4 font-semibold text-white">Mã Nguồn &amp; Tính Năng App</td>
+                <td class="py-3 px-4 bg-cyan-950/10 border-x border-cyan-900/30 text-emerald-400 font-semibold">
+                  ✔ Giống hệt 100% (cùng mã dump từ App Store)
+                </td>
+                <td class="py-3 px-4 text-emerald-400 font-semibold">
+                  ✔ Bản gốc chính thức từ Apple
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4 font-semibold text-white">Cấu Trúc Dữ Liệu (Sandbox/Cookies)</td>
+                <td class="py-3 px-4 bg-cyan-950/10 border-x border-cyan-900/30 text-emerald-400 font-semibold">
+                  ✔ Giống hệt 100% (Trùng Bundle ID <code>com.ss.iphone.ugc.tiktok.lite</code>)
+                </td>
+                <td class="py-3 px-4 text-emerald-400 font-semibold">
+                  ✔ Khớp hoàn toàn với bản backup IPA
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4 font-semibold text-white">Tốc Độ Cài Dàn 10 Máy</td>
+                <td class="py-3 px-4 bg-cyan-950/10 border-x border-cyan-900/30 text-cyan-300 font-bold">
+                  ⚡ Siêu Tốc (10–20 giây) nạp song song qua cáp USB
+                </td>
+                <td class="py-3 px-4 text-rose-400">
+                  ⏳ Rất chậm (vài phút đến chục phút nếu mạng yếu)
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4 font-semibold text-white">Yêu Cầu Tài Khoản Apple ID</td>
+                <td class="py-3 px-4 bg-cyan-950/10 border-x border-cyan-900/30 text-emerald-400 font-bold">
+                  ❌ KHÔNG CẦN Apple ID (Máy trắng cắm là cài)
+                </td>
+                <td class="py-3 px-4 text-amber-400">
+                  ⚠️ Bắt buộc phải có Apple ID vùng Nhật Bản
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4 font-semibold text-white">Rủi Ro Bị Khoá Tài Khoản</td>
+                <td class="py-3 px-4 bg-cyan-950/10 border-x border-cyan-900/30 text-emerald-400">
+                  ✔ 0% rủi ro (hoàn toàn độc lập với Apple Store)
+                </td>
+                <td class="py-3 px-4 text-rose-400">
+                  ⚠️ Tải 10 máy cùng lúc dễ bị khoá acc Apple / hỏi OTP
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4 font-semibold text-white">Mức Độ Tự Động Hoá</td>
+                <td class="py-3 px-4 bg-cyan-950/10 border-x border-cyan-900/30 text-cyan-300 font-bold">
+                  🤖 1-Click cài đồng loạt không chạm màn hình iPhone
+                </td>
+                <td class="py-3 px-4 text-slate-400">
+                  🖐️ Phải bấm tay thủ công trên từng máy
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-800/40 transition">
+                <td class="py-3 px-4 font-semibold text-white">Phụ Thuộc Chứng Chỉ &amp; Dev Mode</td>
+                <td class="py-3 px-4 bg-cyan-950/10 border-x border-cyan-900/30 text-amber-300">
+                  Cần bật Developer Mode 1 lần trên iOS 16+ &amp; phụ thuộc cert
+                </td>
+                <td class="py-3 px-4 text-emerald-400 font-semibold">
+                  ✔ Không cần cert, không cần bật Developer Mode
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Core Technical Takeaway -->
+      <div class="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-purple-950/40 border border-cyan-500/30 text-xs sm:text-sm text-slate-300 space-y-2">
+        <div class="font-bold text-white text-sm sm:text-base flex items-center gap-2">
+          <span>💡</span> TẠI SAO BẠN CÓ THỂ LÀM PHÔI BẰNG IPA RỒI RESTORE SANG APP STORE HOÀN HẢO?
+        </div>
+        <p class="leading-relaxed">
+          Bản sao lưu của hệ điều hành iOS (qua <code>idevicebackup2</code>) <strong>chỉ lưu dữ liệu người dùng (Documents, Library, Cookies, Preferences)</strong> chứ không lưu file nhị phân của ứng dụng. Do cả 2 bản cài đều dùng chung Bundle ID <code>com.ss.iphone.ugc.tiktok.lite</code>, khi TIKTOOL PRO nạp bản Backup từ máy phôi sang máy đích, iOS tự động nạp thẳng dữ liệu đó vào app TikTok Lite tải từ App Store. 
+          <strong class="text-emerald-400">Máy đích vừa có phôi chuẩn, vừa dùng app App Store vĩnh viễn không bao giờ sợ bị thu hồi chứng chỉ!</strong>
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ==================== SECTION 5 ==================== -->
+    <section id="section-sop" class="scroll-mt-24 space-y-6">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/20 text-white font-black text-sm border border-white/40">5</span>
+        <div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">Quy Trình Vận Hành Chuẩn (SOP) Dành Cho Dàn Máy</h2>
+          <p class="text-xs text-slate-400">Quy trình khép kín tối ưu tốc độ, đảm bảo phôi sống dai và không bao giờ nghẽn</p>
+        </div>
+      </div>
+
+      <div class="glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6">
+        <div class="relative border-l-2 border-cyan-500/40 ml-4 space-y-8 pl-6">
+          
+          <!-- SOP 1 -->
+          <div class="relative">
+            <span class="absolute -left-[33px] top-0.5 w-4 h-4 rounded-full bg-cyan-500 ring-4 ring-slate-900"></span>
+            <h3 class="font-bold text-white text-base">Bước 1: Ký Hàng Loạt Bằng TIK SIGNER PRO (Chỉ làm 1 lần khi có cert mới)</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Cắm dàn máy phôi ➔ Mở <code>CHAY_SIGNER.bat</code> ➔ Bấm <strong>⚡ KÝ IPA HÀNG LOẠT</strong>. Tool tự động sinh ra các file <code>TikTok_Lite_&lt;UDID&gt;_Signed.ipa</code> lưu sẵn trong thư mục <code>ipas/</code>.
+            </p>
+          </div>
+
+          <!-- SOP 2 -->
+          <div class="relative">
+            <span class="absolute -left-[33px] top-0.5 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-slate-900"></span>
+            <h3 class="font-bold text-white text-base">Bước 2: Cài Đặt IPA Tự Động Lên 10 Máy Làm Phôi</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Mở <strong>TIKTOOL PRO V4</strong> ➔ Chọn tab <strong>CÀI IPA</strong>. Giao diện Grid 3 cột hiển thị các file khớp máy xếp đúng thứ tự <code>Slot 01 ➔ Slot 10</code>. Bấm <strong>CÀI IPA HÀNG LOẠT (ALL)</strong>, theo dõi tiến độ chép file % thời gian thực.
+            </p>
+          </div>
+
+          <!-- SOP 3 -->
+          <div class="relative">
+            <span class="absolute -left-[33px] top-0.5 w-4 h-4 rounded-full bg-purple-500 ring-4 ring-slate-900"></span>
+            <h3 class="font-bold text-white text-base">Bước 3: Bật Proxy/VPN Nhật &amp; Tương Tác Làm Ấm Phôi</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Giữ nguyên WiFi, kết nối Proxy/VPN Nhật sạch. Mở TikTok Lite trên từng máy, chọn sở thích, lướt xem và thả tim 3–5 video (trong 1–2 phút).
+            </p>
+          </div>
+
+          <!-- SOP 4 -->
+          <div class="relative">
+            <span class="absolute -left-[33px] top-0.5 w-4 h-4 rounded-full bg-amber-500 ring-4 ring-slate-900"></span>
+            <h3 class="font-bold text-white text-base">Bước 4: Bấm SAO LƯU (BACKUP) Vào Kho</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Chọn tab <strong>SAO LƯU</strong> trên TIKTOOL PRO ➔ Bấm sao lưu. Toàn bộ mẻ phôi được lưu an toàn vào máy tính kèm phân loại theo ngày giờ.
+            </p>
+          </div>
+
+          <!-- SOP 5 -->
+          <div class="relative">
+            <span class="absolute -left-[33px] top-0.5 w-4 h-4 rounded-full bg-blue-500 ring-4 ring-slate-900"></span>
+            <h3 class="font-bold text-white text-base">Bước 5: Lặp Lại Mẻ Mới (Xoá Cũ ➔ Cài Mới)</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Tích chọn <em>"Gỡ app cũ trước khi cài"</em> và bấm Cài IPA tiếp để bắt đầu mẻ phôi tiếp theo. Dữ liệu máy luôn sạch bóng 100%.
+            </p>
+          </div>
+
+          <!-- SOP 6 -->
+          <div class="relative">
+            <span class="absolute -left-[33px] top-0.5 w-4 h-4 rounded-full bg-rose-500 ring-4 ring-slate-900"></span>
+            <h3 class="font-bold text-white text-base">Bước 6: Nạp Phôi Sang Dàn Máy Đích (Dàn Cày Điểm)</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              Máy đích chỉ cần tải sẵn TikTok Lite từ App Store ➔ Cắm vào TIKTOOL PRO chọn tab <strong>KHÔI PHỤC (RESTORE)</strong> ➔ Bấm nạp phôi. Máy đích nhận tài khoản ngay lập tức và chạy vĩnh viễn không lo chứng chỉ!
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 py-8 px-4 lg:px-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto space-y-2">
+      <p class="text-slate-400 font-medium">TIKTOOL PRO V4 - Hệ Thống Tự Động Hóa Dàn Máy iOS Chuyên Nghiệp</p>
+      <p>© 2026 Toan Dev Nextsky. Tài liệu tổng hợp lưu hành nội bộ.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
