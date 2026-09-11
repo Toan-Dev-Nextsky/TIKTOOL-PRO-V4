@@ -769,13 +769,35 @@ class GradientButton(tk.Canvas):
 # ================== CARD THIẾT BỊ LƯỚI 3 COLUMNS ==================
 class DeviceCard(tk.Frame):
     def __init__(self, master, udid, info, app_ref=None):
-        is_trusted = info.get("trusted", True)
-        border_col = COLOR_WHITE_BORDER if is_trusted else COLOR_RED_ERR
-        
-        super().__init__(master, bg=COLOR_CARD_BG, highlightbackground=border_col, highlightthickness=1, bd=0)
         self.udid = udid
         self.info = info
         self.app_ref = app_ref
+        self.slot_num = 1
+        self.has_matched_ipa = False
+        self.matched_ipa_name = ""
+
+        # Kiểm tra ban đầu xem máy này đã có file IPA ký sẵn chưa
+        if self.app_ref and hasattr(self.app_ref, "_check_device_ipa_match"):
+            try:
+                has_m, fn_m = self.app_ref._check_device_ipa_match(self.udid)
+                if has_m:
+                    self.has_matched_ipa = True
+                    self.matched_ipa_name = fn_m or ""
+            except Exception:
+                pass
+
+        is_trusted = info.get("trusted", True)
+        if not is_trusted:
+            border_col = COLOR_RED_ERR
+            border_thick = 1
+        elif self.has_matched_ipa:
+            border_col = "#10B981"
+            border_thick = 2
+        else:
+            border_col = "#374151"
+            border_thick = 1
+        
+        super().__init__(master, bg=COLOR_CARD_BG, highlightbackground=border_col, highlightthickness=border_thick, bd=0)
 
         # Dòng 1: Tiêu đề thiết bị (Trái) & Slot badge (Phải)
         top_row = tk.Frame(self, bg=COLOR_CARD_BG)
@@ -799,7 +821,21 @@ class DeviceCard(tk.Frame):
         self.lbl_top.pack(side="left")
 
         # Slot Badge (Góc phải)
-        self.lbl_slot = tk.Label(top_row, text="", font=("Consolas", 8, "bold"), fg=COLOR_TEXT_MUTED, bg=COLOR_DISABLED, highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1, padx=4, pady=0)
+        if self.has_matched_ipa:
+            slot_badge_fg = "#10B981"
+            slot_badge_bg = "#064E3B"
+            slot_badge_border = "#059669"
+            slot_badge_txt = "Slot -- [✔ IPA]"
+        else:
+            slot_badge_fg = COLOR_TEXT_MUTED
+            slot_badge_bg = COLOR_DISABLED
+            slot_badge_border = COLOR_BORDER_LIGHT
+            slot_badge_txt = ""
+
+        self.lbl_slot = tk.Label(top_row, text=slot_badge_txt, font=("Consolas", 8, "bold"),
+                                 fg=slot_badge_fg, bg=slot_badge_bg,
+                                 highlightbackground=slot_badge_border, highlightthickness=1,
+                                 padx=4, pady=0)
         self.lbl_slot.pack(side="right")
 
         # Dòng 2: Model & ECID tinh gọn 1 dòng duy nhất màu Tech Cyan
@@ -808,16 +844,25 @@ class DeviceCard(tk.Frame):
         lbl_sub = tk.Label(self, text=f"Model: {model_str}  •  ECID: {ecid_str}", font=("Consolas", 9), fg=COLOR_CYAN_ACCENT, bg=COLOR_CARD_BG, anchor="w")
         lbl_sub.pack(fill="x", padx=6, pady=(0, 1))
 
-        # Dòng 2b: UDID đầy đủ — bấm để copy vào clipboard
+        # Dòng 2b: UDID đầy đủ — bấm để copy vào clipboard (đổi màu nổi bật nếu khớp IPA)
         udid_short = udid if len(udid) <= 40 else udid[:20] + "…" + udid[-8:]
-        lbl_udid = tk.Label(self, text=f"UDID: {udid_short}", font=("Consolas", 8), fg="#8899aa", bg=COLOR_CARD_BG, anchor="w", cursor="hand2")
-        lbl_udid.pack(fill="x", padx=6, pady=(0, 2))
+        if self.has_matched_ipa:
+            udid_init_txt = f"UDID: {udid_short}  ✔ CÓ IPA KÝ"
+            udid_init_fg = "#34D399"
+            udid_font = ("Consolas", 8, "bold")
+        else:
+            udid_init_txt = f"UDID: {udid_short}  (Chưa có IPA ký)"
+            udid_init_fg = "#94A3B8"
+            udid_font = ("Consolas", 8)
+
+        self.lbl_udid = tk.Label(self, text=udid_init_txt, font=udid_font, fg=udid_init_fg, bg=COLOR_CARD_BG, anchor="w", cursor="hand2")
+        self.lbl_udid.pack(fill="x", padx=6, pady=(0, 2))
         def _copy_udid(e, u=udid):
             self.clipboard_clear()
             self.clipboard_append(u)
-            lbl_udid.config(text=f"✔ Đã copy UDID!", fg=COLOR_EMERALD_ACCENT)
-            self.after(1500, lambda: lbl_udid.config(text=f"UDID: {udid_short}", fg="#8899aa"))
-        lbl_udid.bind("<Button-1>", _copy_udid)
+            self.lbl_udid.config(text=f"✔ Đã copy UDID!", fg=COLOR_EMERALD_ACCENT)
+            self.after(1500, self._restore_udid_display)
+        self.lbl_udid.bind("<Button-1>", _copy_udid)
 
         # Dòng 3: Trạng thái bước hiện tại (Trái) & % Tiến độ (Phải)
         status_row = tk.Frame(self, bg=COLOR_CARD_BG)
@@ -840,9 +885,76 @@ class DeviceCard(tk.Frame):
         self.pb = GradientProgressBar(prog_f, height=8, trough_color=COLOR_INNER_DARK, color_start=COLOR_BLUE_MAIN, color_end=COLOR_CYAN_ACCENT)
         self.pb.pack(fill="x", expand=True)
 
+    def _restore_udid_display(self):
+        if not hasattr(self, "lbl_udid") or not self.lbl_udid.winfo_exists():
+            return
+        udid_short = self.udid if len(self.udid) <= 40 else self.udid[:20] + "…" + self.udid[-8:]
+        if getattr(self, "has_matched_ipa", False):
+            self.lbl_udid.config(text=f"UDID: {udid_short}  ✔ CÓ IPA KÝ", fg="#34D399", font=("Consolas", 8, "bold"))
+        else:
+            self.lbl_udid.config(text=f"UDID: {udid_short}  (Chưa có IPA ký)", fg="#94A3B8", font=("Consolas", 8))
+
+    def set_ipa_match(self, has_match, match_name=""):
+        self.has_matched_ipa = has_match
+        self.matched_ipa_name = match_name
+        is_trusted = self.info.get("trusted", True)
+
+        if not is_trusted:
+            self.configure(highlightbackground=COLOR_RED_ERR, highlightthickness=1)
+            return
+
+        udid_short = self.udid if len(self.udid) <= 40 else self.udid[:20] + "…" + self.udid[-8:]
+
+        if has_match:
+            # === KHỚP MÃ IPA: VIỀN XANH LỤC BẢO NỔI BẬT + BADGE XANH ===
+            self.configure(highlightbackground="#10B981", highlightthickness=2)
+            if hasattr(self, "lbl_slot") and self.lbl_slot.winfo_exists():
+                self.lbl_slot.config(
+                    text=f"Slot {self.slot_num:02d} [✔ IPA]",
+                    fg="#10B981",
+                    bg="#064E3B",
+                    highlightbackground="#059669"
+                )
+            if hasattr(self, "lbl_udid") and self.lbl_udid.winfo_exists():
+                self.lbl_udid.config(
+                    text=f"UDID: {udid_short}  ✔ CÓ IPA KÝ",
+                    fg="#34D399",
+                    font=("Consolas", 8, "bold")
+                )
+        else:
+            # === CHƯA CÓ IPA: MÀU XÁM TIÊU CHUẨN ===
+            self.configure(highlightbackground="#374151", highlightthickness=1)
+            if hasattr(self, "lbl_slot") and self.lbl_slot.winfo_exists():
+                self.lbl_slot.config(
+                    text=f"Slot {self.slot_num:02d}",
+                    fg=COLOR_TEXT_MUTED,
+                    bg=COLOR_DISABLED,
+                    highlightbackground=COLOR_BORDER_LIGHT
+                )
+            if hasattr(self, "lbl_udid") and self.lbl_udid.winfo_exists():
+                self.lbl_udid.config(
+                    text=f"UDID: {udid_short}  (Chưa có IPA ký)",
+                    fg="#94A3B8",
+                    font=("Consolas", 8)
+                )
+
     def set_slot(self, slot_num):
+        self.slot_num = slot_num
         if hasattr(self, "lbl_slot") and self.lbl_slot.winfo_exists():
-            self.lbl_slot.config(text=f"Slot {slot_num:02d}")
+            if getattr(self, "has_matched_ipa", False):
+                self.lbl_slot.config(
+                    text=f"Slot {slot_num:02d} [✔ IPA]",
+                    fg="#10B981",
+                    bg="#064E3B",
+                    highlightbackground="#059669"
+                )
+            else:
+                self.lbl_slot.config(
+                    text=f"Slot {slot_num:02d}",
+                    fg=COLOR_TEXT_MUTED,
+                    bg=COLOR_DISABLED,
+                    highlightbackground=COLOR_BORDER_LIGHT
+                )
 
     def _trigger_single_lang(self):
         if self.app_ref:
@@ -854,10 +966,8 @@ class DeviceCard(tk.Frame):
 
     def update_trust_status(self, is_trusted, info):
         self.info = info
-        border_col = COLOR_WHITE_BORDER if is_trusted else COLOR_RED_ERR
-        self.configure(highlightbackground=border_col, highlightthickness=1)
-
         if not is_trusted:
+            self.configure(highlightbackground=COLOR_RED_ERR, highlightthickness=1)
             if hasattr(self, "lbl_icon") and self.lbl_icon.winfo_exists():
                 self.lbl_icon.config(text=Icons.WARNING, fg=COLOR_RED_ERR)
             title_txt = f"{info.get('name', 'iPhone')} • NOT TRUST"
@@ -865,6 +975,10 @@ class DeviceCard(tk.Frame):
             step_txt = f"{Icons.WARNING}  BẤM TIN CẬY"
             step_fg = COLOR_RED_ERR
         else:
+            if getattr(self, "has_matched_ipa", False):
+                self.configure(highlightbackground="#10B981", highlightthickness=2)
+            else:
+                self.configure(highlightbackground="#374151", highlightthickness=1)
             if hasattr(self, "lbl_icon") and self.lbl_icon.winfo_exists():
                 self.lbl_icon.config(text=Icons.PHONE, fg=COLOR_CYAN_ACCENT)
             title_txt = f"{info.get('name', 'iPhone')} • iOS {info.get('ios', '?')}"
@@ -2737,8 +2851,45 @@ class App(tk.Tk):
             self.lbl_ipa_dir.config(text=p)
             self._refresh_ipa_list()
 
+    def _get_available_signed_ipas(self):
+        """Lấy danh sách các file IPA đã ký trong thư mục IPA."""
+        ipa_dir = self.lbl_ipa_dir.cget("text").strip() if hasattr(self, "lbl_ipa_dir") else IPAS_DIR
+        if not os.path.isdir(ipa_dir):
+            return []
+        try:
+            return [
+                fn for fn in os.listdir(ipa_dir)
+                if fn.lower().endswith(".ipa")
+                and "und3fined" not in fn.lower()
+                and "unsigned" not in fn.lower()
+            ]
+        except Exception:
+            return []
+
+    def _check_device_ipa_match(self, udid):
+        """Kiểm tra xem máy có UDID này có file IPA đã ký tương ứng hay không."""
+        signed_files = self._get_available_signed_ipas()
+        udid_clean = udid.lower().replace("-", "")
+        for fn in signed_files:
+            fn_lower = fn.lower()
+            fn_clean = fn_lower.replace("-", "")
+            if udid.lower() in fn_lower or udid_clean in fn_clean:
+                return True, fn
+        return False, None
+
+    def _update_all_cards_ipa_status(self):
+        """Cập nhật màu sắc viền và nhãn UDID phân biệt cho toàn bộ thẻ máy theo tình trạng khớp file IPA."""
+        if not hasattr(self, "rows"):
+            return
+        for udid, card in list(self.rows.items()):
+            try:
+                has_match, fn = self._check_device_ipa_match(udid)
+                card.set_ipa_match(has_match, fn or "")
+            except Exception:
+                pass
+
     def _refresh_ipa_list(self):
-        """Quét thư mục IPA và rebuild danh sách checkbox."""
+        """Quét thư mục IPA, đối chiếu mã UDID với từng máy đang cắm và rebuild danh sách checkbox."""
         ipa_dir = self.lbl_ipa_dir.cget("text").strip()
         for w in self._ipa_frame_list.winfo_children():
             w.destroy()
@@ -2757,7 +2908,15 @@ class App(tk.Tk):
                            font=("Segoe UI", 8, "italic"), fg=COLOR_TEXT_DIM,
                            bg=COLOR_KHO_INNER, anchor="w")
             lbl.pack(fill="x", padx=4, pady=4)
+            self._update_all_cards_ipa_status()
             return
+
+        # Lấy danh sách máy đang cắm để đối soát mã UDID khớp với file IPA
+        dev_slots = {}
+        if hasattr(self, "rows"):
+            for idx, (u, c) in enumerate(self.rows.items(), 1):
+                slot_no = getattr(c, "slot_num", idx)
+                dev_slots[u.lower()] = (slot_no, u)
 
         # Header select-all
         hdr = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
@@ -2785,6 +2944,17 @@ class App(tk.Tk):
             bv = tk.BooleanVar(value=not is_unsigned)
             self._ipa_vars[fn] = bv
 
+            # Tìm xem file này có khớp với máy nào đang cắm không
+            matched_slot = None
+            if not is_unsigned:
+                fn_lower = fn.lower()
+                fn_clean = fn_lower.replace("-", "")
+                for u_lower, (slot_no, orig_u) in dev_slots.items():
+                    u_clean = u_lower.replace("-", "")
+                    if u_lower in fn_lower or u_clean in fn_clean:
+                        matched_slot = slot_no
+                        break
+
             row = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
             row.pack(fill="x", padx=2, pady=1)
 
@@ -2793,13 +2963,13 @@ class App(tk.Tk):
                            activebackground=COLOR_KHO_INNER,
                            relief="flat", bd=0).pack(side="left", padx=(4, 0))
 
-            icon_color = COLOR_TEXT_DIM if is_unsigned else "#A78BFA"
+            icon_color = COLOR_TEXT_DIM if is_unsigned else ("#10B981" if matched_slot is not None else "#A78BFA")
             tk.Label(row, text=f"{Icons.PACKAGE}", font=(FONT_MDL2, 9),
                      fg=icon_color, bg=COLOR_KHO_INNER).pack(side="left", padx=(2, 4))
 
             name_short = fn if len(fn) <= 60 else fn[:57] + "..."
-            text_color = COLOR_TEXT_DIM if is_unsigned else COLOR_TEXT_MAIN
-            lbl_name = tk.Label(row, text=name_short, font=("Segoe UI", 8),
+            text_color = COLOR_TEXT_DIM if is_unsigned else ("#FFFFFF" if matched_slot is not None else COLOR_TEXT_MAIN)
+            lbl_name = tk.Label(row, text=name_short, font=("Segoe UI", 8, "bold" if matched_slot is not None else "normal"),
                                 fg=text_color, bg=COLOR_KHO_INNER,
                                 anchor="w")
             lbl_name.pack(side="left", fill="x", expand=True)
@@ -2807,10 +2977,19 @@ class App(tk.Tk):
             if is_unsigned:
                 tk.Label(row, text="[Chưa Ký]", font=("Segoe UI", 8, "italic"),
                          fg="#EF4444", bg=COLOR_KHO_INNER).pack(side="right", padx=(2, 6))
+            elif matched_slot is not None:
+                tk.Label(row, text=f"[✔ Khớp Slot {matched_slot:02d}]", font=("Segoe UI", 8, "bold"),
+                         fg="#10B981", bg=COLOR_KHO_INNER).pack(side="right", padx=(2, 6))
+            else:
+                tk.Label(row, text="[Chưa cắm máy]", font=("Segoe UI", 8, "italic"),
+                         fg="#64748B", bg=COLOR_KHO_INNER).pack(side="right", padx=(2, 6))
 
             tk.Label(row, text=f"{size_mb:.1f} MB",
                      font=("Segoe UI", 8), fg=COLOR_TEXT_MUTED,
                      bg=COLOR_KHO_INNER).pack(side="right", padx=6)
+
+        # Đồng bộ màu sắc cho toàn bộ thẻ thiết bị bên dưới
+        self._update_all_cards_ipa_status()
 
     # ---------------- BẢNG CẤU HÌNH BACKUP ----------------
     def _setup_backup_panel(self):
@@ -3321,6 +3500,7 @@ class App(tk.Tk):
             card.set_slot(idx + 1)
             card.grid_forget()
             card.grid(row=r, column=c, padx=4, pady=3, sticky="ew")
+        self._update_all_cards_ipa_status()
 
     def _sync_cards(self, current_udids, trust_results, info_results=None):
         info_results = info_results or {}
@@ -3372,6 +3552,10 @@ class App(tk.Tk):
 
             if need_relayout:
                 self._relayout_cards()
+                if getattr(self, "current_mode", "") == "IPA":
+                    self._refresh_ipa_list()
+            else:
+                self._update_all_cards_ipa_status()
 
             dev_cnt = len(self.rows)
             self.lbl_dev_count.config(text=f"Tổng: {dev_cnt}")
