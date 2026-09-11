@@ -806,7 +806,18 @@ class DeviceCard(tk.Frame):
         ecid_str = info.get('ecid', '—') or '—'
         model_str = info.get('model', 'N/A') or 'N/A'
         lbl_sub = tk.Label(self, text=f"Model: {model_str}  •  ECID: {ecid_str}", font=("Consolas", 9), fg=COLOR_CYAN_ACCENT, bg=COLOR_CARD_BG, anchor="w")
-        lbl_sub.pack(fill="x", padx=6, pady=(0, 2))
+        lbl_sub.pack(fill="x", padx=6, pady=(0, 1))
+
+        # Dòng 2b: UDID đầy đủ — bấm để copy vào clipboard
+        udid_short = udid if len(udid) <= 40 else udid[:20] + "…" + udid[-8:]
+        lbl_udid = tk.Label(self, text=f"UDID: {udid_short}", font=("Consolas", 8), fg="#8899aa", bg=COLOR_CARD_BG, anchor="w", cursor="hand2")
+        lbl_udid.pack(fill="x", padx=6, pady=(0, 2))
+        def _copy_udid(e, u=udid):
+            self.clipboard_clear()
+            self.clipboard_append(u)
+            lbl_udid.config(text=f"✔ Đã copy UDID!", fg=COLOR_EMERALD_ACCENT)
+            self.after(1500, lambda: lbl_udid.config(text=f"UDID: {udid_short}", fg="#8899aa"))
+        lbl_udid.bind("<Button-1>", _copy_udid)
 
         # Dòng 3: Trạng thái bước hiện tại (Trái) & % Tiến độ (Phải)
         status_row = tk.Frame(self, bg=COLOR_CARD_BG)
@@ -2770,7 +2781,8 @@ class App(tk.Tk):
         for fn in files:
             full_path = os.path.join(ipa_dir, fn)
             size_mb = os.path.getsize(full_path) / (1024 * 1024)
-            bv = tk.BooleanVar(value=True)
+            is_unsigned = "und3fined" in fn.lower() or "unsigned" in fn.lower()
+            bv = tk.BooleanVar(value=not is_unsigned)
             self._ipa_vars[fn] = bv
 
             row = tk.Frame(self._ipa_frame_list, bg=COLOR_KHO_INNER)
@@ -2781,17 +2793,24 @@ class App(tk.Tk):
                            activebackground=COLOR_KHO_INNER,
                            relief="flat", bd=0).pack(side="left", padx=(4, 0))
 
+            icon_color = COLOR_TEXT_DIM if is_unsigned else "#A78BFA"
             tk.Label(row, text=f"{Icons.PACKAGE}", font=(FONT_MDL2, 9),
-                     fg="#A78BFA", bg=COLOR_KHO_INNER).pack(side="left", padx=(2, 4))
+                     fg=icon_color, bg=COLOR_KHO_INNER).pack(side="left", padx=(2, 4))
 
             name_short = fn if len(fn) <= 60 else fn[:57] + "..."
-            tk.Label(row, text=name_short, font=("Segoe UI", 8),
-                     fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_INNER,
-                     anchor="w").pack(side="left", fill="x", expand=True)
+            text_color = COLOR_TEXT_DIM if is_unsigned else COLOR_TEXT_MAIN
+            lbl_name = tk.Label(row, text=name_short, font=("Segoe UI", 8),
+                                fg=text_color, bg=COLOR_KHO_INNER,
+                                anchor="w")
+            lbl_name.pack(side="left", fill="x", expand=True)
+
+            if is_unsigned:
+                tk.Label(row, text="[Chưa Ký]", font=("Segoe UI", 8, "italic"),
+                         fg="#EF4444", bg=COLOR_KHO_INNER).pack(side="right", padx=(2, 6))
 
             tk.Label(row, text=f"{size_mb:.1f} MB",
                      font=("Segoe UI", 8), fg=COLOR_TEXT_MUTED,
-                     bg=COLOR_KHO_INNER).pack(side="right", padx=8)
+                     bg=COLOR_KHO_INNER).pack(side="right", padx=6)
 
     # ---------------- BẢNG CẤU HÌNH BACKUP ----------------
     def _setup_backup_panel(self):
@@ -3481,7 +3500,25 @@ class App(tk.Tk):
                 target_ipas = matched_ipas
                 self.log(udid, f"🎯 Khớp file IPA theo UDID: {os.path.basename(matched_ipas[0])}")
             else:
-                target_ipas = ipa_paths
+                # Nếu không có file mang UDID của máy này:
+                # Chỉ lấy file IPA chung (không mang mã UDID của máy khác trong tên)
+                udid_pat = re.compile(r'[0-9a-fA-F]{8}[-_][0-9a-fA-F]{16}|[0-9a-fA-F]{25,}')
+                generic_ipas = [
+                    p for p in ipa_paths
+                    if not udid_pat.search(os.path.basename(p))
+                ]
+                target_ipas = generic_ipas
+
+            # Lọc bỏ hoàn toàn các file gốc chưa ký (und3fined / unsigned)
+            target_ipas = [
+                p for p in target_ipas
+                if "und3fined" not in os.path.basename(p).lower()
+                and "unsigned" not in os.path.basename(p).lower()
+            ]
+            if not target_ipas:
+                self.log(udid, "⚠️ Máy này chưa có file IPA đã ký phù hợp trong danh sách!", is_err=True)
+                if row: row.push_step("Thiếu IPA ký")
+                return
 
             total = len(target_ipas)
             for idx, ipa_path in enumerate(target_ipas, 1):
