@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-09-11T17:30:00+07:00",
+  "updated_at": "2026-09-11T20:30:00+07:00",
   "working_on": {
     "feature": "3-Column Grid IPA List & Real-time Installer Progress",
-    "task": "Tái thiết kế danh sách file IPA thành lưới Grid 3 cột đồng bộ với dàn máy, hiển thị tiến độ chép file % thời gian thực và sửa lỗi luồng",
+    "task": "Tái thiết kế Grid IPA, đồng bộ Astro và hiển thị đúng các pha cài IPA theo stdout",
     "status": "completed",
     "files": [
       "BB_RB.py",
@@ -11,7 +11,7 @@
       ".brain/brain.json",
       ".brain/handover.md"
     ],
-    "notes": "Đã hoàn thành xuất sắc tái thiết kế giao diện danh sách IPA dạng Grid 3 cột siêu gọn gàng trong BB_RB.py, phân loại màu sắc và xếp thứ tự theo Slot máy (Slot 01->10), hiển thị trực tiếp tiến độ Copying... của ideviceinstaller, và fix lỗi luồng dictionary size changed."
+    "notes": "Đã hoàn thành Grid IPA 3 cột, Smart UDID Matching, realtime Copying progress, Astro state install_ipa và sửa nhãn/progress cài IPA: reset 0% khi khởi tạo, chỉ báo Đang chép khi stdout có Copying, thành công mới 100%."
   },
   "pending_tasks": [
     {
@@ -21,6 +21,18 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-11T20:20:00+07:00",
+      "type": "truthful_ipa_install_progress",
+      "description": "Sửa install_ipa để không gọi preflight là Đang chép file và không kế thừa 100% từ uninstall: reset 0%, hiển thị Khởi tạo cài đặt, chỉ hiển thị Đang chép khi nhận stdout Copying, rc=0 mới đặt 100%; thêm 2 regression tests.",
+      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
+    },
+    {
+      "timestamp": "2026-09-11T19:50:00+07:00",
+      "type": "astro_install_state",
+      "description": "Bổ sung Astro state install cho tác vụ install_ipa, hiển thị số máy và tiến độ trung bình trong khi cài IPA.",
+      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
+    },
     {
       "timestamp": "2026-09-11T17:20:00+07:00",
       "type": "grid_3_column_ipa_layout",
@@ -72,6 +84,11 @@
     {
       "error": "Giao diện danh sách IPA dạng 1 cột chiếm quá nhiều diện tích chiều dọc khi có 10-15 file",
       "solution": "Chuyển đổi thành Lưới Grid 3 Cột (uniform='ipa_col') với mini-card phân cấp màu sắc, rút gọn 64% chiều cao, thẳng hàng với 3 cột thiết bị iPhone.",
+      "resolved": true
+    },
+    {
+      "error": "Thẻ Cài IPA hiển thị 'Đang chép file' và 100% trong thời gian ideviceinstaller còn preflight",
+      "solution": "Reset progress về 0 khi bắt đầu, đổi nhãn thành 'Đang khởi tạo cài đặt', chỉ chuyển sang 'Đang chép file' khi nhận stdout Copying và chỉ đặt 100% sau rc=0.",
       "resolved": true
     }
   ],

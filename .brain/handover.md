@@ -30,6 +30,14 @@
   * Trích xuất các dòng `[  X%] Copying '...ipa' to device` theo thời gian thực.
   * Cập nhật ngay lên thẻ từng thiết bị: **"Đang chép file... (XX%)"** kèm thanh tiến độ % chạy mượt mà, giúp người dùng theo dõi chính xác từng giai đoạn nạp app qua USB.
 
+### 2.1. Đồng Bộ Chính Xác Pha Khởi Tạo Và Tiến Độ Cài IPA
+* **Đã sửa lỗi nhãn gây hiểu nhầm**: Trước đây `install_ipa` gán “Đang chép file...” ngay khi mới khởi chạy `ideviceinstaller`, dù tool còn đang preflight; đồng thời 100% từ bước uninstall bị giữ lại.
+* **Luồng hiện tại**:
+  * Bắt đầu cài: reset progress về `0%`, hiển thị “Đang khởi tạo cài đặt...”.
+  * Chỉ khi stdout thực sự chứa `Copying` mới hiển thị “Đang chép file...” và phần trăm tương ứng.
+  * Chỉ khi `ideviceinstaller` trả mã `0` mới đặt progress `100%` và báo thành công.
+* **Astro Bot**: State `install` hiển thị số máy đang cài và tiến độ trung bình của các thẻ.
+
 ---
 
 ### 3. Phân Biệt Màu Sắc & Hiển Thị UDID Trên Từng Thẻ iPhone
@@ -71,4 +79,4 @@
   * `TIK_SIGNER.py`: Clean ✅
   * `tiktool_core.py`: Clean ✅
 * **Kiểm thử tự động (`unittest discover -s tests`)**:
-  * **54/54 unit tests PASS (100%)** trong 0.295 giây.
+  * **58/58 unit tests PASS (100%)**.

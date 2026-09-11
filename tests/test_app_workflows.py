@@ -119,6 +119,58 @@ class UninstallProgressTests(unittest.TestCase):
         self.assertEqual([100], card.percentages)
 
 
+class InstallProgressTests(unittest.TestCase):
+    def test_install_resets_stale_progress_and_waits_for_copy_output_before_claiming_copy(self):
+        """Catches the preflight delay being labelled as a file copy after an uninstall reached 100%."""
+        class Card:
+            def __init__(self):
+                self.steps = []
+                self.percentages = []
+
+            def push_step(self, text):
+                self.steps.append(text)
+
+            def set_pct(self, value):
+                self.percentages.append(value)
+
+        card = Card()
+
+        def stream(_command, on_line=None, timeout=None):
+            self.assertEqual("TikTok Lite: Đang khởi tạo cài đặt...", card.steps[-1])
+            on_line("Copying 'TikTok_Lite.ipa' to device... (5%)")
+            return 0, []
+
+        with patch.object(BB_RB, "run_stream", side_effect=stream):
+            result = BB_RB.install_ipa(
+                "TEST-UDID", "TikTok_Lite.ipa", "TikTok Lite", card, lambda *_args, **_kwargs: None
+            )
+
+        self.assertTrue(result)
+        self.assertEqual([0, 100], card.percentages)
+        self.assertIn("TikTok Lite: Đang chép file... (5%)", card.steps)
+
+    def test_successful_install_completes_card_progress(self):
+        """Catches a successful install leaving its card at the preflight 0% value."""
+        class Card:
+            def __init__(self):
+                self.percentages = []
+
+            def push_step(self, _text):
+                pass
+
+            def set_pct(self, value):
+                self.percentages.append(value)
+
+        card = Card()
+        with patch.object(BB_RB, "run_stream", return_value=(0, [])):
+            result = BB_RB.install_ipa(
+                "TEST-UDID", "TikTok_Lite.ipa", "TikTok Lite", card, lambda *_args, **_kwargs: None
+            )
+
+        self.assertTrue(result)
+        self.assertEqual([0, 100], card.percentages)
+
+
 class RestoreWorkflowTests(unittest.TestCase):
     def test_failed_restore_does_not_change_source_backup(self):
         """Catches restore preparation patching the stored source Info.plist."""

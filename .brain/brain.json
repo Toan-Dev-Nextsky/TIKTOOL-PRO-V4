@@ -3,7 +3,7 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-11T17:30:00+07:00"
+    "last_updated": "2026-09-11T20:30:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
@@ -66,6 +66,7 @@
       "batch_ipa_signer": "Quét thiết bị USB -> Thu thập UDID -> Quét kho certs/ (.p12, .mobileprovision) -> Tự động ánh xạ UDID -> Gọi zsign.exe -k -p -m -o -z 9 -E -W ký song song từng máy -> Xuất file TikTok_Lite_<UDID>_Signed.ipa vào ipas/",
       "smart_udid_matching_installer": "Khi người dùng chọn đồng loạt nhiều file IPA trong TIKTOOL PRO V4: _install_ipa_worker kiểm tra mã UDID của máy với tên file được chọn. Nếu có file chứa UDID của máy, máy CHỈ cài đúng file đó, không cài file của máy khác; tự gỡ bản cũ trước khi cài.",
       "realtime_install_progress": "Đọc từng dòng output từ ideviceinstaller.exe theo thời gian thực; trích xuất percentage Copying... để hiển thị 'Đang chép file... (XX%)' và thanh tiến độ tương ứng trên từng thẻ thiết bị.",
+      "install_preflight_progress_truth": "Trước khi ideviceinstaller phát ra dòng Copying, thẻ phải hiển thị 'Đang khởi tạo cài đặt...' và reset 0%; chỉ đổi sang 'Đang chép file...' khi stdout thực sự chứa Copying. Khi lệnh trả rc=0 mới đặt 100%, tránh kế thừa 100% từ bước gỡ app.",
       "webclip_pipeline": "Tạo cấu hình Apple Configuration Profile (.mobileconfig) com.apple.webClip.managed, nạp icon toàn năng 3D Glassmorphic webapp.png cho mọi link web, mặc định để trống URL custom, nạp qua ios.exe profile add",
       "batch_activate_pipeline": [
         "Giai đoạn 1: ideviceactivation activate -u {udid} -b",
@@ -90,6 +91,7 @@
       "ttkbootstrap 2.x Widget Naming: Trong ttkbootstrap, widget Panedwindow được đặt tên chữ w thường (ttk.Panedwindow), nếu gõ hoa kiểu ttk.PanedWindow của tkinter chuẩn sẽ gây lỗi AttributeError.",
       "Multi-device Individual Certs Collision: Mua 10 chứng chỉ cá nhân lẻ sẽ sinh ra 10 file IPA riêng mang UDID của 10 máy. Nếu chọn tất cả và bấm cài hàng loạt mà không có Smart UDID Matching, mỗi máy sẽ cố cài cả 10 file và báo lỗi 9 lần. Cần lọc target_ipas theo mã UDID của từng máy trước khi lặp.",
       "Zero-Pip Portability vs ttkbootstrap: TIKTOOL PRO V4 lõi chính (BB_RB.py) duy trì 100% Zero-Pip chuẩn Tkinter. Công cụ đồng hành TIK_SIGNER PRO sử dụng ttkbootstrap để có giao diện hiện đại hơn, được đóng gói file BAT tự kiểm tra và hướng dẫn pip install nếu thiếu."
+      ,"IPA Install Label Must Follow Tool Output: Hàm install_ipa trước đây gán 'Đang chép file...' ngay khi khởi chạy subprocess và giữ lại progress 100% từ uninstall. Phải reset set_pct(0), báo 'Đang khởi tạo cài đặt...', chỉ báo Copying khi stdout chứa Copying, và set_pct(100) sau rc=0."
     ],
     "conventions": [
       "Đặt tên file IPA đã ký: Luôn dùng cú pháp TikTok_Lite_<UDID>_Signed.ipa chứa đầy đủ mã UDID để công cụ cài đặt tự động đối soát chính xác 100%.",

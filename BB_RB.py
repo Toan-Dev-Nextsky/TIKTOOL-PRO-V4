@@ -539,12 +539,18 @@ def _extract_bundle_id_from_ipa(ipa_path):
 
 def install_ipa(udid, ipa_path, label_name, card, log_fn):
     """Cài file .ipa vào thiết bị qua ideviceinstaller."""
-    if card: card.push_step(f"{label_name}: Đang chép file...")
+    if card:
+        card.set_pct(0)
+        card.push_step(f"{label_name}: Đang khởi tạo cài đặt...")
     
     def on_output(s, is_err=False):
         log_fn(s, is_err=is_err)
         if card:
-            if "%" in s:
+            if "copying" in s.lower():
+                m = re.search(r'(\d{1,3})\s*%', s)
+                suffix = f" ({m.group(1)}%)" if m else ""
+                card.push_step(f"{label_name}: Đang chép file...{suffix}")
+            elif "%" in s:
                 card.push_step(s)
             elif "Installing" in s:
                 card.push_step(f"{label_name}: Đang cài đặt...")
@@ -552,7 +558,10 @@ def install_ipa(udid, ipa_path, label_name, card, log_fn):
     cmd = ["ideviceinstaller", "-u", udid, "install", ipa_path]
     rc, _ = run_stream(cmd, on_line=on_output)
     ok = (rc == 0)
-    if card: card.push_step(f"{label_name} {'thành công ✓' if ok else 'thất bại ✗'}")
+    if card:
+        if ok:
+            card.set_pct(100)
+        card.push_step(f"{label_name} {'thành công ✓' if ok else 'thất bại ✗'}")
     return ok
 
 
