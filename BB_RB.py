@@ -2914,7 +2914,7 @@ class App(tk.Tk):
         # Lấy danh sách máy đang cắm để đối soát mã UDID khớp với file IPA
         dev_slots = {}
         if hasattr(self, "rows"):
-            for idx, (u, c) in enumerate(self.rows.items(), 1):
+            for idx, (u, c) in enumerate(list(self.rows.items()), 1):
                 slot_no = getattr(c, "slot_num", idx)
                 dev_slots[u.lower()] = (slot_no, u)
 
@@ -3917,7 +3917,7 @@ class App(tk.Tk):
             return
 
         connected_devices = []
-        for udid, row in self.rows.items():
+        for udid, row in list(self.rows.items()):
             if not row.info.get("trusted", True):
                 continue
             connected_devices.append({
