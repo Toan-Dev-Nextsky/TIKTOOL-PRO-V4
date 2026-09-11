@@ -505,9 +505,15 @@ def _max_backup_index(root_dir):
 def uninstall_app_any(udid, bundle_ids, label_name, card, log_fn):
     if card: card.push_step(f"Gỡ {label_name}...")
     ok = False
+    
+    def on_output(s, is_err=False):
+        log_fn(s, is_err=is_err)
+        if card and "%" in s:
+            card.push_step(s)
+            
     for bid in bundle_ids:
         cmd = ["ideviceinstaller", "-u", udid, "uninstall", bid]
-        rc, _ = run_stream(cmd, on_line=lambda s, is_err=False: log_fn(s, is_err=is_err))
+        rc, _ = run_stream(cmd, on_line=on_output)
         if rc == 0: ok = True; break
     if card: card.push_step(f"Gỡ {label_name} {'thành công' if ok else 'bỏ qua'}")
     return ok
@@ -530,11 +536,20 @@ def _extract_bundle_id_from_ipa(ipa_path):
 
 def install_ipa(udid, ipa_path, label_name, card, log_fn):
     """Cài file .ipa vào thiết bị qua ideviceinstaller."""
-    if card: card.push_step(f"Cài {label_name}...")
+    if card: card.push_step(f"{label_name}: Đang chép file...")
+    
+    def on_output(s, is_err=False):
+        log_fn(s, is_err=is_err)
+        if card:
+            if "%" in s:
+                card.push_step(s)
+            elif "Installing" in s:
+                card.push_step(f"{label_name}: Đang cài đặt...")
+                
     cmd = ["ideviceinstaller", "-u", udid, "install", ipa_path]
-    rc, _ = run_stream(cmd, on_line=lambda s, is_err=False: log_fn(s, is_err=is_err))
+    rc, _ = run_stream(cmd, on_line=on_output)
     ok = (rc == 0)
-    if card: card.push_step(f"Cài {label_name} {'thành công ✓' if ok else 'thất bại ✗'}")
+    if card: card.push_step(f"{label_name} {'thành công ✓' if ok else 'thất bại ✗'}")
     return ok
 
 
@@ -3732,9 +3747,10 @@ class App(tk.Tk):
                             uninstall_app_any(udid, [bid], bid, row,
                                               lambda s, is_err=False: self.log(udid, s, is_err=is_err))
 
-                if row: row.push_step(f"[{idx}/{total}] Cài {label[:30]}...")
+                short_label = f"[{idx}/{total}] {label[:15]}..."
+                if row: row.push_step(f"{short_label} Đang chuẩn bị...")
                 ok = install_ipa(
-                    udid, ipa_path, label,
+                    udid, ipa_path, short_label,
                     row,
                     lambda s, is_err=False: self.log(udid, s, is_err=is_err)
                 )
