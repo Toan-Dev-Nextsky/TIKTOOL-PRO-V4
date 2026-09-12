@@ -3,13 +3,13 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-11T20:30:00+07:00"
+    "last_updated": "2026-09-12T19:46:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application Suite (Python/Tkinter/ttkbootstrap)",
-    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore, tích hợp công cụ TIK SIGNER PRO ký IPA hàng loạt tốc độ cao theo UDID và công nghệ Smart UDID Matching tự động ghép đúng file IPA cho từng máy khi cài đặt, danh sách IPA dạng Lưới Grid 3 Cột siêu gọn gàng.",
-    "version": "4.9.0 Grid IPA Layout & Real-time Progress Edition",
+    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore, bật tự động Developer Mode hàng loạt (iOS 16+), tích hợp công cụ TIK SIGNER PRO ký IPA hàng loạt tốc độ cao theo UDID và công nghệ Smart UDID Matching tự động ghép đúng file IPA cho từng máy khi cài đặt, danh sách IPA dạng Lưới Grid 3 Cột siêu gọn gàng, bộ nhị phân libimobiledevice v1.4.0.",
+    "version": "4.9.5 libimobiledevice v1.4.0 & Batch Developer Mode Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py",
     "companion_signer_tool": "TIK_SIGNER.py (CHAY_SIGNER.bat)"
@@ -19,12 +19,18 @@
     "gui_framework": "Tkinter / ttk (Vanilla GUI, Custom Canvas Gradient Components, Soft Charcoal Slate Dark Theme) & ttkbootstrap 2.2.2 (Darkly Theme cho TIK SIGNER PRO)",
     "external_binaries": {
       "libimobiledevice": [
-        "ideviceinfo.exe",
-        "idevice_id.exe",
-        "idevicepair.exe",
+        "ideviceinfo.exe (v1.4.0-9)",
+        "idevice_id.exe (v1.4.0-9)",
+        "idevicepair.exe (v1.4.0-9)",
         "ideviceactivation.exe",
-        "idevicebackup2.exe",
-        "ideviceinstaller.exe"
+        "idevicebackup2.exe (v1.4.0-9, OpenSSL 3.x, Zstandard, Brotli)",
+        "ideviceinstaller.exe",
+        "idevicedevmodectl.exe (v1.4.0-9: Quản lý Developer Mode iOS 16+)",
+        "afcclient.exe (v1.4.0-9: Duyệt file nội bộ iPhone)",
+        "inetcat.exe (v1.4.0-9)",
+        "iproxy.exe (v1.4.0-9: TCP port forwarder)",
+        "idevicebtlogger.exe (v1.4.0-9)",
+        "idevicecrashreport.exe (v1.4.0-9)"
       ],
       "proprietary_ios_engine": "ios.exe (Quản lý prepare, skip-all, setlang, setlocale, profile add)",
       "signing_engine": "zsign.exe (Ký IPA nhanh trên Windows không cần macOS, hỗ trợ .p12 và .mobileprovision)"
@@ -35,6 +41,13 @@
   "architecture": {
     "ui_layer": {
       "theme": "Soft Charcoal Slate Dark Theme (App #1A1D23, Panels #22262E, Sub-panels #262A33, Terminal #1E2229, Elevated Buttons #2C313C, Borders #3A414F, Text Slate-50/200/400, Accent Cyan & Emerald & Electric Blue, Icon Font Windows Segoe MDL2 Assets)",
+      "action_buttons": {
+        "devmode_batch": "btn_batch_devmode nằm tại Hàng 1 (box_act) và btn_ipa_devmode tại Tab Cài IPA (row_opts)",
+        "batch_activate": "btn_batch_activate GradientButton #059669 -> #0D9488",
+        "restore_pro": "btn_tab_restore, btn_start_restore",
+        "backup_pro": "btn_tab_backup, btn_start_backup",
+        "install_ipa": "btn_tab_ipa, btn_install_ipa"
+      },
       "ipa_grid_layout": "Lưới Grid 3 Cột (uniform='ipa_col') tiết kiệm 64% chiều cao, xếp theo số thứ tự Slot 01->10, mini card viền Emerald/Đỏ/Slate, bấm mọi vị trí để toggle checkbox",
       "signer_ui": "ttkbootstrap 2.2.2 Darkly Theme (Slate Charcoal, Badge Info/Success/Warning, Treeview phân cấp thiết bị & kho chứng chỉ)",
       "color_tokens": {
@@ -63,6 +76,7 @@
       }
     },
     "pipelines": {
+      "batch_developer_mode_pipeline": "Kiểm tra phiên bản iOS (bỏ qua nếu < 16) -> Gọi idevicedevmodectl list kiểm tra trạng thái -> Nếu chưa bật: đánh dấu reboot_tracker 90s và gọi idevicedevmodectl enable (tự reboot & xác nhận 100% với máy không passcode, mở sẵn Cài đặt với máy có passcode) -> Cập nhật trạng thái từng máy và giải phóng operation devmode.",
       "batch_ipa_signer": "Quét thiết bị USB -> Thu thập UDID -> Quét kho certs/ (.p12, .mobileprovision) -> Tự động ánh xạ UDID -> Gọi zsign.exe -k -p -m -o -z 9 -E -W ký song song từng máy -> Xuất file TikTok_Lite_<UDID>_Signed.ipa vào ipas/",
       "smart_udid_matching_installer": "Khi người dùng chọn đồng loạt nhiều file IPA trong TIKTOOL PRO V4: _install_ipa_worker kiểm tra mã UDID của máy với tên file được chọn. Nếu có file chứa UDID của máy, máy CHỈ cài đúng file đó, không cài file của máy khác; tự gỡ bản cũ trước khi cài.",
       "realtime_install_progress": "Đọc từng dòng output từ ideviceinstaller.exe theo thời gian thực; trích xuất percentage Copying... để hiển thị 'Đang chép file... (XX%)' và thanh tiến độ tương ứng trên từng thẻ thiết bị.",
@@ -82,6 +96,9 @@
   },
   "knowledge_items": {
     "gotchas": [
+      "VT100 4-line progress format in libimobiledevice 1.4.0: idevicebackup2 v1.4.0 in tiến độ dạng khối 4 dòng kèm số thập phân và dung lượng file con (ví dụ 32.8% 688 KB / 2.1 MB). Regex (\\d{1,3})% cũ bắt nhầm số 8% khiến UI nhảy giật liên tục giữa 21% và 8%. Bắt buộc lọc bỏ dòng file con (có số thập phân, KB/MB, >) và chặn lặp pct == last để không bị bão log 43.000 dòng làm đơ GUI Tkinter.",
+      "ANSI escape control codes in modern CLI outputs: Các công cụ như idevicebackup2 1.4.0 dùng mã escape ANSI VT100 như \\033[2K (clear line) và \\033[1G (move col 1). Cần làm sạch bằng regex ANSI_ESCAPE_RE ngay tại tầng lõi tiktool_core.py emit() trước khi truyền lên GUI.",
+      "Developer Mode on iOS 16+ via USB: idevicedevmodectl giao tiếp qua service com.apple.amfi.lockdown. Thiết bị không có mật khẩu sẽ tự reboot và confirm enable 100%. Thiết bị có passcode sẽ từ chối enable từ xa nhưng tự động kích hoạt DEV_MODE_REVEAL mở sẵn mục trong Cài đặt iPhone.",
       "ideviceinstaller Copying Stage Buffer Delay: Khi cài file IPA >400MB, ideviceinstaller tốn 30-60s để nạp file qua USB. Nếu chỉ đọc output khi tiến trình kết thúc, giao diện sẽ đứng ở 'Đang cài đặt...' khiến người dùng tưởng bị đơ. Cần đọc từng dòng stdout qua pipe và phân tích 'Copying ... to device (XX%)' để hiển thị tiến độ tức thì.",
       "Concurrent dict modification in Tkinter poll loop: Lặp trực tiếp qua self.rows ở background thread (như _update_all_cards_ipa_status hay _sync_cards) có thể dính RuntimeError: dictionary size changed during iteration khi thiết bị cắm/rút. Phải bọc list(self.rows.items()) hoặc list(self.rows.keys()) để tạo bản sao an toàn trước khi lặp.",
       "MismatchedApplicationIdentifierEntitlement on In-place Upgrade: iOS cấm cài đè bản cập nhật nếu team-id trong application-identifier của file mới khác với bản cũ đang có trên máy. Bắt buộc phải gỡ sạch app cũ qua ideviceinstaller uninstall trước khi cài.",
@@ -90,8 +107,8 @@
       "App Store Apps vs Sideloaded Apps in Restore: Bản backup của iOS (idevicebackup2) chỉ lưu dữ liệu container (Documents, Library, Cookies) chứ không lưu file cài .app. Khi restore phôi sang máy khác đã cài sẵn app TikTok Lite từ App Store, máy đó KHÔNG cần bật Developer Mode và KHÔNG cần mua thêm chứng chỉ, dữ liệu tự map 100%.",
       "ttkbootstrap 2.x Widget Naming: Trong ttkbootstrap, widget Panedwindow được đặt tên chữ w thường (ttk.Panedwindow), nếu gõ hoa kiểu ttk.PanedWindow của tkinter chuẩn sẽ gây lỗi AttributeError.",
       "Multi-device Individual Certs Collision: Mua 10 chứng chỉ cá nhân lẻ sẽ sinh ra 10 file IPA riêng mang UDID của 10 máy. Nếu chọn tất cả và bấm cài hàng loạt mà không có Smart UDID Matching, mỗi máy sẽ cố cài cả 10 file và báo lỗi 9 lần. Cần lọc target_ipas theo mã UDID của từng máy trước khi lặp.",
-      "Zero-Pip Portability vs ttkbootstrap: TIKTOOL PRO V4 lõi chính (BB_RB.py) duy trì 100% Zero-Pip chuẩn Tkinter. Công cụ đồng hành TIK_SIGNER PRO sử dụng ttkbootstrap để có giao diện hiện đại hơn, được đóng gói file BAT tự kiểm tra và hướng dẫn pip install nếu thiếu."
-      ,"IPA Install Label Must Follow Tool Output: Hàm install_ipa trước đây gán 'Đang chép file...' ngay khi khởi chạy subprocess và giữ lại progress 100% từ uninstall. Phải reset set_pct(0), báo 'Đang khởi tạo cài đặt...', chỉ báo Copying khi stdout chứa Copying, và set_pct(100) sau rc=0."
+      "Zero-Pip Portability vs ttkbootstrap: TIKTOOL PRO V4 lõi chính (BB_RB.py) duy trì 100% Zero-Pip chuẩn Tkinter. Công cụ đồng hành TIK_SIGNER PRO sử dụng ttkbootstrap để có giao diện hiện đại hơn, được đóng gói file BAT tự kiểm tra và hướng dẫn pip install nếu thiếu.",
+      "IPA Install Label Must Follow Tool Output: Hàm install_ipa trước đây gán 'Đang chép file...' ngay khi khởi chạy subprocess và giữ lại progress 100% từ uninstall. Phải reset set_pct(0), báo 'Đang khởi tạo cài đặt...', chỉ báo Copying khi stdout chứa Copying, và set_pct(100) sau rc=0."
     ],
     "conventions": [
       "Đặt tên file IPA đã ký: Luôn dùng cú pháp TikTok_Lite_<UDID>_Signed.ipa chứa đầy đủ mã UDID để công cụ cài đặt tự động đối soát chính xác 100%.",

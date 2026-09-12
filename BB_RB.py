@@ -88,6 +88,7 @@ class Icons:
     CHECK = "\uE73E"          # CheckMark
     CANCEL = "\uE711"         # ChromeClose
     KEY = "\uE8D7"            # Permissions / Key
+    DEV = "\uE7BE"            # DeveloperTools / Diagnostic
     ARROW_RIGHT = "\uE72A"    # Forward / ArrowRight
 
 # BUNDLE IDS TIKTOK & PATHS
@@ -991,6 +992,10 @@ class DeviceCard(tk.Frame):
         if self.app_ref:
             self.app_ref._launch_activate(self.udid)
 
+    def _trigger_single_devmode(self):
+        if self.app_ref:
+            self.app_ref._launch_devmode(self.udid)
+
     def update_trust_status(self, is_trusted, info):
         self.info = info
         if not is_trusted:
@@ -1406,7 +1411,23 @@ class App(tk.Tk):
             variable=self.var_set_lang_after_active,
             command=self._save_settings_from_ui
         )
-        chk_lang_after_active.pack(side="left")
+        chk_lang_after_active.pack(side="left", padx=(0, 6))
+
+        btn_batch_devmode = tk.Button(
+            box_act,
+            text=f"{Icons.DEV}  DEV MODE (ALL)",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg=COLOR_CYAN_ACCENT,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_enable_devmode_all
+        )
+        btn_batch_devmode.pack(side="left", ipady=2, ipadx=8)
 
         # Badge luồng bên phải
         flow_badge = tk.Frame(row1, bg=COLOR_SUB_BG, highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1)
@@ -1965,6 +1986,18 @@ class App(tk.Tk):
         ).start()
         return True
 
+    def _launch_devmode(self, udid):
+        if not self._require_license():
+            return False
+        if not self._begin_operation(udid, "devmode"):
+            return False
+        threading.Thread(
+            target=self._devmode_worker,
+            args=(udid, True),
+            daemon=True,
+        ).start()
+        return True
+
     def _set_language_locale_worker(self, udid, language_preset=None, operation_reserved=False):
         """Hàm đặt ngôn ngữ chủ động bằng lệnh ios.exe qua USB"""
         task = "Set Language"
@@ -2043,6 +2076,110 @@ class App(tk.Tk):
         self.log("SYSTEM", "Bắt đầu Batch Activate cho toàn bộ thiết bị...")
         for udid in list(self.rows.keys()):
             self._launch_activate(udid)
+
+    # ================== BATCH DEVELOPER MODE ENGINE ==================
+    def batch_enable_devmode_all(self):
+        """Bật Developer Mode (Chế độ nhà phát triển) hàng loạt cho toàn bộ dàn máy (iOS 16+)"""
+        if not self._require_license():
+            return
+        exe = which_tool("idevicedevmodectl")
+        if not exe:
+            messagebox.showerror("Developer Mode", "Không tìm thấy công cụ idevicedevmodectl.exe trong thư mục ứng dụng.")
+            return
+
+        if not self.rows:
+            messagebox.showinfo("Developer Mode", "Không có thiết bị kết nối.")
+            return
+
+        self.log("SYSTEM", f"Bắt đầu kiểm tra và kích hoạt Developer Mode cho {len(self.rows)} thiết bị...")
+        started = 0
+        for udid in list(self.rows.keys()):
+            if self._launch_devmode(udid):
+                started += 1
+        if started == 0:
+            self.log("SYSTEM", "Tất cả các máy đều đang bận thao tác khác.")
+
+    def _devmode_worker(self, udid, operation_reserved=False):
+        """Worker xử lý kiểm tra và bật Developer Mode cho một thiết bị"""
+        task = "Developer Mode"
+        row = self.rows.get(udid)
+        try:
+            exe = which_tool("idevicedevmodectl")
+            if not exe:
+                self.log(udid, "Thiếu công cụ idevicedevmodectl.exe", is_err=True)
+                if row: row.push_step("Thiếu devmodectl")
+                return
+
+            if not pair_validate(udid, log_fn=lambda s, **_: self.log(udid, s)):
+                if row: row.push_step("Lỗi Pair")
+                self.log(udid, "Cần xác nhận 'Tin Cậy' trên màn hình iPhone!", is_err=True)
+                return
+
+            if row:
+                row.push_step("Kiểm tra DevMode...")
+                row.set_pct(10)
+
+            # 1. Kiểm tra phiên bản iOS của máy
+            card_obj = self.rows.get(udid, None)
+            info_dict = getattr(card_obj, 'info', {}) if card_obj else {}
+            ios_str = str(info_dict.get('ios', '') or '')
+            ios_tuple = parse_ios_ver(ios_str) if ios_str else (0, 0, 0)
+            if ios_tuple[0] > 0 and ios_tuple[0] < 16:
+                self.log(udid, f"Thiết bị iOS {ios_str} < 16: Không cần bật Developer Mode (chỉ iOS 16+ mới yêu cầu).", is_ok=True)
+                if row:
+                    row.push_step("iOS < 16 (Không cần)")
+                    row.set_pct(100)
+                return
+
+            # 2. Kiểm tra trạng thái hiện tại
+            rc, out = run_capture([exe, "-u", udid, "list"], timeout=10)
+            out_lower = (out or "").lower()
+            if "enabled" in out_lower:
+                self.log(udid, "✓ Developer Mode đã được bật từ trước trên thiết bị này.", is_ok=True)
+                if row:
+                    row.push_step("DevMode: Đã Bật ✔")
+                    row.set_pct(100)
+                return
+
+            # 3. Gửi lệnh bật Developer Mode
+            self.log(udid, "Đang gửi lệnh kích hoạt Developer Mode qua USB...")
+            if row:
+                row.push_step("Đang bật DevMode...")
+                row.set_pct(30)
+
+            # Đánh dấu trước thời gian reboot để Polling không báo Not Trust
+            self.reboot_tracker.mark(udid, timeout=90.0)
+
+            rc, out = run_capture([exe, "-u", udid, "enable"], timeout=120)
+            out_lower = (out or "").lower()
+
+            if rc == 0 or "successfully enabled" in out_lower or "already enabled" in out_lower:
+                self.log(udid, "✓ Bật Developer Mode thành công! Thiết bị đã sẵn sàng chạy ứng dụng ngoài App Store.", is_ok=True)
+                if row:
+                    row.push_step("DevMode: BẬT XONG ✔")
+                    row.set_pct(100)
+            elif "passcode" in out_lower:
+                self.log(
+                    udid,
+                    "⚠️ Máy có mật khẩu khóa màn hình (Passcode): Đã mở sẵn mục 'Chế độ nhà phát triển'. "
+                    "Vui lòng vào Cài đặt ➔ Quyền riêng tư & Bảo mật ➔ Bật Developer Mode trên iPhone!",
+                    is_warn=True
+                )
+                if row:
+                    row.push_step("Vào Cài đặt bật DevMode")
+                    row.set_pct(80)
+            else:
+                err_msg = out.strip().splitlines()[-1] if out.strip() else f"exit code {rc}"
+                self.log(udid, f"Lỗi kích hoạt Developer Mode: {err_msg}", is_err=True)
+                if row:
+                    row.push_step(f"Lỗi DevMode (rc={rc})")
+        except Exception as exc:
+            self.log(udid, f"Ngoại lệ khi bật Developer Mode: {exc}", is_err=True)
+            if row:
+                row.push_step("Lỗi DevMode")
+        finally:
+            if operation_reserved:
+                self.operations.end(udid, "devmode")
 
     def _batch_activate_worker(self, udid, set_language=None, language_preset=None, operation_reserved=False, operation_kind="activate"):
         """Worker xử lý kích hoạt từng thiết bị: 3 giai đoạn Activate → Skip Setup → Set Lang"""
@@ -2859,6 +2996,22 @@ class App(tk.Tk):
         )
         chk_uninst.pack(side="left", padx=6)
 
+        btn_ipa_devmode = tk.Button(
+            row_opts,
+            text=f"{Icons.DEV}  Bật Developer Mode (Cả dàn)",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg=COLOR_CYAN_ACCENT,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_enable_devmode_all
+        )
+        btn_ipa_devmode.pack(side="right", padx=6, ipady=1, ipadx=6)
+
         # --- Hàng 4: Nút cài (hàng riêng fill="x") ---
         self.btn_install_ipa = GradientButton(
             f,
@@ -3520,7 +3673,14 @@ class App(tk.Tk):
 
     def _parse_any_percent(self, s):
         try:
-            m = re.findall(r'(\d{1,3})\s*%', str(s or ''))
+            raw = str(s or '').strip()
+            if not raw:
+                return None
+            # Bỏ qua dòng tiến độ transfer file con (có số thập phân như 18.0%, kích thước file KB/MB, hoặc ký tự >)
+            if re.search(r'\d+\.\d+\s*%', raw) or re.search(r'\b(?:B|KB|MB|GB)\b', raw, re.I) or '>' in raw:
+                return None
+            # Chỉ nhận % nguyên (overall progress)
+            m = re.findall(r'(?<![\d.])(\d{1,3})\s*%(?!\S)', raw)
             if m:
                 val = int(m[-1])
                 if 0 <= val <= 100:
@@ -3532,6 +3692,9 @@ class App(tk.Tk):
     def _should_log_stream_line(self, udid, line):
         s = str(line or '').strip()
         if not s:
+            return False
+        # Bỏ qua dòng thông báo file đang transfer (Sending... / Receiving...), tránh trùng từ khóa trong tên file
+        if s.startswith(('Sending', 'Receiving')):
             return False
         low = s.lower()
         important_words = (
@@ -3546,12 +3709,17 @@ class App(tk.Tk):
         if pct is None:
             return False
         key = udid or 'GENERAL'
-        last = self._last_progress_log.get(key)
+        progress_dict = getattr(self, '_last_progress_log', None)
+        last = progress_dict.get(key) if progress_dict is not None else None
+        if last is not None and pct == last:
+            return False
         if pct in (0, 1, 3, 50, 90, 95, 99, 100):
-            self._last_progress_log[key] = pct
+            if progress_dict is not None:
+                progress_dict[key] = pct
             return True
         if last is None or abs(pct - last) >= 5:
-            self._last_progress_log[key] = pct
+            if progress_dict is not None:
+                progress_dict[key] = pct
             return True
         return False
 
@@ -4003,11 +4171,17 @@ class App(tk.Tk):
                 row.push_step("Đang Sao Lưu")
                 row.set_pct(0)
 
+            if hasattr(self, "_last_progress_log") and isinstance(self._last_progress_log, dict):
+                self._last_progress_log[udid] = None
+            last_pct = -1
+
             def on_line(s, is_err=False):
+                nonlocal last_pct
                 if is_err or self._should_log_stream_line(udid, s):
                     self.log(udid, s, is_err=is_err)
                 pct = self._parse_any_percent(s)
-                if pct is not None and row:
+                if pct is not None and pct != last_pct and row:
+                    last_pct = pct
                     row.set_pct(pct)
                     row.push_step(f"Sao lưu {pct}%")
 
@@ -4173,11 +4347,17 @@ class App(tk.Tk):
                 row.push_step("Restore 0%")
                 row.set_pct(0)
 
+            if hasattr(self, "_last_progress_log") and isinstance(self._last_progress_log, dict):
+                self._last_progress_log[target_udid] = None
+            last_pct = -1
+
             def on_line(s, is_err=False):
+                nonlocal last_pct
                 if is_err or self._should_log_stream_line(target_udid, s):
                     self.log(target_udid, s, is_err=is_err)
                 pct = self._parse_any_percent(s)
-                if pct is not None and row:
+                if pct is not None and pct != last_pct and row:
+                    last_pct = pct
                     row.set_pct(pct)
                     row.push_step(f"Restore {pct}%")
 

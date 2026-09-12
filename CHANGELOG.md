@@ -2,6 +2,43 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.5 libimobiledevice v1.4.0 & Batch Developer Mode Edition] - 2026-09-12
+
+### 🚀 Nâng Cấp Toàn Diện Bộ libimobiledevice v1.4.0 (jrjr Latest Build)
+- **Nâng cấp từ bản cũ v1.3.0-git (2020) lên v1.4.0-9-gfa0f791 mới nhất**:
+  - Thay thế đồng bộ toàn bộ binary `.exe` và thư viện `.dll` hỗ trợ tương thích đầy đủ iOS 16, 17 và 18+.
+  - Nâng cấp lên OpenSSL 3.x (`libcrypto-3`, `libssl-3`) và thuật toán mã hóa hiện đại (`ed25519`, `SRP6a`).
+  - Bổ sung bộ giải nén tốc độ cao `libzstd.dll` và `libbrotli` giảm tải CPU khi nạp nhiều máy song song.
+  - Sửa lỗi tính sai dung lượng ổ đĩa trống trên Windows (`Fix free disk space calculation`) trong `idevicebackup2`.
+  - Tạo bản backup an toàn tại `backup_libimobiledevice_20260912_185131/`.
+
+### 🐛 Khắc Phục Triệt Để Sự Cố "Chạy Loạn Không Dừng" (UI Queue Flood)
+- **Xử lý khối tiến độ 4 dòng VT100 của `idevicebackup2 v1.4.0`**:
+  - Bản mới in tiến độ đa dòng gồm tiến độ tổng (Dòng 1: `Backup [####] 21%`) và tiến độ truyền từng file lẻ (Dòng 3: `[=====>] 32.8% 688 KB / 2.1 MB`).
+  - Nâng cấp `_parse_any_percent`: Bỏ qua các dòng chứa số thập phân, dung lượng `KB/MB` và ký tự `>` của file con; chỉ trích xuất đúng % nguyên của tiến độ tổng toàn bộ máy.
+- **Chống bão log và điều phối mượt mà hàng đợi GUI Tkinter**:
+  - Thêm điều kiện `pct == last` trong `_should_log_stream_line`: Nếu % chưa thay đổi cột mốc (mỗi 5%) thì tuyệt đối không ghi thêm log.
+  - Bỏ qua các dòng thông báo copy file bắt đầu bằng `Sending` / `Receiving` để tránh trùng từ khóa trong tên file tài nguyên app (như `load_fail@2x.png`).
+  - Thêm cờ `last_pct` trong callback `on_line`: Chỉ đẩy lệnh cập nhật thanh tiến độ `row.set_pct` lên GUI khi % thực sự tăng lên số mới.
+  - Bổ sung bộ lọc `ANSI_ESCAPE_RE` trong `tiktool_core.py`: Làm sạch toàn bộ mã điều khiển con trỏ terminal (`\033[2K`, `\033[1G`...) trước khi đưa vào luồng log.
+  - **Kết quả thực nghiệm**: Giảm **99.4%** lượng log (từ 43.761 dòng xuống 281 dòng), dung lượng log giảm từ 3.36 MB xuống 24.5 KB, loại bỏ hoàn toàn hiện tượng đơ lag hay cuộn chữ giật loạn.
+
+### ⚡ Tính Năng Mới: Tự Động Bật Developer Mode Hàng Loạt (Batch DevMode)
+- **Tích hợp công cụ `idevicedevmodectl.exe` vào luồng xử lý `BB_RB.py`**:
+  - Nút bấm `DEV MODE (ALL)` trên thanh điều khiển nhanh (Hàng 1) với màu Cyan Accent nổi bật.
+  - Nút bấm `⚡ Bật Developer Mode (Cả dàn)` trong thanh tùy chọn của tab **CÀI IPA** (`row_opts`).
+  - Hỗ trợ hàm `_trigger_single_devmode` trên `DeviceCard` để có thể kích hoạt độc lập cho từng máy.
+- **Cơ chế xử lý thông minh & an toàn**:
+  - Tự động nhận diện thiết bị đã bật sẵn (`enabled`) qua `idevicedevmodectl list` ➔ Báo `DevMode: Đã Bật ✔`.
+  - Tự động bỏ qua an toàn các thiết bị chạy iOS < 16 (không cần Developer Mode).
+  - Tự động kích hoạt qua lệnh `enable` cho thiết bị không đặt Passcode: máy reboot và tự động xác nhận bật 100%.
+  - Tự động kích hoạt cơ chế `reveal` mở sẵn mục Developer Mode trong Cài đặt iPhone và gửi thông báo nếu máy có mật khẩu khóa màn hình.
+  - Đánh dấu `reboot_tracker` tránh USB Polling báo lỗi Not Trust ảo trong lúc máy khởi động lại.
+
+### 📑 Báo Cáo Kỹ Thuật & Kiểm Thử
+- **Báo cáo chuyên sâu HTML / Tailwind CSS v4**: `BAO_CAO_NANG_CAP_LIBIMOBILEDEVICE_V1.4.html`.
+- **Hệ thống kiểm thử**: Bổ sung 4 unit tests mới cho luồng Developer Mode, nâng tổng số kiểm thử lên **65/65 test PASS 100%**.
+
 ## [4.9.0 Grid IPA Layout & Real-time Progress Edition] - 2026-09-11
 
 ### 🎨 Tái Thiết Kế Danh Sách File IPA Dạng Lưới Grid 3 Cột Siêu Gọn

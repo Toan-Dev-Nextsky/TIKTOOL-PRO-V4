@@ -18,3 +18,9 @@ certs/*
 *.zip
 danh_sach_*.txt
 ipas.rar
+
+# Temporary & backup tool directories
+backup_libimobiledevice_*/
+libimobile-suite-*/
+libimobiledevice-*/
+

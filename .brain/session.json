@@ -1,26 +1,48 @@
 {
-  "updated_at": "2026-09-11T20:30:00+07:00",
+  "updated_at": "2026-09-12T19:46:00+07:00",
   "working_on": {
-    "feature": "3-Column Grid IPA List & Real-time Installer Progress",
-    "task": "Tái thiết kế Grid IPA, đồng bộ Astro và hiển thị đúng các pha cài IPA theo stdout",
+    "feature": "libimobiledevice v1.4.0 Suite, UI Flood Prevention & Batch Developer Mode",
+    "task": "Nâng cấp libimobiledevice v1.4.0-9, xử lý triệt để bão log giao diện Restore và bổ sung tính năng Bật Developer Mode cho cả dàn",
     "status": "completed",
     "files": [
       "BB_RB.py",
+      "tiktool_core.py",
+      "tests/test_app_workflows.py",
+      "tests/test_tiktool_core.py",
+      "BAO_CAO_NANG_CAP_LIBIMOBILEDEVICE_V1.4.html",
       "CHANGELOG.md",
       ".brain/session.json",
       ".brain/brain.json",
       ".brain/handover.md"
     ],
-    "notes": "Đã hoàn thành Grid IPA 3 cột, Smart UDID Matching, realtime Copying progress, Astro state install_ipa và sửa nhãn/progress cài IPA: reset 0% khi khởi tạo, chỉ báo Đang chép khi stdout có Copying, thành công mới 100%."
+    "notes": "Đã nâng cấp 45 binary/DLL từ jrjr suite v1.4.0-9, sửa lỗi regex _parse_any_percent và chặn lặp pct == last trong _should_log_stream_line giảm 99.4% log rác, tích hợp idevicedevmodectl với nút bấm trên Hàng 1 và tab Cài IPA. Toàn bộ 65/65 tests PASS 100%."
   },
   "pending_tasks": [
     {
-      "task": "Test thực tế cài đặt 10 máy song song với giao diện Grid 3 cột mới",
-      "priority": "medium",
-      "notes": "Quan sát thanh tiến độ % hiển thị mượt mà trên từng thẻ máy trong suốt quá trình chép file và cài đặt."
+      "task": "Theo dõi vận hành thực tế dàn 14-16 máy trong các ca nạp phôi khối lượng lớn",
+      "priority": "low",
+      "notes": "Quan sát độ ổn định cổng USB và mức tiêu thụ CPU với bộ thư viện OpenSSL 3 + Zstandard mới."
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-12T19:40:00+07:00",
+      "type": "batch_developer_mode_engine",
+      "description": "Tích hợp công cụ mới idevicedevmodectl.exe vào BB_RB.py: thêm nút DEV MODE (ALL) trên thanh điều khiển Hàng 1 và nút Bật Developer Mode (Cả dàn) trong tab Cài IPA. Xử lý thông minh: bỏ qua iOS < 16, nhận diện máy đã bật, tự động khởi động lại và xác nhận với máy không mật khẩu, mở sẵn Cài đặt với máy có passcode; bổ sung 4 unit tests mới (tổng 65 tests).",
+      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
+    },
+    {
+      "timestamp": "2026-09-12T19:05:00+07:00",
+      "type": "fix_ui_stream_log_flooding_v14",
+      "description": "Khắc phục triệt để lỗi giao diện chạy loạn và đơ hàng đợi do idevicebackup2 v1.4.0 in tiến độ 4 dòng VT100: sửa _parse_any_percent bỏ qua dòng tiến độ file con (thập phân và KB/MB), sửa _should_log_stream_line chặn lặp pct == last và bỏ qua dòng Sending/Receiving, thêm throttling last_pct trong callback on_line, lọc ANSI_ESCAPE_RE trong tiktool_core.py; giảm 99.4% log (43.761 dòng -> 281 dòng, 3.36 MB -> 24.5 KB).",
+      "files": ["BB_RB.py", "tiktool_core.py", "tests/test_app_workflows.py", "tests/test_tiktool_core.py"]
+    },
+    {
+      "timestamp": "2026-09-12T18:51:00+07:00",
+      "type": "upgrade_libimobiledevice_v14_suite",
+      "description": "Nâng cấp toàn bộ 45 binary .exe và thư viện .dll từ jrjr/libimobile-suite-latest_w64 (v1.4.0-9-gfa0f791) thay thế bản 1.3.0-git (2020), nâng cấp OpenSSL 3.x, Zstandard, Brotli, sửa lỗi tính dung lượng đĩa trống Windows; tạo bản backup tại backup_libimobiledevice_20260912_185131.",
+      "files": ["c:/TIKTOOL PRO V4/*.exe", "c:/TIKTOOL PRO V4/*.dll"]
+    },
     {
       "timestamp": "2026-09-11T20:20:00+07:00",
       "type": "truthful_ipa_install_progress",
@@ -36,74 +58,48 @@
     {
       "timestamp": "2026-09-11T17:20:00+07:00",
       "type": "grid_3_column_ipa_layout",
-      "description": "Tái thiết kế toàn diện _refresh_ipa_list trong BB_RB.py sang dạng lưới Grid 3 cột (uniform='ipa_col'): giảm 64% chiều cao dọc (11 file từ 11 hàng còn 4 hàng), tự động sắp xếp theo thứ tự Slot 01->10, thẻ card mini có viền màu phân cấp (xanh cho khớp máy, đỏ cho chưa ký, xám cho chưa cắm), click mọi vị trí trên card để toggle checkbox, header hiển thị tổng file và badge tóm tắt.",
+      "description": "Tái thiết kế toàn diện _refresh_ipa_list trong BB_RB.py sang dạng lưới Grid 3 cột (uniform='ipa_col'): giảm 64% chiều cao dọc, tự động sắp xếp theo thứ tự Slot 01->10, thẻ card mini có viền màu phân cấp, click mọi vị trí trên card để toggle checkbox.",
       "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-11T17:00:00+07:00",
-      "type": "realtime_ideviceinstaller_progress_streaming",
-      "description": "Nâng cấp _install_ipa_worker bắt luồng stdout trực tiếp từ ideviceinstaller, bóc tách tiến độ 'Copying ... to device (XX%)' và cập nhật 'Đang chép file... (XX%)' cùng thanh tiến độ % trên từng thẻ thiết bị theo thời gian thực.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-11T16:50:00+07:00",
-      "type": "fix_dict_size_changed_thread_race",
-      "description": "Khắc phục triệt để lỗi RuntimeError: dictionary size changed during iteration trong các luồng quét ngầm bằng cách bọc list(self.rows.items()).",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-11T16:40:00+07:00",
-      "type": "device_card_ipa_match_indicator_and_udid",
-      "description": "Hiển thị UDID trên từng thẻ thiết bị và thêm phương thức set_ipa_match: thẻ nào có IPA ký khớp UDID sẽ có viền sáng Emerald #10B981, tag Slot XX [✔ IPA], và nhãn ✔ CÓ IPA KÝ màu xanh #34D399.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-11T15:10:00+07:00",
-      "type": "smart_udid_matching_installer",
-      "description": "Nâng cấp hàm _install_ipa_worker trong BB_RB.py: tự động đối soát mã UDID của từng máy với tên file IPA được chọn; máy nào chỉ cài đúng file mang mã UDID của máy đó.",
-      "files": ["BB_RB.py"]
-    },
-    {
-      "timestamp": "2026-09-11T15:05:00+07:00",
-      "type": "batch_ipa_signer_tool",
-      "description": "Tạo công cụ mới TIK SIGNER PRO (TIK_SIGNER.py + CHAY_SIGNER.bat) bằng ttkbootstrap Darkly: quét thiết bị, xuất UDID, quét kho certs/, gọi zsign đa luồng ký IPA hàng loạt tốc độ cao.",
-      "files": ["TIK_SIGNER.py", "CHAY_SIGNER.bat", "certs/README_CERTS.txt"]
     }
   ],
   "errors_encountered": [
     {
-      "error": "ideviceinstaller có độ trễ khoảng 1 phút khiến người dùng tưởng bị đơ trước khi bắt đầu cài đặt",
-      "solution": "Bắt luồng stdout từ subprocess để bóc tách tiến độ 'Copying ... (XX%)' và cập nhật ngay lên UI: 'Đang chép file... (XX%)' kèm thanh tiến độ thời gian thực.",
+      "error": "idevicebackup2 v1.4.0 in khối tiến độ 4 dòng VT100 có số thập phân khiến _parse_any_percent bắt nhầm % file con làm % máy giật lùi, gây bão log 43.761 dòng và đóng băng giao diện Tkinter",
+      "solution": "Nâng cấp _parse_any_percent bỏ qua các dòng chứa số thập phân hoặc KB/MB hoặc '>', chặn lặp pct == last trong _should_log_stream_line, chỉ gọi row.set_pct khi % thay đổi trong on_line, và lọc ANSI_ESCAPE_RE trong tiktool_core.py.",
       "resolved": true
     },
     {
-      "error": "RuntimeError: dictionary size changed during iteration khi lặp qua self.rows ở background thread",
-      "solution": "Bọc list(self.rows.items()) và list(self.rows.keys()) để tạo bản sao snapshot độc lập luồng trước khi lặp.",
+      "error": "Tên file tài nguyên app (như load_fail@2x.png) trong dòng Receiving... bị bắt nhầm từ khóa 'fail' gây ghi log thừa trong quá trình Backup",
+      "solution": "Thêm bộ lọc bỏ qua các dòng bắt đầu bằng 'Sending' hoặc 'Receiving' trong _should_log_stream_line.",
       "resolved": true
     },
     {
-      "error": "Giao diện danh sách IPA dạng 1 cột chiếm quá nhiều diện tích chiều dọc khi có 10-15 file",
-      "solution": "Chuyển đổi thành Lưới Grid 3 Cột (uniform='ipa_col') với mini-card phân cấp màu sắc, rút gọn 64% chiều cao, thẳng hàng với 3 cột thiết bị iPhone.",
+      "error": "Mock app SimpleNamespace trong unit tests không có thuộc tính _last_progress_log gây AttributeError",
+      "solution": "Sử dụng getattr(self, '_last_progress_log', None) và kiểm tra hasattr/isinstance an toàn trong BB_RB.py.",
       "resolved": true
     },
     {
-      "error": "Thẻ Cài IPA hiển thị 'Đang chép file' và 100% trong thời gian ideviceinstaller còn preflight",
-      "solution": "Reset progress về 0 khi bắt đầu, đổi nhãn thành 'Đang khởi tạo cài đặt', chỉ chuyển sang 'Đang chép file' khi nhận stdout Copying và chỉ đặt 100% sau rc=0.",
+      "error": "Lỗi MismatchedApplicationIdentifierEntitlement khi cài đặt IPA sau khi nạp phôi",
+      "solution": "Xác định trên iPhone đã có sẵn bản app cài từ trước bằng chứng chỉ khác; cần gỡ sạch bản cũ trên máy rồi cài lại bản IPA mới ký.",
       "resolved": true
     }
   ],
   "decisions_made": [
     {
-      "decision": "Thiết kế danh sách IPA thành Lưới 3 Cột (Grid 3 columns) thay vì danh sách cuộn dọc",
-      "reason": "Khớp hoàn hảo với 3 cột iPhone bên dưới, tiết kiệm tối đa diện tích màn hình, hiển thị được trọn vẹn 10-12 file mà không chiếm quá 110px chiều cao."
+      "decision": "Nâng cấp lên bộ suite jrjr v1.4.0-9 thay vì giữ bản 1.3.0-git",
+      "reason": "Bộ suite 1.4.0-9 mới nhất sửa lỗi tính toán đĩa trống trên Windows, hỗ trợ trọn vẹn iOS 16-18+, nâng cấp OpenSSL 3.x và Zstandard giải nén tốc độ cao cho dàn 14-16 máy."
     },
     {
-      "decision": "Sắp xếp danh sách IPA theo thứ tự Slot (Slot 01 -> Slot 10)",
-      "reason": "Người dùng nhìn vào danh sách IPA là thấy ngay từng file tương ứng với máy ở Slot nào bên dưới theo đúng thứ tự logic, không bị lộn xộn theo bảng chữ cái."
+      "decision": "Lọc sạch mã ANSI Terminal ngay tại tầng thấp tiktool_core.py",
+      "reason": "Ngăn ngừa các ký tự điều khiển con trỏ terminal VT100 (như \\033[2K, \\033[1G) từ các công cụ hiện đại làm đơ hoặc nhiễu các widget giao diện Tkinter."
     },
     {
-      "decision": "Bắt stdout thời gian thực của ideviceinstaller",
-      "reason": "File IPA nặng 400MB+ tốn 30-60s để nạp vào iPhone qua USB; hiển thị tiến độ chép file % giúp người dùng yên tâm thiết bị vẫn đang chạy bình thường."
+      "decision": "Thêm tính năng Bật Developer Mode cho cả dàn bằng idevicedevmodectl",
+      "reason": "Dàn máy iOS 16, 17, 18 bắt buộc phải bật Developer Mode mới mở được app TikTok Lite ký ngoài App Store; tự động hóa qua USB giúp người dùng không cần cầm từng máy bật thủ công."
+    },
+    {
+      "decision": "Bố trí nút DEV MODE (ALL) ở cả Hàng 1 và Tab Cài IPA",
+      "reason": "Người dùng có thể kích hoạt nhanh từ thanh điều khiển chung hoặc ngay khi chuẩn bị nạp file IPA."
     }
   ]
 }

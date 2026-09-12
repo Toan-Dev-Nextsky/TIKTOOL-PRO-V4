@@ -766,6 +766,139 @@ class AutoActivateBatchTests(unittest.TestCase):
         self.assertEqual("activate", calls[0][0][4])
         self.assertEqual({"u1": "activate"}, app.operations.snapshot())
 
+    def test_parse_any_percent_filters_subfile_transfers(self):
+        """Catches sub-file transfer progress corrupting overall restore/backup percentage."""
+        app = types.SimpleNamespace()
+
+        # Overall progress lines from idevicebackup2 v1.4.0+
+        self.assertEqual(0, BB_RB.App._parse_any_percent(app, "Backup     [..............................]   0%"))
+        self.assertEqual(21, BB_RB.App._parse_any_percent(app, "Backup     [######........................]  21%"))
+        self.assertEqual(100, BB_RB.App._parse_any_percent(app, "Restore    [##############################] 100%"))
+
+        # Older idevicebackup2 format & generic
+        self.assertEqual(50, BB_RB.App._parse_any_percent(app, "[====================] 50%"))
+        self.assertEqual(75, BB_RB.App._parse_any_percent(app, "Restore 75%"))
+
+        # Sub-file transfer chunk lines MUST be ignored (return None)
+        self.assertIsNone(BB_RB.App._parse_any_percent(app, "[=====>                        ]  18.0%   1.0 MB / 5.7 MB"))
+        self.assertIsNone(BB_RB.App._parse_any_percent(app, "[==========>       ] 32.8% 688.1 KB / 2.1 MB"))
+        self.assertIsNone(BB_RB.App._parse_any_percent(app, "[>                             ]   0.0%"))
+        self.assertIsNone(BB_RB.App._parse_any_percent(app, "[==============================] 100.0%"))
+
+    def test_should_log_stream_line_deduplicates_repeated_percent(self):
+        """Catches spamming thousands of identical progress lines into system log."""
+        app = types.SimpleNamespace(
+            _last_progress_log={},
+            _parse_any_percent=lambda s: BB_RB.App._parse_any_percent(None, s),
+        )
+
+        # 0% should be logged the first time
+        self.assertTrue(BB_RB.App._should_log_stream_line(app, "u1", "Backup     [..............................]   0%"))
+        # 0% on the very next frame should NOT be logged again
+        self.assertFalse(BB_RB.App._should_log_stream_line(app, "u1", "Backup     [..............................]   0%"))
+        # Sub-file chunk progress must NOT be logged
+        self.assertFalse(BB_RB.App._should_log_stream_line(app, "u1", "[=====>                        ]  18.0%   1.0 MB / 5.7 MB"))
+        # 2% is less than 5% jump, should not log
+        self.assertFalse(BB_RB.App._should_log_stream_line(app, "u1", "Backup     [..............................]   2%"))
+        # 5% is >= 5% jump, should log
+        self.assertTrue(BB_RB.App._should_log_stream_line(app, "u1", "Backup     [#.............................]   5%"))
+        # 5% again should NOT log
+        self.assertFalse(BB_RB.App._should_log_stream_line(app, "u1", "Backup     [#.............................]   5%"))
+
+
+class DeveloperModeTests(unittest.TestCase):
+    def make_app(self, ios="17.0"):
+        messages = []
+        steps = []
+        card = types.SimpleNamespace(
+            info={"ios": ios, "name": "iPhone", "trusted": True},
+            push_step=lambda text: steps.append(text),
+            set_pct=lambda pct: None,
+        )
+        app = types.SimpleNamespace(
+            rows={"u1": card},
+            operations=BB_RB.OperationRegistry(),
+            reboot_tracker=BB_RB.RebootTracker(),
+            log=lambda *args, **kwargs: messages.append((args, kwargs)),
+            _require_license=lambda: True,
+            messages=messages,
+            steps=steps,
+        )
+        app._begin_operation = types.MethodType(BB_RB.App._begin_operation, app)
+        app._devmode_worker = types.MethodType(BB_RB.App._devmode_worker, app)
+        app._launch_devmode = types.MethodType(BB_RB.App._launch_devmode, app)
+        app.batch_enable_devmode_all = types.MethodType(BB_RB.App.batch_enable_devmode_all, app)
+        return app
+
+    def test_devmode_worker_handles_already_enabled(self):
+        """Catches already-enabled developer mode running an unnecessary reboot."""
+        app = self.make_app(ios="17.2")
+        app.operations.begin("u1", "devmode")
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicedevmodectl.exe"), \
+             patch.object(BB_RB, "pair_validate", return_value=True), \
+             patch.object(BB_RB, "run_capture", return_value=(0, "u1  enabled")) as mocked_run:
+            app._devmode_worker("u1", operation_reserved=True)
+
+        self.assertEqual(1, mocked_run.call_count)
+        self.assertEqual(["u1", "list"], mocked_run.call_args.args[0][2:])
+        self.assertIn("DevMode: Đã Bật ✔", app.steps)
+        self.assertEqual({}, app.operations.snapshot())
+
+    def test_devmode_worker_skips_ios_below_16(self):
+        """Catches running devmode commands on iOS < 16 which do not require it."""
+        app = self.make_app(ios="15.6")
+        app.operations.begin("u1", "devmode")
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicedevmodectl.exe"), \
+             patch.object(BB_RB, "pair_validate", return_value=True), \
+             patch.object(BB_RB, "run_capture") as mocked_run:
+            app._devmode_worker("u1", operation_reserved=True)
+
+        self.assertEqual(0, mocked_run.call_count)
+        self.assertIn("iOS < 16 (Không cần)", app.steps)
+        self.assertEqual({}, app.operations.snapshot())
+
+    def test_devmode_worker_enables_successfully(self):
+        """Catches devmode enable flow failing to report completion."""
+        app = self.make_app(ios="16.5")
+        app.operations.begin("u1", "devmode")
+
+        def fake_run(cmd, timeout=120):
+            if "list" in cmd:
+                return 0, "u1  disabled"
+            if "enable" in cmd:
+                return 0, "u1: Developer Mode successfully enabled."
+            return 1, "unknown"
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicedevmodectl.exe"), \
+             patch.object(BB_RB, "pair_validate", return_value=True), \
+             patch.object(BB_RB, "run_capture", side_effect=fake_run):
+            app._devmode_worker("u1", operation_reserved=True)
+
+        self.assertIn("DevMode: BẬT XONG ✔", app.steps)
+        self.assertEqual({}, app.operations.snapshot())
+
+    def test_devmode_worker_handles_passcode(self):
+        """Catches device with passcode being reported as an error instead of settings instruction."""
+        app = self.make_app(ios="17.0")
+        app.operations.begin("u1", "devmode")
+
+        def fake_run(cmd, timeout=120):
+            if "list" in cmd:
+                return 0, "u1  disabled"
+            if "enable" in cmd:
+                return 2, "u1: Developer Mode could not be enabled because the device has a passcode set."
+            return 1, "unknown"
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicedevmodectl.exe"), \
+             patch.object(BB_RB, "pair_validate", return_value=True), \
+             patch.object(BB_RB, "run_capture", side_effect=fake_run):
+            app._devmode_worker("u1", operation_reserved=True)
+
+        self.assertIn("Vào Cài đặt bật DevMode", app.steps)
+        self.assertEqual({}, app.operations.snapshot())
+
 
 if __name__ == "__main__":
     unittest.main()

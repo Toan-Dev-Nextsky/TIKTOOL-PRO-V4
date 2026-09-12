@@ -365,6 +365,18 @@ class ProcessRunnerTests(unittest.TestCase):
 
         self.assertEqual([("operation failed", True)], seen)
 
+    def test_stream_strips_ansi_escape_codes(self):
+        """Catches VT100 / ANSI escape sequences from modern CLI tools corrupting log stream."""
+        seen = []
+
+        self.runner.run_stream(
+            [sys.executable, "-c", "import sys; sys.stdout.write('\\x1b[2K\\x1b[1GBackup [######] 21%\\n')"],
+            lambda line, is_err=False: seen.append((line, is_err)),
+            timeout=2,
+        )
+
+        self.assertEqual([("Backup [######] 21%", False)], seen)
+
 
 if __name__ == "__main__":
     unittest.main()

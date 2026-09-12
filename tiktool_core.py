@@ -32,6 +32,7 @@ WORK_DIR_NAME = ".tiktool_work"
 OWNED_JOB_PREFIXES = ("restore-", "backup-", "transfer-")
 LICENSE_SECRET = base64.b64decode("J1+EGe8rOjhrROIE5Dygj2nnHTKH/9Bval0PMWI2w5E=")
 LICENSE_PREFIX = "IPTP-"
+ANSI_ESCAPE_RE = re.compile(r"\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 
 class IntegrityError(RuntimeError):
@@ -138,7 +139,7 @@ class ProcessRunner:
         read_errors: list[str] = []
 
         def emit(line: str) -> None:
-            clean = line.strip()
+            clean = ANSI_ESCAPE_RE.sub("", line).strip()
             if not clean:
                 return
             lines.append(clean)
