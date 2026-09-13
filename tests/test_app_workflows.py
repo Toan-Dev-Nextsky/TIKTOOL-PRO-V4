@@ -295,6 +295,126 @@ class RebootTests(unittest.TestCase):
 
         self.assertFalse(tracker.is_waiting("u1", now=101))
 
+    def test_absence_is_only_recorded_after_a_real_disconnect(self):
+        """Catches a still-plugged device being mistaken for a completed reboot cycle."""
+        tracker = RebootTracker()
+        tracker.mark("u1", timeout=180, now=100)
+
+        self.assertFalse(tracker.saw_absence("u1"))
+        tracker.note_absent("u1")
+        self.assertTrue(tracker.saw_absence("u1"))
+
+    def test_absence_is_not_recorded_for_unmarked_devices(self):
+        """Catches ordinary unplug events leaking into reboot bookkeeping."""
+        tracker = RebootTracker()
+        tracker.note_absent("u1")
+
+        self.assertFalse(tracker.saw_absence("u1"))
+
+    def test_marking_again_resets_a_previous_absence(self):
+        """Catches a stale absence from an earlier reboot instantly clearing a new mark."""
+        tracker = RebootTracker()
+        tracker.mark("u1", timeout=180, now=100)
+        tracker.note_absent("u1")
+        tracker.mark("u1", timeout=180, now=200)
+
+        self.assertFalse(tracker.saw_absence("u1"))
+
+
+class SyncCardsRebootTests(unittest.TestCase):
+    """Regression cho lỗi thật: khóa reboot bị xoá trước khi iPhone kịp rút ra.
+
+    Log sản xuất 2026-09-13 09:18:58 mark(90s) -> 09:19:08 cả 12 máy bị ghi
+    "Đã ngắt kết nối." (chỉ xảy ra khi is_waiting() == False) -> thẻ bị xoá và
+    máy cắm lại hiện "iPhone (Not Trust) • iOS ?".
+    """
+
+    def make_app(self):
+        steps = []
+        messages = []
+        card = types.SimpleNamespace(
+            info={"ios": "17.0", "name": "iPhone", "trusted": True},
+            push_step=steps.append,
+            set_pct=lambda pct: None,
+            destroy=lambda: steps.append("DESTROYED"),
+            update_trust_status=lambda trusted, info: steps.append(f"TRUST={trusted}"),
+        )
+        label = types.SimpleNamespace(config=lambda **kwargs: None)
+        app = types.SimpleNamespace(
+            rows={"u1": card},
+            lock=threading.Lock(),
+            reboot_tracker=RebootTracker(),
+            log=lambda udid, line, **kwargs: messages.append(line),
+            _build_info=lambda udid, is_trusted=True: {"name": "iPhone (Not Trust)", "ios": "?", "trusted": is_trusted},
+            _relayout_cards=lambda: None,
+            _update_all_cards_ipa_status=lambda: None,
+            _refresh_mascot_state=lambda dev_cnt, untrusted_cnt: None,
+            lbl_dev_count=label,
+            lbl_trust_count=label,
+            lbl_untrust_count=label,
+            current_mode="RESTORE",
+            steps=steps,
+            messages=messages,
+            card=card,
+        )
+        app._sync_cards = types.MethodType(BB_RB.App._sync_cards, app)
+        return app
+
+    def test_reboot_lock_survives_polls_while_device_is_still_plugged_in(self):
+        """Catches the lock being cleared on the first poll, before the reboot even starts."""
+        app = self.make_app()
+        app.reboot_tracker.mark("u1", timeout=180.0)
+
+        # iPhone chỉ rút ra sau ~10s, nên nhiều lượt poll vẫn thấy máy cắm & Trust.
+        for _ in range(5):
+            app._sync_cards(["u1"], {"u1": True})
+
+        self.assertTrue(app.reboot_tracker.is_waiting("u1"))
+
+    def test_card_is_kept_when_the_device_finally_reboots(self):
+        """Catches the device card being destroyed mid-reboot and losing all progress state."""
+        app = self.make_app()
+        app.reboot_tracker.mark("u1", timeout=180.0)
+
+        app._sync_cards(["u1"], {"u1": True})   # còn cắm, chưa reboot
+        app._sync_cards([], {})                 # iPhone rút ra để reboot
+
+        self.assertIn("u1", app.rows)
+        self.assertNotIn("DESTROYED", app.steps)
+        self.assertNotIn("Đã ngắt kết nối.", app.messages)
+
+    def test_lock_is_released_only_after_a_real_disconnect_reconnect_cycle(self):
+        """Catches the lock never clearing, permanently faking a trusted device."""
+        app = self.make_app()
+        app.reboot_tracker.mark("u1", timeout=180.0)
+
+        app._sync_cards(["u1"], {"u1": True})
+        app._sync_cards([], {})
+        self.assertTrue(app.reboot_tracker.is_waiting("u1"))
+
+        app._sync_cards(["u1"], {"u1": True})   # máy cắm lại và Trust thật
+        self.assertFalse(app.reboot_tracker.is_waiting("u1"))
+
+    def test_untrusted_reconnect_keeps_the_lock_until_trust_is_confirmed(self):
+        """Catches a half-booted device being flagged Not Trust right after reboot."""
+        app = self.make_app()
+        app.reboot_tracker.mark("u1", timeout=180.0)
+
+        app._sync_cards([], {})
+        app._sync_cards(["u1"], {"u1": False})  # đã cắm lại nhưng chưa Trust xong
+
+        self.assertTrue(app.reboot_tracker.is_waiting("u1"))
+        self.assertNotIn("TRUST=False", app.steps)
+
+    def test_unmarked_device_is_still_removed_on_a_normal_unplug(self):
+        """Catches the fix suppressing genuine disconnect handling."""
+        app = self.make_app()
+
+        app._sync_cards([], {})
+
+        self.assertNotIn("u1", app.rows)
+        self.assertIn("Đã ngắt kết nối.", app.messages)
+
 
 class HourlyRestoreUiTests(unittest.TestCase):
     def test_performance_card_theme_matches_the_approved_navy_cyan_design(self):
@@ -827,8 +947,13 @@ class DeveloperModeTests(unittest.TestCase):
         app._begin_operation = types.MethodType(BB_RB.App._begin_operation, app)
         app._devmode_worker = types.MethodType(BB_RB.App._devmode_worker, app)
         app._launch_devmode = types.MethodType(BB_RB.App._launch_devmode, app)
+        app._devmode_report_unsupported = types.MethodType(BB_RB.App._devmode_report_unsupported, app)
+        app._devmode_wait_for_reconnect = types.MethodType(BB_RB.App._devmode_wait_for_reconnect, app)
         app.batch_enable_devmode_all = types.MethodType(BB_RB.App.batch_enable_devmode_all, app)
         return app
+
+    def logged_text(self, app):
+        return " ".join(str(args) for args, _ in app.messages)
 
     def test_devmode_worker_handles_already_enabled(self):
         """Catches already-enabled developer mode running an unnecessary reboot."""
@@ -859,24 +984,38 @@ class DeveloperModeTests(unittest.TestCase):
         self.assertIn("iOS < 16 (Không cần)", app.steps)
         self.assertEqual({}, app.operations.snapshot())
 
+    def run_worker(self, app, list_out="u1  disabled", enable=None, confirm=None, connected=("u1",)):
+        """Chạy _devmode_worker với `list`/`confirm` qua run_capture và `enable` qua PROCESS_RUNNER."""
+        enable = enable if enable is not None else cmd_result(0, "u1: Developer Mode successfully enabled.")
+        calls = []
+
+        def fake_run(cmd, timeout=None):
+            calls.append(list(cmd))
+            if "list" in cmd:
+                return 0, list_out
+            if "confirm" in cmd:
+                return confirm if confirm is not None else (1, "no confirm result")
+            return 1, "unknown"
+
+        runner = _FakeProcessRunner([enable])
+        with patch.object(BB_RB, "which_tool", return_value="idevicedevmodectl.exe"), \
+             patch.object(BB_RB, "pair_validate", return_value=True), \
+             patch.object(BB_RB, "PROCESS_RUNNER", runner), \
+             patch.object(BB_RB, "get_connected_udids", return_value=list(connected)), \
+             patch.object(BB_RB.time, "sleep"), \
+             patch.object(BB_RB, "run_capture", side_effect=fake_run):
+            app._devmode_worker("u1", operation_reserved=True)
+        return calls, runner
+
     def test_devmode_worker_enables_successfully(self):
         """Catches devmode enable flow failing to report completion."""
         app = self.make_app(ios="16.5")
         app.operations.begin("u1", "devmode")
 
-        def fake_run(cmd, timeout=120):
-            if "list" in cmd:
-                return 0, "u1  disabled"
-            if "enable" in cmd:
-                return 0, "u1: Developer Mode successfully enabled."
-            return 1, "unknown"
-
-        with patch.object(BB_RB, "which_tool", return_value="idevicedevmodectl.exe"), \
-             patch.object(BB_RB, "pair_validate", return_value=True), \
-             patch.object(BB_RB, "run_capture", side_effect=fake_run):
-            app._devmode_worker("u1", operation_reserved=True)
+        _calls, runner = self.run_worker(app)
 
         self.assertIn("DevMode: BẬT XONG ✔", app.steps)
+        self.assertEqual([["idevicedevmodectl.exe", "-u", "u1", "enable"]], runner.commands)
         self.assertEqual({}, app.operations.snapshot())
 
     def test_devmode_worker_handles_passcode(self):
@@ -884,20 +1023,128 @@ class DeveloperModeTests(unittest.TestCase):
         app = self.make_app(ios="17.0")
         app.operations.begin("u1", "devmode")
 
-        def fake_run(cmd, timeout=120):
-            if "list" in cmd:
-                return 0, "u1  disabled"
-            if "enable" in cmd:
-                return 2, "u1: Developer Mode could not be enabled because the device has a passcode set."
-            return 1, "unknown"
-
-        with patch.object(BB_RB, "which_tool", return_value="idevicedevmodectl.exe"), \
-             patch.object(BB_RB, "pair_validate", return_value=True), \
-             patch.object(BB_RB, "run_capture", side_effect=fake_run):
-            app._devmode_worker("u1", operation_reserved=True)
+        self.run_worker(
+            app,
+            enable=cmd_result(2, "u1: Developer Mode could not be enabled because the device has a passcode set."),
+        )
 
         self.assertIn("Vào Cài đặt bật DevMode", app.steps)
         self.assertEqual({}, app.operations.snapshot())
+
+    def test_passcode_device_releases_the_reboot_lock(self):
+        """Catches a non-rebooting passcode device staying locked in reboot state for 90s."""
+        app = self.make_app(ios="17.0")
+        app.operations.begin("u1", "devmode")
+
+        self.run_worker(
+            app,
+            enable=cmd_result(2, "u1: Developer Mode could not be enabled because the device has a passcode set."),
+        )
+
+        self.assertFalse(app.reboot_tracker.is_waiting("u1"))
+
+    def test_unreadable_status_never_triggers_a_pointless_mass_reboot(self):
+        """Catches an N/A or timed-out `list` being treated as disabled and rebooting the whole rig."""
+        app = self.make_app(ios="17.0")
+        app.operations.begin("u1", "devmode")
+
+        _calls, runner = self.run_worker(app, list_out="Device        DeveloperMode\nu1     N/A")
+
+        self.assertEqual([], runner.commands)  # KHÔNG được gửi lệnh enable
+        self.assertIn("Không đọc được DevMode", app.steps)
+        self.assertFalse(app.reboot_tracker.is_waiting("u1"))
+
+    def test_empty_status_output_never_triggers_a_pointless_reboot(self):
+        """Catches a `list` timeout under USB load silently arming every device."""
+        app = self.make_app(ios="17.0")
+        app.operations.begin("u1", "devmode")
+
+        _calls, runner = self.run_worker(app, list_out="")
+
+        self.assertEqual([], runner.commands)
+        self.assertIn("Không đọc được DevMode", app.steps)
+
+    def test_real_status_is_always_logged_for_diagnosis(self):
+        """Catches the `list` result being discarded, making devmode failures undiagnosable."""
+        app = self.make_app(ios="17.0")
+        app.operations.begin("u1", "devmode")
+
+        self.run_worker(app)
+
+        self.assertIn("Trạng thái Developer Mode hiện tại: disabled", self.logged_text(app))
+
+    def test_unknown_ios_version_still_checks_status(self):
+        """Catches the iOS guard being skipped and silently running on an unknown device."""
+        app = self.make_app(ios="")
+        app.operations.begin("u1", "devmode")
+
+        calls, _runner = self.run_worker(app)
+
+        self.assertIn(["idevicedevmodectl.exe", "-u", "u1", "list"], calls)
+        self.assertIn("Chưa đọc được phiên bản iOS", self.logged_text(app))
+
+    def test_unsupported_ios_is_detected_from_tool_output(self):
+        """Catches an iOS 15 device with unknown card info being reported as a hard error."""
+        app = self.make_app(ios="")
+        app.operations.begin("u1", "devmode")
+
+        _calls, runner = self.run_worker(
+            app,
+            list_out="ERROR: Could not get DeveloperModeStatus: x\nPlease note that this feature is only available on iOS 16+.",
+        )
+
+        self.assertEqual([], runner.commands)
+        self.assertIn("iOS < 16 (Không cần)", app.steps)
+
+    def test_enable_timeout_is_recovered_with_confirm_instead_of_a_false_error(self):
+        """Catches an armed+rebooted device being reported as failed because enable timed out."""
+        app = self.make_app(ios="17.0")
+        app.operations.begin("u1", "devmode")
+
+        with patch.object(BB_RB, "DEVMODE_RECONNECT_WAIT", 5):
+            calls, _runner = self.run_worker(
+                app,
+                enable=cmd_result(1, "", timed_out=True),
+                confirm=(0, "u1: Developer Mode successfully enabled."),
+            )
+
+        self.assertIn(["idevicedevmodectl.exe", "-u", "u1", "confirm"], calls)
+        self.assertIn("DevMode: BẬT XONG ✔", app.steps)
+        self.assertEqual({}, app.operations.snapshot())
+
+    def test_device_that_never_returns_is_reported_without_hanging_state(self):
+        """Catches a device that never re-appears leaving a stale reboot lock behind."""
+        app = self.make_app(ios="17.0")
+        app.operations.begin("u1", "devmode")
+
+        with patch.object(BB_RB, "DEVMODE_RECONNECT_WAIT", 5):
+            self.run_worker(app, enable=cmd_result(1, "", timed_out=True), connected=())
+
+        self.assertIn("Máy chưa cắm lại", app.steps)
+        self.assertFalse(app.reboot_tracker.is_waiting("u1"))
+
+    def test_devmode_semaphore_is_always_released(self):
+        """Catches a leaked devmode slot permanently shrinking batch capacity."""
+        before = BB_RB.DEVMODE_SEMAPHORE._value
+        app = self.make_app(ios="17.0")
+        app.operations.begin("u1", "devmode")
+
+        self.run_worker(app)
+
+        self.assertEqual(before, BB_RB.DEVMODE_SEMAPHORE._value)
+
+    def test_devmode_status_parser_ignores_header_and_other_devices(self):
+        """Catches substring matching on raw output picking the wrong device's status."""
+        out = (
+            "Device                                      DeveloperMode\n"
+            "00008101-AAAA                               enabled\n"
+            "00008101-BBBB                               disabled\n"
+        )
+        self.assertEqual("enabled", BB_RB.parse_devmode_status(out, "00008101-AAAA"))
+        self.assertEqual("disabled", BB_RB.parse_devmode_status(out, "00008101-BBBB"))
+        self.assertEqual("", BB_RB.parse_devmode_status(out, "00008101-CCCC"))
+        self.assertEqual("na", BB_RB.parse_devmode_status("u1   N/A", "u1"))
+        self.assertEqual("", BB_RB.parse_devmode_status("", "u1"))
 
 
 if __name__ == "__main__":

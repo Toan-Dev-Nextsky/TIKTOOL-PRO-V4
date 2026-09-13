@@ -142,7 +142,8 @@ Thiết kế cao cấp theo phong cách Soft Charcoal Slate Dark Theme (nhẹ nh
 ## 4. Quản Lý Đồng Thời & Độ Tin Cậy (Concurrency & Resilience)
 - **Kiểm soát luồng với Semaphore**: Sử dụng `threading.Semaphore` để giới hạn số tác vụ đồng thời, đảm bảo đường truyền USB không bị nghẽn và CPU không quá tải.
 - **Bảo vệ an toàn khi đóng ứng dụng (`WM_DELETE_WINDOW`)**: Bắt sự kiện khi người dùng bấm dấu `[X]`, nếu còn thiết bị đang Restore/Backup sẽ bật hộp thoại cảnh báo nguy cơ treo táo / hỏng backup, tránh ngắt đột ngột.
-- **Giới hạn đồng thời có cấu hình**: Giá trị lấy từ `apps_config.json`, mặc định 4 và được giới hạn trong khoảng 1–8 để tránh nghẽn USB.
+- **Giới hạn đồng thời có cấu hình**: Giá trị lấy từ khóa `threads` trong `apps_config.json`, mặc định 20 và được kẹp trong khoảng 1–32. Giá trị đang cấu hình thực tế là **20**, phục vụ dàn 12–16 máy chạy song song. Hạ giá trị này xuống nếu cổng USB/hub bị nghẽn.
+- **Giới hạn đồng thời Developer Mode**: `DEVMODE_SEMAPHORE` dùng chung mức `MAX_CONCURRENCY`, chặn trần số máy arm/reboot/confirm cùng lúc thay vì spawn thread không giới hạn.
 - **Nhật ký đo thời gian (`⏱`)**: 8 mốc `time.monotonic()` trong `_batch_activate_worker` và `_run_auto_activate_batch` — chờ slot, từng giai đoạn (Activate / Skip Setup / Set Language), xác minh state, tổng mỗi máy, USB ổn định. Phục vụ tối ưu dựa trên số liệu thật thay vì đoán.
 - **Timeout Set Language 15s**: Giảm từ 20s xuống 15s dựa trên số liệu 6 đợt thật trên dàn 10 máy. 8s có máy vẫn tiếng Anh (cắt sớm), 15s cân bằng — máy nhận lệnh, tiết kiệm ~5s/máy.
 - **Operation registry theo UDID**: Một thiết bị chỉ có một thao tác thay đổi trạng thái tại một thời điểm; luồng Restore có thể chuyển quyền sở hữu sang Auto Activate.

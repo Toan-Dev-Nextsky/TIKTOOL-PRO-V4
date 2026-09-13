@@ -127,6 +127,9 @@ MAX_CONCURRENCY = load_concurrency(APPS_CONFIG_FP, default=20)
 SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
 ACTIVATE_SEMAPHORE = threading.Semaphore(32)  # Kích hoạt song song toàn bộ thiết bị cùng lúc (tối đa 32 máy)
 LANG_SEMAPHORE = threading.Semaphore(32)      # Đổi ngôn ngữ song song toàn bộ thiết bị cùng lúc (tối đa 32 máy)
+# Developer Mode arm/reboot/confirm giữ lockdownd rất lâu; phải chặn trần số máy
+# chạy cùng lúc thay vì spawn thread không giới hạn như trước.
+DEVMODE_SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
 
 # Auto Activate chạy sau khi cả đợt restore đã hoàn tất. 16 máy vẫn chạy song song,
 # nhưng chỉ sau khi mỗi máy xuất hiện ổn định trên USB.
@@ -245,6 +248,46 @@ def parse_ios_ver(v_str):
         while len(p) < 3: p.append(0)
         return tuple(p[:3])
     except Exception: return (0, 0, 0)
+
+# Thời gian chờ của idevicedevmodectl: bản thân công cụ chờ tối đa
+# 10s (kết nối) + 40s (chờ máy rút) + 60s (chờ máy cắm lại) = 110s, chưa tính
+# lockdownd handshake. Timeout 120s cũ cắt ngang giữa arm và confirm khiến máy
+# reboot xong mà Developer Mode vẫn tắt và UI báo lỗi sai.
+DEVMODE_LIST_TIMEOUT = 25
+DEVMODE_ENABLE_TIMEOUT = 240
+DEVMODE_CONFIRM_TIMEOUT = 60
+DEVMODE_REBOOT_HOLD = 180.0      # Phải lớn hơn 110s chờ nội bộ của công cụ
+DEVMODE_RECONNECT_WAIT = 120.0   # Chờ máy cắm lại trước khi chạy bước confirm cứu
+# Thông điệp upstream khi thiết bị không hỗ trợ Developer Mode (iOS < 16)
+DEVMODE_UNSUPPORTED_HINT = "only available on ios 16"
+
+
+def parse_devmode_status(out, udid=None):
+    """Đọc trạng thái Developer Mode từ output `idevicedevmodectl list`.
+
+    Trả về 'enabled', 'disabled', 'na' (máy không đọc được trạng thái, ví dụ
+    iOS < 16 hoặc lockdownd lỗi) hoặc '' khi không có dòng nào khớp.
+    Không dùng phép kiểm tra chuỗi thô trên toàn bộ output vì dòng tiêu đề
+    ("Device  DeveloperMode") và nhiều máy khác có thể gây nhận diện sai.
+    """
+    for raw in str(out or "").splitlines():
+        line = raw.strip()
+        if not line or line.lower().startswith("device"):
+            continue
+        parts = line.split()
+        if len(parts) < 2:
+            continue
+        dev_id, status = parts[0], parts[-1].lower()
+        if udid and dev_id != udid:
+            continue
+        if status == "enabled":
+            return "enabled"
+        if status == "disabled":
+            return "disabled"
+        if status == "n/a":
+            return "na"
+    return ""
+
 
 def _parse_lang_preset(preset: str):
     """Hàm phụ trợ tách chuỗi Locale/Language"""
@@ -2099,10 +2142,37 @@ class App(tk.Tk):
         if started == 0:
             self.log("SYSTEM", "Tất cả các máy đều đang bận thao tác khác.")
 
+    def _devmode_report_unsupported(self, udid, row, ios_str=""):
+        """Báo máy không hỗ trợ Developer Mode (iOS < 16) và không coi là lỗi."""
+        detail = f"iOS {ios_str} " if ios_str else ""
+        self.log(
+            udid,
+            f"Thiết bị {detail}không hỗ trợ Developer Mode (chỉ iOS 16+ mới yêu cầu). Bỏ qua.",
+            is_ok=True,
+        )
+        if row:
+            row.push_step("iOS < 16 (Không cần)")
+            row.set_pct(100)
+
+    def _devmode_wait_for_reconnect(self, udid, timeout=None):
+        """Chờ máy quay lại bus USB sau khi reboot để còn chạy được bước confirm."""
+        limit = DEVMODE_RECONNECT_WAIT if timeout is None else timeout
+        deadline = time.monotonic() + limit
+        while time.monotonic() < deadline:
+            if udid in get_connected_udids(timeout=8):
+                return True
+            time.sleep(3)
+        return False
+
     def _devmode_worker(self, udid, operation_reserved=False):
         """Worker xử lý kiểm tra và bật Developer Mode cho một thiết bị"""
         task = "Developer Mode"
         row = self.rows.get(udid)
+        armed = False
+        if not DEVMODE_SEMAPHORE.acquire(timeout=1):
+            if row:
+                row.set_task("Đang chờ slot…")
+            DEVMODE_SEMAPHORE.acquire()
         try:
             exe = which_tool("idevicedevmodectl")
             if not exe:
@@ -2119,26 +2189,48 @@ class App(tk.Tk):
                 row.push_step("Kiểm tra DevMode...")
                 row.set_pct(10)
 
-            # 1. Kiểm tra phiên bản iOS của máy
+            # 1. Bỏ qua máy iOS < 16 khi đã đọc được phiên bản.
+            #    Nếu chưa đọc được (máy Not Trust / chưa poll xong) thì KHÔNG suy
+            #    diễn, vẫn chạy tiếp và nhận diện qua thông điệp của công cụ.
             card_obj = self.rows.get(udid, None)
             info_dict = getattr(card_obj, 'info', {}) if card_obj else {}
             ios_str = str(info_dict.get('ios', '') or '')
-            ios_tuple = parse_ios_ver(ios_str) if ios_str else (0, 0, 0)
-            if ios_tuple[0] > 0 and ios_tuple[0] < 16:
-                self.log(udid, f"Thiết bị iOS {ios_str} < 16: Không cần bật Developer Mode (chỉ iOS 16+ mới yêu cầu).", is_ok=True)
-                if row:
-                    row.push_step("iOS < 16 (Không cần)")
-                    row.set_pct(100)
+            ios_major = parse_ios_ver(ios_str)[0] if ios_str else 0
+            if 0 < ios_major < 16:
+                self._devmode_report_unsupported(udid, row, ios_str)
                 return
+            if ios_major == 0:
+                self.log(udid, "Chưa đọc được phiên bản iOS của máy; vẫn kiểm tra trạng thái Developer Mode.")
 
             # 2. Kiểm tra trạng thái hiện tại
-            rc, out = run_capture([exe, "-u", udid, "list"], timeout=10)
-            out_lower = (out or "").lower()
-            if "enabled" in out_lower:
+            rc, out = run_capture([exe, "-u", udid, "list"], timeout=DEVMODE_LIST_TIMEOUT)
+            status = parse_devmode_status(out, udid)
+            # Luôn ghi lại kết quả thật của `list` để còn chẩn đoán được về sau.
+            self.log(udid, f"Trạng thái Developer Mode hiện tại: {status or 'không đọc được'} (rc={rc})")
+
+            if DEVMODE_UNSUPPORTED_HINT in (out or "").lower():
+                self._devmode_report_unsupported(udid, row, ios_str)
+                return
+
+            if status == "enabled":
                 self.log(udid, "✓ Developer Mode đã được bật từ trước trên thiết bị này.", is_ok=True)
                 if row:
                     row.push_step("DevMode: Đã Bật ✔")
                     row.set_pct(100)
+                return
+
+            if status != "disabled":
+                # 'na' hoặc rỗng nghĩa là KHÔNG đọc được trạng thái (lockdownd lỗi,
+                # timeout, máy chưa Trust...). Trước đây bị coi như "chưa bật" nên
+                # cả dàn máy bị arm + reboot vô ích. Dừng lại và báo rõ.
+                self.log(
+                    udid,
+                    "Không đọc được trạng thái Developer Mode (máy chưa Trust, lockdownd lỗi hoặc quá tải USB). "
+                    "Không gửi lệnh reboot để tránh khởi động lại máy vô ích. Hãy thử lại.",
+                    is_err=True,
+                )
+                if row:
+                    row.push_step("Không đọc được DevMode")
                 return
 
             # 3. Gửi lệnh bật Developer Mode
@@ -2147,18 +2239,26 @@ class App(tk.Tk):
                 row.push_step("Đang bật DevMode...")
                 row.set_pct(30)
 
-            # Đánh dấu trước thời gian reboot để Polling không báo Not Trust
-            self.reboot_tracker.mark(udid, timeout=90.0)
+            # Giữ trạng thái reboot lâu hơn tổng thời gian chờ nội bộ của công cụ
+            self.reboot_tracker.mark(udid, timeout=DEVMODE_REBOOT_HOLD)
+            armed = True
 
-            rc, out = run_capture([exe, "-u", udid, "enable"], timeout=120)
+            result = PROCESS_RUNNER.run_capture([exe, "-u", udid, "enable"], timeout=DEVMODE_ENABLE_TIMEOUT)
+            rc = result.returncode
+            out = "\n".join(part for part in (result.output, result.error) if part)
             out_lower = (out or "").lower()
 
-            if rc == 0 or "successfully enabled" in out_lower or "already enabled" in out_lower:
-                self.log(udid, "✓ Bật Developer Mode thành công! Thiết bị đã sẵn sàng chạy ứng dụng ngoài App Store.", is_ok=True)
-                if row:
-                    row.push_step("DevMode: BẬT XONG ✔")
-                    row.set_pct(100)
-            elif "passcode" in out_lower:
+            if DEVMODE_UNSUPPORTED_HINT in out_lower:
+                self.reboot_tracker.clear(udid)
+                armed = False
+                self._devmode_report_unsupported(udid, row, ios_str)
+                return
+
+            if "passcode" in out_lower:
+                # Máy có passcode: thiết bị từ chối arm nên KHÔNG reboot.
+                # Phải giải phóng khóa reboot, nếu không thẻ bị treo trạng thái.
+                self.reboot_tracker.clear(udid)
+                armed = False
                 self.log(
                     udid,
                     "⚠️ Máy có mật khẩu khóa màn hình (Passcode): Đã mở sẵn mục 'Chế độ nhà phát triển'. "
@@ -2168,16 +2268,54 @@ class App(tk.Tk):
                 if row:
                     row.push_step("Vào Cài đặt bật DevMode")
                     row.set_pct(80)
-            else:
-                err_msg = out.strip().splitlines()[-1] if out.strip() else f"exit code {rc}"
-                self.log(udid, f"Lỗi kích hoạt Developer Mode: {err_msg}", is_err=True)
+                return
+
+            if rc == 0 or "successfully enabled" in out_lower or "already enabled" in out_lower:
+                self.log(udid, "✓ Bật Developer Mode thành công! Thiết bị đã sẵn sàng chạy ứng dụng ngoài App Store.", is_ok=True)
                 if row:
-                    row.push_step(f"Lỗi DevMode (rc={rc})")
+                    row.push_step("DevMode: BẬT XONG ✔")
+                    row.set_pct(100)
+                return
+
+            # 4. Máy đã được arm và đã reboot nhưng lệnh bị timeout hoặc mất kết nối
+            #    giữa chừng ➜ chạy bước `confirm` để hoàn tất, thay vì báo lỗi oan.
+            reason = "hết thời gian chờ" if result.timed_out else f"rc={rc}"
+            self.log(udid, f"Lệnh enable chưa hoàn tất ({reason}). Đang chờ máy cắm lại để xác nhận...", is_warn=True)
+            if row:
+                row.push_step("Chờ máy cắm lại...")
+                row.set_pct(60)
+
+            if not self._devmode_wait_for_reconnect(udid):
+                self.log(udid, "Máy không quay lại USB sau khi khởi động lại. Hãy cắm lại máy và bấm Developer Mode lần nữa.", is_err=True)
+                if row:
+                    row.push_step("Máy chưa cắm lại")
+                return
+
+            pair_validate(udid, log_fn=lambda s, **_: self.log(udid, s))
+            rc2, out2 = run_capture([exe, "-u", udid, "confirm"], timeout=DEVMODE_CONFIRM_TIMEOUT)
+            out2_lower = (out2 or "").lower()
+            if rc2 == 0 or "successfully enabled" in out2_lower:
+                self.log(udid, "✓ Đã xác nhận bật Developer Mode sau khi máy khởi động lại.", is_ok=True)
+                if row:
+                    row.push_step("DevMode: BẬT XONG ✔")
+                    row.set_pct(100)
+                return
+
+            err_msg = (out2 or out or "").strip().splitlines()
+            err_msg = err_msg[-1] if err_msg else f"exit code {rc2}"
+            self.log(udid, f"Lỗi kích hoạt Developer Mode: {err_msg}", is_err=True)
+            if row:
+                row.push_step(f"Lỗi DevMode (rc={rc2})")
         except Exception as exc:
             self.log(udid, f"Ngoại lệ khi bật Developer Mode: {exc}", is_err=True)
             if row:
                 row.push_step("Lỗi DevMode")
         finally:
+            if armed:
+                # Chu kỳ reboot đã kết thúc (thành công, confirm xong, hoặc đã chờ
+                # hết hạn cắm lại) nên giải phóng khóa để polling phản ánh đúng thực tế.
+                self.reboot_tracker.clear(udid)
+            DEVMODE_SEMAPHORE.release()
             if operation_reserved:
                 self.operations.end(udid, "devmode")
 
@@ -3846,7 +3984,10 @@ class App(tk.Tk):
 
             for udid in list(self.rows.keys()):
                 if udid not in current_udids:
-                    if self.reboot_tracker.is_waiting(udid):
+                    if self.reboot_tracker.is_waiting(udid, now=now_ts):
+                        # Ghi nhận máy đã thật sự rút khỏi USB để phân biệt
+                        # "chưa kịp reboot" với "đã reboot xong và cắm lại".
+                        self.reboot_tracker.note_absent(udid)
                         self.rows[udid].push_step("Hoàn tất • Đang khởi động lại...")
                         continue
                     self.rows[udid].destroy()
@@ -3875,7 +4016,10 @@ class App(tk.Tk):
                     card = self.rows[udid]
                     if is_locked_reboot:
                         card.push_step("Hoàn tất • Đang khởi động lại...")
-                        if trust_results.get(udid, False):
+                        # Chỉ giải phóng khóa reboot khi máy ĐÃ từng rút ra rồi cắm
+                        # lại và Trust thật. Nếu clear ngay lúc máy còn đang cắm
+                        # (chưa kịp reboot), khóa mất tác dụng và thẻ bị xoá oan.
+                        if trust_results.get(udid, False) and self.reboot_tracker.saw_absence(udid):
                             self.reboot_tracker.clear(udid)
                     else:
                         if card.info.get("trusted") != is_trusted:

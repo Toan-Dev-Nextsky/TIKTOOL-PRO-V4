@@ -121,7 +121,7 @@ No worker may remain active forever because an external executable stopped respo
 
 ### Configuration and licensing
 
-- Load `threads` from `apps_config.json`, validate it as an integer, and clamp it to a safe range of 1–8. The current configured value is 4.
+- Load `threads` from `apps_config.json`, validate it as an integer, and clamp it to a safe range of 1–32. The current configured value is 20 (raised from the original 4 after production runs on 12–16 device rigs).
 - If the configured IPA directory does not exist, use the bundled `ipas` directory and persist the repaired path.
 - Remove unused or misleading configuration keys when their associated feature no longer exists.
 - Restore machine-bound license validation using the same fingerprint/HMAC behavior represented by the reference tool. Do not log license keys, secrets, or full fingerprints.

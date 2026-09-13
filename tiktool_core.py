@@ -238,11 +238,20 @@ class OperationRegistry:
 
 
 class RebootTracker:
-    """Keep temporary reboot state independent from USB presence polling."""
+    """Keep temporary reboot state independent from USB presence polling.
+
+    A device is marked while it is still plugged in, because the reboot is only
+    requested at that point and the actual USB disconnect happens seconds later.
+    Polling must therefore not treat "still present and trusted" as a completed
+    reboot cycle, otherwise the mark is dropped before the device ever leaves.
+    ``note_absent()`` records the observed disconnect and ``saw_absence()`` lets
+    the caller clear the mark only after a real disconnect/reconnect round trip.
+    """
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._deadlines: dict[str, float] = {}
+        self._absent: set[str] = set()
 
     def mark(self, udid: str, timeout: float, now: float | None = None) -> None:
         import time
@@ -250,6 +259,7 @@ class RebootTracker:
         current = time.time() if now is None else now
         with self._lock:
             self._deadlines[udid] = current + max(0, timeout)
+            self._absent.discard(udid)
 
     def is_waiting(self, udid: str, now: float | None = None) -> bool:
         import time
@@ -261,12 +271,25 @@ class RebootTracker:
                 return False
             if deadline < current:
                 del self._deadlines[udid]
+                self._absent.discard(udid)
                 return False
             return True
+
+    def note_absent(self, udid: str) -> None:
+        """Record that polling really observed the device leaving the USB bus."""
+        with self._lock:
+            if udid in self._deadlines:
+                self._absent.add(udid)
+
+    def saw_absence(self, udid: str) -> bool:
+        """True once the marked device has actually disappeared at least once."""
+        with self._lock:
+            return udid in self._absent
 
     def clear(self, udid: str) -> None:
         with self._lock:
             self._deadlines.pop(udid, None)
+            self._absent.discard(udid)
 
 
 def hour_window(now: datetime) -> tuple[str, str]:
