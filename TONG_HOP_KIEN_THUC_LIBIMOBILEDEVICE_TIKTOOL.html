@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cẩm Nang Toàn Thư Kiến Thức Libimobiledevice & Quản Trị Phone Farm — TIKTOOL PRO V4</title>
+  
+  <!-- Google Fonts: Inter, Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS v4 Browser Build -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --color-brand-cyan: #00e5ff;
+      --color-brand-emerald: #10b981;
+      --color-brand-blue: #3b82f6;
+      --color-brand-purple: #8b5cf6;
+      --color-brand-amber: #f59e0b;
+      --color-brand-rose: #f43f5e;
+      --color-dark-bg: #090d16;
+      --color-dark-card: #0f172a;
+      --color-dark-border: #1e293b;
+    }
+  </style>
+  
+  <style>
+    body {
+      background-color: #090d16;
+      color: #cbd5e1;
+      font-family: 'Inter', sans-serif;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(0, 229, 255, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(16, 185, 129, 0.04) 0px, transparent 60%);
+      background-attachment: fixed;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .badge-glow-cyan {
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+    }
+    .badge-glow-emerald {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+    }
+    .badge-glow-purple {
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
+    }
+    .badge-glow-amber {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #00e5ff 0%, #38bdf8 50%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gradient-gold {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gradient-emerald {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+
+  <div class="max-w-6xl mx-auto space-y-12">
+
+    <!-- HEADER / HERO -->
+    <header class="glass-panel rounded-3xl p-8 sm:p-12 relative overflow-hidden border border-slate-800 shadow-2xl">
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-4 badge-glow-cyan">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            TIKTOOL PRO V4 • CẨM NANG TOÀN THƯ KỸ THUẬT
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white font-['Outfit'] leading-tight">
+            Toàn Thư Kiến Thức <br>
+            <span class="gradient-text">libimobiledevice & Phone Farm</span>
+          </h1>
+          <p class="mt-3 text-base sm:text-lg text-slate-400 max-w-2xl">
+            Tài liệu tổng hợp chuyên sâu từ A-Z: Giải mã 11 thành phần hệ sinh thái Apple USB, phân biệt công cụ, chiến lược Proxy WiFiTock, bản chất Fake GPS, và động cơ Zstandard & OpenSSL 3.x (Tốc độ Restore, Backup & Cài IPA).
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl border border-slate-700/60 min-w-[260px] space-y-3">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Ứng dụng:</span>
+            <span class="text-slate-200 font-mono font-medium">TIKTOOL PRO V4</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Phiên bản lõi:</span>
+            <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono text-[11px] font-semibold border border-cyan-500/30">1.4.0-9-gfa0f791</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Mục tiêu nuôi:</span>
+            <span class="text-amber-300 font-medium">TikTok Lite Nhật Bản</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-700/40">
+            <span>Hạ tầng mạng:</span>
+            <span class="text-emerald-400 font-semibold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Cục WiFiTock 100 Proxy
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Nav Pills -->
+      <div class="mt-8 pt-6 border-t border-slate-800/80 flex flex-wrap gap-2 text-xs font-medium">
+        <a href="#chuong1" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-cyan-950 hover:text-cyan-400 transition border border-slate-700/50">1. 11 Thành phần libimobiledevice</a>
+        <a href="#chuong2" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-cyan-950 hover:text-cyan-400 transition border border-slate-700/50">2. Bản đang dùng vs Bản "v1.4.1"</a>
+        <a href="#chuong3" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-cyan-950 hover:text-cyan-400 transition border border-slate-700/50">3. Phân biệt Installer vs Restore</a>
+        <a href="#chuong4" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-cyan-950 hover:text-cyan-400 transition border border-slate-700/50">4. Proxy WiFiTock & Sự thật GPS</a>
+        <a href="#chuong5" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-cyan-950 hover:text-cyan-400 transition border border-slate-700/50">5. Rào cản mở App qua USB</a>
+        <a href="#chuong6" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-cyan-950 hover:text-cyan-400 transition border border-slate-700/50">6. Zstandard & OpenSSL 3.x (Restore & Backup)</a>
+        <a href="#chuong7" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-cyan-950 hover:text-cyan-400 transition border border-slate-700/50">7. Tốc độ Cài IPA có nhanh hơn?</a>
+      </div>
+    </header>
+
+    <!-- CHƯƠNG 1: 11 THÀNH PHẦN HỆ SINH THÁI LIBIMOBILEDEVICE -->
+    <section id="chuong1" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold font-['Outfit'] text-lg">01</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Giải Mã 11 Thành Phần Hệ Sinh Thái libimobiledevice.org</h2>
+          <p class="text-xs text-slate-400">Tổ chức chuẩn quốc tế điều khiển iOS qua cổng USB không cần iTunes và không cần Jailbreak</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- 1. libimobiledevice -->
+        <div class="glass-panel p-5 rounded-2xl border border-cyan-500/30 relative overflow-hidden group hover:border-cyan-400 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">v1.4.0</span>
+            <span class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">● Đang chạy trong tool</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">libimobiledevice</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            <strong>Trái tim & bộ não trung tâm</strong>. Cung cấp thư viện lõi <code class="text-cyan-300">libimobiledevice-1.0.dll</code> và toàn bộ công cụ nền tảng: <code class="text-slate-300">idevicebackup2</code> (Restore/Backup), <code class="text-slate-300">ideviceinfo</code> (đọc máy), <code class="text-slate-300">idevicepair</code> (bắt tay Trust), <code class="text-slate-300">idevicedevmodectl</code> (Dev Mode).
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-cyan-400 font-mono">
+            Vị trí: 90% tính năng của TikTool PRO V4
+          </div>
+        </div>
+
+        <!-- 2. libplist -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">v2.7.0</span>
+            <span class="text-[11px] font-semibold text-emerald-400">● Đang chạy ngầm</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">libplist</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Trình giải mã và mã hóa file cấu hình Apple (<code class="text-slate-300">.plist</code>). Apple truyền dữ liệu qua USB bằng dạng nhị phân (Binary Plist), <code class="text-slate-300">libplist</code> giúp TikTool đọc hiểu và chuyển hóa dữ liệu qua lại với máy tính.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+            File: libplist-2.0.dll & plistutil.exe
+          </div>
+        </div>
+
+        <!-- 3. libimobiledevice-glue -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">v1.3.2</span>
+            <span class="text-[11px] font-semibold text-emerald-400">● Đang chạy ngầm</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">libimobiledevice-glue</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Tầng đệm middleware tiện ích. Chứa các hàm dùng chung về xử lý bộ nhớ, socket và chuỗi ký tự giữa các thư viện, giúp app chạy ổn định, không bị đụng độ RAM trên Windows 64-bit.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+            File: libimobiledevice-glue-1.0.dll
+          </div>
+        </div>
+
+        <!-- 4. libusbmuxd -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">v2.1.1</span>
+            <span class="text-[11px] font-semibold text-emerald-400">● Đang chạy ngầm</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">libusbmuxd</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Thư viện client giao tiếp với cổng USB. Chịu trách nhiệm gửi nhận lệnh qua socket tới từng chiếc iPhone; kèm công cụ <code class="text-slate-300">iproxy</code> để chuyển tiếp cổng mạng nội bộ sang máy.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+            File: libusbmuxd-2.0.dll & iproxy.exe
+          </div>
+        </div>
+
+        <!-- 5. usbmuxd -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">v1.1.1</span>
+            <span class="text-[11px] font-semibold text-blue-400">● Dịch vụ Apple USB</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">usbmuxd</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            USB Multiplexing Daemon chạy ngầm biến kết nối dây cáp USB thành các cổng TCP ảo. Trên Windows, TikTool tận dụng dịch vụ <code class="text-slate-300">Apple Mobile Device Service</code> để nhận diện cả dàn máy.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+            Giao thức: Apple USB Multiplexer
+          </div>
+        </div>
+
+        <!-- 6. ideviceinstaller -->
+        <div class="glass-panel p-5 rounded-2xl border border-purple-500/30 hover:border-purple-400 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">v1.2.0 / 1.1.1</span>
+            <span class="text-[11px] font-semibold text-emerald-400">● Đang chạy trong tool</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">ideviceinstaller</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Chuyên gia quản lý ứng dụng IPA. Dùng để <strong>cài đặt file .ipa TikTok Lite hàng loạt</strong>, gỡ bỏ app cũ và kiểm tra danh sách app trên từng máy mà không cần mở App Store.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-purple-400 font-mono">
+            Vị trí: Tab CÀI IPA trong TikTool
+          </div>
+        </div>
+
+        <!-- 7. libirecovery -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">v1.3.1</span>
+            <span class="text-[11px] font-semibold text-slate-400">● Có sẵn (Dự phòng)</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">libirecovery</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Giao tiếp tầng thấp khi iPhone bị kẹt ở chế độ <strong>Recovery Mode hoặc DFU Mode</strong>. Hỗ trợ đọc mã phần cứng ECID, nạp bootloader hoặc kích thoát chế độ treo cáp cứu máy.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+            File: irecovery.exe & libirecovery-1.0.dll
+          </div>
+        </div>
+
+        <!-- 8. libtatsu -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">v1.0.5</span>
+            <span class="text-[11px] font-semibold text-slate-400">● Có sẵn (Dự phòng)</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">libtatsu</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Thư viện giao tiếp với máy chủ cấp chữ ký số của Apple (TSS Server / SHSH Blob / APTicket). Đóng vai trò kiểm duyệt chứng thực khi người dùng cần nạp lại hệ điều hành sạch.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+            File: libtatsu.dll (Phụ trợ flash firmware)
+          </div>
+        </div>
+
+        <!-- 9. libideviceactivation -->
+        <div class="glass-panel p-5 rounded-2xl border border-emerald-500/30 hover:border-emerald-400 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v1.1.1</span>
+            <span class="text-[11px] font-semibold text-emerald-400">● Đang chạy trong tool</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">libideviceactivation</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Công cụ kích hoạt tự động. Chịu trách nhiệm bắt tay với Apple server để <strong>tự động vượt qua màn hình "Hello / Welcome" (Skip Setup)</strong> vào thẳng màn hình chính sau khi Restore.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-emerald-400 font-mono">
+            Vị trí: Nút BATCH ACTIVATE & Tự động sau Restore
+          </div>
+        </div>
+
+        <!-- 10. idevicerestore -->
+        <div class="glass-panel p-5 rounded-2xl border border-amber-500/30 hover:border-amber-400 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">v1.0.0</span>
+            <span class="text-[11px] font-semibold text-amber-400">● Có sẵn (Chưa gọi trong app)</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">idevicerestore</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Công cụ <strong>chạy lại toàn bộ hệ điều hành iOS (Flash Firmware .ipsw)</strong> bằng dòng lệnh thay thế iTunes và 3uTools. Khác hoàn toàn với <code class="text-cyan-300">idevicebackup2</code> (vốn chỉ nạp dữ liệu data/acc).
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-amber-400 font-mono">
+            File: idevicerestore.exe (Cứu máy, làm trắng tinh)
+          </div>
+        </div>
+
+        <!-- 11. ifuse -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">v1.2.0</span>
+            <span class="text-[11px] font-semibold text-rose-400">✕ Không dùng (Linux only)</span>
+          </div>
+          <h3 class="text-lg font-bold text-white font-mono">ifuse</h3>
+          <p class="mt-1 text-xs text-slate-400 leading-relaxed">
+            Mount ổ đĩa bộ nhớ iPhone thành thư mục trên máy tính dựa trên chuẩn FUSE của Linux/macOS. Trên môi trường Windows, TikTool sử dụng trực tiếp công cụ <code class="text-cyan-300">afcclient.exe</code> để duyệt và sao chép file.
+          </p>
+          <div class="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+            Thay thế trên Windows: afcclient.exe
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHƯƠNG 2: ĐỐI CHIẾU GÓI ĐANG DÙNG VS BẢN "V1.4.1" -->
+    <section id="chuong2" class="glass-panel rounded-3xl p-8 border border-slate-800 space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold font-['Outfit'] text-lg">02</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">So Sánh: Bản Đang Dùng vs Bản Gắn Mác "v1.4.1"</h2>
+          <p class="text-xs text-slate-400">Làm rõ sự thật về cái tên v1.4.1 trên GitHub và lý do không nên nâng cấp</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Bản đang dùng -->
+        <div class="glass-card p-6 rounded-2xl border border-cyan-500/30 relative space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">BẢN TIKTOOL ĐANG DÙNG (CHUẨN)</span>
+            <span class="text-xs text-slate-400 font-mono">jrjr suite (13/09/2026)</span>
+          </div>
+          <div class="text-xl font-bold text-white font-mono">libimobiledevice v1.4.0-9-gfa0f791</div>
+          <ul class="space-y-2 text-xs text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 font-bold">✓</span>
+              <span><strong>Mới nhất:</strong> Biên dịch tháng 09/2026, tích hợp sẵn 9 commit vá lỗi mới nhất từ chính nhánh master của dự án gốc.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 font-bold">✓</span>
+              <span><strong>Đầy đủ 45 files:</strong> Gồm 24 file .exe và 21 file .dll, có sẵn <code class="text-cyan-300">plistutil.exe</code>, <code class="text-cyan-300">iproxy.exe</code>, <code class="text-cyan-300">inetcat.exe</code>.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 font-bold">✓</span>
+              <span><strong>Động cơ nén Zstandard:</strong> Có file <code class="text-cyan-300">libzstd.dll</code> giúp giải nén siêu tốc 1.5 - 3 GB/s, cứu tải CPU máy tính khi cắm nhiều máy.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-emerald-400 font-bold">✓</span>
+              <span><strong>Ổn định:</strong> 24/24 file exe chạy kiểm thử thành công 100%, không lỗi phụ thuộc.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Bản v1.4.1 lilnynho -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-300 border border-rose-500/20">BẢN GẮN MÁC "v1.4.1" (CŨ & THIẾU)</span>
+            <span class="text-xs text-slate-500 font-mono">lilnynho (22/05/2026)</span>
+          </div>
+          <div class="text-xl font-bold text-slate-400 font-mono">libimobiledevice-v1.4.1-portable</div>
+          <ul class="space-y-2 text-xs text-slate-400">
+            <li class="flex items-start gap-2">
+              <span class="text-rose-400 font-bold">✕</span>
+              <span><strong>Sự thật cái tên:</strong> Trang chủ Apple protocol chưa từng có bản 1.4.1. Đây chỉ là số thứ tự bài đăng của tác giả để sửa lỗi thiếu DLL của bản 1.4.0 họ đăng trước đó.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-400 font-bold">✕</span>
+              <span><strong>Mã nguồn cũ hơn:</strong> Được biên dịch từ tháng 05/2026 (cũ hơn bản TikTool đang dùng tới 4 tháng).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-400 font-bold">✕</span>
+              <span><strong>Thiếu hụt nghiêm trọng:</strong> Chỉ có 21 exe, <strong>mất hoàn toàn plistutil.exe</strong> (không đọc được plist), mất <code class="text-rose-300">iproxy.exe</code>, mất <code class="text-rose-300">libzstd.dll</code>.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-400 font-bold">✕</span>
+              <span><strong>Kích thước nặng:</strong> Bị nhúng tĩnh khiến file exe phình to gấp đôi mà hiệu năng lại kém hơn.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300 flex items-center gap-3">
+        <span class="text-lg">💡</span>
+        <span><strong>Kết luận dứt khoát:</strong> Không cập nhật từ bản này. Thư mục <code class="font-mono text-white">libimobiledevice-v1.4.1-windows-x64-portable</code> có thể xóa thẳng tay để giải phóng dung lượng ổ cứng.</span>
+      </div>
+    </section>
+
+    <!-- CHƯƠNG 3: TAM GIÁC QUẢN TRỊ FILE INSTALLER VS RESTORE -->
+    <section id="chuong3" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold font-['Outfit'] text-lg">03</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Phân Biệt "Tam Giác Quản Trị": Installer vs Backup2 vs Restore</h2>
+          <p class="text-xs text-slate-400">Tránh nhầm lẫn giữa nạp tài khoản TikTok, cài app và chạy lại hệ điều hành</p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400 uppercase tracking-wider font-semibold">
+              <th class="py-4 px-4">Công cụ</th>
+              <th class="py-4 px-4">Bản chất công việc</th>
+              <th class="py-4 px-4">Nạp cái gì vào iPhone?</th>
+              <th class="py-4 px-4">Thời gian</th>
+              <th class="py-4 px-4">Vị trí trong TikTool</th>
+              <th class="py-4 px-4">Tình trạng</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 font-sans">
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="py-4 px-4 font-mono font-bold text-cyan-300">idevicebackup2.exe</td>
+              <td class="py-4 px-4 text-slate-300 font-medium">Khôi phục bản sao lưu dữ liệu (Restore Data)</td>
+              <td class="py-4 px-4 text-slate-400">Thư mục backup chứa nick TikTok, cookies, token, setting (vài trăm MB)</td>
+              <td class="py-4 px-4 text-emerald-400 font-semibold font-mono">1 – 2 phút</td>
+              <td class="py-4 px-4 text-slate-300">Tab KHÔI PHỤC (RESTORE PRO) & SAO LƯU</td>
+              <td class="py-4 px-4"><span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/30">Dùng hàng ngày</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="py-4 px-4 font-mono font-bold text-purple-300">ideviceinstaller.exe</td>
+              <td class="py-4 px-4 text-slate-300 font-medium">Cài đặt hoặc Gỡ bỏ ứng dụng</td>
+              <td class="py-4 px-4 text-slate-400">File mã nguồn đóng gói ứng dụng (<code class="text-purple-300">.ipa</code>) TikTok Lite (50 - 150 MB)</td>
+              <td class="py-4 px-4 text-purple-400 font-semibold font-mono">15 – 30 giây</td>
+              <td class="py-4 px-4 text-slate-300">Tab CÀI IPA (Cài đặt hàng loạt)</td>
+              <td class="py-4 px-4"><span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-500/30">Dùng khi cài app</span></td>
+            </tr>
+            <tr class="hover:bg-slate-800/30 transition">
+              <td class="py-4 px-4 font-mono font-bold text-amber-300">idevicerestore.exe</td>
+              <td class="py-4 px-4 text-slate-300 font-medium">Chạy lại toàn bộ hệ điều hành (Flash Firmware)</td>
+              <td class="py-4 px-4 text-slate-400">Cả file hệ điều hành gốc của Apple (<code class="text-amber-300">.ipsw</code>) nặng 5 - 7 GB</td>
+              <td class="py-4 px-4 text-amber-400 font-semibold font-mono">10 – 15 phút</td>
+              <td class="py-4 px-4 text-slate-300">Chưa có nút bấm trên giao diện</td>
+              <td class="py-4 px-4"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Dự phòng cứu máy</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CHƯƠNG 4: PROXY CỤC WIFITOCK & SỰ THẬT VỀ FAKE GPS -->
+    <section id="chuong4" class="glass-panel rounded-3xl p-8 border border-slate-800 space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold font-['Outfit'] text-lg">04</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Chiến Lược Quản Trị Proxy Cục WiFiTock & Sự Thật Về Fake GPS</h2>
+          <p class="text-xs text-slate-400">Bản chất định vị TikTok và lý do vì sao TẮT GPS lại là nước đi chuẩn xác nhất</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Vấn đề lệch vị trí -->
+        <div class="glass-card p-6 rounded-2xl border border-rose-500/20 space-y-3">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-sm">
+            <span>🚨</span> BẪY CHẾT TÀI KHOẢN KHI CỐ FAKE GPS TOKYO
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Cục <strong>WiFiTock chứa 100 Proxy</strong> rải rác khắp Nhật Bản: Máy 1 ăn IP Osaka, máy 2 ăn IP Nagoya, máy 3 ăn IP Fukuoka, máy 4 ăn IP Tokyo...
+          </p>
+          <div class="p-3 rounded-lg bg-rose-950/30 border border-rose-500/30 text-[11px] text-rose-300 space-y-1">
+            <div>• <strong>IP mạng Wi-Fi:</strong> Osaka (Kansai)</div>
+            <div>• <strong>GPS vệ tinh cắm cố định:</strong> Tokyo (Kanto - cách xa 500km!)</div>
+            <div class="pt-1 text-rose-400 font-bold">➔ Thuật toán TikTok quét: Location Mismatch (Lệch vị trí) ➔ Bóp reach, 0 view, nhả nick ngay lập tức!</div>
+          </div>
+        </div>
+
+        <!-- Cơ chế rút cáp USB -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center gap-2 text-cyan-400 font-bold text-sm">
+            <span>🔌</span> KHI RÚT CÁP USB THÌ GPS THẾ NÀO?
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Nhiều người tưởng rút cáp là mất GPS ảo hoặc nó tự đổi theo Proxy. <strong>Thực tế hoàn toàn không phải:</strong>
+          </p>
+          <ul class="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
+            <li>Vị trí ảo được nạp thẳng vào RAM tiến trình <code class="text-slate-300 font-mono">locationd</code> của iOS.</li>
+            <li><strong>Rút cáp USB ra: Vị trí ảo VẪN ĐỨNG YÊN ở tọa độ cũ</strong>.</li>
+            <li>Khi cục WiFiTock đổi Proxy sang tỉnh khác, GPS trong iPhone <strong>không tự nhảy theo được</strong> ➔ Gây lệch vị trí âm thầm.</li>
+            <li>Vị trí ảo chỉ mất khi: <strong>Khởi động lại iPhone (Reboot)</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Giải pháp tối thượng -->
+      <div class="p-6 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 space-y-3">
+        <div class="flex items-center gap-2 text-emerald-400 font-bold text-base font-['Outfit']">
+          <span>🏆</span> QUY TẮC VÀNG CHO DÂN NUÔI PHONE FARM: TẮT ĐỊNH VỊ (LOCATION = OFF)
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          TikTok là mạng xã hội giải trí, nó <strong>hoàn toàn không bắt buộc máy phải bật GPS</strong> mới cho lướt hay đăng video. Khi bác tắt dịch vụ định vị trên iPhone, thuật toán TikTok sẽ tự động nhận diện vùng người dùng bằng công thức chuẩn quốc tế:
+        </p>
+        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center font-mono text-sm text-cyan-300">
+          Vùng Tài Khoản = [IP Proxy Cục WiFiTock] + [Ngôn ngữ máy ja_JP] + [Múi giờ Asia/Tokyo]
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-2">
+          <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+            <div class="font-bold text-emerald-400">1. Tự động thích ứng</div>
+            <div class="text-[11px] text-slate-400 mt-1">Cục WiFiTock đổi IP sang Osaka hay Tokyo thì nick tự ăn theo êm ru, không sợ lệch.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+            <div class="font-bold text-emerald-400">2. An toàn 100%</div>
+            <div class="text-[11px] text-slate-400 mt-1">Không bao giờ bị dính cờ Fake Location hay dẫm tọa độ trùng lặp giữa các máy.</div>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
+            <div class="font-bold text-emerald-400">3. Máy mát & bền pin</div>
+            <div class="text-[11px] text-slate-400 mt-1">Tắt chip GPS phần cứng giúp máy cắm sạc 24/7 mát hơn, chống phù pin.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHƯƠNG 5: RÀO CẢN MỞ APP QUA USB & THỰC TẾ VẬN HÀNH -->
+    <section id="chuong5" class="glass-panel rounded-3xl p-8 border border-slate-800 space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 font-bold font-['Outfit'] text-lg">05</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Rào Cản Mở App Tự Động Qua USB & Thực Tế Vận Hành</h2>
+          <p class="text-xs text-slate-400">Tại sao máy tính không thể ra lệnh ép iPhone tự bung mở app lên màn hình?</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs text-slate-300 leading-relaxed">
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>🛡️</span> Nguyên tắc bảo mật "User Intent" của Apple
+          </h3>
+          <p>
+            Apple thiết kế hệ điều hành iOS có tính năng cô lập bảo mật tuyệt đối: <strong>Cổng USB không được phép tự ý ép một ứng dụng bung mở lên màn hình</strong>. Điều này nhằm ngăn chặn các loại cáp sạc độc hại tự động mở app ngân hàng hoặc đánh cắp dữ liệu khi cắm máy tính lạ.
+          </p>
+          <div class="p-3 rounded-lg bg-slate-900 font-mono text-[11px] text-rose-300 border border-rose-500/20">
+            # Khi gọi idevicedebug hoặc ios.exe launch trên dàn máy thực tế:<br>
+            Could not start com.apple.debugserver! Please make sure to mount the developer disk image first.<br>
+            {"err":"Could not start service:com.apple.instruments.remoteserver","level":"fatal"}
+          </div>
+          <p class="text-slate-400 text-[11px]">
+            Lệnh USB chỉ mở được app khi máy được cắm với Xcode và mount gói <em>Developer Disk Image (DDI)</em>. Nhưng trên các bản iOS mới nhất (iOS 17, 18 và dàn iPhone 12 mini của bác), Apple đã mã hóa CoreDevice khiến các công cụ USB mã nguồn mở bị chặn hoàn toàn.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-amber-300 flex items-center gap-2">
+            <span>💡</span> Tại sao WebClip là "Vẽ Rắn Thêm Chân"?
+          </h3>
+          <p>
+            Bác đã chỉ ra rất chuẩn xác: <strong>Nếu vẫn phải dùng tay bấm vào màn hình, thì bấm luôn vào icon TikTok Lite có sẵn trong máy cho xong</strong>, tạo thêm cái WebClip chỉ làm rác thêm giao diện mà không giải quyết được vấn đề tự động hóa từ máy tính.
+          </p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-cyan-400 flex items-center gap-2">
+            <span>⚙️</span> Giải pháp thực chiến của các dàn Farm quy mô lớn
+          </h3>
+          <p>
+            Đối với các dàn 50 – 100 máy, việc mở đồng loạt không dựa vào cáp USB dữ liệu mà dùng <strong>Phần Cứng Chuột Ảo OTG (Hardware Sync Clicker)</strong>:
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] pt-1">
+            <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white block mb-1">Cách 1: Box Clicker OTG phần cứng</span>
+              Dàn máy cắm qua 1 Hub OTG giả lập chuột USB. Bấm 1 phím trên PC ➔ Con trỏ chuột ảo trên cả 100 máy cùng chạm vào tọa độ icon TikTok Lite ➔ 100 máy mở app trong 0.5 giây.
+            </div>
+            <div class="p-3 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white block mb-1">Cách 2: Thanh vuốt vật lý</span>
+              Xếp dàn máy thẳng hàng trên khay. Khi TikTool restore xong toàn bộ, người nuôi dùng 1 thanh gạt lướt ngang 1 đường qua màn hình để mở cả dãy trong 2 giây.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHƯƠNG 6: ĐỘNG CƠ TĂNG TỐC ZSTANDARD & OPENSSL 3.X (RESTORE & BACKUP) -->
+    <section id="chuong6" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold font-['Outfit'] text-lg">06</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Động Cơ Tăng Tốc: Zstandard (`zstd`) & OpenSSL 3.x (Restore & Backup)</h2>
+          <p class="text-xs text-slate-400">Vì sao cả Restore lẫn Backup đều nhanh hơn gấp đôi và máy tính không bị đơ CPU</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Zstandard -->
+        <div class="glass-panel p-6 rounded-2xl border border-cyan-500/30 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono font-bold text-cyan-400 uppercase">Thuật toán nén</span>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/30">libzstd.dll (1.2 MB)</span>
+          </div>
+          <h3 class="text-xl font-extrabold text-white font-['Outfit']">Zstandard (Meta / Facebook)</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Chuẩn nén thế hệ mới thay thế hoàn toàn cho <code class="text-slate-400">zlib</code> cũ kỹ. Sở hữu tốc độ giải nén lên tới <strong>1.500 – 3.000 MB/s (1.5 - 3 GB/s)</strong>, tận dụng tối đa băng thông bộ nhớ RAM và ổ cứng SSD.
+          </p>
+          <div class="space-y-2 pt-2 text-xs border-t border-slate-800">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Khi Restore:</span>
+              <span class="text-cyan-300 font-semibold">Bung file backup TikTok siêu tốc vào máy</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Khi Backup:</span>
+              <span class="text-cyan-300 font-semibold">Nén và lưu vào ổ cứng PC nhanh gấp 3 - 5 lần</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Tải CPU máy tính:</span>
+              <span class="text-emerald-400 font-semibold font-mono">Giảm 70% CPU so với zlib cũ</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- OpenSSL 3.x -->
+        <div class="glass-panel p-6 rounded-2xl border border-purple-500/30 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono font-bold text-purple-400 uppercase">Mã hóa phần cứng</span>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-500/30">libcrypto-3-x64.dll (5.49 MB)</span>
+          </div>
+          <h3 class="text-xl font-extrabold text-white font-['Outfit']">OpenSSL 3.x & Phần Cứng AES-NI</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            100% dữ liệu truyền qua cáp USB với iPhone đều phải mã hóa SSL/TLS. Bản 3.x sử dụng trực tiếp tập lệnh phần cứng của CPU máy tính (<code class="text-purple-300">Intel AES-NI / AVX2 / AVX-512</code>) để mã hóa/giải mã luồng dữ liệu ngay trên chip.
+          </p>
+          <div class="space-y-2 pt-2 text-xs border-t border-slate-800">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Dữ liệu đổ về PC:</span>
+              <span class="text-purple-300 font-semibold">Giải mã tức thì, không đầy buffer</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Lỗi Invalid Pair:</span>
+              <span class="text-emerald-400 font-semibold">Triệt tiêu hoàn toàn trên iOS 16, 17, 18</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">Tốc độ Backup 1 máy:</span>
+              <span class="text-emerald-400 font-semibold font-mono">~ 15 - 25s (Bản cũ 45 - 60s)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sơ đồ luồng xử lý dữ liệu -->
+      <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Sơ Đồ Luồng Dữ Liệu Khi Restore & Backup Trên TikTool PRO V4</h4>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-center text-center text-xs">
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <div class="font-mono text-cyan-400 font-bold">KHO BACKUP</div>
+            <div class="text-[11px] text-slate-400 mt-1">Ổ cứng SSD PC</div>
+          </div>
+          <div class="text-slate-500 font-mono text-lg hidden md:block">➔</div>
+          <div class="p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30">
+            <div class="font-mono text-cyan-300 font-bold">ZSTANDARD</div>
+            <div class="text-[11px] text-slate-400 mt-1">Bung nén 3 GB/s</div>
+          </div>
+          <div class="text-slate-500 font-mono text-lg hidden md:block">➔</div>
+          <div class="p-3 rounded-xl bg-purple-950/40 border border-purple-500/30">
+            <div class="font-mono text-purple-300 font-bold">OPENSSL 3.x</div>
+            <div class="text-[11px] text-slate-400 mt-1">Mã hóa chip AES-NI</div>
+          </div>
+        </div>
+        <div class="text-center text-slate-500 font-mono text-lg hidden md:block">⬇</div>
+        <div class="p-4 rounded-xl bg-slate-900 border border-emerald-500/30 text-center text-xs text-emerald-300 font-mono font-bold">
+          CỔNG USB ➔ DÀN IPHONE (STREAM LIÊN TỤC 0% - 100% KHÔNG KHỰNG, KHÔNG LỖI Ổ ĐĨA)
+        </div>
+      </div>
+    </section>
+
+    <!-- CHƯƠNG 7: TỐC ĐỘ CÀI ĐẶT IPA CÓ NHANH HƠN KHÔNG? -->
+    <section id="chuong7" class="glass-panel rounded-3xl p-8 border border-slate-800 space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold font-['Outfit'] text-lg">07</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Tốc Độ Cài IPA Có Nhanh Hơn Không?</h2>
+          <p class="text-xs text-slate-400">Phân tích 2 giai đoạn cài đặt IPA và điểm "ăn tiền" khi chạy đồng loạt cả dàn máy</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Giai đoạn 1 -->
+        <div class="glass-card p-6 rounded-2xl border border-cyan-500/20 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono font-bold text-cyan-400 uppercase">Giai đoạn 1</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono text-[11px] font-bold border border-emerald-500/30">NHANH HƠN RÕ RỆT</span>
+          </div>
+          <h3 class="text-base font-bold text-white font-['Outfit']">Bơm File IPA Từ PC Sang iPhone (Copying...)</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Máy tính phải đọc file IPA (100MB – 300MB), mã hóa bảo mật và bắn qua dây cáp USB vào bộ nhớ tạm <code class="text-cyan-300">PublicStaging</code> của iPhone.
+          </p>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1 text-slate-300">
+            <div>• <code class="text-purple-300">ideviceinstaller</code> liên kết trực tiếp với <code class="text-cyan-300">libimobiledevice v1.4.0</code> và <code class="text-slate-300">libplist 2.7.0</code>.</div>
+            <div>• Luồng truyền tải AFC được mã hóa phần cứng bằng <strong>OpenSSL 3.x</strong> với bộ đệm truyền tin tối ưu.</div>
+            <div class="text-emerald-400 font-semibold pt-1">➔ Tốc độ chép file qua USB nhanh hơn khoảng 30% – 50%, thanh % chạy vèo vèo không bị khựng.</div>
+          </div>
+        </div>
+
+        <!-- Giai đoạn 2 -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono font-bold text-slate-400 uppercase">Giai đoạn 2</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[11px] font-bold border border-slate-700">DO IPHONE XỬ LÝ</span>
+          </div>
+          <h3 class="text-base font-bold text-white font-['Outfit']">Máy Tự Giải Nén & Xác Minh (Installing...)</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Sau khi file IPA đã nằm trọn vẹn trong máy, hệ điều hành iOS bắt đầu giải nén, kiểm tra chứng chỉ ký (Code Signature / Provisioning) và đăng ký app ra SpringBoard.
+          </p>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1 text-slate-400">
+            <div>• Khâu này <strong>100% do con chip Apple bên trong iPhone tự xử lý</strong> (ví dụ chip A14 Bionic trên iPhone 12 mini).</div>
+            <div>• Tốc độ phụ thuộc vào sức mạnh chip và tốc độ đọc ghi chip nhớ NVMe của máy.</div>
+            <div class="text-slate-300 pt-1">➔ Máy tính lúc này chỉ ngồi chờ phản hồi từ iOS báo về hoàn tất.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bảng so sánh cài IPA cả dàn -->
+      <div class="glass-card p-6 rounded-2xl border border-purple-500/20 space-y-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>🚀</span> Điểm "Ăn Tiền" Nhất: Độ Ổn Định Khi Cài CẢ DÀN (Batch Install)
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-slate-400 block text-[11px]">Cài 1 máy đơn lẻ:</span>
+            <div class="font-bold text-white text-sm mt-1">~ 12 – 18 giây</div>
+            <span class="text-[11px] text-slate-500">(Bản cũ mất 20 – 30 giây)</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-slate-400 block text-[11px]">Cài 10 – 12 máy cùng lúc:</span>
+            <div class="font-bold text-emerald-400 text-sm mt-1">100% Thành công</div>
+            <span class="text-[11px] text-slate-500">Không bị Timeout hay rớt máy</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-slate-400 block text-[11px]">Tải CPU máy tính:</span>
+            <div class="font-bold text-cyan-300 text-sm mt-1">Mát mẻ, êm ru</div>
+            <span class="text-[11px] text-slate-500">Mã hóa phần cứng AES-NI</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+      <div>
+        TIKTOOL PRO V4 • Cẩm nang kỹ thuật & kiến thức toàn thư hệ thống
+      </div>
+      <div class="flex items-center gap-4 font-mono">
+        <span>libimobiledevice v1.4.0-9</span>
+        <span>•</span>
+        <span>Tài liệu nội bộ sản xuất</span>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

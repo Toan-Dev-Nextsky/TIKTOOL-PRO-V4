@@ -1,22 +1,23 @@
 {
-  "storeA": "D:/LO NICK500D KEM/TKBAND DONG MOI 3.9 A XM6.9",
-  "storeB": "D:/LO NICK500D KEM/TKBAND DONG MOI 3.9 B XM6.9",
-  "generalBackupDir": "F:/backups",
+  "storeA": "F:/PHOI NGAM MMO/phoi mau",
+  "storeB": "D:/backups",
+  "generalBackupDir": "F:/PHOI NGAM MMO/PHOI NGAMnew 13.9",
   "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
-  "removeTikTok": false,
-  "removeTikTokLite": false,
+  "removeTikTok": true,
+  "removeTikTokLite": true,
   "deepFlags": true,
-  "langLocale": "vi_VN|vi",
+  "langLocale": "ja_JP|ja",
   "setLangAfterActive": true,
-  "autoActivateAfterRestore": true,
+  "autoActivateAfterRestore": false,
   "active": "A",
   "customWebclipLink": "https://linkm.site/",
-  "dailyRestoreDate": "2026-09-12",
-  "dailyRestoreCount": 8,
-  "hourlyRestoreDate": "2026-09-12",
+  "dailyRestoreDate": "2026-09-13",
+  "dailyRestoreCount": 74,
+  "hourlyRestoreDate": "2026-09-13",
   "hourlyRestoreCounts": {
-    "18": 4,
-    "19": 4
+    "07": 22,
+    "08": 40,
+    "09": 12
   },
   "autoSetLangAfterRestore": true
 }

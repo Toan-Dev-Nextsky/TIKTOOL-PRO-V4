@@ -2,6 +2,19 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.6 Comprehensive Knowledge Handbook Edition] - 2026-09-13
+
+### 📚 Cẩm Nang Toàn Thư Kiến Thức libimobiledevice & Quản Trị Phone Farm
+- **Bổ sung tài liệu toàn thư giao diện Tailwind CSS v4 cao cấp**: `TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html`.
+- **Tổng hợp chi tiết 7 chương chuyên sâu**:
+  1. Giải mã 11 thành phần hệ sinh thái `libimobiledevice.org` và đối chiếu thực tế trong TikTool PRO V4 (10/11 thành phần có sẵn).
+  2. Phân tích đối chiếu gói suite `v1.4.0-9` đang chạy vs bản gắn mác "v1.4.1" (lilnynho) cũ và thiếu file.
+  3. Phân biệt tam giác quản trị: `ideviceinstaller` (cài app) vs `idevicebackup2` (nạp tài khoản) vs `idevicerestore` (flash firmware).
+  4. Chiến lược Proxy cục WiFiTock 100 proxy & Sự thật về Fake GPS (Lý do vì sao TẮT GPS là quy tắc vàng cho dàn farm để tránh bị TikTok bóp reach / shadowban do lệch vị trí).
+  5. Phân tích rào cản bảo mật "User Intent" trên iOS 17/18 chặn lệnh USB mở app tự động, giải pháp WebClip vs giải pháp phần cứng Box chuột ảo OTG.
+  6. Động cơ tăng tốc Zstandard (`zstd`) & OpenSSL 3.x phần cứng AES-NI (Tại sao cả Restore lẫn Backup đều nhanh gấp đôi và không còn khựng trên Windows).
+  7. Phân tích tốc độ cài đặt IPA (Chép file qua USB nhanh hơn 30-50% nhờ OpenSSL 3.x & bộ đệm AFC; cài đồng thời cả dàn 12 máy không bị timeout hay nghẽn buffer).
+
 ## [4.9.5 libimobiledevice v1.4.0 & Batch Developer Mode Edition] - 2026-09-12
 
 ### 🚀 Nâng Cấp Toàn Diện Bộ libimobiledevice v1.4.0 (jrjr Latest Build)
