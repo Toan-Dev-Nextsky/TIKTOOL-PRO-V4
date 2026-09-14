@@ -16,6 +16,8 @@ from concurrent.futures import ThreadPoolExecutor
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from tiktool_core import (
+    APP_VERSION,
+    LIBIMOBILE_VERSION,
     HourlyRestoreStats,
     OperationRegistry,
     ProcessRunner,
@@ -1892,9 +1894,15 @@ class App(tk.Tk):
         self.lbl_restore_done_status = tk.Label(frame_trust_status, text="Restored: 0", font=("Segoe UI", 8, "bold"), fg=COLOR_CYAN_ACCENT, bg=COLOR_PANEL_BG)
         self.lbl_restore_done_status.pack(side="left", padx=4, pady=2)
 
-        # Heartbeat Indicator góc phải
-        lbl_engine_status = tk.Label(frame_trust_status, text=f"{Icons.ROCKET}  SYSTEM ENGINE ACTIVE", font=("Segoe UI", 7, "bold"), fg=COLOR_TEXT_DIM, bg=COLOR_PANEL_BG)
-        lbl_engine_status.pack(side="right", padx=(0, 8), pady=2)
+        # Hiển thị số phiên bản hiện tại & libimobiledevice ở góc phải thanh trạng thái
+        self.lbl_version_status = tk.Label(
+            frame_trust_status,
+            text=f"v{APP_VERSION}  •  libimobiledevice v{LIBIMOBILE_VERSION}",
+            font=("Segoe UI", 8, "bold"),
+            fg=COLOR_TEXT_MUTED,
+            bg=COLOR_PANEL_BG,
+        )
+        self.lbl_version_status.pack(side="right", padx=(0, 8), pady=2)
 
         # 5. NHẬT KÝ HỆ THỐNG (TERMINAL SOFT CHARCOAL BOX)
         frame_log = tk.Frame(self, bg=COLOR_PANEL_BG, height=140, highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1)

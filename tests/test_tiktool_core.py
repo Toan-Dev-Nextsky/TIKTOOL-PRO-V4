@@ -13,6 +13,8 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from tiktool_core import (  # noqa: E402
+    APP_VERSION,
+    LIBIMOBILE_VERSION,
     OperationRegistry,
     ProcessRunner,
     HourlyRestoreStats,
@@ -376,6 +378,20 @@ class ProcessRunnerTests(unittest.TestCase):
         )
 
         self.assertEqual([("Backup [######] 21%", False)], seen)
+
+    def test_app_version(self):
+        """Verifies that APP_VERSION and LIBIMOBILE_VERSION are defined and follow semantic versioning."""
+        self.assertIsInstance(APP_VERSION, str)
+        self.assertTrue(len(APP_VERSION) > 0)
+        parts = APP_VERSION.split(".")
+        self.assertTrue(len(parts) >= 3)
+        self.assertTrue(all(p.isdigit() for p in parts[:3]))
+
+        self.assertIsInstance(LIBIMOBILE_VERSION, str)
+        self.assertTrue(len(LIBIMOBILE_VERSION) > 0)
+        lib_parts = LIBIMOBILE_VERSION.split(".")
+        self.assertTrue(len(lib_parts) >= 3)
+        self.assertTrue(all(p.isdigit() for p in lib_parts[:3]))
 
 
 if __name__ == "__main__":

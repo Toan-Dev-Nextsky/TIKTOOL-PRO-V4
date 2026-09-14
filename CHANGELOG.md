@@ -14,6 +14,10 @@ Tất cả những thay đổi và nâng cấp quan trọng của dự án đư�
   5. Phân tích rào cản bảo mật "User Intent" trên iOS 17/18 chặn lệnh USB mở app tự động, giải pháp WebClip vs giải pháp phần cứng Box chuột ảo OTG.
   6. Động cơ tăng tốc Zstandard (`zstd`) & OpenSSL 3.x phần cứng AES-NI (Tại sao cả Restore lẫn Backup đều nhanh gấp đôi và không còn khựng trên Windows).
   7. Phân tích tốc độ cài đặt IPA (Chép file qua USB nhanh hơn 30-50% nhờ OpenSSL 3.x & bộ đệm AFC; cài đồng thời cả dàn 12 máy không bị timeout hay nghẽn buffer).
+- **Tinh chỉnh thanh trạng thái chân trang (Footer Status Bar)**:
+  - Thay thế nhãn `» SYSTEM ENGINE ACTIVE` ở góc phải đáy màn hình bằng hiển thị số phiên bản hiện tại và lõi kết nối: `v4.9.6 • libimobiledevice v1.4.0`.
+  - Quản lý phiên bản tập trung qua `APP_VERSION = "4.9.6"` và `LIBIMOBILE_VERSION = "1.4.0"` tại [tiktool_core.py](file:///c:/TIKTOOL%20PRO%20V4/tiktool_core.py), kết nối đồng bộ vào nhãn `self.lbl_version_status` trong [BB_RB.py](file:///c:/TIKTOOL%20PRO%20V4/BB_RB.py).
+  - Bổ sung bộ kiểm thử `test_app_version` trong [tests/test_tiktool_core.py](file:///c:/TIKTOOL%20PRO%20V4/tests/test_tiktool_core.py) (84/84 unit tests passed).
 
 ## [4.9.5 libimobiledevice v1.4.0 & Batch Developer Mode Edition] - 2026-09-12
 

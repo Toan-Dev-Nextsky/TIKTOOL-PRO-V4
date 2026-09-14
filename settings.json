@@ -1,23 +1,23 @@
 {
-  "storeA": "F:/PHOI NGAM MMO/phoi mau",
-  "storeB": "D:/backups",
-  "generalBackupDir": "F:/PHOI NGAM MMO/PHOI NGAMnew 13.9",
+  "storeA": "F:/TK 4.8H NGAM DONG40k GB177  8.9 A",
+  "storeB": "F:/TK 4.8H NGAM DONG40k GB177  8.9 B",
+  "generalBackupDir": "F:/backups",
   "ipasDir": "C:\\TIKTOOL PRO V4\\ipas",
   "removeTikTok": true,
   "removeTikTokLite": true,
   "deepFlags": true,
   "langLocale": "ja_JP|ja",
   "setLangAfterActive": true,
-  "autoActivateAfterRestore": false,
+  "autoActivateAfterRestore": true,
   "active": "A",
   "customWebclipLink": "https://linkm.site/",
-  "dailyRestoreDate": "2026-09-13",
-  "dailyRestoreCount": 74,
-  "hourlyRestoreDate": "2026-09-13",
+  "dailyRestoreDate": "2026-09-14",
+  "dailyRestoreCount": 132,
+  "hourlyRestoreDate": "2026-09-14",
   "hourlyRestoreCounts": {
-    "07": 22,
-    "08": 40,
-    "09": 12
+    "06": 22,
+    "07": 90,
+    "08": 20
   },
   "autoSetLangAfterRestore": true
 }

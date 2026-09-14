@@ -33,6 +33,8 @@ OWNED_JOB_PREFIXES = ("restore-", "backup-", "transfer-")
 LICENSE_SECRET = base64.b64decode("J1+EGe8rOjhrROIE5Dygj2nnHTKH/9Bval0PMWI2w5E=")
 LICENSE_PREFIX = "IPTP-"
 ANSI_ESCAPE_RE = re.compile(r"\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+APP_VERSION = "4.9.6"
+LIBIMOBILE_VERSION = "1.4.0"
 
 
 class IntegrityError(RuntimeError):

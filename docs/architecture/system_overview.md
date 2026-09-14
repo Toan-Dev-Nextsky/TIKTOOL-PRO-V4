@@ -133,7 +133,7 @@ Thiết kế cao cấp theo phong cách Soft Charcoal Slate Dark Theme (nhẹ nh
 | **Device Grid** | Lưới thẻ iPhone co giãn thông minh (Responsive Grid) | Card `#22262E` viền `#3A414F`, slot tag `#262A33`, icon điện thoại Tech Cyan `#38BDF8` (hoặc Đỏ `#EF4444` khi Not Trust) |
 | **Thanh tiến trình** | Hiển thị % và tiến trình làm việc | Canvas Gradient mượt mà từ Electric Blue `#2563EB` sang Tech Cyan `#38BDF8`, rãnh trượt `#262A33` viền `#3A414F` |
 | **Dòng trạng thái thẻ** | Hiển thị tác vụ hiện tại và số % bên trên bar | Chữ trạng thái `#34D399` / `#38BDF8`, % font Consolas `#38BDF8` |
-| **Thanh trạng thái đáy** | Hiển thị tổng kết kết nối, thiết bị và đã restore | Nền `#22262E` viền `#3A414F`, chỉ báo `SYSTEM ENGINE ACTIVE` góc phải |
+| **Thanh trạng thái đáy** | Hiển thị tổng kết kết nối, thiết bị và đã restore | Nền `#22262E` viền `#3A414F`, hiển thị phiên bản phần mềm `v4.9.6 • libimobiledevice v1.4.0` ở góc phải |
 | **Log Terminal Header** | Tiêu đề log và bộ đếm thiết bị kết nối | Trái: `❯_ NHẬT KÝ HỆ THỐNG`, Phải: `Số thiết bị đang kết nối: X` (badge `#262A33` viền `#3A414F`, số `#34D399`) |
 | **Log Terminal** | Nhật ký hệ thống thời gian thực | Soft Charcoal Console `#1E2229` viền `#3A414F`, text Consolas `#CBD5E1`, êm dịu dễ đọc |
 
