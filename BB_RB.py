@@ -1458,22 +1458,6 @@ class App(tk.Tk):
         )
         chk_lang_after_active.pack(side="left", padx=(0, 6))
 
-        btn_batch_devmode = tk.Button(
-            box_act,
-            text=f"{Icons.DEV}  DEV MODE (ALL)",
-            font=("Segoe UI", 8, "bold"),
-            bg=COLOR_BTN_ELEVATED,
-            activebackground=COLOR_WHITE_BORDER,
-            fg=COLOR_CYAN_ACCENT,
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            highlightbackground=COLOR_BORDER_LIGHT,
-            highlightthickness=1,
-            command=self.batch_enable_devmode_all
-        )
-        btn_batch_devmode.pack(side="left", ipady=2, ipadx=8)
-
         # Badge luồng bên phải
         flow_badge = tk.Frame(row1, bg=COLOR_SUB_BG, highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1)
         flow_badge.pack(side="right")
@@ -4506,7 +4490,12 @@ class App(tk.Tk):
             def on_line(s, is_err=False):
                 nonlocal last_pct
                 if is_err or self._should_log_stream_line(target_udid, s):
-                    self.log(target_udid, s, is_err=is_err)
+                    # idevicebackup2.exe LUÔN in nhãn "Backup [...] NN%" cho cả chiều
+                    # restore (quirk có sẵn của chính binary, không phải app ghi sai).
+                    # Chỉ đổi nhãn hiển thị trong Nhật Ký Hệ Thống, không đụng vào
+                    # _parse_any_percent (dựa vào [####...] NN%, không dựa vào chữ).
+                    display_s = re.sub(r"(?i)^Backup(?=\s*\[)", "Restore", s)
+                    self.log(target_udid, display_s, is_err=is_err)
                 pct = self._parse_any_percent(s)
                 if pct is not None and pct != last_pct and row:
                     last_pct = pct
