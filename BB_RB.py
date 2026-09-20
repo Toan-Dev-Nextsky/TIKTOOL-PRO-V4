@@ -92,6 +92,7 @@ class Icons:
     KEY = "\uE8D7"            # Permissions / Key
     DEV = "\uE7BE"            # DeveloperTools / Diagnostic
     ARROW_RIGHT = "\uE72A"    # Forward / ArrowRight
+    TRASH = "\uE74D"          # Delete
 
 # BUNDLE IDS TIKTOK & PATHS
 BIDS_TIKTOK = ["com.ss.iphone.ugc.tiktok", "com.zhiliaoapp.musically", "com.ss.iphone.ugc.Aweme"]
@@ -139,6 +140,7 @@ LANG_SEMAPHORE = threading.Semaphore(32)      # Đổi ngôn ngữ song song to�
 # chạy cùng lúc thay vì spawn thread không giới hạn như trước.
 DEVMODE_SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
 NOOTA_SEMAPHORE = threading.Semaphore(32)  # Chặn/gỡ chặn update iOS song song (nhẹ, không reboot)
+CRASHLOG_SEMAPHORE = threading.Semaphore(8)  # Xóa crash log song song, giới hạn để tránh nghẽn AFC/USB
 
 # Auto Activate chạy sau khi cả đợt restore đã hoàn tất. 16 máy vẫn chạy song song,
 # nhưng chỉ sau khi mỗi máy xuất hiện ổn định trên USB.
@@ -312,7 +314,10 @@ def run_capture(cmd_list, timeout=120):
     output = result.output
     if result.error:
         output = "\n".join(part for part in (output, result.error) if part)
-    return result.returncode, output
+    returncode = result.returncode
+    if result.timed_out and returncode == 0:
+        returncode = -1
+    return returncode, output
 
 # ================== CẤU HÌNH & TIỆN ÍCH WEBCLIP / WEB APP ==================
 WEBCLIP_TIKTOK_PNG = os.path.join(BASE_DIR, "tiktok.png")
@@ -444,7 +449,10 @@ def run_stream(cmd_list, on_line=None, timeout=7200):
     result = PROCESS_RUNNER.run_stream(cmd_list, on_line=on_line, timeout=timeout)
     if result.error and on_line:
         on_line(result.error, is_err=True)
-    return result.returncode, list(result.lines[-200:])
+    returncode = result.returncode
+    if result.timed_out and returncode == 0:
+        returncode = -1
+    return returncode, list(result.lines[-200:])
 
 def get_connected_udids(timeout=2):
     exe = which_tool("idevice_id")
@@ -2488,7 +2496,16 @@ class App(tk.Tk):
             cmd_list = [ios_exe, "profile", "list", f"--udid={udid}", "--nojson"]
             rc_list, out_list = run_capture(cmd_list, timeout=15)
             out_list_str = (out_list or "").strip()
-            if NOOTA_PROFILE_IDENTIFIER not in out_list_str.lower() and "tvos" not in out_list_str.lower():
+            if rc_list != 0:
+                if out_list_str:
+                    self.log(udid, out_list_str, is_err=True)
+                self.log(udid, f"Không thể kiểm tra profile chặn update (exit {rc_list}).", is_err=True)
+                if row:
+                    row.set_task("Unblock Update lỗi")
+                    row.push_step(f"Lỗi đọc profile (rc={rc_list})")
+                    row.set_pct(0)
+                return False
+            if NOOTA_PROFILE_IDENTIFIER.lower() not in out_list_str.lower() and "tvos" not in out_list_str.lower():
                 self.log(udid, "Máy chưa có profile chặn update (không cần gỡ).", is_ok=True)
                 if row:
                     row.push_step("Không có profile chặn")
@@ -2524,6 +2541,96 @@ class App(tk.Tk):
             return False
         finally:
             NOOTA_SEMAPHORE.release()
+
+    # ================== XÓA CRASH LOG (CLEAR CRASH REPORTS) ==================
+    def _launch_clear_crashlog(self, udid):
+        if not self._require_license():
+            return False
+        if not self._begin_operation(udid, "clear_crashlog"):
+            return False
+        threading.Thread(
+            target=self._clear_crashlog_worker,
+            args=(udid, True),
+            daemon=True,
+        ).start()
+        return True
+
+    def batch_clear_crashlogs_all(self):
+        """Xóa sạch crash log hàng loạt cho toàn bộ dàn máy đang cắm (không giữ bản sao)."""
+        if not self._require_license():
+            return
+        exe = which_tool("idevicecrashreport")
+        if not exe:
+            messagebox.showerror("Xóa Crash Log", "Không tìm thấy công cụ idevicecrashreport.exe trong thư mục ứng dụng.")
+            return
+
+        if not self.rows:
+            messagebox.showinfo("Xóa Crash Log", "Không có thiết bị kết nối.")
+            return
+
+        self.log("SYSTEM", f"Bắt đầu xóa crash log cho {len(self.rows)} thiết bị (xóa toàn bộ, không giữ bản sao)...")
+        started = 0
+        for udid in list(self.rows.keys()):
+            if self._launch_clear_crashlog(udid):
+                started += 1
+        if started == 0:
+            self.log("SYSTEM", "Tất cả các máy đều đang bận thao tác khác.")
+
+    def _clear_crashlog_worker(self, udid, operation_reserved=False):
+        """Worker xóa toàn bộ crash log của 1 thiết bị bằng idevicecrashreport --remove-all."""
+        row = self.rows.get(udid)
+        tmp_dir = None
+        if not CRASHLOG_SEMAPHORE.acquire(timeout=1):
+            if row:
+                row.push_step("Chờ slot xóa crash log...")
+            CRASHLOG_SEMAPHORE.acquire()
+        try:
+            exe = which_tool("idevicecrashreport")
+            if not exe:
+                self.log(udid, "Thiếu công cụ idevicecrashreport.exe", is_err=True)
+                if row:
+                    row.push_step("Thiếu crashreport tool")
+                return
+
+            if not pair_validate(udid, log_fn=lambda s, **_: self.log(udid, s)):
+                if row:
+                    row.push_step("Lỗi Pair")
+                self.log(udid, "Cần xác nhận 'Tin Cậy' trên màn hình iPhone!", is_err=True)
+                return
+
+            if row:
+                row.push_step("Đang xóa Crash Log...")
+                row.set_pct(30)
+
+            tmp_dir = tempfile.mkdtemp(prefix="tiktool_crashlog_")
+            cmd = [exe, "-u", udid, "--remove-all", tmp_dir]
+            self.log(udid, "Đang xóa toàn bộ crash log trên thiết bị (kể cả của app khác, không chỉ TikTok)...")
+            rc, out = run_capture(cmd, timeout=120)
+            out = (out or "").strip()
+            low = out.lower()
+            ok = (rc == 0) or ("no crash reports found" in low)
+            if out:
+                self.log(udid, out, is_err=(not ok))
+            if ok:
+                self.log(udid, "✓ Đã xóa sạch crash log trên thiết bị.", is_ok=True)
+                if row:
+                    row.push_step("Crash Log: Đã xóa ✔")
+                    row.set_pct(100)
+            else:
+                self.log(udid, f"Xóa crash log thất bại (exit {rc}).", is_err=True)
+                if row:
+                    row.push_step(f"Lỗi xóa Crash Log (rc={rc})")
+                    row.set_pct(0)
+        except Exception as exc:
+            self.log(udid, f"Ngoại lệ khi xóa Crash Log: {exc}", is_err=True)
+            if row:
+                row.push_step("Lỗi Crash Log")
+        finally:
+            if tmp_dir:
+                shutil.rmtree(tmp_dir, ignore_errors=True)
+            CRASHLOG_SEMAPHORE.release()
+            if operation_reserved:
+                self.operations.end(udid, "clear_crashlog")
 
     def _batch_activate_worker(self, udid, set_language=None, language_preset=None, operation_reserved=False, operation_kind="activate"):
         """Worker xử lý kích hoạt từng thiết bị: 3 giai đoạn Activate → Skip Setup → Set Lang"""
@@ -3355,6 +3462,22 @@ class App(tk.Tk):
             command=self.batch_enable_devmode_all
         )
         btn_ipa_devmode.pack(side="right", padx=4, ipady=1, ipadx=5)
+
+        btn_clear_crashlog = tk.Button(
+            row_opts,
+            text=f"{Icons.TRASH}  Xóa Crash Log",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg="#9CA3AF",
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_clear_crashlogs_all
+        )
+        btn_clear_crashlog.pack(side="right", padx=4, ipady=1, ipadx=5)
 
         btn_unblock_update = tk.Button(
             row_opts,

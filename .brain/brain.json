@@ -44,6 +44,7 @@
       "action_buttons": {
         "devmode_batch": "btn_ipa_devmode nằm gọn trong Tab Cài IPA (row_opts) (đã dọn bỏ nút trùng btn_batch_devmode ở Hàng 1/box_act lần 2 vào 2026-09-15 theo yêu cầu user, vì tab Cài IPA đã có nút này rồi)",
         "block_update_batch": "btn_ipa_block_update và btn_ipa_unblock_update nằm trong Tab Cài IPA (row_noota) (Chặn Update màu Amber Gold #D97706, Gỡ Chặn màu Emerald Dark #065F46)",
+        "clear_crashlog_batch": "btn_clear_crashlog nằm trong Tab Cài IPA (row_opts, pack side=right ngoài cùng bên phải sau btn_ipa_devmode), icon Icons.TRASH, màu Slate #9CA3AF",
         "batch_activate": "btn_batch_activate GradientButton #059669 -> #0D9488",
         "restore_pro": "btn_tab_restore, btn_start_restore",
         "backup_pro": "btn_tab_backup, btn_start_backup",
@@ -83,6 +84,7 @@
       "realtime_install_progress": "Đọc từng dòng output từ ideviceinstaller.exe theo thời gian thực; trích xuất percentage Copying... để hiển thị 'Đang chép file... (XX%)' và thanh tiến độ tương ứng trên từng thẻ thiết bị.",
       "install_preflight_progress_truth": "Trước khi ideviceinstaller phát ra dòng Copying, thẻ phải hiển thị 'Đang khởi tạo cài đặt...' và reset 0%; chỉ đổi sang 'Đang chép file...' khi stdout thực sự chứa Copying. Khi lệnh trả rc=0 mới đặt 100%, tránh kế thừa 100% từ bước gỡ app.",
       "batch_block_unblock_update_pipeline": "Chặn Update: Gửi NOOTA_tvOS26_signed.mobileconfig (tvOS 26 Beta, CMS-Signed bởi Apple Root CA, hạn 2027-05-20) qua lệnh ios.exe profile add --udid={udid} --nojson. Gỡ Chặn: Quét ios.exe profile list --udid={udid} --nojson -> đối soát định danh tvOS/NOOTA -> gọi ios.exe profile remove {name}. Kiểm soát đồng thời bằng NOOTA_SEMAPHORE.",
+      "clear_crashlog_pipeline": "Xóa Crash Log hàng loạt: mỗi máy 1 thread riêng (giống Dev Mode/Activate) qua _launch_clear_crashlog -> _clear_crashlog_worker; kiểm tra pair_validate (Trust) trước, tạo thư mục tạm tempfile.mkdtemp(prefix='tiktool_crashlog_') làm tham số DIRECTORY bắt buộc của tool, chạy idevicecrashreport.exe -u {udid} --remove-all {tmp_dir} (timeout 120s), rồi shutil.rmtree thư mục tạm trong finally vì user chọn KHÔNG giữ bản sao trên PC. Xem rc=0 / 'no crash reports found' / output rỗng là thành công. Kiểm soát đồng thời bằng CRASHLOG_SEMAPHORE (8 luồng, tránh nghẽn AFC/USB). Lưu ý: --remove-all xóa TOÀN BỘ crash log của mọi app, không chỉ TikTok (đã ghi rõ trong log để tránh hiểu nhầm).",
       "webclip_pipeline": "Tạo cấu hình Apple Configuration Profile (.mobileconfig) com.apple.webClip.managed, nạp icon toàn năng 3D Glassmorphic webapp.png cho mọi link web, mặc định để trống URL custom, nạp qua ios.exe profile add",
       "batch_activate_pipeline": [
         "Giai đoạn 1: ideviceactivation activate -u {udid} -b",

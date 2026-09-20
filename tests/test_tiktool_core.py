@@ -1,11 +1,13 @@
 import json
 import os
 import plistlib
+import subprocess
 import sys
 import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -338,6 +340,39 @@ class ProcessRunnerTests(unittest.TestCase):
 
         self.assertTrue(result.timed_out)
         self.assertNotEqual(0, result.returncode)
+        self.assertEqual({}, self.runner.active_snapshot())
+
+    def test_capture_timeout_never_waits_unbounded_for_output_pipe(self):
+        """Catches timeout cleanup hanging forever when a child keeps the output pipe open."""
+        class OutputPipe:
+            def __init__(self):
+                self.closed = False
+
+            def close(self):
+                self.closed = True
+
+        class StuckProcess:
+            pid = 12345
+            returncode = None
+
+            def __init__(self):
+                self.stdout = OutputPipe()
+                self.calls = 0
+
+            def communicate(self, timeout=None):
+                self.calls += 1
+                raise subprocess.TimeoutExpired("fake", timeout)
+
+        process = StuckProcess()
+        with patch.object(self.runner, "_start", return_value=process), patch.object(
+            self.runner, "_stop_process"
+        ) as stop_process:
+            result = self.runner.run_capture(["fake.exe"], timeout=0.1)
+
+        self.assertTrue(result.timed_out)
+        self.assertEqual(2, process.calls)
+        self.assertEqual(2, stop_process.call_count)
+        self.assertTrue(process.stdout.closed)
         self.assertEqual({}, self.runner.active_snapshot())
 
     def test_stream_preserves_unterminated_final_output_line(self):

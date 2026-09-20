@@ -118,7 +118,11 @@ class ProcessRunner:
             except subprocess.TimeoutExpired:
                 timed_out = True
                 self._stop_process(process)
-                output_bytes, _ = process.communicate()
+                try:
+                    output_bytes, _ = process.communicate(timeout=3)
+                except subprocess.TimeoutExpired:
+                    output_bytes = b""
+                    self._stop_process(process)
             output = (output_bytes or b"").decode("utf-8", errors="replace").strip()
             lines = tuple(line.strip() for line in output.splitlines() if line.strip())
             return CommandResult(
@@ -129,6 +133,8 @@ class ProcessRunner:
                 error="Command timed out" if timed_out else "",
             )
         finally:
+            if process.stdout is not None:
+                process.stdout.close()
             self._unregister(process)
 
     def run_stream(self, command, on_line=None, timeout: float = 3600) -> CommandResult:

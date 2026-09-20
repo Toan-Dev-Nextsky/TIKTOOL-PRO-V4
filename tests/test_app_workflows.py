@@ -74,6 +74,27 @@ def make_worker_app():
     )
 
 
+class ProcessWrapperTests(unittest.TestCase):
+    def test_capture_timeout_cannot_be_reported_as_zero_exit(self):
+        """Catches a process exiting zero during timeout cleanup being reported as successful."""
+        result = cmd_result(0, "partial output", timed_out=True, error="Command timed out")
+
+        with patch.object(BB_RB.PROCESS_RUNNER, "run_capture", return_value=result):
+            returncode, output = BB_RB.run_capture(["fake.exe"], timeout=1)
+
+        self.assertNotEqual(0, returncode)
+        self.assertIn("Command timed out", output)
+
+    def test_stream_timeout_cannot_be_reported_as_zero_exit(self):
+        """Catches a timed-out backup or restore being accepted through the stream wrapper."""
+        result = cmd_result(0, "partial output", timed_out=True, error="Command timed out")
+
+        with patch.object(BB_RB.PROCESS_RUNNER, "run_stream", return_value=result):
+            returncode, _lines = BB_RB.run_stream(["fake.exe"])
+
+        self.assertNotEqual(0, returncode)
+
+
 class BackupWorkflowTests(unittest.TestCase):
     def test_failed_backup_does_not_delete_preexisting_udid_directory(self):
         """Catches failed-job cleanup deleting a valuable previous backup."""
@@ -1145,6 +1166,193 @@ class DeveloperModeTests(unittest.TestCase):
         self.assertEqual("", BB_RB.parse_devmode_status(out, "00008101-CCCC"))
         self.assertEqual("na", BB_RB.parse_devmode_status("u1   N/A", "u1"))
         self.assertEqual("", BB_RB.parse_devmode_status("", "u1"))
+
+
+class UpdateBlockerTests(unittest.TestCase):
+    def make_app(self):
+        messages = []
+        steps = []
+        tasks = []
+        percentages = []
+        card = types.SimpleNamespace(
+            push_step=lambda text: steps.append(text),
+            set_task=lambda text: tasks.append(text),
+            set_pct=lambda pct: percentages.append(pct),
+        )
+        return types.SimpleNamespace(
+            rows={"u1": card},
+            log=lambda *args, **kwargs: messages.append((args, kwargs)),
+            messages=messages,
+            steps=steps,
+            tasks=tasks,
+            percentages=percentages,
+        )
+
+    def test_unblock_does_not_report_success_when_profile_list_fails(self):
+        """Catches an unavailable device being mistaken for one without the blocking profile."""
+        app = self.make_app()
+
+        with patch.object(BB_RB, "run_capture", return_value=(1, "")):
+            result = BB_RB.App._unblock_update_single(app, "u1", "ios.exe")
+
+        self.assertFalse(result)
+        self.assertIn("Lỗi đọc profile (rc=1)", app.steps)
+        self.assertNotIn("Không có profile chặn", app.steps)
+        self.assertEqual(0, app.percentages[-1])
+
+
+class CrashLogTests(unittest.TestCase):
+    def make_app(self, rows=None):
+        messages = []
+        steps = []
+        card = types.SimpleNamespace(
+            info={"ios": "17.0", "name": "iPhone", "trusted": True},
+            push_step=lambda text: steps.append(text),
+            set_pct=lambda pct: None,
+        )
+        app = types.SimpleNamespace(
+            rows={"u1": card} if rows is None else rows,
+            operations=BB_RB.OperationRegistry(),
+            log=lambda *args, **kwargs: messages.append((args, kwargs)),
+            _require_license=lambda: True,
+            messages=messages,
+            steps=steps,
+        )
+        app._begin_operation = types.MethodType(BB_RB.App._begin_operation, app)
+        app._clear_crashlog_worker = types.MethodType(BB_RB.App._clear_crashlog_worker, app)
+        app._launch_clear_crashlog = types.MethodType(BB_RB.App._launch_clear_crashlog, app)
+        app.batch_clear_crashlogs_all = types.MethodType(BB_RB.App.batch_clear_crashlogs_all, app)
+        return app
+
+    def logged_text(self, app):
+        return " ".join(str(args) for args, _ in app.messages)
+
+    def run_worker(self, app, result=(0, "Moved 3 crash reports"), tmp_dir="/tmp/fake_crashlog"):
+        calls = []
+
+        def fake_run(cmd, timeout=None):
+            calls.append(list(cmd))
+            if isinstance(result, Exception):
+                raise result
+            return result
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicecrashreport.exe"), \
+             patch.object(BB_RB, "pair_validate", return_value=True), \
+             patch.object(BB_RB.tempfile, "mkdtemp", return_value=tmp_dir), \
+             patch.object(BB_RB.shutil, "rmtree") as mocked_rmtree, \
+             patch.object(BB_RB, "run_capture", side_effect=fake_run):
+            app._clear_crashlog_worker("u1", operation_reserved=True)
+        return calls, mocked_rmtree
+
+    def test_clear_crashlog_worker_success(self):
+        """Catches a successful crash log wipe failing to report completion or leaking the temp dir."""
+        app = self.make_app()
+        app.operations.begin("u1", "clear_crashlog")
+
+        calls, mocked_rmtree = self.run_worker(app)
+
+        self.assertEqual(
+            [["idevicecrashreport.exe", "-u", "u1", "--remove-all", "/tmp/fake_crashlog"]],
+            calls,
+        )
+        self.assertIn("Crash Log: Đã xóa ✔", app.steps)
+        self.assertEqual({}, app.operations.snapshot())
+        mocked_rmtree.assert_called_once_with("/tmp/fake_crashlog", ignore_errors=True)
+
+    def test_clear_crashlog_worker_reports_failure(self):
+        """Catches a failed wipe being reported as success to the operator."""
+        app = self.make_app()
+        app.operations.begin("u1", "clear_crashlog")
+
+        _calls, mocked_rmtree = self.run_worker(app, result=(1, "ERROR: could not connect"))
+
+        self.assertIn("Lỗi xóa Crash Log (rc=1)", app.steps)
+        self.assertIn("thất bại", self.logged_text(app))
+        self.assertEqual({}, app.operations.snapshot())
+        mocked_rmtree.assert_called_once_with("/tmp/fake_crashlog", ignore_errors=True)
+
+    def test_clear_crashlog_worker_treats_empty_output_as_success(self):
+        """Catches devices with no crash reports being flagged as errors."""
+        app = self.make_app()
+        app.operations.begin("u1", "clear_crashlog")
+
+        self.run_worker(app, result=(0, "No crash reports found"))
+
+        self.assertIn("Crash Log: Đã xóa ✔", app.steps)
+
+    def test_clear_crashlog_nonzero_empty_output_is_failure(self):
+        """Catches a timeout or silent tool crash being reported as a successful wipe."""
+        app = self.make_app()
+        app.operations.begin("u1", "clear_crashlog")
+
+        self.run_worker(app, result=(1, ""))
+
+        self.assertIn("Lỗi xóa Crash Log (rc=1)", app.steps)
+        self.assertNotIn("Crash Log: Đã xóa ✔", app.steps)
+
+    def test_clear_crashlog_requires_trust(self):
+        """Catches running the wipe on an untrusted device and hiding the pairing problem."""
+        app = self.make_app()
+        app.operations.begin("u1", "clear_crashlog")
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicecrashreport.exe"), \
+             patch.object(BB_RB, "pair_validate", return_value=False), \
+             patch.object(BB_RB, "run_capture") as mocked_run:
+            app._clear_crashlog_worker("u1", operation_reserved=True)
+
+        self.assertEqual(0, mocked_run.call_count)
+        self.assertIn("Lỗi Pair", app.steps)
+        self.assertEqual({}, app.operations.snapshot())
+
+    def test_clear_crashlog_semaphore_is_always_released(self):
+        """Catches a leaked crash log slot permanently shrinking batch capacity."""
+        before = BB_RB.CRASHLOG_SEMAPHORE._value
+        app = self.make_app()
+        app.operations.begin("u1", "clear_crashlog")
+
+        self.run_worker(app, result=RuntimeError("usb exploded"))
+
+        self.assertEqual(before, BB_RB.CRASHLOG_SEMAPHORE._value)
+        self.assertEqual({}, app.operations.snapshot())
+        self.assertIn("Lỗi Crash Log", app.steps)
+
+    def test_batch_clear_crashlogs_all_with_no_devices(self):
+        """Catches the batch button spawning work when no device is plugged in."""
+        app = self.make_app(rows={})
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicecrashreport.exe"), \
+             patch.object(BB_RB.messagebox, "showinfo") as mocked_info, \
+             patch.object(BB_RB.threading, "Thread") as mocked_thread:
+            app.batch_clear_crashlogs_all()
+
+        self.assertEqual(1, mocked_info.call_count)
+        self.assertEqual(0, mocked_thread.call_count)
+
+    def test_batch_clear_crashlogs_all_without_tool(self):
+        """Catches the batch button starting threads when idevicecrashreport.exe is missing."""
+        app = self.make_app()
+
+        with patch.object(BB_RB, "which_tool", return_value=None), \
+             patch.object(BB_RB.messagebox, "showerror") as mocked_error, \
+             patch.object(BB_RB.threading, "Thread") as mocked_thread:
+            app.batch_clear_crashlogs_all()
+
+        self.assertEqual(1, mocked_error.call_count)
+        self.assertEqual(0, mocked_thread.call_count)
+        self.assertEqual({}, app.operations.snapshot())
+
+    def test_batch_clear_crashlogs_all_skips_busy_device(self):
+        """Catches the batch run stomping on a device already doing another operation."""
+        app = self.make_app()
+        app.operations.begin("u1", "restore")
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicecrashreport.exe"), \
+             patch.object(BB_RB.threading, "Thread") as mocked_thread:
+            app.batch_clear_crashlogs_all()
+
+        self.assertEqual(0, mocked_thread.call_count)
+        self.assertEqual({"u1": "restore"}, app.operations.snapshot())
+        self.assertIn("đang bận", self.logged_text(app))
 
 
 if __name__ == "__main__":
