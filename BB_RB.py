@@ -98,6 +98,12 @@ BIDS_TIKTOK = ["com.ss.iphone.ugc.tiktok", "com.zhiliaoapp.musically", "com.ss.i
 BIDS_TIKTOK_LITE = ["com.ss.iphone.ugc.tiktok.lite", "com.zhiliaoapp.musicallylite"]
 REQ_BACKUP_FILES = ["Manifest.db", "Info.plist", "Manifest.plist"]
 
+# CHẶN CẬP NHẬT iOS (NO OTA UPDATE)
+# Profile tvOS 26 Beta Software Profile đã ký bởi Apple — chặn OTA update bằng cách
+# redirect kênh cập nhật sang catalog tvOS (iPhone không bao giờ thấy update iOS).
+NOOTA_PROFILE_FILENAME = "NOOTA_tvOS26_signed.mobileconfig"
+NOOTA_PROFILE_IDENTIFIER = "com.apple.tvos.developersoftware"
+
 # PRESETS NGÔN NGỮ PHỔ BIẾN
 LANG_PRESETS = [
     ("Tiếng Nhật (Japan)", "ja_JP|ja"),
@@ -132,6 +138,7 @@ LANG_SEMAPHORE = threading.Semaphore(32)      # Đổi ngôn ngữ song song to�
 # Developer Mode arm/reboot/confirm giữ lockdownd rất lâu; phải chặn trần số máy
 # chạy cùng lúc thay vì spawn thread không giới hạn như trước.
 DEVMODE_SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
+NOOTA_SEMAPHORE = threading.Semaphore(32)  # Chặn/gỡ chặn update iOS song song (nhẹ, không reboot)
 
 # Auto Activate chạy sau khi cả đợt restore đã hoàn tất. 16 máy vẫn chạy song song,
 # nhưng chỉ sau khi mỗi máy xuất hiện ổn định trên USB.
@@ -2311,6 +2318,213 @@ class App(tk.Tk):
             if operation_reserved:
                 self.operations.end(udid, "devmode")
 
+    # ================== CHẶN CẬP NHẬT iOS (NO OTA UPDATE) ==================
+    def _get_noota_profile_path(self):
+        """Trả về đường dẫn tuyệt đối tới file .mobileconfig chặn update đã ký."""
+        p = os.path.join(BASE_DIR, NOOTA_PROFILE_FILENAME)
+        if os.path.isfile(p):
+            return p
+        return None
+
+    def batch_block_update_all(self):
+        """Chặn cập nhật iOS hàng loạt cho cả dàn máy bằng profile tvOS Beta đã ký Apple."""
+        if not self._require_license():
+            return
+        profile_path = self._get_noota_profile_path()
+        if not profile_path:
+            messagebox.showerror(
+                "Chặn Update iOS",
+                f"Không tìm thấy file {NOOTA_PROFILE_FILENAME} trong thư mục ứng dụng."
+            )
+            return
+        ok, msg = _ios_usable()
+        if not ok:
+            messagebox.showerror("Chặn Update iOS", f"Không tìm thấy ios.exe hợp lệ.\n\n{msg}")
+            return
+        if not self.rows:
+            messagebox.showinfo("Chặn Update iOS", "Không có thiết bị kết nối.")
+            return
+        self.log("SYSTEM", f"Bắt đầu chặn cập nhật iOS cho {len(self.rows)} thiết bị...")
+        threading.Thread(
+            target=self._block_update_all_worker,
+            args=(profile_path,),
+            daemon=True,
+        ).start()
+
+    def _block_update_all_worker(self, profile_path):
+        """Worker gửi profile chặn update tới toàn bộ thiết bị."""
+        ios_exe = _fixed_ios_exe()
+        total = 0
+        success = 0
+        for udid in list(self.rows.keys()):
+            if not self._begin_operation(udid, "block_update"):
+                continue
+            total += 1
+            try:
+                if self._block_update_single(udid, profile_path, ios_exe):
+                    success += 1
+            finally:
+                self.operations.end(udid, "block_update")
+        self.log(
+            None,
+            f"Chặn Update iOS: thành công {success}/{total} thiết bị.",
+            is_err=(success != total),
+        )
+        if total == 0:
+            self._post_ui(messagebox.showinfo, "Chặn Update iOS", "Không có thiết bị rảnh.")
+        elif success == total:
+            self._post_ui(
+                messagebox.showinfo,
+                "Chặn Update iOS",
+                f"Đã gửi profile chặn update tới {success}/{total} thiết bị.\n\n"
+                f"Trên mỗi iPhone: vào Cài đặt → bấm Install profile → nhập mật khẩu (nếu có) → Restart.",
+            )
+        else:
+            self._post_ui(
+                messagebox.showwarning,
+                "Chặn Update iOS",
+                f"Thành công {success}/{total} thiết bị.\nKiểm tra log để xem máy nào lỗi.",
+            )
+
+    def _block_update_single(self, udid, profile_path, ios_exe, max_retries=2):
+        """Đẩy profile chặn update lên 1 thiết bị."""
+        row = self.rows.get(udid)
+        if not NOOTA_SEMAPHORE.acquire(timeout=1):
+            if row:
+                row.push_step("Chờ slot chặn update...")
+            NOOTA_SEMAPHORE.acquire()
+        try:
+            attempts = max(1, int(max_retries) + 1)
+            for attempt in range(1, attempts + 1):
+                cmd = [ios_exe, "profile", "add", profile_path, f"--udid={udid}", "--nojson"]
+                self.log(udid, f"Chặn Update iOS (lần {attempt}/{attempts})")
+                if row:
+                    row.set_task(f"Block Update {attempt}/{attempts}")
+                    row.push_step(f"Gửi profile chặn update {attempt}/{attempts}")
+                rc, out = run_capture(cmd)
+                out = (out or "").strip()
+                low = out.lower()
+                ok = (rc == 0) or ("profile added" in low) or ("install profile" in low) or ("success" in low) or ('"ok"' in low) or (low == "ok")
+                if out:
+                    self.log(udid, out, is_err=(not ok))
+                if ok:
+                    self.log(udid, "Gửi profile chặn update thành công. Vào Cài đặt trên iPhone bấm Install để hoàn tất.")
+                    if row:
+                        row.set_task("Block Update ✔")
+                        row.set_pct(100)
+                        row.push_step("Chờ bấm Install trên iPhone")
+                    return True
+                self.log(udid, f"Gửi profile chặn update thất bại (exit {rc}).", is_err=True)
+                if attempt < attempts:
+                    time.sleep(1)
+            if row:
+                row.set_task("Block Update lỗi")
+                row.set_pct(0)
+            return False
+        finally:
+            NOOTA_SEMAPHORE.release()
+
+    def batch_unblock_update_all(self):
+        """Gỡ chặn cập nhật iOS hàng loạt bằng cách xóa profile tvOS Beta khỏi toàn bộ dàn máy."""
+        if not self._require_license():
+            return
+        ok, msg = _ios_usable()
+        if not ok:
+            messagebox.showerror("Gỡ Chặn Update", f"Không tìm thấy ios.exe hợp lệ.\n\n{msg}")
+            return
+        if not self.rows:
+            messagebox.showinfo("Gỡ Chặn Update", "Không có thiết bị kết nối.")
+            return
+        self.log("SYSTEM", f"Bắt đầu gỡ chặn cập nhật iOS cho {len(self.rows)} thiết bị...")
+        threading.Thread(
+            target=self._unblock_update_all_worker,
+            daemon=True,
+        ).start()
+
+    def _unblock_update_all_worker(self):
+        """Worker xóa profile chặn update khỏi toàn bộ thiết bị."""
+        ios_exe = _fixed_ios_exe()
+        total = 0
+        success = 0
+        for udid in list(self.rows.keys()):
+            if not self._begin_operation(udid, "unblock_update"):
+                continue
+            total += 1
+            try:
+                if self._unblock_update_single(udid, ios_exe):
+                    success += 1
+            finally:
+                self.operations.end(udid, "unblock_update")
+        self.log(
+            None,
+            f"Gỡ chặn Update iOS: thành công {success}/{total} thiết bị.",
+            is_err=(success != total),
+        )
+        if total == 0:
+            self._post_ui(messagebox.showinfo, "Gỡ Chặn Update", "Không có thiết bị rảnh.")
+        elif success == total:
+            self._post_ui(
+                messagebox.showinfo,
+                "Gỡ Chặn Update",
+                f"Đã gỡ profile chặn update khỏi {success}/{total} thiết bị.\n\n"
+                f"iPhone sẽ nhận thông báo cập nhật iOS bình thường trở lại.",
+            )
+        else:
+            self._post_ui(
+                messagebox.showwarning,
+                "Gỡ Chặn Update",
+                f"Thành công {success}/{total} thiết bị.\nKiểm tra log để xem máy nào lỗi.",
+            )
+
+    def _unblock_update_single(self, udid, ios_exe, max_retries=2):
+        """Xóa profile chặn update khỏi 1 thiết bị."""
+        row = self.rows.get(udid)
+        if not NOOTA_SEMAPHORE.acquire(timeout=1):
+            if row:
+                row.push_step("Chờ slot gỡ chặn update...")
+            NOOTA_SEMAPHORE.acquire()
+        try:
+            # Kiểm tra profile có tồn tại trên máy không
+            cmd_list = [ios_exe, "profile", "list", f"--udid={udid}", "--nojson"]
+            rc_list, out_list = run_capture(cmd_list, timeout=15)
+            out_list_str = (out_list or "").strip()
+            if NOOTA_PROFILE_IDENTIFIER not in out_list_str.lower() and "tvos" not in out_list_str.lower():
+                self.log(udid, "Máy chưa có profile chặn update (không cần gỡ).", is_ok=True)
+                if row:
+                    row.push_step("Không có profile chặn")
+                    row.set_pct(100)
+                return True
+
+            attempts = max(1, int(max_retries) + 1)
+            for attempt in range(1, attempts + 1):
+                cmd = [ios_exe, "profile", "remove", NOOTA_PROFILE_IDENTIFIER, f"--udid={udid}", "--nojson"]
+                self.log(udid, f"Gỡ chặn Update iOS (lần {attempt}/{attempts})")
+                if row:
+                    row.set_task(f"Unblock Update {attempt}/{attempts}")
+                    row.push_step(f"Xóa profile chặn update {attempt}/{attempts}")
+                rc, out = run_capture(cmd)
+                out = (out or "").strip()
+                low = out.lower()
+                ok = (rc == 0) or ("removed" in low) or ("success" in low) or ('"ok"' in low) or (low == "ok")
+                if out:
+                    self.log(udid, out, is_err=(not ok))
+                if ok:
+                    self.log(udid, "Đã gỡ profile chặn update. iPhone sẽ nhận update iOS bình thường.")
+                    if row:
+                        row.set_task("Unblock Update ✔")
+                        row.set_pct(100)
+                        row.push_step("Đã gỡ chặn update")
+                    return True
+                self.log(udid, f"Gỡ profile chặn update thất bại (exit {rc}).", is_err=True)
+                if attempt < attempts:
+                    time.sleep(1)
+            if row:
+                row.set_task("Unblock Update lỗi")
+                row.set_pct(0)
+            return False
+        finally:
+            NOOTA_SEMAPHORE.release()
+
     def _batch_activate_worker(self, udid, set_language=None, language_preset=None, operation_reserved=False, operation_kind="activate"):
         """Worker xử lý kích hoạt từng thiết bị: 3 giai đoạn Activate → Skip Setup → Set Lang"""
         with self.lock:
@@ -3141,6 +3355,42 @@ class App(tk.Tk):
             command=self.batch_enable_devmode_all
         )
         btn_ipa_devmode.pack(side="right", padx=6, ipady=1, ipadx=6)
+
+        # --- Hàng 3b: Chặn / Gỡ chặn cập nhật iOS ---
+        row_noota = tk.Frame(f, bg=COLOR_KHO_BG)
+        row_noota.pack(fill="x", padx=2, pady=(0, 1))
+
+        btn_block_update = tk.Button(
+            row_noota,
+            text=f"{Icons.CANCEL}  Chặn Update iOS (Cả dàn)",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg="#F59E0B",
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_block_update_all
+        )
+        btn_block_update.pack(side="left", padx=6, ipady=1, ipadx=6)
+
+        btn_unblock_update = tk.Button(
+            row_noota,
+            text=f"{Icons.CHECK}  Gỡ Chặn Update (Cả dàn)",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg="#34D399",
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_unblock_update_all
+        )
+        btn_unblock_update.pack(side="right", padx=6, ipady=1, ipadx=6)
 
         # --- Hàng 4: Nút cài (hàng riêng fill="x") ---
         self.btn_install_ipa = GradientButton(

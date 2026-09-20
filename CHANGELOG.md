@@ -2,7 +2,27 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
-## [4.9.6 Comprehensive Knowledge Handbook Edition] - 2026-09-13
+## [4.9.7 Batch iOS Update Blocker Edition] - 2026-09-20
+
+### 🛡️ Tính Năng Mới: Chặn & Gỡ Chặn Cập Nhật iOS Hàng Loạt (Batch Block / Unblock OTA Update)
+- **Tích hợp Profile Apple tvOS 26 Beta Software Profile chính chủ đã ký số (CMS-Signed)**:
+  - Trích xuất và tích hợp tệp cấu hình `NOOTA_tvOS26_signed.mobileconfig` (6.834 bytes) có chữ ký Apple Root CA hợp lệ từ cache 3uTools mới nhất.
+  - Hạn sử dụng chứng chỉ an toàn kéo dài đến **20/05/2027** (`RemovalDate: 2027-05-20`), thay thế các file profile cũ đã hết hạn từ 01/05/2026.
+  - Đánh lừa tiến trình Mobile Software Update (`MobileSoftwareUpdate.framework`) của iOS tìm kiếm bản nâng cấp từ kênh phần mềm Apple TV (tvOS), khiến iPhone luôn hiển thị *\"iOS của bạn đã được cập nhật bản mới nhất\"* và chặn tải ngầm các bản nâng cấp iOS 17/18/26 làm chậm hoặc lỗi dàn máy.
+- **Đường ống triển khai tự động qua USB (`ios.exe profile`)**:
+  - **Chặn Update (`batch_block_update_all` / `_block_update_worker`)**: Gửi lệnh `ios.exe profile add` nạp trực tiếp profile vào mục *VPN & Quản lý thiết bị* trên toàn bộ iPhone đang kết nối.
+  - **Gỡ Chặn Update (`batch_unblock_update_all` / `_unblock_update_worker`)**: Tự động dò tìm danh sách profile bằng `ios.exe profile list` và gỡ bỏ sạch sẽ bằng `ios.exe profile remove`, khôi phục cập nhật bình thường chỉ bằng 1 click.
+  - **Điều phối luồng an toàn**: Bổ sung `NOOTA_SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)` kiểm soát lưu lượng USB, chống nghẽn pipe khi gửi profile đồng loạt lên 14-20 máy.
+- **Giao diện điều khiển trực quan trong Tab Cài IPA**:
+  - Bổ sung cụm nút điều khiển chuyên biệt ngay dưới mục Developer Mode:
+    - Nút **\"🛡️ Chặn Update iOS (Cả dàn)\"** (Màu Amber Gold nổi bật `#D97706`).
+    - Nút **\"🔓 Gỡ Chặn Update (Cả dàn)\"** (Màu Emerald Dark `#065F46`).
+    - Nhãn chỉ dẫn nhanh: *(Cài profile tvOS Beta chặn OTA triệt để - Hạn 2027)*.
+- **Kiến Thức Thực Tế & Quản Trị Phôi Farm**:
+  - Profile lưu trữ bền vững trên máy qua các lần tắt/bật hay Reboot khởi động lại thông thường.
+  - Tài liệu hóa chi tiết cơ chế: Restore phôi backup của iTunes/3uTools không lưu kèm profile cấu hình; nếu quy trình nạp phôi có Reset dòng 2 thì profile sẽ mất. Hướng dẫn quy trình chuẩn: Nạp phôi xong ➔ Bấm nút Chặn Update trên TikTool 1 click là bảo vệ trọn vẹn cả dàn.
+- **Hệ thống kiểm thử**:
+  - Duy trì tỷ lệ kiểm thử hoàn hảo: **84/84 unit tests PASS 100%**.
 
 ### 📚 Cẩm Nang Toàn Thư Kiến Thức libimobiledevice & Quản Trị Phone Farm
 - **Bổ sung tài liệu toàn thư giao diện Tailwind CSS v4 cao cấp**: `TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html`.

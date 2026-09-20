@@ -1,21 +1,18 @@
 {
-  "updated_at": "2026-09-12T19:46:00+07:00",
+  "updated_at": "2026-09-20T11:05:00+07:00",
   "working_on": {
-    "feature": "libimobiledevice v1.4.0 Suite, UI Flood Prevention & Batch Developer Mode",
-    "task": "Nâng cấp libimobiledevice v1.4.0-9, xử lý triệt để bão log giao diện Restore và bổ sung tính năng Bật Developer Mode cho cả dàn",
+    "feature": "Batch Block & Unblock iOS OTA Update (NOOTA tvOS 26 Beta Profile)",
+    "task": "Triển khai tính năng Chặn và Gỡ Chặn cập nhật iOS hàng loạt bằng profile Apple tvOS 26 Beta đã ký số (CMS-Signed), giao diện tab Cài IPA và quản lý semaphore an toàn qua USB",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "tiktool_core.py",
-      "tests/test_app_workflows.py",
-      "tests/test_tiktool_core.py",
-      "BAO_CAO_NANG_CAP_LIBIMOBILEDEVICE_V1.4.html",
+      "NOOTA_tvOS26_signed.mobileconfig",
       "CHANGELOG.md",
       ".brain/session.json",
       ".brain/brain.json",
       ".brain/handover.md"
     ],
-    "notes": "Đã nâng cấp 45 binary/DLL từ jrjr suite v1.4.0-9, sửa lỗi regex _parse_any_percent và chặn lặp pct == last trong _should_log_stream_line giảm 99.4% log rác, tích hợp idevicedevmodectl với nút bấm trên Hàng 1 và tab Cài IPA. Toàn bộ 65/65 tests PASS 100%."
+    "notes": "Đã trích xuất profile Apple tvOS 26 Beta chính chủ (hạn 2027-05-20), tích hợp pipeline ios.exe profile add/remove/list, NOOTA_SEMAPHORE điều phối tải USB, 2 nút UI Chặn/Gỡ trong tab Cài IPA. Toàn bộ 84/84 tests PASS."
   },
   "pending_tasks": [
     {
@@ -25,6 +22,12 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-20T11:00:00+07:00",
+      "type": "batch_block_unblock_ios_update",
+      "description": "Tích hợp tính năng Chặn & Gỡ Chặn cập nhật iOS hàng loạt cho cả dàn iPhone qua USB: trích xuất profile Apple tvOS 26 Beta Software Profile đã ký CMS (RemovalDate: 2027-05-20) từ cache 3uTools, triển khai hàm worker _block_update_worker, _unblock_update_worker, batch launcher batch_block_update_all và batch_unblock_update_all qua ios.exe profile; thêm semaphore NOOTA_SEMAPHORE; bổ sung 2 nút điều khiển 'Chặn Update iOS (Cả dàn)' và 'Gỡ Chặn Update (Cả dàn)' trong Tab Cài IPA.",
+      "files": ["BB_RB.py", "NOOTA_tvOS26_signed.mobileconfig", "CHANGELOG.md"]
+    },
     {
       "timestamp": "2026-09-12T19:40:00+07:00",
       "type": "batch_developer_mode_engine",
@@ -100,6 +103,14 @@
     {
       "decision": "Bố trí nút DEV MODE (ALL) ở cả Hàng 1 và Tab Cài IPA",
       "reason": "Người dùng có thể kích hoạt nhanh từ thanh điều khiển chung hoặc ngay khi chuẩn bị nạp file IPA."
+    },
+    {
+      "decision": "Sử dụng Profile tvOS 26 Beta đã ký Apple (CMS-Signed) trích xuất từ cache 3uTools",
+      "reason": "Profile này có chữ ký số chuẩn Apple Root CA, hạn sử dụng đến 2027-05-20, iOS chấp nhận 100% không báo lỗi chứng chỉ không tin cậy và không cần thiết lập DNS/VPN phức tạp làm ảnh hưởng mạng proxy."
+    },
+    {
+      "decision": "Đặt cụm nút Chặn Update và Gỡ Chặn Update trong Tab Cài IPA với Semaphore điều phối",
+      "reason": "Gom nhóm logic với các công cụ can thiệp hệ thống máy (cùng khu vực Developer Mode), và dùng NOOTA_SEMAPHORE để chống nghẽn đường truyền USB khi nạp profile đồng thời 14-20 máy."
     }
   ]
 }

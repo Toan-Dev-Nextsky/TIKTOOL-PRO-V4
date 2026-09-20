@@ -3,13 +3,13 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-12T19:46:00+07:00"
+    "last_updated": "2026-09-20T11:05:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application Suite (Python/Tkinter/ttkbootstrap)",
-    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore, bật tự động Developer Mode hàng loạt (iOS 16+), tích hợp công cụ TIK SIGNER PRO ký IPA hàng loạt tốc độ cao theo UDID và công nghệ Smart UDID Matching tự động ghép đúng file IPA cho từng máy khi cài đặt, danh sách IPA dạng Lưới Grid 3 Cột siêu gọn gàng, bộ nhị phân libimobiledevice v1.4.0.",
-    "version": "4.9.5 libimobiledevice v1.4.0 & Batch Developer Mode Edition",
+    "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), chặn/gỡ chặn cập nhật iOS hàng loạt (Apple tvOS 26 Beta Profile), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore, bật tự động Developer Mode hàng loạt (iOS 16+), tích hợp công cụ TIK SIGNER PRO ký IPA hàng loạt tốc độ cao theo UDID và công nghệ Smart UDID Matching tự động ghép đúng file IPA cho từng máy khi cài đặt, danh sách IPA dạng Lưới Grid 3 Cột siêu gọn gàng, bộ nhị phân libimobiledevice v1.4.0.",
+    "version": "4.9.7 Batch iOS Update Blocker Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py",
     "companion_signer_tool": "TIK_SIGNER.py (CHAY_SIGNER.bat)"
@@ -32,7 +32,7 @@
         "idevicebtlogger.exe (v1.4.0-9)",
         "idevicecrashreport.exe (v1.4.0-9)"
       ],
-      "proprietary_ios_engine": "ios.exe (Quản lý prepare, skip-all, setlang, setlocale, profile add)",
+      "proprietary_ios_engine": "ios.exe (Quản lý prepare, skip-all, setlang, setlocale, profile add/remove/list)",
       "signing_engine": "zsign.exe (Ký IPA nhanh trên Windows không cần macOS, hỗ trợ .p12 và .mobileprovision)"
     },
     "storage": "settings.json, apps_config.json, SQLite (Manifest.db), Apple Binary Plist (Info.plist, Status.plist), Apple Configuration Profile (.mobileconfig), notify.wav, webapp.png, certs/ (*.p12, *.mobileprovision, pass.txt), ipas/ (*.ipa)",
@@ -43,6 +43,7 @@
       "theme": "Soft Charcoal Slate Dark Theme (App #1A1D23, Panels #22262E, Sub-panels #262A33, Terminal #1E2229, Elevated Buttons #2C313C, Borders #3A414F, Text Slate-50/200/400, Accent Cyan & Emerald & Electric Blue, Icon Font Windows Segoe MDL2 Assets)",
       "action_buttons": {
         "devmode_batch": "btn_ipa_devmode nằm gọn trong Tab Cài IPA (row_opts) (đã dọn bỏ nút trùng btn_batch_devmode ở Hàng 1/box_act lần 2 vào 2026-09-15 theo yêu cầu user, vì tab Cài IPA đã có nút này rồi)",
+        "block_update_batch": "btn_ipa_block_update và btn_ipa_unblock_update nằm trong Tab Cài IPA (row_noota) (Chặn Update màu Amber Gold #D97706, Gỡ Chặn màu Emerald Dark #065F46)",
         "batch_activate": "btn_batch_activate GradientButton #059669 -> #0D9488",
         "restore_pro": "btn_tab_restore, btn_start_restore",
         "backup_pro": "btn_tab_backup, btn_start_backup",
@@ -81,6 +82,7 @@
       "smart_udid_matching_installer": "Khi người dùng chọn đồng loạt nhiều file IPA trong TIKTOOL PRO V4: _install_ipa_worker kiểm tra mã UDID của máy với tên file được chọn. Nếu có file chứa UDID của máy, máy CHỈ cài đúng file đó, không cài file của máy khác; tự gỡ bản cũ trước khi cài.",
       "realtime_install_progress": "Đọc từng dòng output từ ideviceinstaller.exe theo thời gian thực; trích xuất percentage Copying... để hiển thị 'Đang chép file... (XX%)' và thanh tiến độ tương ứng trên từng thẻ thiết bị.",
       "install_preflight_progress_truth": "Trước khi ideviceinstaller phát ra dòng Copying, thẻ phải hiển thị 'Đang khởi tạo cài đặt...' và reset 0%; chỉ đổi sang 'Đang chép file...' khi stdout thực sự chứa Copying. Khi lệnh trả rc=0 mới đặt 100%, tránh kế thừa 100% từ bước gỡ app.",
+      "batch_block_unblock_update_pipeline": "Chặn Update: Gửi NOOTA_tvOS26_signed.mobileconfig (tvOS 26 Beta, CMS-Signed bởi Apple Root CA, hạn 2027-05-20) qua lệnh ios.exe profile add --udid={udid} --nojson. Gỡ Chặn: Quét ios.exe profile list --udid={udid} --nojson -> đối soát định danh tvOS/NOOTA -> gọi ios.exe profile remove {name}. Kiểm soát đồng thời bằng NOOTA_SEMAPHORE.",
       "webclip_pipeline": "Tạo cấu hình Apple Configuration Profile (.mobileconfig) com.apple.webClip.managed, nạp icon toàn năng 3D Glassmorphic webapp.png cho mọi link web, mặc định để trống URL custom, nạp qua ios.exe profile add",
       "batch_activate_pipeline": [
         "Giai đoạn 1: ideviceactivation activate -u {udid} -b",
@@ -115,7 +117,9 @@
       "Developer Mode iOS Guard Bypass: điều kiện `ios_tuple[0] > 0 and ios_tuple[0] < 16` bị bỏ qua hoàn toàn khi card chưa có thông tin iOS (info rỗng do Not Trust/chưa poll xong, ios_tuple = (0,0,0)); máy iOS < 16 trong tình huống đó vẫn bị chạy lệnh Developer Mode. Phải dựa thêm vào chính thông điệp lỗi của công cụ ('only available on iOS 16+') để chặn khi không có thông tin phiên bản đáng tin cậy.",
       "Developer Mode Worker Missing Semaphore: _devmode_worker không acquire semaphore nào (khác Batch Activate/Set Language đều có), nên nút DEV MODE (ALL) spawn thread không giới hạn cho toàn bộ dàn máy cùng lúc, gây quá tải USB khi nhiều máy đồng thời arm+reboot. Đã thêm DEVMODE_SEMAPHORE = Semaphore(MAX_CONCURRENCY).",
       "Concurrency Documentation Drift: system_overview.md và design spec ghi 'mặc định 4, giới hạn 1-8' nhưng code/apps_config.json thực tế dùng threads=20, clamp 1-32 (nâng dần sau khi vận hành ổn định dàn 12-16 máy). Luôn đối chiếu tài liệu với apps_config.json + tiktool_core.load_concurrency thay vì tin mô tả cũ.",
-      "idevicebackup2.exe luôn in nhãn 'Backup' cho cả restore lẫn backup (tái phát hiện 2026-09-15, xác nhận qua ảnh chụp UI thật): binary dùng chung một hàm in tiến độ cho cả `backup` và `restore`, LUÔN in chuỗi 'Backup [####...] NN%' bất kể đang chạy chiều nào — quirk có sẵn của chính công cụ, không phải app ghi nhãn sai. Card thiết bị vẫn hiển thị đúng 'Restore NN%' (do BB_RB tự set label qua push_step), nhưng khung Nhật Ký Hệ Thống in thẳng chuỗi thô trong `on_line` của `_restore_worker` (BB_RB.py, quanh dòng `def on_line` ngay sau `if row: row.push_step(\"Restore 0%\")`) nên gây hiểu lầm là đang Backup. FIX (đã áp dụng lại 2026-09-15 sau khi bị user discard nhầm cùng lô thay đổi ngôn ngữ): trong `on_line` của `_restore_worker`, CHỈ đổi nhãn hiển thị trước khi gọi `self.log(...)` bằng `re.sub(r'(?i)^Backup(?=\\s*\\[)', 'Restore', s)`, KHÔNG đụng vào `_parse_any_percent(s)` (vẫn parse trên chuỗi gốc `s`, không dựa vào chữ 'Backup'/'Restore' để hoạt động nên không bị ảnh hưởng). LƯU Ý CHO LẦN SAU: đây là fix hiển thị độc lập, tách biệt hoàn toàn khỏi phần xác minh ngôn ngữ (_apply_language_with_verify/query_device_language) — nếu discard nhầm lô ngôn ngữ thì phải re-apply riêng fix này, không được gộp bỏ chung."
+      "idevicebackup2.exe luôn in nhãn 'Backup' cho cả restore lẫn backup (tái phát hiện 2026-09-15, xác nhận qua ảnh chụp UI thật): binary dùng chung một hàm in tiến độ cho cả `backup` và `restore`, LUÔN in chuỗi 'Backup [####...] NN%' bất kể đang chạy chiều nào — quirk có sẵn của chính công cụ, không phải app ghi nhãn sai. Card thiết bị vẫn hiển thị đúng 'Restore NN%' (do BB_RB tự set label qua push_step), nhưng khung Nhật Ký Hệ Thống in thẳng chuỗi thô trong `on_line` của `_restore_worker` (BB_RB.py, quanh dòng `def on_line` ngay sau `if row: row.push_step(\"Restore 0%\")`) nên gây hiểu lầm là đang Backup. FIX (đã áp dụng lại 2026-09-15 sau khi bị user discard nhầm cùng lô thay đổi ngôn ngữ): trong `on_line` của `_restore_worker`, CHỈ đổi nhãn hiển thị trước khi gọi `self.log(...)` bằng `re.sub(r'(?i)^Backup(?=\\s*\\[)', 'Restore', s)`, KHÔNG đụng vào `_parse_any_percent(s)` (vẫn parse trên chuỗi gốc `s`, không dựa vào chữ 'Backup'/'Restore' để hoạt động nên không bị ảnh hưởng). LƯU Ý CHO LẦN SAU: đây là fix hiển thị độc lập, tách biệt hoàn toàn khỏi phần xác minh ngôn ngữ (_apply_language_with_verify/query_device_language) — nếu discard nhầm lô ngôn ngữ thì phải re-apply riêng fix này, không được gộp bỏ chung.",
+      "iOS Configuration Profile Persistence & Backup Restore Quirk: Profile chặn OTA (tvOS Beta) không vĩnh viễn tuyệt đối nhưng lưu bền vững qua Restart/Reboot thông thường. Profile chỉ mất trong 3 trường hợp: Reset dòng 2 (Xóa tất cả nội dung & cài đặt), Flash lại firmware (Restore IPSW), hoặc hết hạn chứng chỉ Apple (20/05/2027). ĐẶC BIỆT: Bản sao lưu (Backup) của iTunes/3uTools/idevicebackup2 KHÔNG BAO GIỜ sao lưu Profile cấu hình hệ thống. Do đó, nếu quy trình làm farm là Reset dòng 2 rồi bung phôi backup thì profile sẽ mất sạch. Khắc phục: Sau khi nạp phôi xong, chỉ cần cắm cả dàn vào TikTool và bấm nút 'Chặn Update iOS' 1 lần duy nhất cho toàn bộ máy.",
+      "Apple Signed Mobileconfig vs Expired Profiles: Profile chặn OTA bắt buộc phải là file binary CMS-signed có chữ ký hợp lệ từ Apple. File NOOTA.mobileconfig cũ có sẵn trong 3uTools (RemovalDate: 2026-05-01) đã hết hạn và sẽ bị iOS từ chối; bắt buộc phải dùng profile mới (tvOS 26 Beta trích xuất từ cache 3uTools 9CE6C842E107901F37186BAC993911F6.mobileconfig) có hạn đến 2027-05-20."
     ],
     "conventions": [
       "Đặt tên file IPA đã ký: Luôn dùng cú pháp TikTok_Lite_<UDID>_Signed.ipa chứa đầy đủ mã UDID để công cụ cài đặt tự động đối soát chính xác 100%.",
