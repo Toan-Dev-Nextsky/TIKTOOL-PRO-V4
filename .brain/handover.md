@@ -115,7 +115,8 @@
 | [`ios.exe`](file:///c:/TIKTOOL%20PRO%20V4/ios.exe) | Công cụ quản trị iOS đa năng: prepare, skip-all, setlang, profile add/remove/list |
 | [`tiktool_core.py`](file:///c:/TIKTOOL%20PRO%20V4/tiktool_core.py) | Lõi thực thi ngầm: Phiên bản 4.9.6+, lọc ANSI VT100, điều phối subprocess an toàn |
 | [`idevicedevmodectl.exe`](file:///c:/TIKTOOL%20PRO%20V4/idevicedevmodectl.exe) | Quản lý Developer Mode iOS 16+ qua dịch vụ com.apple.amfi.lockdown |
-| [`TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html`](file:///c:/TIKTOOL%20PRO%20V4/TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html) | Toàn thư cẩm nang kiến trúc libimobiledevice & Quản trị farm (Tailwind CSS v4) |
+| [`TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html`](file:///c:/TIKTOOL%20PRO%20V4/TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html) | Toàn thư cẩm nang kiến trúc libimobiledevice & Quản trị farm (Đã cập nhật Chương 8 bằng Tailwind CSS v4) |
+| [`CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html`](file:///c:/TIKTOOL%20PRO%20V4/CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html) | Bản tin chuyên sâu: Chặn & Gỡ Update iOS tvOS 26 Beta, mốc hạn 2027 và an toàn dữ liệu phôi TikTok Lite (Tailwind CSS v4) |
 | [`CHANGELOG.md`](file:///c:/TIKTOOL%20PRO%20V4/CHANGELOG.md) | Nhật ký thay đổi phiên bản (Cập nhật bản v4.9.7) |
 | [`.brain/brain.json`](file:///c:/TIKTOOL%20PRO%20V4/.brain/brain.json) | Bộ nhớ tri thức kiến trúc, pipelines và quy tắc gotchas vĩnh viễn |
 | [`.brain/session.json`](file:///c:/TIKTOOL%20PRO%20V4/.brain/session.json) | Bộ nhớ trạng thái phiên làm việc hiện tại |

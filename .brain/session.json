@@ -1,18 +1,16 @@
 {
-  "updated_at": "2026-09-20T11:05:00+07:00",
+  "updated_at": "2026-09-20T14:25:00+07:00",
   "working_on": {
     "feature": "Batch Block & Unblock iOS OTA Update (NOOTA tvOS 26 Beta Profile)",
-    "task": "Triển khai tính năng Chặn và Gỡ Chặn cập nhật iOS hàng loạt bằng profile Apple tvOS 26 Beta đã ký số (CMS-Signed), giao diện tab Cài IPA và quản lý semaphore an toàn qua USB",
+    "task": "Tài liệu hóa chi tiết cơ chế Chặn & Gỡ Chặn cập nhật iOS hàng loạt, giải mã mốc hạn 20/05/2027, phân tích tác động Backup/Restore phôi TikTok Lite vào cẩm nang HTML Tailwind CSS v4",
     "status": "completed",
     "files": [
-      "BB_RB.py",
-      "NOOTA_tvOS26_signed.mobileconfig",
-      "CHANGELOG.md",
+      "TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html",
+      "CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html",
       ".brain/session.json",
-      ".brain/brain.json",
       ".brain/handover.md"
     ],
-    "notes": "Đã trích xuất profile Apple tvOS 26 Beta chính chủ (hạn 2027-05-20), tích hợp pipeline ios.exe profile add/remove/list, NOOTA_SEMAPHORE điều phối tải USB, 2 nút UI Chặn/Gỡ trong tab Cài IPA. Toàn bộ 84/84 tests PASS."
+    "notes": "Đã cập nhật Chương 8 vào TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html và tạo tài liệu chuyên sâu độc lập CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html (Tailwind CSS v4, dark mode, bảng đối soát, quy trình 4 bước)."
   },
   "pending_tasks": [
     {
@@ -22,6 +20,12 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-20T14:25:00+07:00",
+      "type": "doc_update_block_ota_tailwind4",
+      "description": "Cập nhật toàn bộ kiến thức, giải đáp thắc mắc về cơ chế Chặn Update iOS tvOS 26 Beta, mốc hạn RemovalDate 20/05/2027, phân tích an toàn dữ liệu phôi TikTok Lite (0% xung đột) vào Chương 8 của TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html và tạo tài liệu chuyên biệt CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html bằng Tailwind CSS v4.",
+      "files": ["TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html", "CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html"]
+    },
     {
       "timestamp": "2026-09-20T11:00:00+07:00",
       "type": "batch_block_unblock_ios_update",

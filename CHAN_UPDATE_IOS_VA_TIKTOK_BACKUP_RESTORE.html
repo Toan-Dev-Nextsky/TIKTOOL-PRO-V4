@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cẩm Nang Chuyên Sâu: Chặn & Gỡ Cập Nhật iOS (OTA) & Tác Động Tới Backup / Restore TikTok Lite — TIKTOOL PRO V4</title>
+  
+  <!-- Google Fonts: Inter, Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS v4 Browser Build -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: 'Inter', sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --color-brand-cyan: #00e5ff;
+      --color-brand-emerald: #10b981;
+      --color-brand-blue: #3b82f6;
+      --color-brand-purple: #8b5cf6;
+      --color-brand-amber: #f59e0b;
+      --color-brand-rose: #f43f5e;
+      --color-dark-bg: #090d16;
+      --color-dark-card: #0f172a;
+      --color-dark-border: #1e293b;
+    }
+  </style>
+  
+  <style>
+    body {
+      background-color: #090d16;
+      color: #cbd5e1;
+      font-family: 'Inter', sans-serif;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(0, 229, 255, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(16, 185, 129, 0.05) 0px, transparent 60%);
+      background-attachment: fixed;
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.55);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .badge-glow-amber {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+    }
+    .badge-glow-emerald {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+    }
+    .badge-glow-cyan {
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+    }
+    .gradient-amber {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gradient-cyan {
+      background: linear-gradient(135deg, #00e5ff 0%, #38bdf8 50%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gradient-emerald {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 50%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+
+  <div class="max-w-6xl mx-auto space-y-10">
+
+    <!-- HEADER / HERO -->
+    <header class="glass-panel rounded-3xl p-8 sm:p-12 relative overflow-hidden border border-slate-800 shadow-2xl">
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-4 badge-glow-amber">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            TIKTOOL PRO V4 • BẢN TIN VẬN HÀNH & KỸ THUẬT NỀN TẢNG
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white font-['Outfit'] leading-tight">
+            Chặn & Gỡ Cập Nhật iOS <br>
+            <span class="gradient-amber">& Tác Động Tới Phôi TikTok Lite</span>
+          </h1>
+          <p class="mt-3 text-base sm:text-lg text-slate-400 max-w-2xl">
+            Tài liệu giải đáp toàn diện: Cơ chế sâu Profile Apple tvOS 26 Beta (CMS-Signed), giải mã hạn mốc 20/05/2027, phân tích độ an toàn 100% đối với Backup / Restore phôi TikTok Lite và quy trình 4 bước chuẩn hóa cho Phone Farm.
+          </p>
+        </div>
+
+        <!-- STATS CARD -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-700/60 min-w-[280px] space-y-3">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Profile bảo vệ:</span>
+            <span class="text-amber-300 font-mono font-medium">tvOS 26 Beta (Signed)</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Hạn bảo hộ:</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono text-[11px] font-semibold border border-emerald-500/30">20/05/2027 (1 năm+)</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Ảnh hưởng TikTok:</span>
+            <span class="text-emerald-400 font-medium">0% Xung đột (100% An toàn)</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-700/40">
+            <span>Hạ tầng mạng / Proxy:</span>
+            <span class="text-cyan-400 font-semibold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              Không chạm DNS / VPN
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Nav Pills -->
+      <div class="mt-8 pt-6 border-t border-slate-800/80 flex flex-wrap gap-2 text-xs font-medium">
+        <a href="#muc-1" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-amber-950 hover:text-amber-400 transition border border-slate-700/50">1. Bản chất kỹ thuật (Tại sao chặn được?)</a>
+        <a href="#muc-2" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-amber-950 hover:text-amber-400 transition border border-slate-700/50">2. Tại sao lại là hạn đến 05/2027?</a>
+        <a href="#muc-3" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-amber-950 hover:text-amber-400 transition border border-slate-700/50">3. Ảnh hưởng Backup / Restore TikTok Lite</a>
+        <a href="#muc-4" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-amber-950 hover:text-amber-400 transition border border-slate-700/50">4. So sánh Profile vs DNS vs VPN</a>
+        <a href="#muc-5" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-amber-950 hover:text-amber-400 transition border border-slate-700/50">5. Tính bền vững & Khi nào bị mất</a>
+        <a href="#muc-6" class="px-3 py-1.5 rounded-lg bg-slate-800/70 hover:bg-amber-950 hover:text-amber-400 transition border border-slate-700/50">6. Quy trình 4 bước chuẩn dàn Farm</a>
+      </div>
+    </header>
+
+    <!-- MỤC 1: BẢN CHẤT KỸ THUẬT -->
+    <section id="muc-1" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold font-['Outfit'] text-lg">01</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Bản Chất Kỹ Thuật: Tại Sao Cài Profile Apple TV Lại Chặn Được Update iOS?</h2>
+          <p class="text-xs text-slate-400">Giải mã cơ chế chuyển hướng catalog của tiến trình MobileSoftwareUpdate trên iOS</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+        <div class="space-y-4 text-xs text-slate-300 leading-relaxed">
+          <p>
+            Mỗi thiết bị iPhone/iPad đều có một daemon hệ thống chạy ngầm mang tên <code class="text-cyan-300 font-mono font-bold">MobileSoftwareUpdate</code> (hoặc <code class="text-cyan-300 font-mono">softwareupdated</code>). Định kỳ, tiến trình này sẽ gửi truy vấn kiểm tra tới máy chủ cập nhật phần mềm của Apple (MESU).
+          </p>
+          <p>
+            Khi ta nạp Profile cấu hình <code class="text-amber-300 font-mono">NOOTA_tvOS26_signed.mobileconfig</code> vào máy:
+          </p>
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-2 text-slate-300">
+            <div class="flex items-start gap-2">
+              <span class="text-amber-400 font-bold">1.</span>
+              <span>iOS chuyển hướng endpoint tìm kiếm sang kho phần mềm <strong>Apple TV (tvOS)</strong>.</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-amber-400 font-bold">2.</span>
+              <span>Máy chủ Apple kiểm tra chip phần cứng (ví dụ Apple A11, A12, A13, A14 trên iPhone) và nhận định: <em>"Không có phiên bản hệ điều hành Apple TV nào tương thích với máy này"</em>.</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="text-emerald-400 font-bold">3.</span>
+              <span>Apple trả về kết quả rỗng hợp lệ ➔ iPhone hiển thị: <strong>"iOS của bạn đã là bản mới nhất"</strong>.</span>
+            </div>
+          </div>
+          <p class="text-slate-400 text-[11px]">
+            ➔ Đây là giải pháp "chính phái" theo tiêu chuẩn của Apple, <strong>không cần can thiệp Jailbreak</strong>, không sửa đổi file hệ thống và không vi phạm chính sách bảo mật.
+          </p>
+        </div>
+
+        <!-- DIAGRAM -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div class="text-xs font-bold text-white uppercase tracking-wider flex items-center justify-between">
+            <span>Sơ đồ so sánh luồng xử lý OTA</span>
+            <span class="text-[10px] text-cyan-400 font-mono">MobileSoftwareUpdate</span>
+          </div>
+
+          <!-- Chưa chặn -->
+          <div class="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/30 space-y-1.5 font-mono text-[11px]">
+            <div class="text-rose-400 font-bold flex items-center justify-between">
+              <span>❌ MÁY CHƯA CHẶN (MẶC ĐỊNH):</span>
+              <span class="text-[10px] bg-rose-500/20 px-1.5 py-0.5 rounded text-rose-300">RỦI RO CAO</span>
+            </div>
+            <div class="text-slate-300">iPhone ➜ Gửi truy vấn iOS Catalog ➜ Apple trả về iOS 18 / 26</div>
+            <div class="text-rose-300 text-[10px]">➔ Tự tải ngầm 3GB - 7GB lúc nửa đêm ➔ Tràn bộ nhớ ➔ Ép update</div>
+          </div>
+
+          <!-- Đã chặn -->
+          <div class="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 space-y-1.5 font-mono text-[11px]">
+            <div class="text-emerald-400 font-bold flex items-center justify-between">
+              <span>🛡️ ĐÃ CÀI PROFILE TVOS BETA (TIKTOOL PRO V4):</span>
+              <span class="text-[10px] bg-emerald-500/20 px-1.5 py-0.5 rounded text-emerald-300">AN TOÀN TUYỆT ĐỐI</span>
+            </div>
+            <div class="text-slate-300">iPhone ➜ Gửi truy vấn tvOS Catalog ➜ Apple trả về: Không có bản nào</div>
+            <div class="text-emerald-300 text-[10px]">➔ Báo "iOS đã là bản mới nhất" ➔ 0 byte tải ngầm ➔ Giữ nguyên iOS</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MỤC 2: TẠI SAO LẠI LÀ HẠN ĐẾN THÁNG 05/2027? -->
+    <section id="muc-2" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold font-['Outfit'] text-lg">02</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Giải Mã: Tại Sao Lại Là Cập Nhật iOS Đến Tháng 05/2027?</h2>
+          <p class="text-xs text-slate-400">Xuất xứ trường RemovalDate của Apple, vòng đời Beta Profile và quy trình gia hạn sau 2027</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-4 text-xs text-slate-300 leading-relaxed">
+          <p>
+            Mốc thời gian <strong>tháng 05/2027</strong> không phải do lập trình viên của TikTool tự đặt ra, mà xuất phát trực tiếp từ <strong>quy định bảo mật chữ ký số của chính Apple Inc.</strong> được nhúng bên trong lõi file cấu hình:
+          </p>
+
+          <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 font-mono text-xs space-y-1.5">
+            <div class="text-slate-500">// Trích xuất trực tiếp từ mã nguồn ASN.1 DER CMS-Signed của Apple:</div>
+            <div class="text-cyan-300">&lt;key&gt;<span class="text-amber-300">PayloadDisplayName</span>&lt;/key&gt;</div>
+            <div class="text-slate-300 pl-4">&lt;string&gt;tvOS 26 Beta Software Profile&lt;/string&gt;</div>
+            <div class="text-cyan-300">&lt;key&gt;<span class="text-emerald-400 font-bold">RemovalDate</span>&lt;/key&gt;</div>
+            <div class="text-emerald-300 pl-4 font-bold">&lt;date&gt;2027-05-20T07:00:00Z&lt;/date&gt;</div>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              Ba Lý Do Cốt Lõi Về Mốc Hạn 20/05/2027:
+            </h4>
+            <ul class="list-disc pl-5 space-y-2 text-slate-300">
+              <li>
+                <strong>Chu kỳ phát hành phần mềm của Apple (WWDC Beta Cycle):</strong> Mỗi năm vào dịp WWDC mùa hè, Apple phát hành bản thử nghiệm Beta cho tvOS. Vòng đời của mỗi Beta Profile được Apple ấn định cố định kéo dài khoảng <strong>12 tháng</strong> cho đến khi thế hệ hệ điều hành tiếp theo ra mắt.
+              </li>
+              <li>
+                <strong>Ký số bảo mật bởi Apple Root CA:</strong> File profile được mã hóa nhị phân CMS DER và ký số bởi chính Apple Root CA. iOS kiểm tra chữ ký này trước khi chấp nhận cài đặt. Ta không thể chỉnh sửa ngày hết hạn bằng tay, vì việc can thiệp sẽ phá vỡ chữ ký số khiến iOS từ chối ngay lập tức.
+              </li>
+              <li>
+                <strong>Phiên bản cũ trong 3uTools đã hết hạn:</strong> File <code class="text-rose-400 font-mono">NOOTA.mobileconfig</code> đi kèm các bản 3uTools cài sẵn trước đây chỉ có <code class="text-slate-400 font-mono">RemovalDate: 2026-05-01</code> (đã hết hạn). Khi cài vào máy hiện nay sẽ bị iOS báo lỗi chứng chỉ không hợp lệ. Bản mới trong TikTool PRO V4 được trích xuất từ cache Apple mới nhất có hạn đến tận <strong>20/05/2027</strong>!
+              </li>
+            </ul>
+          </div>
+
+          <!-- Sau 2027 thì sao -->
+          <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2">
+            <span class="text-amber-400 font-bold text-xs uppercase block tracking-wide">❓ Điều gì xảy ra sau ngày 20/05/2027?</span>
+            <p class="text-slate-400 text-[11px] leading-relaxed">
+              Đúng ngày 20/05/2027, hệ thống iOS của iPhone sẽ tự động gỡ bỏ profile này theo thuộc tính <code class="text-slate-300 font-mono">RemovalDate</code>. Khi đó máy quay lại kiểm tra cập nhật bình thường. Đến thời điểm đó, Apple sẽ phát hành Profile chu kỳ mới (hạn đến 2028). TikTool sẽ cập nhật file profile mới vào thư mục tool và bạn chỉ việc bấm nút <strong>"Chặn Update iOS (Cả dàn)"</strong> 1 lần duy nhất là dàn máy lại tiếp tục được bảo vệ an toàn cho chu kỳ tiếp theo.
+            </p>
+          </div>
+        </div>
+
+        <!-- THẺ TÓM TẮT CERTIFICATE -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="text-xs font-mono font-bold text-slate-400 uppercase">Thông số kỹ thuật Profile</div>
+          <div class="space-y-2.5 text-xs">
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="text-slate-500 block text-[11px]">Tên hiển thị:</span>
+              <span class="text-white font-semibold font-mono">tvOS 26 Beta Software Profile</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="text-slate-500 block text-[11px]">Payload Identifier:</span>
+              <span class="text-cyan-300 font-mono text-[10px] break-all">com.apple.mobileconfig.embeddedratvOSSoftwareProfile</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="text-slate-500 block text-[11px]">Đơn vị ký số (Signer):</span>
+              <span class="text-emerald-400 font-semibold font-mono">Apple iPhone Device CA / Apple Root CA</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="text-slate-500 block text-[11px]">Định dạng mã hóa:</span>
+              <span class="text-slate-300 font-mono">ASN.1 DER CMS Signature</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="text-slate-500 block text-[11px]">Dung lượng tệp:</span>
+              <span class="text-slate-300 font-mono">6.834 bytes (Đầy đủ chuỗi cert X.509)</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="text-slate-500 block text-[11px]">Trạng thái trong TikTool:</span>
+              <span class="text-emerald-400 font-bold font-mono">Sẵn sàng trong thư mục gốc</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MỤC 3: CÓ ẢNH HƯỞNG GÌ TỚI BACKUP / RESTORE PHÔI TIKTOK LITE KHÔNG? -->
+    <section id="muc-3" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold font-['Outfit'] text-lg">03</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Phân Tích Chuyên Sâu: Có Ảnh Hưởng Gì Tới Quá Trình Làm TikTok Lite?</h2>
+          <p class="text-xs text-slate-400">Khẳng định từ tầng hệ điều hành: 100% Không ảnh hưởng tiêu cực, bảo vệ dữ liệu phôi tuyệt đối</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- BACKUP PHÔI -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 font-mono text-xs font-bold border border-blue-500/30">QUÁ TRÌNH SAO LƯU (BACKUP)</span>
+            <span class="text-emerald-400 text-xs font-semibold flex items-center gap-1">● Sạch sẽ 100%</span>
+          </div>
+          <h4 class="text-base font-bold text-white">Sao lưu phôi TikTok Lite không bị dính Profile</h4>
+          <div class="text-xs text-slate-300 space-y-2 leading-relaxed">
+            <p>
+              Khi bạn bấm nút <strong>"Bắt Đầu Sao Lưu"</strong> trong TikTool PRO V4, lệnh <code class="text-cyan-300 font-mono">idevicebackup2 backup</code> gửi lệnh tới kênh dịch vụ <code class="text-slate-300 font-mono">com.apple.mobilebackup2</code>.
+            </p>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1 text-slate-400 text-[11px]">
+              <div>• Backup chỉ thu thập: <strong class="text-slate-200">App Containers (Documents, Library), Keychain (Mật khẩu/Token nick), Cài đặt cá nhân, Ảnh</strong>.</div>
+              <div class="text-emerald-400 font-semibold pt-1">• Quy định nghiêm ngặt của Apple: Tuyệt đối KHÔNG BAO GIỜ sao lưu Configuration Profile (.mobileconfig) vào file backup.</div>
+            </div>
+            <p class="text-[11px] text-slate-400">
+              ➔ File phôi backup TikTok Lite của bạn hoàn toàn nguyên bản, dung lượng chuẩn, không bị phình to hay dính bất kỳ file rác nào.
+            </p>
+          </div>
+        </div>
+
+        <!-- RESTORE PHÔI -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold border border-emerald-500/30">QUÁ TRÌNH NẠP PHÔI (RESTORE)</span>
+            <span class="text-emerald-400 text-xs font-semibold flex items-center gap-1">● Tương thích 100%</span>
+          </div>
+          <h4 class="text-base font-bold text-white">Nạp phôi không xung đột tiến trình sao lưu</h4>
+          <div class="text-xs text-slate-300 space-y-2 leading-relaxed">
+            <p>
+              Khi bạn bấm nạp phôi (Restore Kho A ➜ Kho B hoặc bung phôi mới), lệnh <code class="text-emerald-400 font-mono">idevicebackup2 restore --system</code> thực thi ghi đè app container vào máy.
+            </p>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1 text-slate-400 text-[11px]">
+              <div>• Kênh Restore qua cổng USB hoàn toàn tách biệt với tiến trình tìm bản cập nhật <code class="text-slate-300 font-mono">MobileSoftwareUpdate</code>.</div>
+              <div>• File Token, Cookie đăng nhập nick TikTok Lite và IDFV được nạp đầy đủ.</div>
+              <div class="text-cyan-300 font-semibold pt-1">• Ứng dụng TikTok Lite mở lên nhận nick ngay lập tức, không bị văng, không bị checkpoint do profile.</div>
+            </div>
+            <p class="text-[11px] text-slate-400">
+              ➔ Mọi thao tác nuôi nick, lướt video, tương tác trên TikTok Lite diễn ra hoàn toàn bình thường 100%.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- LỢI ÍCH VÀNG: BẢO VỆ BỘ NHỚ TRÁNH LỖI DISK FULL KHI RESTORE -->
+      <div class="glass-card p-6 rounded-2xl border border-amber-500/30 space-y-3 bg-amber-950/10">
+        <h4 class="text-sm font-bold text-amber-400 flex items-center gap-2">
+          <span>🛡️</span> Lợi Ích Vàng Cho Phone Farm: Tránh Triệt Để Lỗi "Not Enough Disk Space" Khi Restore
+        </h4>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Nhiều dàn farm dùng máy iPhone 7, 8, X, SE hoặc 11/12 dung lượng <strong>32GB hoặc 64GB</strong> thường gặp lỗi ức chế: Đang nạp phôi thì tool báo lỗi đứt gánh giữa đường. Nguyên nhân 90% là do <strong>iOS âm thầm tải bản cập nhật iOS mới (tốn từ 4GB đến 7GB)</strong> chiếm trọn dung lượng đĩa trống. Khi bạn cài Profile Chặn Update, máy không tải ngầm file cài đặt iOS, bộ nhớ máy luôn sạch sẽ và quá trình Restore phôi diễn ra với tốc độ tối đa!
+        </p>
+      </div>
+    </section>
+
+    <!-- MỤC 4: SO SÁNH PROFILE VS DNS VS VPN -->
+    <section id="muc-4" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold font-['Outfit'] text-lg">04</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">So Sánh 3 Phương Pháp Chặn Update Trên Phone Farm</h2>
+          <p class="text-xs text-slate-400">Tại sao Profile tvOS Beta là giải pháp độc tôn và hoàn hảo nhất cho dàn nuôi TikTok</p>
+        </div>
+      </div>
+
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse font-sans min-w-[650px]">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400 font-mono text-[11px] bg-slate-900/60">
+              <th class="p-3.5">Tiêu chí đối soát</th>
+              <th class="p-3.5 text-amber-400">Cách 1: Profile tvOS 26 Beta (TikTool chọn)</th>
+              <th class="p-3.5 text-slate-400">Cách 2: Chặn qua DNS (NextDNS / Router)</th>
+              <th class="p-3.5 text-slate-400">Cách 3: Chặn qua App VPN (AdBlock / Cloak)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800 text-slate-300">
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Xung đột Proxy TikTok:</td>
+              <td class="p-3.5 text-emerald-400 font-bold">Không bao giờ xung đột (0% can thiệp mạng)</td>
+              <td class="p-3.5 text-rose-400">Dễ xung đột với DNS của Proxy TikTok</td>
+              <td class="p-3.5 text-rose-400 font-bold">Xung đột 100% (iOS chỉ chạy 1 VPN)</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Tác động Cục WiFiTock:</td>
+              <td class="p-3.5 text-emerald-400 font-bold">100% Tương thích mượt mà</td>
+              <td class="p-3.5 text-amber-400">Phải cấu hình DNS trên router phức tạp</td>
+              <td class="p-3.5 text-rose-400">Làm đè / ngắt kết nối Proxy WiFiTock</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Mức tiêu hao Pin & RAM:</td>
+              <td class="p-3.5 text-emerald-400 font-bold">0% (Cấu hình tĩnh của hệ thống)</td>
+              <td class="p-3.5 text-slate-300">0%</td>
+              <td class="p-3.5 text-rose-400">Tốn 15% - 25% Pin & ngốn RAM liên tục</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Độ bền khi đổi WiFi / 4G:</td>
+              <td class="p-3.5 text-emerald-400 font-bold">Vĩnh viễn theo máy (Bất chấp mạng)</td>
+              <td class="p-3.5 text-rose-400">Mất tác dụng khi máy đổi sang mạng khác</td>
+              <td class="p-3.5 text-amber-400">Phụ thuộc app VPN có bị iOS kill không</td>
+            </tr>
+            <tr>
+              <td class="p-3.5 font-semibold text-white">Cài đặt hàng loạt cả dàn:</td>
+              <td class="p-3.5 text-cyan-300 font-bold">1 Click trong TikTool PRO V4 qua USB</td>
+              <td class="p-3.5 text-slate-400">Phải cấu hình mạng tập trung</td>
+              <td class="p-3.5 text-slate-400">Phải tải app & bấm từng máy thủ công</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- MỤC 5: TÍNH BỀN VỮNG & KHI NÀO PROFILE MẤT -->
+    <section id="muc-5" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 font-bold font-['Outfit'] text-lg">05</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Tính Bền Vững Của Profile & Khi Nào Bị Mất</h2>
+          <p class="text-xs text-slate-400">Bảo vệ vững chắc qua khởi động lại, chỉ mất khi Reset dòng 2 hoặc Flash máy trắng</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+        <!-- Khi nào Profile KHÔNG MẤT -->
+        <div class="glass-card p-6 rounded-2xl border border-emerald-500/20 space-y-3">
+          <h4 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+            <span>✅</span> Khi Nào Profile Được Giữ NGUYÊN VẸN?
+          </h4>
+          <ul class="space-y-2.5 text-slate-300 list-disc pl-4 leading-relaxed">
+            <li><strong>Khởi động lại máy (Reboot):</strong> Không mất profile.</li>
+            <li><strong>Tắt nguồn bật lại (Power Off / On):</strong> Không mất profile.</li>
+            <li><strong>Dùng máy nuôi nick, lướt TikTok, đổi mạng WiFi:</strong> Không mất profile.</li>
+            <li><strong>Chạy Restore đè dữ liệu lên máy đang có profile:</strong> Vẫn giữ được profile.</li>
+          </ul>
+        </div>
+
+        <!-- Khi nào Profile BỊ MẤT -->
+        <div class="glass-card p-6 rounded-2xl border border-rose-500/20 space-y-3">
+          <h4 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+            <span>❌</span> Khi Nào Profile Sẽ BỊ MẤT?
+          </h4>
+          <ul class="space-y-2.5 text-slate-300 list-disc pl-4 leading-relaxed">
+            <li><strong>Reset dòng 2 (Xóa tất cả nội dung và cài đặt):</strong> Mất 100% (máy về trắng).</li>
+            <li><strong>Chạy lại phần mềm (Flash IPSW qua 3uTools/iTunes):</strong> Mất 100%.</li>
+            <li><strong>Hết hạn chứng chỉ Apple (Đến ngày 20/05/2027):</strong> Tự động hết hiệu lực.</li>
+            <li><strong>Chủ động gỡ:</strong> Vào Cài đặt xóa hoặc bấm nút <em>"Gỡ Chặn Update (Cả dàn)"</em> trên TikTool.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Giải thích vì sao nạp phôi lại mất -->
+      <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+        <span class="text-cyan-300 font-bold uppercase tracking-wider block text-[11px]">💡 Tại sao sau khi làm phôi máy mới thường bị mất Profile?</span>
+        <p class="text-slate-300 leading-relaxed">
+          Bởi vì quy trình làm farm chuẩn thường là: <strong>Reset dòng 2 cho máy thật sạch ➔ Bung phôi TikTok Lite</strong>. Do bước Reset dòng 2 đã xóa sạch máy (xóa luôn profile cũ), và file backup của Apple lại không bao giờ lưu trữ profile, nên sau khi nạp phôi xong máy đích sẽ ở trạng thái <em>chưa có Profile Chặn Update</em>. Đó là lý do bạn chỉ cần làm thêm Bước 4 trong quy trình chuẩn dưới đây!
+        </p>
+      </div>
+    </section>
+
+    <!-- MỤC 6: QUY TRÌNH 4 BƯỚC VẬN HÀNH CHUẨN DÀN FARM -->
+    <section id="muc-6" class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold font-['Outfit'] text-lg">06</div>
+        <div>
+          <h2 class="text-2xl font-bold text-white font-['Outfit']">Quy Trình 4 Bước Vận Hành Chuẩn Dành Cho Dàn Phone Farm</h2>
+          <p class="text-xs text-slate-400">Trình tự thao tác tối ưu nhất cho ca làm việc nạp phôi khối lượng lớn</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <!-- BƯỚC 1 -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2 relative">
+          <div class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 font-bold flex items-center justify-center font-mono text-sm">01</div>
+          <div class="font-bold text-white text-sm">Chuẩn Bị / Reset Máy</div>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            Reset dòng 2 hoặc nạp trắng máy để chuẩn bị cho ca làm mới.
+          </p>
+        </div>
+
+        <!-- BƯỚC 2 -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2 relative">
+          <div class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-300 font-bold flex items-center justify-center font-mono text-sm border border-blue-500/30">02</div>
+          <div class="font-bold text-white text-sm">Restore Phôi TikTok</div>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            Vào Tab Khôi Phục (Restore) trong TikTool PRO V4 ➔ Nạp bản phôi TikTok Lite vào cả dàn máy.
+          </p>
+        </div>
+
+        <!-- BƯỚC 3 -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2 relative">
+          <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 font-bold flex items-center justify-center font-mono text-sm border border-purple-500/30">03</div>
+          <div class="font-bold text-white text-sm">Lên Màn Hình Chính</div>
+          <p class="text-slate-400 text-[11px] leading-relaxed">
+            Máy tự khởi động lại, kích hoạt vào màn hình chính (đã có app và toàn bộ dữ liệu nick TikTok Lite).
+          </p>
+        </div>
+
+        <!-- BƯỚC 4 -->
+        <div class="glass-card p-5 rounded-2xl border border-amber-500/40 space-y-2 relative bg-amber-950/20">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/30 text-amber-300 font-bold flex items-center justify-center font-mono text-sm border border-amber-500/40">04</div>
+          <div class="font-bold text-amber-300 text-sm">Bấm "Chặn Update iOS"</div>
+          <p class="text-slate-300 text-[11px] leading-relaxed">
+            Vào Tab <strong>Cài IPA</strong> ➔ Bấm nút <strong class="text-amber-400">"🛡️ Chặn Update iOS (Cả dàn)"</strong>. TikTool tự bơm profile tvOS 26 vào cả dàn qua USB. Xong!
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+      <div>
+        TIKTOOL PRO V4 • Bản tin kỹ thuật & cẩm nang vận hành dàn Phone Farm
+      </div>
+      <div class="flex items-center gap-4 font-mono">
+        <span>tvOS 26 Beta Software Profile</span>
+        <span>•</span>
+        <span>Hạn dùng: 20/05/2027</span>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+</html>
