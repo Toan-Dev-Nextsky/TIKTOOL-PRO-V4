@@ -3324,7 +3324,7 @@ class App(tk.Tk):
                                           bg=COLOR_KHO_INNER, anchor="w")
         self._ipa_no_file_lbl.pack(fill="x", padx=4, pady=4)
 
-        # --- Hàng 3: Tùy chọn ---
+        # --- Hàng 3: Tùy chọn + Chặn/Gỡ Chặn Update (gộp 1 hàng) ---
         row_opts = tk.Frame(f, bg=COLOR_KHO_BG)
         row_opts.pack(fill="x", padx=2, pady=(0, 1))
 
@@ -3342,7 +3342,7 @@ class App(tk.Tk):
 
         btn_ipa_devmode = tk.Button(
             row_opts,
-            text=f"{Icons.DEV}  Bật Developer Mode (Cả dàn)",
+            text=f"{Icons.DEV}  Dev Mode",
             font=("Segoe UI", 8, "bold"),
             bg=COLOR_BTN_ELEVATED,
             activebackground=COLOR_WHITE_BORDER,
@@ -3354,31 +3354,11 @@ class App(tk.Tk):
             highlightthickness=1,
             command=self.batch_enable_devmode_all
         )
-        btn_ipa_devmode.pack(side="right", padx=6, ipady=1, ipadx=6)
-
-        # --- Hàng 3b: Chặn / Gỡ chặn cập nhật iOS ---
-        row_noota = tk.Frame(f, bg=COLOR_KHO_BG)
-        row_noota.pack(fill="x", padx=2, pady=(0, 1))
-
-        btn_block_update = tk.Button(
-            row_noota,
-            text=f"{Icons.CANCEL}  Chặn Update iOS (Cả dàn)",
-            font=("Segoe UI", 8, "bold"),
-            bg=COLOR_BTN_ELEVATED,
-            activebackground=COLOR_WHITE_BORDER,
-            fg="#F59E0B",
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            highlightbackground=COLOR_BORDER_LIGHT,
-            highlightthickness=1,
-            command=self.batch_block_update_all
-        )
-        btn_block_update.pack(side="left", padx=6, ipady=1, ipadx=6)
+        btn_ipa_devmode.pack(side="right", padx=4, ipady=1, ipadx=5)
 
         btn_unblock_update = tk.Button(
-            row_noota,
-            text=f"{Icons.CHECK}  Gỡ Chặn Update (Cả dàn)",
+            row_opts,
+            text=f"{Icons.CHECK}  Gỡ Chặn Update",
             font=("Segoe UI", 8, "bold"),
             bg=COLOR_BTN_ELEVATED,
             activebackground=COLOR_WHITE_BORDER,
@@ -3390,7 +3370,23 @@ class App(tk.Tk):
             highlightthickness=1,
             command=self.batch_unblock_update_all
         )
-        btn_unblock_update.pack(side="right", padx=6, ipady=1, ipadx=6)
+        btn_unblock_update.pack(side="right", padx=4, ipady=1, ipadx=5)
+
+        btn_block_update = tk.Button(
+            row_opts,
+            text=f"{Icons.CANCEL}  Chặn Update iOS",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg="#F59E0B",
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_block_update_all
+        )
+        btn_block_update.pack(side="right", padx=4, ipady=1, ipadx=5)
 
         # --- Hàng 4: Nút cài (hàng riêng fill="x") ---
         self.btn_install_ipa = GradientButton(
