@@ -1281,6 +1281,28 @@ class PowerAndResetTests(unittest.TestCase):
         self.assertEqual(1, mocked_info.call_count)
         self.assertEqual(0, mocked_thread.call_count)
 
+    def test_reboot_respects_user_cancellation(self):
+        """Catches reboot running when the user cancels the confirmation dialog."""
+        app = self.make_app()
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicediagnostics.exe"), \
+             patch.object(BB_RB.messagebox, "askyesno", return_value=False), \
+             patch.object(BB_RB.threading, "Thread") as mocked_thread:
+            BB_RB.App.batch_reboot_all(app)
+
+        self.assertEqual(0, mocked_thread.call_count)
+
+    def test_shutdown_respects_user_cancellation(self):
+        """Catches shutdown running when the user cancels the confirmation dialog."""
+        app = self.make_app()
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicediagnostics.exe"), \
+             patch.object(BB_RB.messagebox, "askyesno", return_value=False), \
+             patch.object(BB_RB.threading, "Thread") as mocked_thread:
+            BB_RB.App.batch_shutdown_all(app)
+
+        self.assertEqual(0, mocked_thread.call_count)
+
     def test_erase_respects_user_cancellation(self):
         """Catches erase running when the user cancels the confirmation dialog."""
         app = self.make_app()

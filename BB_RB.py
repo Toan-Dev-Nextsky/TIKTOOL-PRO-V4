@@ -2662,6 +2662,14 @@ class App(tk.Tk):
         if not self.rows:
             messagebox.showinfo("Khởi động lại", "Không có thiết bị kết nối.")
             return
+        ans = messagebox.askyesno(
+            "XÁC NHẬN KHỞI ĐỘNG LẠI",
+            f"Bạn có chắc chắn muốn KHỞI ĐỘNG LẠI (Reboot) {len(self.rows)} thiết bị đang kết nối?",
+            icon="question",
+            default="no",
+        )
+        if not ans:
+            return
         self.log("SYSTEM", f"Bắt đầu khởi động lại {len(self.rows)} thiết bị...")
         started = 0
         for udid in list(self.rows.keys()):
@@ -2680,6 +2688,15 @@ class App(tk.Tk):
             return
         if not self.rows:
             messagebox.showinfo("Tắt nguồn", "Không có thiết bị kết nối.")
+            return
+        ans = messagebox.askyesno(
+            "XÁC NHẬN TẮT NGUỒN",
+            f"Bạn có chắc chắn muốn TẮT NGUỒN (Shutdown) {len(self.rows)} thiết bị đang kết nối?\n\n"
+            "Sau khi tắt nguồn, bạn sẽ phải bật lại thủ công bằng nút nguồn trên từng máy.",
+            icon="warning",
+            default="no",
+        )
+        if not ans:
             return
         self.log("SYSTEM", f"Bắt đầu tắt nguồn {len(self.rows)} thiết bị...")
         started = 0
