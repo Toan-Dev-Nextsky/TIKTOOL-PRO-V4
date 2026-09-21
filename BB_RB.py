@@ -3658,7 +3658,55 @@ class App(tk.Tk):
             activebackground=COLOR_KHO_BG, activeforeground=COLOR_TEXT_WHITE,
             variable=self.var_ipa_uninstall_first
         )
-        chk_uninst.pack(side="left", padx=6)
+        chk_uninst.pack(side="left", padx=(6, 8))
+
+        btn_reboot = tk.Button(
+            row_opts,
+            text=f"{Icons.REFRESH}  Khởi Động Lại",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg=COLOR_CYAN_ACCENT,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_reboot_all
+        )
+        btn_reboot.pack(side="left", padx=3, ipady=1, ipadx=5)
+
+        btn_shutdown = tk.Button(
+            row_opts,
+            text=f"{Icons.POWER}  Tắt Nguồn",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg="#9CA3AF",
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_shutdown_all
+        )
+        btn_shutdown.pack(side="left", padx=3, ipady=1, ipadx=5)
+
+        btn_erase = tk.Button(
+            row_opts,
+            text=f"{Icons.ERASE}  Xoá Tất Cả D.2",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg=COLOR_RED_ERR,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_erase_all
+        )
+        btn_erase.pack(side="left", padx=3, ipady=1, ipadx=5)
 
         btn_ipa_devmode = tk.Button(
             row_opts,
@@ -3724,67 +3772,7 @@ class App(tk.Tk):
         )
         btn_block_update.pack(side="right", padx=4, ipady=1, ipadx=5)
 
-        # --- Hàng 4: Nguồn / Reset / Erase ---
-        row_power = tk.Frame(f, bg=COLOR_KHO_BG)
-        row_power.pack(fill="x", padx=2, pady=(0, 1))
-
-        tk.Label(
-            row_power,
-            text="Nguồn & Reset: ",
-            font=("Segoe UI", 8, "bold"),
-            fg=COLOR_TEXT_MAIN,
-            bg=COLOR_KHO_BG,
-        ).pack(side="left", padx=(6, 0))
-
-        btn_erase = tk.Button(
-            row_power,
-            text=f"{Icons.ERASE}  Xoá Tất Cả D.2",
-            font=("Segoe UI", 8, "bold"),
-            bg=COLOR_BTN_ELEVATED,
-            activebackground=COLOR_WHITE_BORDER,
-            fg=COLOR_RED_ERR,
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            highlightbackground=COLOR_BORDER_LIGHT,
-            highlightthickness=1,
-            command=self.batch_erase_all
-        )
-        btn_erase.pack(side="right", padx=4, ipady=1, ipadx=5)
-
-        btn_shutdown = tk.Button(
-            row_power,
-            text=f"{Icons.POWER}  Tắt Nguồn",
-            font=("Segoe UI", 8, "bold"),
-            bg=COLOR_BTN_ELEVATED,
-            activebackground=COLOR_WHITE_BORDER,
-            fg="#9CA3AF",
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            highlightbackground=COLOR_BORDER_LIGHT,
-            highlightthickness=1,
-            command=self.batch_shutdown_all
-        )
-        btn_shutdown.pack(side="right", padx=4, ipady=1, ipadx=5)
-
-        btn_reboot = tk.Button(
-            row_power,
-            text=f"{Icons.REFRESH}  Khởi Động Lại",
-            font=("Segoe UI", 8, "bold"),
-            bg=COLOR_BTN_ELEVATED,
-            activebackground=COLOR_WHITE_BORDER,
-            fg=COLOR_CYAN_ACCENT,
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            highlightbackground=COLOR_BORDER_LIGHT,
-            highlightthickness=1,
-            command=self.batch_reboot_all
-        )
-        btn_reboot.pack(side="right", padx=4, ipady=1, ipadx=5)
-
-        # --- Hàng 5: Nút cài (hàng riêng fill="x") ---
+        # --- Hàng 4: Nút cài (hàng riêng fill="x") ---
         self.btn_install_ipa = GradientButton(
             f,
             text=f"{Icons.PACKAGE}  CÀI IPA HÀNG LOẠT (ALL)",
