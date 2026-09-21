@@ -3732,7 +3732,7 @@ class App(tk.Tk):
             row_power,
             text="Nguồn & Reset: ",
             font=("Segoe UI", 8, "bold"),
-            fg=COLOR_TEXT_MUTED,
+            fg=COLOR_TEXT_MAIN,
             bg=COLOR_KHO_BG,
         ).pack(side="left", padx=(6, 0))
 
