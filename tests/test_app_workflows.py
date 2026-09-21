@@ -1201,6 +1201,111 @@ class UpdateBlockerTests(unittest.TestCase):
         self.assertEqual(0, app.percentages[-1])
 
 
+class PowerAndResetTests(unittest.TestCase):
+    def make_app(self):
+        messages = []
+        steps = []
+        tasks = []
+        percentages = []
+        card = types.SimpleNamespace(
+            push_step=lambda text: steps.append(text),
+            set_task=lambda text: tasks.append(text),
+            set_pct=lambda pct: percentages.append(pct),
+        )
+        return types.SimpleNamespace(
+            rows={"u1": card},
+            log=lambda *args, **kwargs: messages.append((args, kwargs)),
+            operations=BB_RB.OperationRegistry(),
+            reboot_tracker=BB_RB.RebootTracker(),
+            _require_license=lambda: True,
+            messages=messages,
+            steps=steps,
+            tasks=tasks,
+            percentages=percentages,
+        )
+
+    def test_reboot_worker_uses_diagnostics_tool(self):
+        """Catches reboot using the wrong binary or command."""
+        app = self.make_app()
+        app.operations.begin("u1", "reboot")
+        calls = []
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicediagnostics.exe"), \
+             patch.object(BB_RB, "run_capture", side_effect=lambda cmd, **kw: (calls.append(list(cmd)) or (0, "ok"))):
+            BB_RB.App._reboot_worker(app, "u1", operation_reserved=True)
+
+        self.assertIn(["idevicediagnostics.exe", "-u", "u1", "restart"], calls)
+        self.assertEqual("Đã khởi động lại ✔", app.steps[-1])
+        self.assertEqual({}, app.operations.snapshot())
+        self.assertTrue(app.reboot_tracker.is_waiting("u1"))
+
+    def test_shutdown_worker_uses_shutdown_command(self):
+        """Catches shutdown using the wrong command."""
+        app = self.make_app()
+        app.operations.begin("u1", "shutdown")
+        calls = []
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicediagnostics.exe"), \
+             patch.object(BB_RB, "run_capture", side_effect=lambda cmd, **kw: (calls.append(list(cmd)) or (0, "ok"))):
+            BB_RB.App._shutdown_worker(app, "u1", operation_reserved=True)
+
+        self.assertIn(["idevicediagnostics.exe", "-u", "u1", "shutdown"], calls)
+        self.assertEqual("Đã tắt nguồn ✔", app.steps[-1])
+        self.assertEqual({}, app.operations.snapshot())
+
+    def test_erase_worker_uses_ios_erase_force(self):
+        """Catches erase using an interactive command without --force."""
+        app = self.make_app()
+        app.operations.begin("u1", "erase")
+        calls = []
+
+        with patch.object(BB_RB, "_fixed_ios_exe", return_value="ios.exe"), \
+             patch.object(BB_RB, "run_capture", side_effect=lambda cmd, **kw: (calls.append(list(cmd)) or (0, "ok"))):
+            BB_RB.App._erase_worker(app, "u1", operation_reserved=True)
+
+        self.assertIn(["ios.exe", "erase", "--force", "--udid=u1", "--nojson"], calls)
+        self.assertEqual("Đã xoá dữ liệu ✔", app.steps[-1])
+        self.assertEqual({}, app.operations.snapshot())
+        self.assertTrue(app.reboot_tracker.is_waiting("u1"))
+
+    def test_erase_requires_confirmation_and_cannot_run_without_devices(self):
+        """Catches erase starting when no device is plugged in."""
+        app = self.make_app()
+        app.rows = {}
+
+        with patch.object(BB_RB, "_ios_usable", return_value=(True, "")), \
+             patch.object(BB_RB.messagebox, "showinfo") as mocked_info, \
+             patch.object(BB_RB.threading, "Thread") as mocked_thread:
+            BB_RB.App.batch_erase_all(app)
+
+        self.assertEqual(1, mocked_info.call_count)
+        self.assertEqual(0, mocked_thread.call_count)
+
+    def test_erase_respects_user_cancellation(self):
+        """Catches erase running when the user cancels the confirmation dialog."""
+        app = self.make_app()
+
+        with patch.object(BB_RB, "_ios_usable", return_value=(True, "")), \
+             patch.object(BB_RB.messagebox, "askyesno", return_value=False), \
+             patch.object(BB_RB.threading, "Thread") as mocked_thread:
+            BB_RB.App.batch_erase_all(app)
+
+        self.assertEqual(0, mocked_thread.call_count)
+
+    def test_power_semaphore_released_on_failure(self):
+        """Catches a leaked power slot permanently shrinking batch capacity."""
+        before = BB_RB.POWER_SEMAPHORE._value
+        app = self.make_app()
+        app.operations.begin("u1", "reboot")
+
+        with patch.object(BB_RB, "which_tool", return_value="idevicediagnostics.exe"), \
+             patch.object(BB_RB, "run_capture", side_effect=RuntimeError("usb gone")):
+            BB_RB.App._reboot_worker(app, "u1", operation_reserved=True)
+
+        self.assertEqual(before, BB_RB.POWER_SEMAPHORE._value)
+        self.assertEqual({}, app.operations.snapshot())
+
+
 class CrashLogTests(unittest.TestCase):
     def make_app(self, rows=None):
         messages = []

@@ -93,6 +93,9 @@ class Icons:
     DEV = "\uE7BE"            # DeveloperTools / Diagnostic
     ARROW_RIGHT = "\uE72A"    # Forward / ArrowRight
     TRASH = "\uE74D"          # Delete
+    POWER = "\uE7E8"          # PowerButton
+    REFRESH = "\uE72C"        # Refresh / Reboot
+    ERASE = "\uE74C"          # Erase / Remove
 
 # BUNDLE IDS TIKTOK & PATHS
 BIDS_TIKTOK = ["com.ss.iphone.ugc.tiktok", "com.zhiliaoapp.musically", "com.ss.iphone.ugc.Aweme"]
@@ -141,6 +144,9 @@ LANG_SEMAPHORE = threading.Semaphore(32)      # Đổi ngôn ngữ song song to�
 DEVMODE_SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
 NOOTA_SEMAPHORE = threading.Semaphore(32)  # Chặn/gỡ chặn update iOS song song (nhẹ, không reboot)
 CRASHLOG_SEMAPHORE = threading.Semaphore(8)  # Xóa crash log song song, giới hạn để tránh nghẽn AFC/USB
+# Nguồn/Reset/Erase đều gây mất kết nối USB tạm thời; giới hạn song song để polling
+# không bị quá tải và tránh xung đột với Backup/Restore đang chạy.
+POWER_SEMAPHORE = threading.Semaphore(MAX_CONCURRENCY)
 
 # Auto Activate chạy sau khi cả đợt restore đã hoàn tất. 16 máy vẫn chạy song song,
 # nhưng chỉ sau khi mỗi máy xuất hiện ổn định trên USB.
@@ -2632,6 +2638,213 @@ class App(tk.Tk):
             if operation_reserved:
                 self.operations.end(udid, "clear_crashlog")
 
+    # ================== REBOOT / SHUTDOWN / ERASE (Nguồn & Reset Thiết Bị) ==================
+    def _launch_power_worker(self, udid, kind, operation_kind, worker_fn):
+        if not self._require_license():
+            return False
+        if not self._begin_operation(udid, operation_kind):
+            return False
+        threading.Thread(
+            target=worker_fn,
+            args=(udid, True),
+            daemon=True,
+        ).start()
+        return True
+
+    def batch_reboot_all(self):
+        """Khởi động lại toàn bộ dàn máy đang cắm."""
+        if not self._require_license():
+            return
+        exe = which_tool("idevicediagnostics")
+        if not exe:
+            messagebox.showerror("Khởi động lại", "Không tìm thấy công cụ idevicediagnostics.exe.")
+            return
+        if not self.rows:
+            messagebox.showinfo("Khởi động lại", "Không có thiết bị kết nối.")
+            return
+        self.log("SYSTEM", f"Bắt đầu khởi động lại {len(self.rows)} thiết bị...")
+        started = 0
+        for udid in list(self.rows.keys()):
+            if self._launch_power_worker(udid, "restart", "reboot", self._reboot_worker):
+                started += 1
+        if started == 0:
+            self.log("SYSTEM", "Tất cả các máy đều đang bận thao tác khác.")
+
+    def batch_shutdown_all(self):
+        """Tắt nguồn toàn bộ dàn máy đang cắm."""
+        if not self._require_license():
+            return
+        exe = which_tool("idevicediagnostics")
+        if not exe:
+            messagebox.showerror("Tắt nguồn", "Không tìm thấy công cụ idevicediagnostics.exe.")
+            return
+        if not self.rows:
+            messagebox.showinfo("Tắt nguồn", "Không có thiết bị kết nối.")
+            return
+        self.log("SYSTEM", f"Bắt đầu tắt nguồn {len(self.rows)} thiết bị...")
+        started = 0
+        for udid in list(self.rows.keys()):
+            if self._launch_power_worker(udid, "shutdown", "shutdown", self._shutdown_worker):
+                started += 1
+        if started == 0:
+            self.log("SYSTEM", "Tất cả các máy đều đang bận thao tác khác.")
+
+    def batch_erase_all(self):
+        """Xoá tất cả nội dung & cài đặt (Reset dòng 2) cho toàn bộ dàn máy.
+
+        THẬN TRỌNG: Thao tác này xoá sạch máy, mất hết dữ liệu trên thiết bị.
+        Tệp backup trên PC không bị ảnh hưởng.
+        """
+        if not self._require_license():
+            return
+        ok, msg = _ios_usable()
+        if not ok:
+            messagebox.showerror("Xoá tất cả dữ liệu", f"Không tìm thấy ios.exe hợp lệ.\n\n{msg}")
+            return
+        if not self.rows:
+            messagebox.showinfo("Xoá tất cả dữ liệu", "Không có thiết bị kết nối.")
+            return
+        ans = messagebox.askyesno(
+            "XÁC NHẬN XOÁ TOÀN BỘ DỮ LIỆU",
+            f"Bạn chuẩn bị XOÁ TẤT CẢ NỘI DUNG & CÀI ĐẶT cho {len(self.rows)} thiết bị.\n\n"
+            "• Máy sẽ trở về màn hình Setup Hello.\n"
+            "• File backup trên máy tính KHÔNG bị xoá.\n"
+            "• Không thể hoàn tác sau khi lệnh gửi đi.\n\n"
+            "Bạn có chắc chắn muốn tiếp tục?",
+            icon="warning",
+            default="no",
+        )
+        if not ans:
+            return
+        self.log("SYSTEM", f"Bắt đầu xoá tất cả dữ liệu {len(self.rows)} thiết bị...")
+        started = 0
+        for udid in list(self.rows.keys()):
+            if self._launch_power_worker(udid, "erase", "erase", self._erase_worker):
+                started += 1
+        if started == 0:
+            self.log("SYSTEM", "Tất cả các máy đều đang bận thao tác khác.")
+
+    def _reboot_worker(self, udid, operation_reserved=False):
+        row = self.rows.get(udid)
+        if not POWER_SEMAPHORE.acquire(timeout=1):
+            if row:
+                row.push_step("Chờ slot nguồn...")
+            POWER_SEMAPHORE.acquire()
+        try:
+            exe = which_tool("idevicediagnostics")
+            if not exe:
+                self.log(udid, "Thiếu công cụ idevicediagnostics.exe", is_err=True)
+                if row:
+                    row.push_step("Thiếu diagnostics tool")
+                return
+            if row:
+                row.push_step("Đang khởi động lại...")
+                row.set_pct(30)
+            self.log(udid, "Gửi lệnh khởi động lại thiết bị...")
+            cmd = [exe, "-u", udid, "restart"]
+            rc, out = run_capture(cmd, timeout=15)
+            out = (out or "").strip()
+            if rc == 0:
+                self.log(udid, "✓ Đã gửi lệnh khởi động lại.", is_ok=True)
+                if row:
+                    row.set_pct(100)
+                    row.push_step("Đã khởi động lại ✔")
+                # Khóa card trong 45s để polling không xoá card đang reboot.
+                self.reboot_tracker.mark(udid, timeout=45.0)
+            else:
+                self.log(udid, f"Khởi động lại thất bại (exit {rc}): {out}", is_err=True)
+                if row:
+                    row.set_pct(0)
+                    row.push_step(f"Lỗi khởi động lại (rc={rc})")
+        except Exception as exc:
+            self.log(udid, f"Ngoại lệ khi khởi động lại: {exc}", is_err=True)
+            if row:
+                row.push_step("Lỗi khởi động lại")
+        finally:
+            POWER_SEMAPHORE.release()
+            if operation_reserved:
+                self.operations.end(udid, "reboot")
+
+    def _shutdown_worker(self, udid, operation_reserved=False):
+        row = self.rows.get(udid)
+        if not POWER_SEMAPHORE.acquire(timeout=1):
+            if row:
+                row.push_step("Chờ slot nguồn...")
+            POWER_SEMAPHORE.acquire()
+        try:
+            exe = which_tool("idevicediagnostics")
+            if not exe:
+                self.log(udid, "Thiếu công cụ idevicediagnostics.exe", is_err=True)
+                if row:
+                    row.push_step("Thiếu diagnostics tool")
+                return
+            if row:
+                row.push_step("Đang tắt nguồn...")
+                row.set_pct(30)
+            self.log(udid, "Gửi lệnh tắt nguồn thiết bị...")
+            cmd = [exe, "-u", udid, "shutdown"]
+            rc, out = run_capture(cmd, timeout=15)
+            out = (out or "").strip()
+            if rc == 0:
+                self.log(udid, "✓ Đã gửi lệnh tắt nguồn.", is_ok=True)
+                if row:
+                    row.set_pct(100)
+                    row.push_step("Đã tắt nguồn ✔")
+            else:
+                self.log(udid, f"Tắt nguồn thất bại (exit {rc}): {out}", is_err=True)
+                if row:
+                    row.set_pct(0)
+                    row.push_step(f"Lỗi tắt nguồn (rc={rc})")
+        except Exception as exc:
+            self.log(udid, f"Ngoại lệ khi tắt nguồn: {exc}", is_err=True)
+            if row:
+                row.push_step("Lỗi tắt nguồn")
+        finally:
+            POWER_SEMAPHORE.release()
+            if operation_reserved:
+                self.operations.end(udid, "shutdown")
+
+    def _erase_worker(self, udid, operation_reserved=False):
+        row = self.rows.get(udid)
+        if not POWER_SEMAPHORE.acquire(timeout=1):
+            if row:
+                row.push_step("Chờ slot xoá dữ liệu...")
+            POWER_SEMAPHORE.acquire()
+        try:
+            ios_exe = _fixed_ios_exe()
+            if not ios_exe:
+                self.log(udid, "Thiếu công cụ ios.exe", is_err=True)
+                if row:
+                    row.push_step("Thiếu ios tool")
+                return
+            if row:
+                row.push_step("Đang xoá toàn bộ dữ liệu...")
+                row.set_pct(30)
+            self.log(udid, "Gửi lệnh xoá tất cả nội dung & cài đặt (Erase All Content & Settings)...")
+            cmd = [ios_exe, "erase", "--force", f"--udid={udid}", "--nojson"]
+            rc, out = run_capture(cmd, timeout=120)
+            out = (out or "").strip()
+            if rc == 0:
+                self.log(udid, "✓ Đã gửi lệnh xoá dữ liệu. Máy sẽ tự động reboot và về màn hình Hello.", is_ok=True)
+                if row:
+                    row.set_pct(100)
+                    row.push_step("Đã xoá dữ liệu ✔")
+                # Máy sẽ mất kết nối trong thời gian dài; khóa card 180s.
+                self.reboot_tracker.mark(udid, timeout=180.0)
+            else:
+                self.log(udid, f"Xoá dữ liệu thất bại (exit {rc}): {out}", is_err=True)
+                if row:
+                    row.set_pct(0)
+                    row.push_step(f"Lỗi xoá dữ liệu (rc={rc})")
+        except Exception as exc:
+            self.log(udid, f"Ngoại lệ khi xoá dữ liệu: {exc}", is_err=True)
+            if row:
+                row.push_step("Lỗi xoá dữ liệu")
+        finally:
+            POWER_SEMAPHORE.release()
+            if operation_reserved:
+                self.operations.end(udid, "erase")
+
     def _batch_activate_worker(self, udid, set_language=None, language_preset=None, operation_reserved=False, operation_kind="activate"):
         """Worker xử lý kích hoạt từng thiết bị: 3 giai đoạn Activate → Skip Setup → Set Lang"""
         with self.lock:
@@ -3511,7 +3724,67 @@ class App(tk.Tk):
         )
         btn_block_update.pack(side="right", padx=4, ipady=1, ipadx=5)
 
-        # --- Hàng 4: Nút cài (hàng riêng fill="x") ---
+        # --- Hàng 4: Nguồn / Reset / Erase ---
+        row_power = tk.Frame(f, bg=COLOR_KHO_BG)
+        row_power.pack(fill="x", padx=2, pady=(0, 1))
+
+        tk.Label(
+            row_power,
+            text="Nguồn & Reset: ",
+            font=("Segoe UI", 8, "bold"),
+            fg=COLOR_TEXT_MUTED,
+            bg=COLOR_KHO_BG,
+        ).pack(side="left", padx=(6, 0))
+
+        btn_erase = tk.Button(
+            row_power,
+            text=f"{Icons.ERASE}  Xoá Tất Cả D.2",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg=COLOR_RED_ERR,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_erase_all
+        )
+        btn_erase.pack(side="right", padx=4, ipady=1, ipadx=5)
+
+        btn_shutdown = tk.Button(
+            row_power,
+            text=f"{Icons.POWER}  Tắt Nguồn",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg="#9CA3AF",
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_shutdown_all
+        )
+        btn_shutdown.pack(side="right", padx=4, ipady=1, ipadx=5)
+
+        btn_reboot = tk.Button(
+            row_power,
+            text=f"{Icons.REFRESH}  Khởi Động Lại",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg=COLOR_CYAN_ACCENT,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.batch_reboot_all
+        )
+        btn_reboot.pack(side="right", padx=4, ipady=1, ipadx=5)
+
+        # --- Hàng 5: Nút cài (hàng riêng fill="x") ---
         self.btn_install_ipa = GradientButton(
             f,
             text=f"{Icons.PACKAGE}  CÀI IPA HÀNG LOẠT (ALL)",
