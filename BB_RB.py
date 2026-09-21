@@ -14,7 +14,7 @@ import queue
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, simpledialog
 from tiktool_core import (
     APP_VERSION,
     LIBIMOBILE_VERSION,
@@ -107,6 +107,10 @@ REQ_BACKUP_FILES = ["Manifest.db", "Info.plist", "Manifest.plist"]
 # redirect kênh cập nhật sang catalog tvOS (iPhone không bao giờ thấy update iOS).
 NOOTA_PROFILE_FILENAME = "NOOTA_tvOS26_signed.mobileconfig"
 NOOTA_PROFILE_IDENTIFIER = "com.apple.tvos.developersoftware"
+
+# Mật khẩu xác nhận bắt buộc trước khi Xoá Tất Cả Nội Dung & Cài Đặt (Reset dòng 2)
+# hàng loạt, chống bấm nhầm gây mất dữ liệu không thể hoàn tác trên thiết bị.
+ERASE_CONFIRM_PASSWORD = "k"
 
 # PRESETS NGÔN NGỮ PHỔ BIẾN
 LANG_PRESETS = [
@@ -2732,6 +2736,15 @@ class App(tk.Tk):
             default="no",
         )
         if not ans:
+            return
+        pwd = simpledialog.askstring(
+            "NHẬP MẬT KHẨU XÁC NHẬN",
+            "Nhập mật khẩu xác nhận để tiếp tục Xoá Tất Cả Dữ Liệu:",
+            show="*",
+            parent=self,
+        )
+        if pwd is None or pwd.strip().lower() != ERASE_CONFIRM_PASSWORD.lower():
+            messagebox.showerror("Xoá tất cả dữ liệu", "Mật khẩu xác nhận không đúng. Đã huỷ thao tác.")
             return
         self.log("SYSTEM", f"Bắt đầu xoá tất cả dữ liệu {len(self.rows)} thiết bị...")
         started = 0

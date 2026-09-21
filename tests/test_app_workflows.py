@@ -1212,7 +1212,7 @@ class PowerAndResetTests(unittest.TestCase):
             set_task=lambda text: tasks.append(text),
             set_pct=lambda pct: percentages.append(pct),
         )
-        return types.SimpleNamespace(
+        app = types.SimpleNamespace(
             rows={"u1": card},
             log=lambda *args, **kwargs: messages.append((args, kwargs)),
             operations=BB_RB.OperationRegistry(),
@@ -1223,6 +1223,12 @@ class PowerAndResetTests(unittest.TestCase):
             tasks=tasks,
             percentages=percentages,
         )
+        app._begin_operation = types.MethodType(BB_RB.App._begin_operation, app)
+        app._launch_power_worker = types.MethodType(BB_RB.App._launch_power_worker, app)
+        app._reboot_worker = types.MethodType(BB_RB.App._reboot_worker, app)
+        app._shutdown_worker = types.MethodType(BB_RB.App._shutdown_worker, app)
+        app._erase_worker = types.MethodType(BB_RB.App._erase_worker, app)
+        return app
 
     def test_reboot_worker_uses_diagnostics_tool(self):
         """Catches reboot using the wrong binary or command."""
@@ -1313,6 +1319,33 @@ class PowerAndResetTests(unittest.TestCase):
             BB_RB.App.batch_erase_all(app)
 
         self.assertEqual(0, mocked_thread.call_count)
+
+    def test_erase_requires_correct_confirmation_password(self):
+        """Catches erase running when the confirmation password is wrong or missing."""
+        app = self.make_app()
+
+        for wrong_pwd in ("", "wrong", None):
+            with patch.object(BB_RB, "_ios_usable", return_value=(True, "")), \
+                 patch.object(BB_RB.messagebox, "askyesno", return_value=True), \
+                 patch.object(BB_RB.simpledialog, "askstring", return_value=wrong_pwd), \
+                 patch.object(BB_RB.messagebox, "showerror") as mocked_error, \
+                 patch.object(BB_RB.threading, "Thread") as mocked_thread:
+                BB_RB.App.batch_erase_all(app)
+
+            self.assertEqual(0, mocked_thread.call_count)
+            self.assertEqual(1, mocked_error.call_count)
+
+    def test_erase_proceeds_with_correct_confirmation_password(self):
+        """Catches the correct password being rejected due to case or whitespace handling."""
+        app = self.make_app()
+
+        with patch.object(BB_RB, "_ios_usable", return_value=(True, "")), \
+             patch.object(BB_RB.messagebox, "askyesno", return_value=True), \
+             patch.object(BB_RB.simpledialog, "askstring", return_value=" K "), \
+             patch.object(BB_RB.threading, "Thread") as mocked_thread:
+            BB_RB.App.batch_erase_all(app)
+
+        self.assertEqual(1, mocked_thread.call_count)
 
     def test_power_semaphore_released_on_failure(self):
         """Catches a leaked power slot permanently shrinking batch capacity."""
