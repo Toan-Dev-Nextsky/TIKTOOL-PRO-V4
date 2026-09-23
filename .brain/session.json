@@ -1,21 +1,27 @@
 {
-  "updated_at": "2026-09-23T10:20:00+07:00",
+  "updated_at": "2026-09-24T02:37:29+09:00",
   "working_on": {
-    "feature": "Astro Companion UX (bot đồng hành)",
-    "task": "Sửa lỗi bot Astro hiển thị sai trạng thái cho các thao tác chưa được ánh xạ, thêm lời thoại luân phiên và hoạt ảnh riêng theo từng thao tác, sửa tương tác bấm; đồng bộ phiên bản lên 4.9.8",
+    "feature": "Restore NTFS permissions and transfer reliability",
+    "task": "Diagnose restore batch failures after Windows reinstall; repair safe backup transfer, permission diagnostics, retry behavior, and accurate per-batch counts.",
     "status": "completed",
     "files": [
       "BB_RB.py",
       "tiktool_core.py",
       "tests/test_app_workflows.py",
+      "tests/test_tiktool_core.py",
       "CHANGELOG.md",
       ".brain/brain.json",
       ".brain/session.json",
       ".brain/handover.md"
     ],
-    "notes": "Ánh xạ đủ 14 operation kind vào trạng thái bot, thêm 6 trạng thái mới (devmode, crashlog, noota, erase, shutdown, power), lời thoại luân phiên mỗi ~6.4s, câu đùa giữ 3s khi bấm, hoạt ảnh riêng theo trạng thái vẽ thuần Canvas (giữ zero-pip), bổ sung % cho backup. APP_VERSION nâng 4.9.6 -> 4.9.8. Kiểm thử 113/113 PASS."
+    "notes": "Root cause: old NTFS ACLs referenced the previous Windows SID; current account lacked Modify/Delete. User granted Modify recursively on E: and F:, with only protected System Volume Information failures (E: 8, F: 6). Code now uses unique temporary Info.plist files with cleanup and clearer PermissionError, collision-safe/permission-retrying backup moves, ownership-aware cross-volume cleanup, explicit restore-success/move-failure logging, and a locked per-batch moved counter. Operational log 2026-09-24: two 9-device batches, 18/18 restore and move successes; first batch auto-activated 9/9. 119/119 unit tests passed. One prior 228-store batch left eight successful-phone-restore backups in source A and one backup that did not begin restore due to Info.plist permission; check handover before retrying those devices. settings.json contains user-specific store paths and is intentionally excluded from commits."
   },
   "pending_tasks": [
+    {
+      "task": "Reconcile the earlier 228-store batch after NTFS ACL repair: move the eight backups whose iPhone restores succeeded but whose transfers failed; rerun only the device whose restore never started.",
+      "priority": "high",
+      "notes": "The source backups were structurally valid at last inspection. One failed preparation left an older Info.plist.tmp file; do not confuse it with the current Info.plist."
+    },
     {
       "task": "Theo dõi vận hành thực tế dàn 14-16 máy trong các ca nạp phôi khối lượng lớn",
       "priority": "low",
@@ -24,61 +30,109 @@
   ],
   "recent_changes": [
     {
+      "timestamp": "2026-09-24T02:37:29+09:00",
+      "type": "restore_ntfs_permissions_transfer_reliability",
+      "description": "Diagnosed post-Windows-reinstall WinError 5 as stale NTFS SID permissions. Added atomic unique Info.plist temp files and actionable permission error, collision-safe backup move with bounded PermissionError retry and ownership-safe cross-volume cleanup, and locked per-batch transfer count. User repaired ACLs on E:/F:. Two subsequent nine-device batches logged 18/18 successful restores and moves; first batch activated 9/9. 119/119 tests passed.",
+      "files": [
+        "BB_RB.py",
+        "tiktool_core.py",
+        "tests/test_app_workflows.py",
+        "tests/test_tiktool_core.py",
+        "CHANGELOG.md"
+      ]
+    },
+    {
       "timestamp": "2026-09-23T10:20:00+07:00",
       "type": "astro_companion_ux_upgrade",
       "description": "Nâng cấp bot Astro (AstroBotCompanion) lên bản 4.9.8: mở rộng STATE_STYLES với 6 trạng thái mới (devmode, crashlog, noota, erase, shutdown, power) và tuple nhiều câu mỗi trạng thái; ánh xạ đầy đủ 14 operation kind trong _resolve_mascot_state (thứ tự ưu tiên erase > restore > install_ipa > noota > devmode > crashlog > activate > backup > shutdown > power > auto_activate > alert > idle); đếm active_count và tiến độ cho các trạng thái mới, thêm % cho backup; lời thoại luân phiên qua ROTATE_EVERY_TICKS = 80 (~6.4s) và _rotate_message(); sửa _poke giữ câu đùa POKE_HOLD_SECONDS = 3.0 và mở rộng POKE_LINES lên 12 câu; thêm ANIMATED_STATES với hoạt ảnh riêng theo thao tác (vòng xoay Dev Mode, vệt quét crash log, cung khiên NOOTA, khung cảnh báo Reset, mắt mờ dần khi tắt nguồn, điểm dữ liệu backup) vẽ thuần Canvas giữ zero-pip; sửa nháy mắt trong trạng thái activate; nâng APP_VERSION 4.9.6 -> 4.9.8; thêm 6 test trong MascotStateTests (113/113 PASS).",
-      "files": ["BB_RB.py", "tiktool_core.py", "tests/test_app_workflows.py", "CHANGELOG.md"]
+      "files": [
+        "BB_RB.py",
+        "tiktool_core.py",
+        "tests/test_app_workflows.py",
+        "CHANGELOG.md"
+      ]
     },
     {
       "timestamp": "2026-09-20T14:25:00+07:00",
       "type": "doc_update_block_ota_tailwind4",
       "description": "Cập nhật toàn bộ kiến thức, giải đáp thắc mắc về cơ chế Chặn Update iOS tvOS 26 Beta, mốc hạn RemovalDate 20/05/2027, phân tích an toàn dữ liệu phôi TikTok Lite (0% xung đột) vào Chương 8 của TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html và tạo tài liệu chuyên biệt CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html bằng Tailwind CSS v4.",
-      "files": ["TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html", "CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html"]
+      "files": [
+        "TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html",
+        "CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html"
+      ]
     },
     {
       "timestamp": "2026-09-20T11:00:00+07:00",
       "type": "batch_block_unblock_ios_update",
       "description": "Tích hợp tính năng Chặn & Gỡ Chặn cập nhật iOS hàng loạt cho cả dàn iPhone qua USB: trích xuất profile Apple tvOS 26 Beta Software Profile đã ký CMS (RemovalDate: 2027-05-20) từ cache 3uTools, triển khai hàm worker _block_update_worker, _unblock_update_worker, batch launcher batch_block_update_all và batch_unblock_update_all qua ios.exe profile; thêm semaphore NOOTA_SEMAPHORE; bổ sung 2 nút điều khiển 'Chặn Update iOS (Cả dàn)' và 'Gỡ Chặn Update (Cả dàn)' trong Tab Cài IPA.",
-      "files": ["BB_RB.py", "NOOTA_tvOS26_signed.mobileconfig", "CHANGELOG.md"]
+      "files": [
+        "BB_RB.py",
+        "NOOTA_tvOS26_signed.mobileconfig",
+        "CHANGELOG.md"
+      ]
     },
     {
       "timestamp": "2026-09-12T19:40:00+07:00",
       "type": "batch_developer_mode_engine",
       "description": "Tích hợp công cụ mới idevicedevmodectl.exe vào BB_RB.py: thêm nút DEV MODE (ALL) trên thanh điều khiển Hàng 1 và nút Bật Developer Mode (Cả dàn) trong tab Cài IPA. Xử lý thông minh: bỏ qua iOS < 16, nhận diện máy đã bật, tự động khởi động lại và xác nhận với máy không mật khẩu, mở sẵn Cài đặt với máy có passcode; bổ sung 4 unit tests mới (tổng 65 tests).",
-      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
+      "files": [
+        "BB_RB.py",
+        "tests/test_app_workflows.py"
+      ]
     },
     {
       "timestamp": "2026-09-12T19:05:00+07:00",
       "type": "fix_ui_stream_log_flooding_v14",
       "description": "Khắc phục triệt để lỗi giao diện chạy loạn và đơ hàng đợi do idevicebackup2 v1.4.0 in tiến độ 4 dòng VT100: sửa _parse_any_percent bỏ qua dòng tiến độ file con (thập phân và KB/MB), sửa _should_log_stream_line chặn lặp pct == last và bỏ qua dòng Sending/Receiving, thêm throttling last_pct trong callback on_line, lọc ANSI_ESCAPE_RE trong tiktool_core.py; giảm 99.4% log (43.761 dòng -> 281 dòng, 3.36 MB -> 24.5 KB).",
-      "files": ["BB_RB.py", "tiktool_core.py", "tests/test_app_workflows.py", "tests/test_tiktool_core.py"]
+      "files": [
+        "BB_RB.py",
+        "tiktool_core.py",
+        "tests/test_app_workflows.py",
+        "tests/test_tiktool_core.py"
+      ]
     },
     {
       "timestamp": "2026-09-12T18:51:00+07:00",
       "type": "upgrade_libimobiledevice_v14_suite",
       "description": "Nâng cấp toàn bộ 45 binary .exe và thư viện .dll từ jrjr/libimobile-suite-latest_w64 (v1.4.0-9-gfa0f791) thay thế bản 1.3.0-git (2020), nâng cấp OpenSSL 3.x, Zstandard, Brotli, sửa lỗi tính dung lượng đĩa trống Windows; tạo bản backup tại backup_libimobiledevice_20260912_185131.",
-      "files": ["c:/TIKTOOL PRO V4/*.exe", "c:/TIKTOOL PRO V4/*.dll"]
+      "files": [
+        "c:/TIKTOOL PRO V4/*.exe",
+        "c:/TIKTOOL PRO V4/*.dll"
+      ]
     },
     {
       "timestamp": "2026-09-11T20:20:00+07:00",
       "type": "truthful_ipa_install_progress",
       "description": "Sửa install_ipa để không gọi preflight là Đang chép file và không kế thừa 100% từ uninstall: reset 0%, hiển thị Khởi tạo cài đặt, chỉ hiển thị Đang chép khi nhận stdout Copying, rc=0 mới đặt 100%; thêm 2 regression tests.",
-      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
+      "files": [
+        "BB_RB.py",
+        "tests/test_app_workflows.py"
+      ]
     },
     {
       "timestamp": "2026-09-11T19:50:00+07:00",
       "type": "astro_install_state",
       "description": "Bổ sung Astro state install cho tác vụ install_ipa, hiển thị số máy và tiến độ trung bình trong khi cài IPA.",
-      "files": ["BB_RB.py", "tests/test_app_workflows.py"]
+      "files": [
+        "BB_RB.py",
+        "tests/test_app_workflows.py"
+      ]
     },
     {
       "timestamp": "2026-09-11T17:20:00+07:00",
       "type": "grid_3_column_ipa_layout",
       "description": "Tái thiết kế toàn diện _refresh_ipa_list trong BB_RB.py sang dạng lưới Grid 3 cột (uniform='ipa_col'): giảm 64% chiều cao dọc, tự động sắp xếp theo thứ tự Slot 01->10, thẻ card mini có viền màu phân cấp, click mọi vị trí trên card để toggle checkbox.",
-      "files": ["BB_RB.py"]
+      "files": [
+        "BB_RB.py"
+      ]
     }
   ],
   "errors_encountered": [
+    {
+      "error": "After Windows reinstall, restores on the source NTFS volume failed to replace Info.plist or move the restored backup with WinError 5; another run reported WinError 183 for a pre-existing destination. Batch completion banner also undercounted successful moves while UI callbacks were queued.",
+      "solution": "User granted current account Modify recursively on E: and F: (only System Volume Information entries were denied). Code now creates/cleans unique Info.plist temps and explains permission failures, retries same-volume moves on temporary access denial, chooses collision-free names, protects unrelated destinations during cross-volume cleanup, logs restore success separately from transfer success, and counts moves synchronously per batch. Verified 18/18 restore/move successes in two later batches and 119/119 tests.",
+      "resolved": true
+    },
     {
       "error": "Bot Astro hiển thị sai trạng thái: các thao tác devmode, clear_crashlog, block_update/unblock_update, erase, shutdown, reboot không được ánh xạ trong _resolve_mascot_state nên rơi vào nhánh rảnh, bot báo 'Sếp bấm nút là nạp ngay!' trong lúc dàn máy đang bận",
       "solution": "Mở rộng _resolve_mascot_state với đủ 14 operation kind và thứ tự ưu tiên mới; thêm 6 trạng thái tương ứng vào STATE_STYLES kèm nhánh đếm active_count trong _refresh_mascot_state; thêm test test_all_operation_kinds_map_to_dedicated_states để chặn tái phát.",
@@ -111,6 +165,10 @@
     }
   ],
   "decisions_made": [
+    {
+      "decision": "Keep backup transfers non-destructive on collision or permission failure and do not automatically rewrite volume ACLs from the application.",
+      "reason": "Backup data and Windows permissions belong to the operator. The app should preserve the source, explain the required Modify right, and retry only bounded transient errors."
+    },
     {
       "decision": "Nâng cấp lên bộ suite jrjr v1.4.0-9 thay vì giữ bản 1.3.0-git",
       "reason": "Bộ suite 1.4.0-9 mới nhất sửa lỗi tính toán đĩa trống trên Windows, hỗ trợ trọn vẹn iOS 16-18+, nâng cấp OpenSSL 3.x và Zstandard giải nén tốc độ cao cho dàn 14-16 máy."

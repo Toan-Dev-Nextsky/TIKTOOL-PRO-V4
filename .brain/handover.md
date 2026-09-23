@@ -1,14 +1,32 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-23 10:20:00 (GMT+7)  
+**Thời gian cập nhật**: 2026-09-24 02:37:35 (GMT+9)
 **Phiên bản hiện tại**: `4.9.8 Astro Companion UX Edition`  
-**Trạng thái**: Sẵn sàng hoạt động trong sản xuất (Production Ready) — Phiên bản này nâng cấp toàn diện bot đồng hành Astro (phản ánh đúng mọi thao tác, lời thoại luân phiên, hoạt ảnh riêng theo thao tác) và đồng bộ số phiên bản về `4.9.8`; toàn bộ **113/113 tests** kiểm thử tự động PASS 100%.
+**Trạng thái**: Bản sửa độ tin cậy Restore đã hoàn tất; kiểm thử tự động **119/119 PASS**. Tài khoản Windows hiện tại đã được cấp Modify trên E: và F:. Còn việc đối soát thủ công các backup của một đợt trước đã restore trên iPhone nhưng nằm lại Kho A.
+
+---
+
+## ✅ PHIÊN 2026-09-24 — SỬA LỖI QUYỀN NTFS, CHUYỂN KHO VÀ BỘ ĐẾM RESTORE
+
+* **Nguyên nhân `WinError 5`**: Sau khi cài lại Windows, tài khoản local mới có SID mới. Các kho NTFS cũ giữ ACL trỏ tới SID trước đó; quyền Read/Write không đủ để thay `Info.plist` atomic hoặc đổi tên/xóa thư mục backup. Tài khoản hiện tại được cấp Modify đệ quy trên E: và F: bằng `icacls /grant ... /T /C /L /Q`. Các từ chối còn lại ở `System Volume Information` là vùng hệ thống, không phải backup.
+* **Các lỗi được sửa trong mã**:
+  - `tiktool_core._write_info_bytes()` dùng temporary file duy nhất, dọn tệp tạm và đưa thông báo hướng dẫn Modify khi Windows từ chối `os.replace()`.
+  - Thêm `move_restored_backup()` để đổi tên cùng volume an toàn, chọn tên đích khác khi trùng/race, thử lại quyền truy cập bị từ chối tối đa 9 lần và dùng copy đã fingerprint khi khác volume.
+  - Sửa nhánh copy khác volume chỉ cleanup đích nếu lượt chạy đã tạo đích đó.
+  - `BB_RB.App._restore_worker()` phân biệt rõ restore trên iPhone thành công với việc chuyển backup thất bại; bộ đếm theo đợt cập nhật đồng bộ để banner không báo thiếu máy khi UI queue trễ.
+* **Kết quả thực tế**: Log `tiktool-20260924-021205.log` có 18/18 `Restore Successful`, 18/18 chuyển kho, không có lỗi chuẩn bị/chuyển kho; 9/9 Batch Activate ở đợt đầu thành công. Banner 8 máy trong đợt 9 máy là lỗi bộ đếm và đã được sửa.
+* **Kiểm thử**: 119/119 unit tests PASS. Có test cho đích trùng/race, quyền bị từ chối tạm thời/vĩnh viễn, cleanup temporary và banner khi UI queue trễ.
+* **Ảnh hưởng dữ liệu / việc còn lại**: Mã chỉ ghi `Info.plist` khi gắn UDID đích; payload backup không bị sửa bởi helper. Tám backup của đợt trước restore thành công trên điện thoại nhưng chuyển kho thất bại vẫn ở Kho A và `Info.plist` có thể mang UDID đích. Một backup bị từ chối lúc chuẩn bị còn tệp tạm `Info.plist.tmp`; `Info.plist` gốc vẫn đọc được và backup qua kiểm tra cấu trúc. Sau khi cấp quyền, cần chuyển tám backup còn lại sang kho đối diện và chỉ chạy lại máy chưa restore. Các đường dẫn/cấu hình `settings.json` thuộc người dùng, không đưa vào commit.
 
 ---
 
 ## 📍 ĐANG LÀM & TIẾN ĐỘ TỔNG THỂ
-* **Tác vụ vừa hoàn tất (phiên 2026-09-23)**: 
+* **Tác vụ vừa hoàn tất (phiên 2026-09-24)**:
+  1. Điều tra và sửa lỗi Restore `WinError 5`/`WinError 183` sau khi cài lại Windows; giữ source backup an toàn khi chuyển kho thất bại.
+  2. Sửa bộ đếm/banner Restore bị thiếu một máy do UI queue cập nhật trễ.
+  3. Cấp quyền Modify trên E:/F: cho tài khoản hiện tại; xác nhận 18/18 restore + chuyển kho thành công ở hai đợt, Activate 9/9; 119/119 tests PASS.
+* **Tác vụ hoàn tất trước đó (phiên 2026-09-23)**:
   1. Sửa lỗi bot Astro hiển thị sai trạng thái cho các thao tác chưa được ánh xạ (`devmode`, `clear_crashlog`, `block_update`/`unblock_update`, `erase`, `shutdown`, `reboot`).
   2. Thêm 6 trạng thái mới, lời thoại luân phiên và hoạt ảnh riêng theo từng thao tác; sửa tương tác bấm vào bot.
   3. Đồng bộ phiên bản: `APP_VERSION` nâng từ `4.9.6` lên `4.9.8` (khắc phục lệch giữa mã nguồn và tài liệu).
@@ -20,6 +38,7 @@
   - Giai đoạn 5: Tự động hóa Gỡ chặn Update qua `ios.exe profile remove` ✅ (Hoàn tất 2026-09-20)
   - Giai đoạn 6: Kiểm thử tự động (84/84 PASS) & Lưu trữ bộ nhớ vĩnh viễn (`/save_brain`) ✅ (Hoàn tất 2026-09-20)
   - Giai đoạn 7: Nâng cấp bot đồng hành Astro (trạng thái đầy đủ + lời thoại luân phiên + hoạt ảnh riêng) & đồng bộ phiên bản 4.9.8 ✅ (Hoàn tất 2026-09-23)
+  - Giai đoạn 8: Sửa độ tin cậy Restore NTFS/chuyển kho, bộ đếm theo đợt và lưu kết quả bàn giao ✅ (Hoàn tất 2026-09-24)
 
 ---
 

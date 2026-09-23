@@ -2,6 +2,18 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Restore Transfer Reliability Maintenance] - 2026-09-24
+
+### 🛠️ Khắc Phục Quyền NTFS Sau Khi Cài Lại Windows
+- Xác định `WinError 5` trong luồng Restore do SID tài khoản Windows mới không có quyền Modify/Delete trên backup NTFS cũ. Restore có thể hoàn tất trên iPhone nhưng bước đổi tên thư mục sang kho đối diện thất bại.
+- `_write_info_bytes()` dùng tệp tạm duy nhất trong cùng thư mục, dọn tệp tạm sau lỗi và thông báo rõ yêu cầu quyền Modify thay vì để lại `Info.plist.tmp` mới.
+- Thêm `move_restored_backup()`: đổi tên atomic trên cùng volume, tự thử lại lỗi va chạm tên và `PermissionError` tối đa 9 lần cách nhau 1 giây; chuyển khác volume qua luồng copy đã fingerprint.
+- Sửa cleanup cross-volume chỉ xóa thư mục đích do chính lượt chạy tạo, tránh xóa nhầm thư mục đã tồn tại khi có race.
+- Restore worker ghi trạng thái riêng khi iPhone restore xong nhưng backup chưa chuyển; bộ đếm của đợt được cập nhật đồng bộ trước khi UI queue xử lý, tránh banner báo thiếu máy.
+- Hướng dẫn vận hành đã cấp quyền Modify cho tài khoản hiện tại trên E: và F:. Các lỗi còn lại chỉ ở `System Volume Information`.
+- **Kiểm chứng vận hành**: log 2026-09-24 ghi nhận 18/18 restore và chuyển kho thành công trong hai đợt; đợt đầu Batch Activate 9/9 thành công. 8 backup của đợt cũ vẫn ở Kho A sau lỗi quyền; một backup khác chưa chạy restore do lỗi quyền ghi `Info.plist`.
+- **Kiểm thử tự động**: 119/119 tests PASS.
+
 ## [4.9.8 Astro Companion UX Edition] - 2026-09-23
 
 ### 🤖 Nâng Cấp Bot Đồng Hành Astro (`AstroBotCompanion`)

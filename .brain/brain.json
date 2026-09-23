@@ -3,7 +3,7 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-23T10:20:00+07:00"
+    "last_updated": "2026-09-24T02:37:29+09:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
@@ -96,11 +96,13 @@
       "restore_two_layer_matching": [
         "Lớp 1: Khớp chính xác UDID của máy với tên/metadata bản backup (Ưu tiên cao nhất)",
         "Lớp 2: Ghép bản backup có phiên bản iOS <= iOS của thiết bị đích"
-      ]
+      ],
+      "restore_transfer_reliability": "Restore gắn UDID đích vào Info.plist trong backup nguồn. Nếu lệnh trên iPhone thành công nhưng chuyển kho thất bại, backup vẫn nằm ở nguồn và Info.plist có thể đã mang UDID đích; payload không bị helper sửa. Cùng volume: move_restored_backup dùng os.rename, chọn tên chưa dùng và retry PermissionError 9 lần cách nhau 1s. Khác volume: dùng transfer_backup_immutable với fingerprint và chỉ xóa đích do lượt chạy đó tạo. Sau khi cài lại Windows, SID local mới có thể thiếu Modify/Delete trên NTFS cũ; cấp quyền Modify đệ quy cho tài khoản hiện tại. Access denied riêng tại System Volume Information là các mục hệ thống."
     }
   },
   "knowledge_items": {
     "gotchas": [
+      "Windows reinstall and NTFS restore permissions: SID of a re-created local account differs from the old SID. Read/write may still be insufficient for os.replace(Info.plist) and directory rename because Delete/Modify is needed. Grant Modify additively to the current user recursively on data volumes; do not use /grant:r or reset ACLs. System Volume Information access-denied entries are protected system metadata, not backup failures. A restore can succeed on-device while the source backup remains unmoved; reconcile that inventory before retrying restore.",
       "VT100 4-line progress format in libimobiledevice 1.4.0: idevicebackup2 v1.4.0 in tiến độ dạng khối 4 dòng kèm số thập phân và dung lượng file con (ví dụ 32.8% 688 KB / 2.1 MB). Regex (\\d{1,3})% cũ bắt nhầm số 8% khiến UI nhảy giật liên tục giữa 21% và 8%. Bắt buộc lọc bỏ dòng file con (có số thập phân, KB/MB, >) và chặn lặp pct == last để không bị bão log 43.000 dòng làm đơ GUI Tkinter.",
       "ANSI escape control codes in modern CLI outputs: Các công cụ như idevicebackup2 1.4.0 dùng mã escape ANSI VT100 như \\033[2K (clear line) và \\033[1G (move col 1). Cần làm sạch bằng regex ANSI_ESCAPE_RE ngay tại tầng lõi tiktool_core.py emit() trước khi truyền lên GUI.",
       "Developer Mode on iOS 16+ via USB: idevicedevmodectl giao tiếp qua service com.apple.amfi.lockdown. Thiết bị không có mật khẩu sẽ tự reboot và confirm enable 100%. Thiết bị có passcode sẽ từ chối enable từ xa nhưng tự động kích hoạt DEV_MODE_REVEAL mở sẵn mục trong Cài đặt iPhone.",
