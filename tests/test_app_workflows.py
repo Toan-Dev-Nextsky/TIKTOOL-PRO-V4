@@ -121,6 +121,27 @@ class RestoreWorkflowTests(unittest.TestCase):
             self.assertEqual(before, backup_fingerprint(source))
             self.assertTrue(os.path.isdir(source))
 
+    def test_success_banner_counts_moved_backup_before_ui_queue_drains(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            store_a = Path(temp_dir, "store_a")
+            store_b = Path(temp_dir, "store_b")
+            store_a.mkdir()
+            store_b.mkdir()
+            source = make_backup(store_a)
+            app = make_worker_app()
+            app.reboot_tracker = RebootTracker()
+            app._post_ui = lambda *_args, **_kwargs: None  # UI queue is delayed
+            app._restore_batch_moved_count = 0
+
+            with patch.object(BB_RB, "pair_validate", return_value=True), patch.object(
+                BB_RB, "run_stream", return_value=(0, ["Restore Successful."])
+            ), patch.object(BB_RB.threading, "Thread"):
+                BB_RB.App._restore_worker(app, "TARGET-UDID", source, str(store_b), "A")
+
+            self.assertEqual(0, app.restore_done_count)
+            self.assertEqual(1, app._restore_batch_moved_count)
+            self.assertTrue(any("ĐÃ RESTORE XONG 1 MÁY" in args[1] for args, _ in app.messages))
+
 
 class UiThreadTests(unittest.TestCase):
     def test_worker_log_enqueues_without_calling_tk_after(self):

@@ -2,6 +2,13 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Sửa lỗi Restore chuyển kho] - 2026-09-24
+
+- Khi chuẩn bị Restore, ghi `Info.plist` qua tệp tạm riêng và báo rõ nếu tài khoản Windows thiếu quyền Modify trên kho backup sau khi cài lại Windows.
+- Chuyển backup cùng ổ bằng đổi tên thư mục, thử lại khi tệp còn bị khóa tạm thời; xử lý trùng tên đích mà không ghi đè backup cũ. Chuyển khác ổ qua bản sao được kiểm tra trước khi xóa nguồn.
+- Nếu iPhone Restore xong nhưng chuyển kho thất bại, nhật ký nói rõ backup vẫn ở kho nguồn. Số máy chuyển thành công trong đợt được đếm từ worker để không lệch khi giao diện cập nhật chậm.
+- Kiểm thử tự động: 60/60 bài test đạt trên nhánh `backup/before-refactor`.
+
 ## [4.8.8 Modern Animated Performance Widget Edition] - 2026-09-09
 
 ### 🌟 Tái Thiết Kế Thẻ Hiệu Suất Sinh Động & Tối Ưu Viền Không Gian (stitch_modern_animated_redesign)

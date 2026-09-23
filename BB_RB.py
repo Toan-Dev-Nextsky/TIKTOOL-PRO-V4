@@ -25,6 +25,7 @@ from tiktool_core import (
     format_hourly_restore_history,
     hour_window,
     load_concurrency,
+    move_restored_backup,
     prepare_restore_in_place,
     rollback_restore_info,
     normalize_url as core_normalize_url,
@@ -1105,6 +1106,7 @@ class App(tk.Tk):
         self.current_mode = "RESTORE"
         self.licensed = True
         self.restore_done_count = 0  # Bộ đếm restore thành công trong phiên
+        self._restore_batch_moved_count = 0  # Worker cập nhật ngay, không chờ UI queue
         self.daily_restore_date = datetime.now().strftime("%Y-%m-%d")
         self.daily_restore_count = 0  # Bộ đếm nick đã restore trong ngày
         self.hourly_restore_stats = HourlyRestoreStats(self.daily_restore_date, {})
@@ -3217,6 +3219,8 @@ class App(tk.Tk):
         auto_activate = bool(self.var_auto_activate_after_restore.get())
         set_language = bool(self.var_set_lang_after_active.get())
         language_preset = self.var_lang_locale.get()
+        with self.lock:
+            self._restore_batch_moved_count = 0
         for target_udid, bk_path in self.pending_restore_map:
             if not self._begin_operation(target_udid, "restore"):
                 continue
@@ -3501,22 +3505,16 @@ class App(tk.Tk):
 
                 try:
                     os.makedirs(target_after_restore, exist_ok=True)
-                    dest = os.path.join(target_after_restore, os.path.basename(backup_folder_full))
-                    if os.path.exists(dest):
-                        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        dest = os.path.join(target_after_restore, f"{os.path.basename(backup_folder_full)}_{stamp}")
-
-                    try:
-                        shutil.move(backup_folder_full, dest)
-                    except Exception:
-                        shutil.copytree(backup_folder_full, dest)
-                        shutil.rmtree(backup_folder_full)
+                    dest = move_restored_backup(backup_folder_full, target_after_restore)
+                    with self.lock:
+                        self._restore_batch_moved_count = getattr(self, "_restore_batch_moved_count", 0) + 1
+                        moved_number = self._restore_batch_moved_count
 
                     self.log(target_udid, f"Đã chuyển kho thành công: {source_store} ➔ Kho đối diện:\n{os.path.basename(dest)}")
                     
                     # Cộng bộ đếm restore thành công và tự động cập nhật lại số lượng kho
                     self._post_ui(self._count_restore_done)
-                    self.log(target_udid, f"✓ Đã chuyển iPhone thứ {self.restore_done_count + 1} qua Kho đối diện thành công!")
+                    self.log(target_udid, f"✓ Đã chuyển iPhone thứ {moved_number} qua Kho đối diện thành công!")
                     
                     if row:
                         row.set_pct(100)
@@ -3537,7 +3535,14 @@ class App(tk.Tk):
                     # (Thông báo rút máy sẽ hiện sau khi TẤT CẢ máy trong đợt hoàn tất — xem finally bên dưới)
 
                 except Exception as e:
-                    self.log(target_udid, f"Lỗi khi chuyển kho sau restore: {e}", is_err=True)
+                    if row:
+                        row.push_step("Restore xong • Chuyển kho lỗi")
+                    self.log(
+                        target_udid,
+                        f"Restore trên iPhone đã xong nhưng chưa chuyển được backup; "
+                        f"bản nguồn vẫn ở Kho {source_store}: {e}",
+                        is_err=True,
+                    )
 
             else:
                 if row: row.push_step(f"Restore lỗi (exit {rc})")
@@ -3554,6 +3559,7 @@ class App(tk.Tk):
             with self.lock:
                 self.active_restores.discard(target_udid)
                 _all_done = len(self.active_restores) == 0  # Kiểm tra trong lock
+                batch_done_count = getattr(self, "_restore_batch_moved_count", 0)
             SEMAPHORE.release()
             if operation_reserved:
                 self.operations.end(target_udid, "restore")
@@ -3563,7 +3569,7 @@ class App(tk.Tk):
                 self._start_auto_activate_batch_if_ready()
             # === THÔNG BÁO RÚT MÁY KHI TẤT CẢ ĐỢT XONG (chỉ khi Auto Activate TẮT) ===
             if _all_done and not auto_activate:
-                done_count = self.restore_done_count
+                done_count = batch_done_count
                 self._set_mascot_state(
                     "celebrate",
                     count=done_count,

@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +24,7 @@ from tiktool_core import (  # noqa: E402
     format_hourly_restore_history,
     hour_window,
     make_license_key,
+    move_restored_backup,
     normalize_url,
     prepare_restore_in_place,
     repair_ipas_path,
@@ -158,6 +160,80 @@ class BackupSafetyTests(unittest.TestCase):
             transfer_backup_immutable(backup, str(self.store_a))
 
         self.assertTrue(os.path.isdir(backup))
+
+    def test_restored_move_keeps_existing_destinations_and_uses_unique_name(self):
+        source = make_backup(self.store_a)
+        existing = make_backup(self.store_b, udid="EXISTING-UDID")
+        suffix = datetime.now().strftime("%Y%m%d_%H%M%S")
+        occupied = make_backup(self.store_b, name=f"1_iPhone_{suffix}", udid="SECOND-UDID")
+
+        destination = move_restored_backup(source, str(self.store_b))
+
+        self.assertFalse(os.path.exists(source))
+        self.assertNotIn(destination, (existing, occupied))
+        self.assertEqual("OLD-UDID", read_udid(destination))
+        self.assertEqual("EXISTING-UDID", read_udid(existing))
+        self.assertEqual("SECOND-UDID", read_udid(occupied))
+
+    def test_restored_move_permission_error_keeps_source(self):
+        source = make_backup(self.store_a)
+        with patch("tiktool_core.os.rename", side_effect=PermissionError("access denied")), patch(
+            "tiktool_core.time.sleep"
+        ) as pause:
+            with self.assertRaises(PermissionError):
+                move_restored_backup(source, str(self.store_b))
+        self.assertEqual(9, pause.call_count)
+        self.assertEqual("OLD-UDID", read_udid(source))
+
+    def test_restored_move_recovers_after_temporary_access_denied(self):
+        source = make_backup(self.store_a)
+        real_rename = os.rename
+        calls = []
+
+        def rename_after_lock(src, dst):
+            calls.append(dst)
+            if len(calls) == 1:
+                raise PermissionError("file temporarily in use")
+            return real_rename(src, dst)
+
+        with patch("tiktool_core.os.rename", side_effect=rename_after_lock), patch(
+            "tiktool_core.time.sleep"
+        ) as pause:
+            destination = move_restored_backup(source, str(self.store_b))
+        self.assertEqual(1, pause.call_count)
+        self.assertEqual("OLD-UDID", read_udid(destination))
+        self.assertFalse(os.path.exists(source))
+
+    def test_cross_volume_move_retries_raced_destination_without_deleting_it(self):
+        source = make_backup(self.store_a)
+        real_rename = os.rename
+        raced = []
+
+        def rename_with_collision(src, dst):
+            if not raced:
+                Path(dst).mkdir()
+                raced.append(dst)
+                raise FileExistsError(dst)
+            return real_rename(src, dst)
+
+        with patch("tiktool_core._same_volume", return_value=False), patch(
+            "tiktool_core.os.rename", side_effect=rename_with_collision
+        ):
+            destination = move_restored_backup(source, str(self.store_b))
+
+        self.assertTrue(Path(raced[0]).is_dir())
+        self.assertNotEqual(raced[0], destination)
+        self.assertEqual("OLD-UDID", read_udid(destination))
+        self.assertFalse(os.path.exists(source))
+
+    def test_restore_prepare_permission_error_keeps_original_info_and_cleans_temp(self):
+        source = make_backup(self.store_a)
+        original = Path(source, "Info.plist").read_bytes()
+        with patch("tiktool_core.os.replace", side_effect=PermissionError("access denied")):
+            with self.assertRaisesRegex(PermissionError, "quyền Modify"):
+                prepare_restore_in_place(source, "NEW-UDID")
+        self.assertEqual(original, Path(source, "Info.plist").read_bytes())
+        self.assertEqual([], list(Path(source).glob("Info.plist.*.tmp")))
 
 
 class RegistryConfigTests(unittest.TestCase):

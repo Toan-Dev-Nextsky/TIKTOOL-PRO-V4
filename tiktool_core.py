@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
@@ -552,10 +553,23 @@ def backup_fingerprint(path: str) -> str:
 
 
 def _write_info_bytes(info_path: str, payload: bytes) -> None:
-    temporary = info_path + ".tmp"
-    with open(temporary, "wb") as stream:
-        stream.write(payload)
-    os.replace(temporary, info_path)
+    descriptor, temporary = tempfile.mkstemp(
+        prefix="Info.plist.", suffix=".tmp", dir=os.path.dirname(info_path)
+    )
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(payload)
+        try:
+            os.replace(temporary, info_path)
+        except PermissionError as exc:
+            raise PermissionError(
+                f"Không thể thay thế {info_path}. Tài khoản Windows hiện tại cần quyền "
+                "Modify trên kho backup (bao gồm quyền xóa tệp). Kiểm tra quyền NTFS "
+                "sau khi cài lại Windows."
+            ) from exc
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def prepare_restore_in_place(source_backup: str, target_udid: str) -> bytes:
@@ -651,6 +665,36 @@ def _same_volume(first: str, second: str) -> bool:
     return first_drive == second_drive
 
 
+def move_restored_backup(source: str, destination_root: str) -> str:
+    """Move a restored backup without overwriting an existing destination.
+
+    On the same volume a directory rename is fast and atomic. A name taken by
+    another worker is retried with a fresh suffix. Cross-volume moves use the
+    verified copy path so the source remains available on copy failure.
+    """
+    source_path = _resolved_dir(source)
+    _, destination_store = _validate_distinct_stores(source_path, destination_root)
+    if not _same_volume(source_path, destination_store):
+        return transfer_backup_immutable(source_path, destination_store)
+
+    permission_failures = 0
+    for _ in range(10000):
+        destination = _unique_destination(destination_store, os.path.basename(source_path))
+        try:
+            os.rename(source_path, destination)
+            return destination
+        except FileExistsError:
+            continue
+        except PermissionError:
+            # Windows can retain a short-lived handle after idevicebackup2 exits.
+            # Keep the source untouched and retry a bounded number of times.
+            permission_failures += 1
+            if permission_failures >= 10:
+                raise
+            time.sleep(1)
+    raise FileExistsError(f"Could not move backup to a unique destination: {source_path}")
+
+
 def transfer_backup_immutable(source: str, destination_root: str) -> str:
     """Transfer a whole verified backup without editing anything inside it."""
     source_path = _resolved_dir(source)
@@ -672,19 +716,29 @@ def transfer_backup_immutable(source: str, destination_root: str) -> str:
     work_root = _work_root(destination_store)
     job_root = tempfile.mkdtemp(prefix="transfer-", dir=work_root)
     staged_destination = os.path.join(job_root, os.path.basename(source_path))
+    final_created = False
     try:
         shutil.copytree(source_path, staged_destination, copy_function=shutil.copy2)
         if backup_fingerprint(staged_destination) != original_fingerprint:
             raise IntegrityError("Destination fingerprint mismatch")
         if backup_fingerprint(source_path) != original_fingerprint:
             raise IntegrityError("Source backup changed during transfer")
-        os.rename(staged_destination, destination)
+        for _ in range(10000):
+            destination = _unique_destination(destination_store, os.path.basename(source_path))
+            try:
+                os.rename(staged_destination, destination)
+                final_created = True
+                break
+            except FileExistsError:
+                continue
+        else:
+            raise FileExistsError(f"Could not reserve a unique destination for {source_path}")
         if backup_fingerprint(destination) != original_fingerprint:
             raise IntegrityError("Final destination fingerprint mismatch")
         shutil.rmtree(source_path)
         return destination
     except Exception:
-        if os.path.exists(destination) and os.path.exists(source_path):
+        if final_created and os.path.exists(destination) and os.path.exists(source_path):
             shutil.rmtree(destination)
         raise
     finally:
