@@ -1148,23 +1148,90 @@ class AstroBotCompanion(tk.Frame):
     CANVAS_HEIGHT = 64
     BOT_Y_OFFSET = 6
 
+    # Mỗi trạng thái là (màu, tuple các câu) để lời thoại luân phiên, bớt đơn điệu.
     STATE_STYLES = {
-        "idle_empty": ("#38BDF8", "Sẵn sàng cày cuốc! Cắm dàn máy vào chiến thôi..."),
-        "idle_ready": ("#34D399", "Đã kết nối {count} máy sẵn sàng. Sếp bấm nút là nạp ngay!"),
-        "restore": ("#38BDF8", "Đang nạp {count} máy cực cháy. Tiến độ cả đợt: {progress}%"),
-        "reboot": ("#FBBF24", "Dàn máy đang khởi động lại. Đừng rút cáp nha sếp!"),
-        "activate": ("#A78BFA", "Đang kích hoạt và vượt màn hình Hello cho {count} máy..."),
-        "install": ("#60A5FA", "Đang cài IPA cho {count} máy. Tiến độ: {progress}%"),
-        "celebrate": ("#FACC15", "Tuyệt vời! Đã xong trọn vẹn cả đợt, cắm mẻ mới nào!"),
-        "alert": ("#FB7185", "Có {count} máy chưa Tin Cậy. Kiểm tra cáp và màn hình iPhone nhé!"),
-        "backup": ("#C084FC", "Đang sao lưu an toàn cho {count} máy. Astro canh dữ liệu đây!"),
+        "idle_empty": ("#38BDF8", (
+            "Sẵn sàng cày cuốc! Cắm dàn máy vào chiến thôi...",
+            "Chưa thấy máy nào. Cắm cáp vào là Astro chạy ngay!",
+            "Astro đang trực sẵn, chỉ chờ dàn máy cắm vào thôi.",
+        )),
+        "idle_ready": ("#34D399", (
+            "Đã kết nối {count} máy sẵn sàng. Sếp bấm nút là nạp ngay!",
+            "{count} máy đang chờ. Chọn kho nguồn rồi chiến thôi!",
+            "Tín hiệu {count} máy ổn định. Sẵn sàng nạp phôi!",
+        )),
+        "restore": ("#38BDF8", (
+            "Đang nạp {count} máy cực cháy. Tiến độ cả đợt: {progress}%",
+            "Restore {count} máy đang chạy. Tiến độ: {progress}%",
+            "Đang bơm dữ liệu cho {count} máy. Hoàn tất {progress}%.",
+        )),
+        "reboot": ("#FBBF24", (
+            "Dàn máy đang khởi động lại. Đừng rút cáp nha sếp!",
+            "iPhone đang reboot sau Restore. Chờ máy lên lại nhé!",
+        )),
+        "activate": ("#A78BFA", (
+            "Đang kích hoạt và vượt màn hình Hello cho {count} máy...",
+            "Đang đưa {count} máy qua Setup Assistant...",
+        )),
+        "install": ("#60A5FA", (
+            "Đang cài IPA cho {count} máy. Tiến độ: {progress}%",
+            "Đang nạp app cho {count} máy. Hoàn tất {progress}%.",
+        )),
+        "celebrate": ("#FACC15", (
+            "Tuyệt vời! Đã xong trọn vẹn cả đợt, cắm mẻ mới nào!",
+        )),
+        "alert": ("#FB7185", (
+            "Có {count} máy chưa Tin Cậy. Kiểm tra cáp và màn hình iPhone nhé!",
+        )),
+        "backup": ("#C084FC", (
+            "Đang sao lưu an toàn cho {count} máy. Astro canh dữ liệu đây!",
+            "Đang gom dữ liệu {count} máy vào kho. Giữ cáp ổn định nhé!",
+        )),
+        "devmode": ("#22D3EE", (
+            "Đang bật Developer Mode cho {count} máy. Máy sẽ tự khởi động lại.",
+            "Kích hoạt chế độ nhà phát triển cho {count} máy...",
+        )),
+        "crashlog": ("#94A3B8", (
+            "Đang dọn crash log của {count} máy...",
+            "Xóa log lỗi cho {count} máy. Chờ chút nhé!",
+        )),
+        "noota": ("#F59E0B", (
+            "Đang nạp/gỡ profile chặn cập nhật cho {count} máy...",
+            "Xử lý chặn Update iOS cho {count} máy...",
+        )),
+        "erase": ("#EF4444", (
+            "ĐANG XÓA TOÀN BỘ DỮ LIỆU {count} MÁY. KHÔNG RÚT CÁP!",
+        )),
+        "shutdown": ("#F97316", (
+            "Đang tắt nguồn {count} máy. Bật lại thủ công sau khi xong nhé!",
+        )),
+        "power": ("#FBBF24", (
+            "Đang gửi lệnh khởi động lại {count} máy...",
+        )),
     }
+
+    # Trạng thái vẽ lại mắt mỗi khung hình để có hoạt ảnh riêng.
+    ANIMATED_STATES = ("activate", "devmode", "crashlog", "noota", "erase", "shutdown", "backup")
+
+    # Số giây giữ câu đùa sau khi người dùng bấm vào bot.
+    POKE_HOLD_SECONDS = 3.0
+
+    # Số khung hình giữa hai lần đổi câu (80 khung ~ 6.4 giây).
+    ROTATE_EVERY_TICKS = 80
 
     POKE_LINES = (
         "Astro vẫn đang canh dàn máy cùng sếp!",
         "Hôm nay mình cùng phá kỷ lục sản lượng nhé!",
         "Nhớ uống nước nha sếp, phần máy móc để Astro lo!",
         "Tín hiệu USB ổn định. Tiếp tục chiến thôi!",
+        "Cắm máy đúng cáp xịn là đỡ lỗi Not Trust hẳn đó!",
+        "Đừng rút cáp giữa chừng kẻo Astro phải làm lại từ đầu.",
+        "Kho A hay kho B gì Astro cũng cân được hết!",
+        "Sản lượng hôm nay ngon hơn hôm qua rồi đó sếp!",
+        "Máy nào chưa Tin Cậy thì bấm vào màn hình iPhone nhé.",
+        "Astro không biết mệt, chỉ cần sếp giữ cáp chắc thôi!",
+        "Chạy xong đợt này mình nghỉ tay một chút nha sếp.",
+        "Gọi Astro khi cần, Astro trực 24/7 cùng dàn máy!",
     )
 
     def __init__(self, master):
@@ -1174,6 +1241,10 @@ class AstroBotCompanion(tk.Frame):
         self._bob = 0
         self._poke_index = 0
         self._context = {"count": 0, "progress": 0}
+        self._variants = self.STATE_STYLES["idle_empty"][1]
+        self._variant_index = 0
+        self._last_text = ""
+        self._poke_until = 0.0
         self.canvas = tk.Canvas(
             self,
             width=76,
@@ -1216,9 +1287,29 @@ class AstroBotCompanion(tk.Frame):
         c.delete("eyes")
         color = self.STATE_STYLES[self.state][0]
         y = 29 + self.BOT_Y_OFFSET + self._bob
-        if self.state == "reboot":
+        if self.state in ("reboot", "power"):
             c.create_line(27, y, 33, y, fill=color, width=2, tags=("robot", "eyes"))
             c.create_line(43, y, 49, y, fill=color, width=2, tags=("robot", "eyes"))
+        elif self.state == "devmode":
+            pulse = 1 if self.tick % 6 < 3 else 0
+            for x in (30, 46):
+                r = 5 if pulse else 4
+                c.create_oval(x - r, y - r, x + r, y + r, fill=color, outline="#CFFAFE", width=1, tags=("robot", "eyes"))
+                c.create_oval(x - 2, y - 2, x + 2, y + 2, fill="#ECFEFF", outline="", tags=("robot", "eyes"))
+        elif self.state == "crashlog":
+            for x in (30, 46):
+                c.create_line(x - 4, y, x + 4, y, fill=color, width=2, tags=("robot", "eyes"))
+        elif self.state == "noota":
+            for x in (30, 46):
+                c.create_arc(x - 5, y - 5, x + 5, y + 5, start=200, extent=140, style="arc", outline=color, width=2, tags=("robot", "eyes"))
+        elif self.state == "erase":
+            for x in (30, 46):
+                c.create_line(x - 4, y - 4, x + 4, y + 4, fill=color, width=2, tags=("robot", "eyes"))
+                c.create_line(x - 4, y + 4, x + 4, y - 4, fill=color, width=2, tags=("robot", "eyes"))
+        elif self.state == "shutdown":
+            r = max(1, 4 - (self.tick % 20) // 6)
+            for x in (30, 46):
+                c.create_oval(x - r, y - r, x + r, y + r, fill=self._shade(color, 0.6), outline="", tags=("robot", "eyes"))
         elif self.state == "alert":
             for x in (30, 46):
                 c.create_line(x, y - 4, x, y + 1, fill=color, width=2, tags=("robot", "eyes"))
@@ -1260,27 +1351,54 @@ class AstroBotCompanion(tk.Frame):
             self._context["progress"] = progress
         changed = state != self.state
         self.state = state
-        color, default_message = self.STATE_STYLES[state]
-        text = message or default_message.format(**self._context)
-        self.message.config(text=text, fg=color if state in ("alert", "celebrate") else COLOR_TEXT_MAIN)
+        color, variants = self.STATE_STYLES[state]
+        self._variants = variants
+        if changed:
+            self._variant_index = 0
+            self._poke_until = 0.0
+        if message is not None:
+            text = message
+        elif not changed and time.time() < self._poke_until:
+            # Đang giữ câu đùa sau khi người dùng bấm, không để vòng refresh ghi đè.
+            text = self._last_text or variants[0].format(**self._context)
+        else:
+            self._variant_index %= len(variants)
+            text = variants[self._variant_index].format(**self._context)
+        self._last_text = text
+        self.message.config(text=text, fg=color if state in ("alert", "celebrate", "erase") else COLOR_TEXT_MAIN)
         self.bubble.config(highlightbackground=color)
         self.status_dot.itemconfigure(self.dot_id, fill=color)
         self.canvas.itemconfigure("antenna", fill=color)
         self.canvas.itemconfigure("glow", fill=self._shade(color, 0.28))
         if changed:
             self.canvas.delete("spark")
+            self.canvas.delete("fx")
             self._draw_eyes()
 
     def _shade(self, color, factor):
         values = [int(color[i:i + 2], 16) for i in (1, 3, 5)]
         return "#" + "".join(f"{max(0, min(255, int(v * factor))):02X}" for v in values)
 
+    def _rotate_message(self):
+        """Đổi sang câu khác của cùng trạng thái để lời thoại bớt lặp."""
+        if not hasattr(self, "message") or not self.winfo_exists():
+            return
+        if time.time() < self._poke_until:
+            return
+        if len(self._variants) < 2:
+            return
+        self._variant_index = (self._variant_index + 1) % len(self._variants)
+        color = self.STATE_STYLES[self.state][0]
+        text = self._variants[self._variant_index].format(**self._context)
+        self._last_text = text
+        self.message.config(text=text, fg=color if self.state in ("alert", "celebrate", "erase") else COLOR_TEXT_MAIN)
+
     def _poke(self, _event=None):
         self._poke_index = (self._poke_index + 1) % len(self.POKE_LINES)
+        self._poke_until = time.time() + self.POKE_HOLD_SECONDS
         self.set_state(self.state, message=self.POKE_LINES[self._poke_index])
         self.canvas.move("robot", 0, -3)
         self._bob -= 3
-        self.after(180, lambda: self.set_state(self.state, **self._context))
 
     def _animate_loop(self):
         if not self.winfo_exists():
@@ -1291,15 +1409,48 @@ class AstroBotCompanion(tk.Frame):
         if delta:
             self.canvas.move("robot", 0, delta)
             self._bob = target
-        if self.tick % 42 == 0 and self.state in ("idle_empty", "idle_ready"):
+        if self.state in getattr(self, "ANIMATED_STATES", ()):
+            # Vẽ lại mắt mỗi khung hình để mỗi thao tác có hoạt ảnh riêng.
+            self._draw_eyes()
+            self._draw_state_effect()
+            if self.state == "activate":
+                self._draw_electric_sparks()
+        elif self.tick % 42 == 0 and self.state in ("idle_empty", "idle_ready"):
             self.canvas.itemconfigure("eyes", state="hidden")
             self.after(120, lambda: self.canvas.itemconfigure("eyes", state="normal") if self.winfo_exists() else None)
-        if self.state == "activate":
-            self._draw_electric_sparks()
-            self._draw_eyes()
+        rotate_every = getattr(self, "ROTATE_EVERY_TICKS", 0)
+        if rotate_every and self.tick % rotate_every == 0:
+            self._rotate_message()
         color = self.STATE_STYLES[self.state][0]
         self.status_dot.itemconfigure(self.dot_id, fill=color if self.tick % 10 < 7 else self._shade(color, 0.55))
         self.after(80, self._animate_loop)
+
+    def _draw_state_effect(self):
+        """Hiệu ứng phụ theo trạng thái, vẽ thuần hình học để giữ zero-pip."""
+        c = self.canvas
+        c.delete("fx")
+        color = self.STATE_STYLES[self.state][0]
+        y = 29 + self.BOT_Y_OFFSET + self._bob
+        if self.state == "devmode":
+            r = 16 + (self.tick % 8)
+            c.create_oval(38 - r, y - r, 38 + r, y + r, outline=self._shade(color, 0.6), width=1, tags=("robot", "fx"))
+        elif self.state == "crashlog":
+            x = 18 + (self.tick % 16) * 2
+            c.create_line(x, 15 + self.BOT_Y_OFFSET + self._bob, x, 45 + self.BOT_Y_OFFSET + self._bob, fill=color, width=2, tags=("robot", "fx"))
+        elif self.state == "noota":
+            pad = 2 if self.tick % 8 < 5 else 0
+            c.create_arc(22 - pad, y - 12 - pad, 54 + pad, y + 12 + pad, start=200, extent=140, style="arc", outline=color, width=2, tags=("robot", "fx"))
+        elif self.state == "erase":
+            pad = 0 if self.tick % 6 < 4 else 2
+            c.create_rectangle(16 + pad, y - 13 + pad, 60 - pad, y + 13 - pad, outline=color, width=2, tags=("robot", "fx"))
+        elif self.state == "shutdown":
+            dim = 0.35 + 0.65 * max(0.0, math.sin(self.tick / 18))
+            c.create_oval(13, 13, 63, 47, outline=self._shade(color, dim), width=2, tags=("robot", "fx"))
+        elif self.state == "backup":
+            for i in range(3):
+                if (self.tick + i) % 6 < 3:
+                    px = 20 + i * 8
+                    c.create_oval(px - 2, y - 21, px + 2, y - 17, fill=color, outline="", tags=("robot", "fx"))
 
     def _draw_electric_sparks(self):
         """Tia lửa điện ngắn, sắc nét bằng hình học xác định để giữ zero-pip."""
@@ -4356,14 +4507,26 @@ class App(tk.Tk):
     @staticmethod
     def _resolve_mascot_state(operations, connected_count, untrusted_count, auto_batch_active=False):
         kinds = set(operations.values())
+        if "erase" in kinds:
+            return "erase"
         if "restore" in kinds:
             return "restore"
         if "install_ipa" in kinds:
             return "install"
+        if kinds.intersection(("block_update", "unblock_update")):
+            return "noota"
+        if "devmode" in kinds:
+            return "devmode"
+        if "clear_crashlog" in kinds:
+            return "crashlog"
         if kinds.intersection(("activate", "language", "webclip")):
             return "activate"
         if "backup" in kinds:
             return "backup"
+        if "shutdown" in kinds:
+            return "shutdown"
+        if "reboot" in kinds:
+            return "power"
         if "auto_activate" in kinds or auto_batch_active:
             return "reboot"
         if untrusted_count:
@@ -4396,16 +4559,29 @@ class App(tk.Tk):
             active_count = sum(1 for kind in operations.values() if kind == "auto_activate")
         elif state == "backup":
             active_count = sum(1 for kind in operations.values() if kind == "backup")
+        elif state == "noota":
+            active_count = sum(1 for kind in operations.values() if kind in ("block_update", "unblock_update"))
+        elif state == "devmode":
+            active_count = sum(1 for kind in operations.values() if kind == "devmode")
+        elif state == "crashlog":
+            active_count = sum(1 for kind in operations.values() if kind == "clear_crashlog")
+        elif state == "erase":
+            active_count = sum(1 for kind in operations.values() if kind == "erase")
+        elif state == "shutdown":
+            active_count = sum(1 for kind in operations.values() if kind == "shutdown")
+        elif state == "power":
+            active_count = sum(1 for kind in operations.values() if kind == "reboot")
         elif state == "alert":
             active_count = untrusted_count
         else:
             active_count = connected_count
 
         progress_values = []
-        if state in ("restore", "install"):
+        if state in ("restore", "install", "backup"):
+            wanted_kind = {"restore": "restore", "install": "install_ipa", "backup": "backup"}[state]
             for udid, kind in operations.items():
                 row = self.rows.get(udid)
-                if kind == ("restore" if state == "restore" else "install_ipa") and row and hasattr(row, "pb"):
+                if kind == wanted_kind and row and hasattr(row, "pb"):
                     try:
                         progress_values.append(float(row.pb["value"]))
                     except (TypeError, ValueError, tk.TclError):

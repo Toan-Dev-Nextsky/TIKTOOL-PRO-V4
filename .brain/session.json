@@ -1,16 +1,19 @@
 {
-  "updated_at": "2026-09-20T14:25:00+07:00",
+  "updated_at": "2026-09-23T10:20:00+07:00",
   "working_on": {
-    "feature": "Batch Block & Unblock iOS OTA Update (NOOTA tvOS 26 Beta Profile)",
-    "task": "Tài liệu hóa chi tiết cơ chế Chặn & Gỡ Chặn cập nhật iOS hàng loạt, giải mã mốc hạn 20/05/2027, phân tích tác động Backup/Restore phôi TikTok Lite vào cẩm nang HTML Tailwind CSS v4",
+    "feature": "Astro Companion UX (bot đồng hành)",
+    "task": "Sửa lỗi bot Astro hiển thị sai trạng thái cho các thao tác chưa được ánh xạ, thêm lời thoại luân phiên và hoạt ảnh riêng theo từng thao tác, sửa tương tác bấm; đồng bộ phiên bản lên 4.9.8",
     "status": "completed",
     "files": [
-      "TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html",
-      "CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html",
+      "BB_RB.py",
+      "tiktool_core.py",
+      "tests/test_app_workflows.py",
+      "CHANGELOG.md",
+      ".brain/brain.json",
       ".brain/session.json",
       ".brain/handover.md"
     ],
-    "notes": "Đã cập nhật Chương 8 vào TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html và tạo tài liệu chuyên sâu độc lập CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html (Tailwind CSS v4, dark mode, bảng đối soát, quy trình 4 bước)."
+    "notes": "Ánh xạ đủ 14 operation kind vào trạng thái bot, thêm 6 trạng thái mới (devmode, crashlog, noota, erase, shutdown, power), lời thoại luân phiên mỗi ~6.4s, câu đùa giữ 3s khi bấm, hoạt ảnh riêng theo trạng thái vẽ thuần Canvas (giữ zero-pip), bổ sung % cho backup. APP_VERSION nâng 4.9.6 -> 4.9.8. Kiểm thử 113/113 PASS."
   },
   "pending_tasks": [
     {
@@ -20,6 +23,12 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-09-23T10:20:00+07:00",
+      "type": "astro_companion_ux_upgrade",
+      "description": "Nâng cấp bot Astro (AstroBotCompanion) lên bản 4.9.8: mở rộng STATE_STYLES với 6 trạng thái mới (devmode, crashlog, noota, erase, shutdown, power) và tuple nhiều câu mỗi trạng thái; ánh xạ đầy đủ 14 operation kind trong _resolve_mascot_state (thứ tự ưu tiên erase > restore > install_ipa > noota > devmode > crashlog > activate > backup > shutdown > power > auto_activate > alert > idle); đếm active_count và tiến độ cho các trạng thái mới, thêm % cho backup; lời thoại luân phiên qua ROTATE_EVERY_TICKS = 80 (~6.4s) và _rotate_message(); sửa _poke giữ câu đùa POKE_HOLD_SECONDS = 3.0 và mở rộng POKE_LINES lên 12 câu; thêm ANIMATED_STATES với hoạt ảnh riêng theo thao tác (vòng xoay Dev Mode, vệt quét crash log, cung khiên NOOTA, khung cảnh báo Reset, mắt mờ dần khi tắt nguồn, điểm dữ liệu backup) vẽ thuần Canvas giữ zero-pip; sửa nháy mắt trong trạng thái activate; nâng APP_VERSION 4.9.6 -> 4.9.8; thêm 6 test trong MascotStateTests (113/113 PASS).",
+      "files": ["BB_RB.py", "tiktool_core.py", "tests/test_app_workflows.py", "CHANGELOG.md"]
+    },
     {
       "timestamp": "2026-09-20T14:25:00+07:00",
       "type": "doc_update_block_ota_tailwind4",
@@ -71,6 +80,16 @@
   ],
   "errors_encountered": [
     {
+      "error": "Bot Astro hiển thị sai trạng thái: các thao tác devmode, clear_crashlog, block_update/unblock_update, erase, shutdown, reboot không được ánh xạ trong _resolve_mascot_state nên rơi vào nhánh rảnh, bot báo 'Sếp bấm nút là nạp ngay!' trong lúc dàn máy đang bận",
+      "solution": "Mở rộng _resolve_mascot_state với đủ 14 operation kind và thứ tự ưu tiên mới; thêm 6 trạng thái tương ứng vào STATE_STYLES kèm nhánh đếm active_count trong _refresh_mascot_state; thêm test test_all_operation_kinds_map_to_dedicated_states để chặn tái phát.",
+      "resolved": true
+    },
+    {
+      "error": "Câu đùa khi bấm vào bot chỉ hiện 180ms rồi bị set_state ghi đè về câu mặc định, và vòng refresh của poll (~0.3s) xoá câu đùa ngay lập tức",
+      "solution": "Thêm mốc _poke_until với POKE_HOLD_SECONDS = 3.0; set_state chỉ giữ câu đùa khi trạng thái không đổi và còn trong thời gian giữ; _rotate_message tự bỏ qua khi đang giữ câu đùa; thêm test test_poke_message_survives_poll_refresh.",
+      "resolved": true
+    },
+    {
       "error": "idevicebackup2 v1.4.0 in khối tiến độ 4 dòng VT100 có số thập phân khiến _parse_any_percent bắt nhầm % file con làm % máy giật lùi, gây bão log 43.761 dòng và đóng băng giao diện Tkinter",
       "solution": "Nâng cấp _parse_any_percent bỏ qua các dòng chứa số thập phân hoặc KB/MB hoặc '>', chặn lặp pct == last trong _should_log_stream_line, chỉ gọi row.set_pct khi % thay đổi trong on_line, và lọc ANSI_ESCAPE_RE trong tiktool_core.py.",
       "resolved": true
@@ -115,6 +134,22 @@
     {
       "decision": "Đặt cụm nút Chặn Update và Gỡ Chặn Update trong Tab Cài IPA với Semaphore điều phối",
       "reason": "Gom nhóm logic với các công cụ can thiệp hệ thống máy (cùng khu vực Developer Mode), và dùng NOOTA_SEMAPHORE để chống nghẽn đường truyền USB khi nạp profile đồng thời 14-20 máy."
+    },
+    {
+      "decision": "Mở rộng bot Astro theo hướng đa dạng nội dung + hoạt ảnh riêng thay vì chỉ sửa lỗi trạng thái",
+      "reason": "Người dùng phản hồi bot 'khá đơn điệu'; sửa riêng phần ánh xạ trạng thái sẽ vẫn khiến bot lặp một câu cho mỗi trạng thái. Chọn phương án sửa lỗi + luân phiên lời thoại + hoạt ảnh mới để bot phản ánh rõ từng thao tác."
+    },
+    {
+      "decision": "Giữ giọng vui cho trạng thái rảnh nhưng dùng câu nghiêm túc cho thao tác nguy hiểm",
+      "reason": "Reset dòng 2 và tắt nguồn là thao tác không thể hoàn tác; câu đùa ở các trạng thái này dễ gây hiểu nhầm mức độ nghiêm trọng nên dùng câu ngắn, rõ ràng và tô đỏ."
+    },
+    {
+      "decision": "Mọi hoạt ảnh mới của Astro vẽ thuần hình học bằng Canvas, không thêm file ảnh",
+      "reason": "BB_RB.py duy trì ràng buộc zero-pip 100% chuẩn Tkinter; thêm asset ảnh sẽ phá vỡ quy ước này và làm nặng gói phân phối."
+    },
+    {
+      "decision": "Nâng APP_VERSION từ 4.9.6 lên 4.9.8 và đồng bộ CHANGELOG",
+      "reason": "Tài liệu (CHANGELOG/.brain) đã ghi 4.9.7 trong khi mã nguồn vẫn để 4.9.6, khiến footer hiển thị sai phiên bản; nâng thẳng lên 4.9.8 cho bản phát hành này để chấm dứt tình trạng lệch số phiên bản."
     }
   ]
 }

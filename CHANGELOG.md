@@ -2,6 +2,37 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Astro Companion UX Edition] - 2026-09-23
+
+### 🤖 Nâng Cấp Bot Đồng Hành Astro (`AstroBotCompanion`)
+- **Sửa lỗi bot hiển thị sai trạng thái khi máy đang bận**:
+  - `_resolve_mascot_state` trước đây chỉ nhận diện `restore`, `install_ipa`, `activate`/`language`/`webclip`, `backup`, `auto_activate`; các thao tác còn lại đều rơi vào nhánh rảnh nên bot vẫn báo *"Đã kết nối N máy sẵn sàng. Sếp bấm nút là nạp ngay!"* trong lúc dàn máy đang chạy.
+  - Bổ sung ánh xạ đầy đủ cho `devmode`, `clear_crashlog`, `block_update`/`unblock_update`, `erase`, `shutdown` và `reboot` (khởi động lại thủ công).
+  - Thứ tự ưu tiên mới: `erase` > `restore` > `install_ipa` > `noota` > `devmode` > `crashlog` > `activate` > `backup` > `shutdown` > `power` > `auto_activate` > `alert` > `idle`.
+- **Thêm 6 trạng thái mới với màu và câu riêng**: `devmode` (`#22D3EE`), `crashlog` (`#94A3B8`), `noota` (`#F59E0B`), `erase` (`#EF4444`, câu cảnh báo nghiêm túc), `shutdown` (`#F97316`), `power` (`#FBBF24`).
+- **Lời thoại luân phiên chống đơn điệu**:
+  - `STATE_STYLES` chuyển từ một câu cố định sang tuple nhiều câu cho mỗi trạng thái.
+  - Thêm `ROTATE_EVERY_TICKS = 80` (~6.4 giây) cùng hàm `_rotate_message()` để đổi câu khi trạng thái không đổi.
+  - Giữ tham số `message=` để các lời gọi `celebrate` / `alert` / `reboot` hiện có vẫn ghi đè được.
+- **Sửa tương tác bấm vào bot**:
+  - Trước đây câu đùa chỉ hiện 180ms rồi bị `set_state` ghi đè về câu mặc định, gần như không kịp đọc.
+  - Nay dùng `POKE_HOLD_SECONDS = 3.0`: câu đùa giữ đủ lâu, đồng thời vòng refresh của poll không xoá mất.
+  - Mở rộng `POKE_LINES` từ 4 lên 12 câu.
+- **Hoạt ảnh riêng theo từng thao tác** (`ANIMATED_STATES` vẽ lại mắt mỗi khung hình):
+  - `devmode`: vòng xoay lan dần quanh visor + mắt nhấp nháy.
+  - `crashlog`: vệt quét chạy ngang visor.
+  - `noota`: cung khiên nhấp nháy.
+  - `erase`: khung cảnh báo đỏ co giãn + mắt hình chữ X.
+  - `shutdown`: viền mờ dần như tắt nguồn + mắt thu nhỏ.
+  - `backup`: các điểm dữ liệu chạy lên ăng-ten.
+  - Sửa nháy mắt để hoạt động cả trong trạng thái `activate`.
+  - Toàn bộ vẽ thuần hình học, không thêm file ảnh ➔ giữ nguyên ràng buộc **zero-pip** của lõi `BB_RB.py`.
+- **Bổ sung tiến độ**: `_refresh_mascot_state` giờ tính % trung bình cho cả `backup` (trước chỉ có `restore` và `install`), đồng thời đếm đúng số máy cho các trạng thái mới.
+- **Đồng bộ phiên bản**: Nâng `APP_VERSION` trong [tiktool_core.py](file:///c:/TIKTOOL%20PRO%20V4/tiktool_core.py) từ `4.9.6` lên `4.9.8`, khắc phục tình trạng lệch giữa mã nguồn và tài liệu (tài liệu cũ đã ghi 4.9.7 trong khi footer hiển thị v4.9.6).
+- **Hệ thống kiểm thử**:
+  - Bổ sung 6 test mới trong `MascotStateTests` của [tests/test_app_workflows.py](file:///c:/TIKTOOL%20PRO%20V4/tests/test_app_workflows.py): ánh xạ đủ 14 loại thao tác, `erase` phải thắng `restore`, mọi trạng thái đều có màu và câu, lời thoại đổi câu, câu đùa không bị poll xoá, hoạt ảnh mới không vẽ tràn canvas.
+  - **113/113 unit tests PASS (100%)**.
+
 ## [4.9.7 Batch iOS Update Blocker Edition] - 2026-09-20
 
 ### 🛡️ Tính Năng Mới: Chặn & Gỡ Chặn Cập Nhật iOS Hàng Loạt (Batch Block / Unblock OTA Update)

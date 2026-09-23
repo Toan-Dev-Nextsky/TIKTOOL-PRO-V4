@@ -1,17 +1,17 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-20 11:05:00 (GMT+7)  
-**Phiên bản hiện tại**: `4.9.7 Batch iOS Update Blocker Edition`  
-**Trạng thái**: Sẵn sàng hoạt động trong sản xuất (Production Ready) — Đã tích hợp tính năng Chặn & Gỡ Chặn Cập Nhật iOS Hàng Loạt (NOOTA tvOS 26 Beta Profile CMS-Signed từ Apple, hạn dùng đến 20/05/2027), điều phối luồng USB an toàn qua semaphore, giao diện nút bấm Tab Cài IPA; toàn bộ **84/84 tests** kiểm thử tự động PASS 100%.
+**Thời gian cập nhật**: 2026-09-23 10:20:00 (GMT+7)  
+**Phiên bản hiện tại**: `4.9.8 Astro Companion UX Edition`  
+**Trạng thái**: Sẵn sàng hoạt động trong sản xuất (Production Ready) — Phiên bản này nâng cấp toàn diện bot đồng hành Astro (phản ánh đúng mọi thao tác, lời thoại luân phiên, hoạt ảnh riêng theo thao tác) và đồng bộ số phiên bản về `4.9.8`; toàn bộ **113/113 tests** kiểm thử tự động PASS 100%.
 
 ---
 
 ## 📍 ĐANG LÀM & TIẾN ĐỘ TỔNG THỂ
-* **Tác vụ vừa hoàn tất**: 
-  1. Tích hợp tính năng **Chặn & Gỡ Chặn Cập Nhật iOS Hàng Loạt** (Batch Block / Unblock OTA Update) bằng Profile Apple tvOS 26 Beta đã ký số chính thức (CMS-Signed bởi Apple Root CA).
-  2. Bổ sung cụm nút điều khiển chuyên biệt trong **Tab Cài IPA**.
-  3. Phân tích chuyên sâu và giải đáp thắc mắc về tính bền vững của Profile và cơ chế nạp/restore phôi backup của dàn farm.
+* **Tác vụ vừa hoàn tất (phiên 2026-09-23)**: 
+  1. Sửa lỗi bot Astro hiển thị sai trạng thái cho các thao tác chưa được ánh xạ (`devmode`, `clear_crashlog`, `block_update`/`unblock_update`, `erase`, `shutdown`, `reboot`).
+  2. Thêm 6 trạng thái mới, lời thoại luân phiên và hoạt ảnh riêng theo từng thao tác; sửa tương tác bấm vào bot.
+  3. Đồng bộ phiên bản: `APP_VERSION` nâng từ `4.9.6` lên `4.9.8` (khắc phục lệch giữa mã nguồn và tài liệu).
 * **Tiến độ**: 
   - Giai đoạn 1: Nâng cấp Binary libimobiledevice v1.4.0 & Sửa bão log Restore ✅ (Hoàn tất 2026-09-12)
   - Giai đoạn 2: Tự động Bật Developer Mode cho cả dàn iOS 16+ ✅ (Hoàn tất 2026-09-12)
@@ -19,6 +19,34 @@
   - Giai đoạn 4: Tích hợp Profile Apple tvOS 26 Beta chặn OTA hàng loạt (hạn 2027) ✅ (Hoàn tất 2026-09-20)
   - Giai đoạn 5: Tự động hóa Gỡ chặn Update qua `ios.exe profile remove` ✅ (Hoàn tất 2026-09-20)
   - Giai đoạn 6: Kiểm thử tự động (84/84 PASS) & Lưu trữ bộ nhớ vĩnh viễn (`/save_brain`) ✅ (Hoàn tất 2026-09-20)
+  - Giai đoạn 7: Nâng cấp bot đồng hành Astro (trạng thái đầy đủ + lời thoại luân phiên + hoạt ảnh riêng) & đồng bộ phiên bản 4.9.8 ✅ (Hoàn tất 2026-09-23)
+
+---
+
+## ✅ CHI TIẾT HẠNG MỤC HOÀN TẤT TRONG PHIÊN 2026-09-23 (v4.9.8)
+
+### 1. Sửa Lỗi Bot Astro Hiển Thị Sai Trạng Thái
+* **Hiện tượng**: Trong lúc dàn máy đang bật Developer Mode, xóa crash log, chặn/gỡ chặn Update, Reset dòng 2, tắt nguồn hoặc khởi động lại, bot vẫn hiển thị *"Đã kết nối N máy sẵn sàng. Sếp bấm nút là nạp ngay!"* như đang rảnh.
+* **Nguyên nhân**: `App._resolve_mascot_state` chỉ ánh xạ `restore`, `install_ipa`, `activate`/`language`/`webclip`, `backup`, `auto_activate`; các operation kind còn lại rơi vào nhánh cuối và bị coi là rảnh.
+* **Khắc phục**: Ánh xạ đủ 14 operation kind với thứ tự ưu tiên `erase` > `restore` > `install_ipa` > `noota` > `devmode` > `crashlog` > `activate` > `backup` > `shutdown` > `power` > `auto_activate` > `alert` > `idle`.
+
+### 2. Thêm Trạng Thái, Lời Thoại Luân Phiên và Hoạt Ảnh Riêng
+* **6 trạng thái mới** trong `STATE_STYLES`: `devmode` (#22D3EE), `crashlog` (#94A3B8), `noota` (#F59E0B), `erase` (#EF4444), `shutdown` (#F97316), `power` (#FBBF24).
+* **Lời thoại luân phiên**: `STATE_STYLES` chuyển sang tuple nhiều câu mỗi trạng thái; `ROTATE_EVERY_TICKS = 80` (~6.4 giây) cùng `_rotate_message()` đổi câu khi trạng thái không đổi.
+* **Hoạt ảnh riêng** (`ANIMATED_STATES` vẽ lại mắt mỗi khung hình): vòng xoay Dev Mode, vệt quét crash log, cung khiên NOOTA, khung cảnh báo Reset, mắt mờ dần khi tắt nguồn, điểm dữ liệu backup. Toàn bộ vẽ thuần Canvas, **không thêm file ảnh** ➔ giữ zero-pip.
+* **Sửa nháy mắt** trong trạng thái `activate` (trước đây bị vẽ lại liên tục nên không thấy).
+* **Bổ sung tiến độ** cho `backup` trong `_refresh_mascot_state`.
+
+### 3. Sửa Tương Tác Bấm Vào Bot
+* Trước đây câu đùa chỉ hiện 180ms rồi bị `set_state` ghi đè; vòng refresh của poll (~0.3s) cũng xóa ngay.
+* Nay dùng mốc `_poke_until` với `POKE_HOLD_SECONDS = 3.0`; `POKE_LINES` mở rộng từ 4 lên 12 câu.
+
+### 4. Đồng Bộ Phiên Bản
+* Nâng `APP_VERSION` trong [tiktool_core.py](file:///c:/TIKTOOL%20PRO%20V4/tiktool_core.py) từ `4.9.6` lên `4.9.8` (footer hiển thị `v4.9.8 • libimobiledevice v1.4.0`).
+
+### 5. Kiểm Thử
+* Thêm 6 test trong `MascotStateTests` ([tests/test_app_workflows.py](file:///c:/TIKTOOL%20PRO%20V4/tests/test_app_workflows.py)): ánh xạ đủ 14 loại thao tác, `erase` thắng `restore`, mọi trạng thái có màu + câu, lời thoại đổi câu, câu đùa không bị poll xóa, hoạt ảnh không tràn canvas.
+* **113/113 unit tests PASS (100%)**.
 
 ---
 
@@ -104,6 +132,14 @@
   [4] Hoàn tất: Toàn bộ dàn máy được bảo vệ an toàn đến 2027!
   ```
 
+### 3. Quy Tắc Bảo Trì Bot Đồng Hành Astro
+* **Thêm operation kind mới**: Phải cập nhật đồng thời **3 chỗ** — `STATE_STYLES`, `_resolve_mascot_state` và nhánh đếm `active_count` trong `_refresh_mascot_state`. Bỏ sót một chỗ là bot sẽ hiển thị nhầm trạng thái rảnh trong lúc máy đang chạy.
+* **Hoạt ảnh**: Vẽ thuần hình học bằng Canvas, gắn tag `('robot', 'fx')` để được dọn cùng, và phải nằm trong canvas 76x64. Lưu ý `bbox` của Tk tính thêm nửa độ dày outline nên cần chừa biên.
+* **Trạng thái trong `ANIMATED_STATES`** được vẽ lại mắt mỗi khung hình ➔ hiệu ứng nháy mắt bằng `itemconfigure('eyes', state='hidden')` không còn tác dụng, phải vẽ nháy trực tiếp trong `_draw_eyes`.
+* **Câu đùa khi bấm** (`_poke`) dùng mốc `_poke_until` (`POKE_HOLD_SECONDS = 3.0`); không được để `set_state` hoặc `_rotate_message` ghi đè trong thời gian giữ.
+* **Giọng điệu**: Vui cho `idle_*`/`backup`/`celebrate`, nhưng nghiêm túc và ngắn gọn cho `erase`, `shutdown` và `alert`.
+* **Không thêm file ảnh**: BB_RB.py giữ ràng buộc zero-pip 100% chuẩn Tkinter.
+
 ---
 
 ## 📁 CÁC FILE QUAN TRỌNG TRONG HỆ THỐNG
@@ -113,11 +149,12 @@
 | [`BB_RB.py`](file:///c:/TIKTOOL%20PRO%20V4/BB_RB.py) | Ứng dụng chính TIKTOOL PRO V4: Quản lý dàn máy, Restore/Backup, Cài IPA, Bật Developer Mode, Chặn/Gỡ Chặn Update iOS |
 | [`NOOTA_tvOS26_signed.mobileconfig`](file:///c:/TIKTOOL%20PRO%20V4/NOOTA_tvOS26_signed.mobileconfig) | File cấu hình Apple tvOS 26 Beta đã ký số chính thức (Apple Root CA, hạn 2027-05-20) |
 | [`ios.exe`](file:///c:/TIKTOOL%20PRO%20V4/ios.exe) | Công cụ quản trị iOS đa năng: prepare, skip-all, setlang, profile add/remove/list |
-| [`tiktool_core.py`](file:///c:/TIKTOOL%20PRO%20V4/tiktool_core.py) | Lõi thực thi ngầm: Phiên bản 4.9.6+, lọc ANSI VT100, điều phối subprocess an toàn |
+| [`tiktool_core.py`](file:///c:/TIKTOOL%20PRO%20V4/tiktool_core.py) | Lõi thực thi ngầm: Phiên bản 4.9.8, lọc ANSI VT100, điều phối subprocess an toàn |
 | [`idevicedevmodectl.exe`](file:///c:/TIKTOOL%20PRO%20V4/idevicedevmodectl.exe) | Quản lý Developer Mode iOS 16+ qua dịch vụ com.apple.amfi.lockdown |
 | [`TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html`](file:///c:/TIKTOOL%20PRO%20V4/TONG_HOP_KIEN_THUC_LIBIMOBILEDEVICE_TIKTOOL.html) | Toàn thư cẩm nang kiến trúc libimobiledevice & Quản trị farm (Đã cập nhật Chương 8 bằng Tailwind CSS v4) |
 | [`CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html`](file:///c:/TIKTOOL%20PRO%20V4/CHAN_UPDATE_IOS_VA_TIKTOK_BACKUP_RESTORE.html) | Bản tin chuyên sâu: Chặn & Gỡ Update iOS tvOS 26 Beta, mốc hạn 2027 và an toàn dữ liệu phôi TikTok Lite (Tailwind CSS v4) |
-| [`CHANGELOG.md`](file:///c:/TIKTOOL%20PRO%20V4/CHANGELOG.md) | Nhật ký thay đổi phiên bản (Cập nhật bản v4.9.7) |
+| [`CHANGELOG.md`](file:///c:/TIKTOOL%20PRO%20V4/CHANGELOG.md) | Nhật ký thay đổi phiên bản (Cập nhật bản v4.9.8) |
+| [`tests/test_app_workflows.py`](file:///c:/TIKTOOL%20PRO%20V4/tests/test_app_workflows.py) | Kiểm thử hồi quy luồng công việc, gồm `MascotStateTests` cho bot Astro |
 | [`.brain/brain.json`](file:///c:/TIKTOOL%20PRO%20V4/.brain/brain.json) | Bộ nhớ tri thức kiến trúc, pipelines và quy tắc gotchas vĩnh viễn |
 | [`.brain/session.json`](file:///c:/TIKTOOL%20PRO%20V4/.brain/session.json) | Bộ nhớ trạng thái phiên làm việc hiện tại |
 | [`.brain/handover.md`](file:///c:/TIKTOOL%20PRO%20V4/.brain/handover.md) | Tài liệu bàn giao chi tiết cho phiên làm việc tiếp theo |
@@ -130,4 +167,4 @@
   - `tiktool_core.py`: Clean ✅
   - `TIK_SIGNER.py`: Clean ✅
 * **Kiểm thử hồi quy (`python -m unittest discover -s tests`)**:
-  - **84/84 unit tests PASS (100%)** — Thời gian thực thi: `0.38s`.
+  - **113/113 unit tests PASS (100%)** — Thời gian thực thi: `~5.5s` (bao gồm 6 test mới của `MascotStateTests`).

@@ -3,13 +3,13 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-20T11:05:00+07:00"
+    "last_updated": "2026-09-23T10:20:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
     "type": "Desktop Application Suite (Python/Tkinter/ttkbootstrap)",
     "description": "Hệ thống quản lý, sao lưu (backup), khôi phục (restore) chuyển kho hai chiều (Kho A <-> Kho B), kích hoạt hàng loạt (batch activate), chặn/gỡ chặn cập nhật iOS hàng loạt (Apple tvOS 26 Beta Profile), đổi ngôn ngữ/locale tự động, theo dõi sản lượng restore, bật tự động Developer Mode hàng loạt (iOS 16+), tích hợp công cụ TIK SIGNER PRO ký IPA hàng loạt tốc độ cao theo UDID và công nghệ Smart UDID Matching tự động ghép đúng file IPA cho từng máy khi cài đặt, danh sách IPA dạng Lưới Grid 3 Cột siêu gọn gàng, bộ nhị phân libimobiledevice v1.4.0.",
-    "version": "4.9.7 Batch iOS Update Blocker Edition",
+    "version": "4.9.8 Astro Companion UX Edition",
     "status": "Production Ready / Fully Operational",
     "entry_point": "BB_RB.py",
     "companion_signer_tool": "TIK_SIGNER.py (CHAY_SIGNER.bat)"
@@ -52,6 +52,7 @@
       },
       "ipa_grid_layout": "Lưới Grid 3 Cột (uniform='ipa_col') tiết kiệm 64% chiều cao, xếp theo số thứ tự Slot 01->10, mini card viền Emerald/Đỏ/Slate, bấm mọi vị trí để toggle checkbox",
       "signer_ui": "ttkbootstrap 2.2.2 Darkly Theme (Slate Charcoal, Badge Info/Success/Warning, Treeview phân cấp thiết bị & kho chứng chỉ)",
+      "mascot_companion": "AstroBotCompanion (BB_RB.py ~dòng 1147): bot đồng hành vẽ bằng Canvas thuần (zero-pip), nằm trong thanh tiêu đề khu thiết bị. 15 trạng thái trong STATE_STYLES (idle_empty, idle_ready, restore, reboot, activate, install, celebrate, alert, backup, devmode, crashlog, noota, erase, shutdown, power), mỗi trạng thái có màu + tuple nhiều câu luân phiên. ANIMATED_STATES vẽ lại mắt mỗi khung hình để có hoạt ảnh riêng; POKE_HOLD_SECONDS = 3.0 giữ câu đùa khi bấm; ROTATE_EVERY_TICKS = 80 đổi câu mỗi ~6.4s.",
       "color_tokens": {
         "bg_main": "#1A1D23 (appDark-950: warm soft slate-charcoal)",
         "surface_panel": "#22262E (appDark-900: section container)",
@@ -121,14 +122,20 @@
       "Concurrency Documentation Drift: system_overview.md và design spec ghi 'mặc định 4, giới hạn 1-8' nhưng code/apps_config.json thực tế dùng threads=20, clamp 1-32 (nâng dần sau khi vận hành ổn định dàn 12-16 máy). Luôn đối chiếu tài liệu với apps_config.json + tiktool_core.load_concurrency thay vì tin mô tả cũ.",
       "idevicebackup2.exe luôn in nhãn 'Backup' cho cả restore lẫn backup (tái phát hiện 2026-09-15, xác nhận qua ảnh chụp UI thật): binary dùng chung một hàm in tiến độ cho cả `backup` và `restore`, LUÔN in chuỗi 'Backup [####...] NN%' bất kể đang chạy chiều nào — quirk có sẵn của chính công cụ, không phải app ghi nhãn sai. Card thiết bị vẫn hiển thị đúng 'Restore NN%' (do BB_RB tự set label qua push_step), nhưng khung Nhật Ký Hệ Thống in thẳng chuỗi thô trong `on_line` của `_restore_worker` (BB_RB.py, quanh dòng `def on_line` ngay sau `if row: row.push_step(\"Restore 0%\")`) nên gây hiểu lầm là đang Backup. FIX (đã áp dụng lại 2026-09-15 sau khi bị user discard nhầm cùng lô thay đổi ngôn ngữ): trong `on_line` của `_restore_worker`, CHỈ đổi nhãn hiển thị trước khi gọi `self.log(...)` bằng `re.sub(r'(?i)^Backup(?=\\s*\\[)', 'Restore', s)`, KHÔNG đụng vào `_parse_any_percent(s)` (vẫn parse trên chuỗi gốc `s`, không dựa vào chữ 'Backup'/'Restore' để hoạt động nên không bị ảnh hưởng). LƯU Ý CHO LẦN SAU: đây là fix hiển thị độc lập, tách biệt hoàn toàn khỏi phần xác minh ngôn ngữ (_apply_language_with_verify/query_device_language) — nếu discard nhầm lô ngôn ngữ thì phải re-apply riêng fix này, không được gộp bỏ chung.",
       "iOS Configuration Profile Persistence & Backup Restore Quirk: Profile chặn OTA (tvOS Beta) không vĩnh viễn tuyệt đối nhưng lưu bền vững qua Restart/Reboot thông thường. Profile chỉ mất trong 3 trường hợp: Reset dòng 2 (Xóa tất cả nội dung & cài đặt), Flash lại firmware (Restore IPSW), hoặc hết hạn chứng chỉ Apple (20/05/2027). ĐẶC BIỆT: Bản sao lưu (Backup) của iTunes/3uTools/idevicebackup2 KHÔNG BAO GIỜ sao lưu Profile cấu hình hệ thống. Do đó, nếu quy trình làm farm là Reset dòng 2 rồi bung phôi backup thì profile sẽ mất sạch. Khắc phục: Sau khi nạp phôi xong, chỉ cần cắm cả dàn vào TikTool và bấm nút 'Chặn Update iOS' 1 lần duy nhất cho toàn bộ máy.",
-      "Apple Signed Mobileconfig vs Expired Profiles: Profile chặn OTA bắt buộc phải là file binary CMS-signed có chữ ký hợp lệ từ Apple. File NOOTA.mobileconfig cũ có sẵn trong 3uTools (RemovalDate: 2026-05-01) đã hết hạn và sẽ bị iOS từ chối; bắt buộc phải dùng profile mới (tvOS 26 Beta trích xuất từ cache 3uTools 9CE6C842E107901F37186BAC993911F6.mobileconfig) có hạn đến 2027-05-20."
+      "Apple Signed Mobileconfig vs Expired Profiles: Profile chặn OTA bắt buộc phải là file binary CMS-signed có chữ ký hợp lệ từ Apple. File NOOTA.mobileconfig cũ có sẵn trong 3uTools (RemovalDate: 2026-05-01) đã hết hạn và sẽ bị iOS từ chối; bắt buộc phải dùng profile mới (tvOS 26 Beta trích xuất từ cache 3uTools 9CE6C842E107901F37186BAC993911F6.mobileconfig) có hạn đến 2027-05-20.",
+      "Astro Companion State Coverage (phát hiện 2026-09-23): _resolve_mascot_state ban đầu chỉ ánh xạ restore/install_ipa/activate/language/webclip/backup/auto_activate; mọi operation kind khác (devmode, clear_crashlog, block_update, unblock_update, erase, shutdown, reboot) đều rơi vào nhánh rảnh nên bot báo 'Đã kết nối N máy sẵn sàng. Sếp bấm nút là nạp ngay!' trong lúc dàn máy đang bận. Mỗi khi thêm operation kind mới trong _begin_operation PHẢI cập nhật đồng thời 3 chỗ: STATE_STYLES, _resolve_mascot_state và nhánh đếm active_count trong _refresh_mascot_state.",
+      "Astro Companion Poke & Rotation (phát hiện 2026-09-23): _poke cũ hiện câu đùa rồi tự gọi set_state sau 180ms nên gần như không đọc được, đồng thời _refresh_mascot_state chạy mỗi ~0.3s sẽ ghi đè câu đùa ngay lập tức. Đã sửa bằng mốc _poke_until (POKE_HOLD_SECONDS = 3.0): set_state chỉ giữ câu đùa khi trạng thái KHÔNG đổi và còn trong thời gian giữ; lời thoại luân phiên qua ROTATE_EVERY_TICKS = 80 (~6.4s) và _rotate_message(), tự bỏ qua khi đang giữ câu đùa.",
+      "Astro Companion Animation Contract (2026-09-23): các trạng thái trong ANIMATED_STATES được vẽ lại mắt mỗi khung hình nên hiệu ứng nháy mắt bằng itemconfigure('eyes', state='hidden') không còn tác dụng — phải vẽ nháy trực tiếp trong _draw_eyes. Mọi hiệu ứng mới bắt buộc gắn tag ('robot', 'fx') để được dọn cùng và phải nằm trong canvas 76x64; test test_new_state_animations_stay_inside_canvas sẽ bắt lỗi tràn biên (lưu ý bbox của Tk tính thêm nửa độ dày outline)."
     ],
     "conventions": [
       "Đặt tên file IPA đã ký: Luôn dùng cú pháp TikTok_Lite_<UDID>_Signed.ipa chứa đầy đủ mã UDID để công cụ cài đặt tự động đối soát chính xác 100%.",
       "Lưới Grid 3 Cột cho danh sách IPA: Sử dụng uniform='ipa_col' và sắp xếp theo Slot máy để đảm bảo giao diện luôn cân xứng và khớp số thứ tự với dàn máy bên dưới.",
       "Cấu trúc thư mục certs: Mỗi bộ chứng chỉ nằm trong 1 thư mục con riêng biệt trong certs/ (hoặc theo tên UDID), chứa ít nhất 1 file .p12, 1 file .mobileprovision và tùy chọn pass.txt.",
       "Luôn acquire SEMAPHORE trước khi thực hiện các tác vụ nặng (Backup, Restore, Activate, Install IPA) để kiểm soát tải CPU và băng thông USB.",
-      "Tất cả các cập nhật GUI từ worker thread phải điều hướng qua queue hoặc self.after(0, ...) để tránh xung đột luồng Tkinter."
+      "Tất cả các cập nhật GUI từ worker thread phải điều hướng qua queue hoặc self.after(0, ...) để tránh xung đột luồng Tkinter.",
+      "Khi thêm operation kind mới: cập nhật đồng bộ STATE_STYLES + _resolve_mascot_state + _refresh_mascot_state để bot Astro luôn phản ánh đúng thao tác đang chạy, không hiển thị nhầm trạng thái rảnh.",
+      "Mọi hoạt ảnh của Astro phải vẽ thuần hình học bằng Canvas, gắn tag ('robot', ...) và KHÔNG thêm file ảnh, để giữ ràng buộc zero-pip của lõi BB_RB.py.",
+      "Lời thoại Astro: giữ giọng vui cho trạng thái rảnh/backup/celebrate, nhưng dùng câu ngắn và nghiêm túc cho các thao tác nguy hiểm (erase, shutdown) và cảnh báo (alert)."
     ]
   }
 }

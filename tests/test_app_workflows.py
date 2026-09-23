@@ -802,6 +802,104 @@ class MascotStateTests(unittest.TestCase):
         finally:
             root.destroy()
 
+    def _make_bot(self):
+        root = BB_RB.tk.Tk()
+        root.withdraw()
+        self.addCleanup(root.destroy)
+        return BB_RB.AstroBotCompanion(root)
+
+    def test_all_operation_kinds_map_to_dedicated_states(self):
+        """Catches Dev Mode, Reset or Update Blocker still rendering Astro as idle."""
+        cases = {
+            "restore": "restore",
+            "install_ipa": "install",
+            "activate": "activate",
+            "language": "activate",
+            "webclip": "activate",
+            "backup": "backup",
+            "devmode": "devmode",
+            "clear_crashlog": "crashlog",
+            "block_update": "noota",
+            "unblock_update": "noota",
+            "erase": "erase",
+            "shutdown": "shutdown",
+            "reboot": "power",
+            "auto_activate": "reboot",
+        }
+        for kind, expected in cases.items():
+            with self.subTest(kind=kind):
+                self.assertEqual(expected, BB_RB.App._resolve_mascot_state({"u1": kind}, 5, 0))
+
+    def test_erase_outranks_restore_and_untrusted_warning(self):
+        """Catches the destructive wipe being hidden behind a running restore."""
+        self.assertEqual(
+            "erase",
+            BB_RB.App._resolve_mascot_state({"u1": "erase", "u2": "restore"}, 5, 3),
+        )
+
+    def test_every_state_has_color_and_non_empty_variants(self):
+        """Catches a new state shipping without a colour or a message."""
+        for state, (color, variants) in BB_RB.AstroBotCompanion.STATE_STYLES.items():
+            with self.subTest(state=state):
+                self.assertRegex(color, r"^#[0-9A-Fa-f]{6}$")
+                self.assertTrue(variants)
+                for line in variants:
+                    self.assertTrue(line.strip())
+
+    def test_message_rotates_between_variants(self):
+        """Catches Astro repeating one sentence forever while idle."""
+        bot = self._make_bot()
+        bot.set_state("idle_ready", count=3, progress=0)
+        first = bot.message.cget("text")
+
+        bot._rotate_message()
+
+        second = bot.message.cget("text")
+        self.assertNotEqual(first, second)
+        self.assertIn("3", second)
+
+    def test_poke_message_survives_poll_refresh(self):
+        """Catches the click joke being wiped by the next poll refresh."""
+        bot = self._make_bot()
+        bot.set_state("idle_ready", count=2, progress=0)
+
+        bot._poke()
+        poked = bot.message.cget("text")
+        self.assertIn(poked, BB_RB.AstroBotCompanion.POKE_LINES)
+
+        bot.set_state("idle_ready", count=5, progress=0)
+        self.assertEqual(poked, bot.message.cget("text"))
+
+        bot._poke_until = 0.0
+        bot.set_state("idle_ready", count=5, progress=0)
+        self.assertNotIn(bot.message.cget("text"), BB_RB.AstroBotCompanion.POKE_LINES)
+
+    def test_new_state_animations_stay_inside_canvas(self):
+        """Catches the per-state effects drawing outside Astro's canvas."""
+        root = BB_RB.tk.Tk()
+        root.withdraw()
+        try:
+            bot = BB_RB.AstroBotCompanion(root)
+            canvas_height = int(bot.canvas.cget("height"))
+            canvas_width = int(bot.canvas.cget("width"))
+
+            for state in BB_RB.AstroBotCompanion.ANIMATED_STATES:
+                bot.set_state(state, count=2, progress=40)
+                for tick in (1, 5, 11, 23):
+                    bot.tick = tick
+                    for bob in (-4, 0, 4):
+                        bot._bob = bob
+                        bot._draw_eyes()
+                        bot._draw_state_effect()
+                        left, top, right, bottom = bot.canvas.bbox("robot")
+                        with self.subTest(state=state, tick=tick, bob=bob):
+                            self.assertGreaterEqual(left, 0)
+                            self.assertLessEqual(right, canvas_width)
+                            self.assertGreaterEqual(top, 0)
+                            self.assertLessEqual(bottom, canvas_height)
+        finally:
+            root.destroy()
+
 
 class _ImmediateThread:
     def __init__(self, *, target, args=(), daemon=None, **kwargs):
