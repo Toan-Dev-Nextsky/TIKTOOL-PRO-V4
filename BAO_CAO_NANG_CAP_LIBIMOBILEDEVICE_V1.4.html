@@ -163,7 +163,7 @@
       <div class="glass-panel p-6 rounded-2xl border border-slate-800 relative overflow-hidden group hover:border-purple-500/50 transition-all duration-300">
         <div class="text-xs uppercase tracking-wider font-semibold text-slate-400">Kiểm thử tự động</div>
         <div class="mt-2 text-3xl font-extrabold text-purple-400 font-['Outfit'] flex items-baseline gap-2">
-          61 / 61
+          119 / 119
           <span class="text-xs text-emerald-400 font-semibold font-mono">100% PASS</span>
         </div>
         <p class="mt-1 text-xs text-slate-500">Bảo vệ vững chắc luồng Restore/Backup</p>
@@ -430,6 +430,264 @@ Status: Restore đã xong, UI kẹt</pre>
           </ul>
           <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs text-slate-400 font-mono">
             Tất cả 4 bản sao lưu mới đều vượt qua khâu kiểm tra toàn vẹn Status.plist và Manifest.db.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: CHUYÊN ĐỀ QUYỀN NTFS & BẢN NÂNG CẤP CHUYỂN KHO RESTORE (COMMIT 196358b) -->
+    <section class="glass-panel rounded-3xl p-8 border border-slate-800 space-y-8 relative overflow-hidden">
+      <div class="absolute -right-24 -top-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-24 -bottom-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Tiêu đề mục 5 -->
+      <div class="flex items-start justify-between flex-wrap gap-4 border-b border-slate-800/80 pb-6 relative z-10">
+        <div class="flex items-center gap-3">
+          <div class="p-3 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-lg shadow-amber-500/5">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          </div>
+          <div>
+            <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400 border border-amber-500/30 mb-1">
+              Chuyên Đề Vận Hành phone farm
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white font-['Outfit']">5. Sự Cố Quyền NTFS Sau Khi Cài Lại Windows & Bản Vá Chuyển Kho Restore</h2>
+            <p class="text-sm text-slate-400 mt-1">Phân tích bản chất nguyên nhân lỗi WinError 5, vai trò của lệnh icacls đối chiếu với bản cập nhật mã nguồn (Commit 196358b).</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 rounded-xl bg-slate-900/80 text-slate-300 font-mono text-xs border border-slate-700">Commit: 196358b</span>
+          <span class="px-3 py-1 rounded-xl bg-emerald-500/10 text-emerald-400 font-mono text-xs font-semibold border border-emerald-500/30">119/119 Tests PASS</span>
+        </div>
+      </div>
+
+      <!-- 5.1 NGUYÊN NHÂN GỐC RỄ: TẠI SAO CÀI LẠI WINDOWS LẠI BỊ LỖI? -->
+      <div class="space-y-4 relative z-10">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+          <h3 class="text-lg font-bold text-white font-['Outfit'] tracking-wide">5.1 Bản Chất Nguyên Nhân Gốc Rễ: Do Windows Hay Do App?</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div class="glass-card p-5 rounded-2xl border border-slate-800/80 space-y-3">
+            <div class="text-xs uppercase font-bold text-rose-400 tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              Cơ Chế Windows SID
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Mỗi tài khoản Windows được định danh bằng một mã bí mật gọi là <strong>SID (Security Identifier)</strong> (ví dụ: <code class="text-cyan-300">S-1-5-21-...-1001</code>). Dù bạn cài lại Win và tiếp tục đặt tên user là <code class="text-amber-300">pc</code> hay <code class="text-amber-300">Admin</code>, Windows vẫn cấp một <strong>SID hoàn toàn mới</strong>.
+            </p>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl border border-slate-800/80 space-y-3">
+            <div class="text-xs uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+              Kho Backup Lưu ACL Cũ
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Các ổ đĩa chứa dữ liệu như <strong>E:\</strong> và <strong>F:\</strong> có định dạng NTFS. Bảng phân quyền (ACL) trên từng thư mục backup vẫn ghim chặt vào SID của hệ điều hành cũ. Tài khoản mới chỉ được phân loại là <em>Users</em> phổ thông, chỉ có quyền Đọc (Read), không có quyền <strong>Modify (Sửa/Xóa)</strong>.
+            </p>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl border border-slate-800/80 space-y-3">
+            <div class="text-xs uppercase font-bold text-cyan-400 tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              Điểm Chặn Khi Restore
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Khi chạy Restore, TikTool cần thực hiện 2 thao tác hệ thống bắt buộc:
+              <br>• Ghi đè file <code class="text-slate-200">Info.plist</code> (cần quyền <em>Delete</em> tệp cũ để replace).
+              <br>• Đổi tên thư mục sang kho đối diện (cần quyền <em>Delete</em> thư mục ở nguồn).
+              <br>➔ Windows chặn đứng với mã lỗi <strong>WinError 5 (Access is denied)</strong>!
+            </p>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-start gap-3 text-xs text-slate-300">
+          <span class="text-lg">💡</span>
+          <div>
+            <strong class="text-white">Kết luận bản chất:</strong> Lỗi này là do <strong>cơ chế bảo mật phân quyền NTFS của hệ điều hành Windows sau khi cài lại máy</strong>, hoàn toàn KHÔNG PHẢI do phần mềm TikTool làm hỏng dữ liệu hay xóa mất backup của bạn.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5.2 HƯỚNG DẪN LỆNH ICACLS CHUẨN XÁC NHẤT -->
+      <div class="space-y-4 relative z-10">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <h3 class="text-lg font-bold text-white font-['Outfit'] tracking-wide">5.2 Lệnh Khắc Phục Chuẩn: Cấp Lại Quyền Modify Động Qua PowerShell</h3>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2 text-xs">
+            <span class="font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+              Script Khuyên Dùng (Mở PowerShell với Run as Administrator)
+            </span>
+            <span class="text-slate-500 font-mono">Áp dụng cho mọi lần cài lại Win</span>
+          </div>
+
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto space-y-2">
+            <div class="text-slate-500"># 1. Tự động lấy chính xác tên tài khoản máy hiện tại (tránh gõ cứng tên máy cũ):</div>
+            <div class="text-cyan-300 font-semibold">$account = whoami</div>
+            <div class="text-slate-500 pt-1"># 2. Cấp quyền Modify đệ quy kế thừa cho toàn bộ cây thư mục trên ổ đĩa chứa Kho Backup:</div>
+            <div class="text-emerald-400 font-semibold">icacls E:\ /grant "${account}:(OI)(CI)M" /T /C /L /Q</div>
+            <div class="text-emerald-400 font-semibold">icacls F:\ /grant "${account}:(OI)(CI)M" /T /C /L /Q</div>
+          </div>
+
+          <!-- Giải thích các tham số icacls -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-2">
+            <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+              <code class="text-amber-400 font-bold font-mono text-xs">(OI)</code>
+              <p class="text-[11px] text-slate-400 mt-1">Object Inherit: Tệp con kế thừa</p>
+            </div>
+            <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+              <code class="text-amber-400 font-bold font-mono text-xs">(CI)</code>
+              <p class="text-[11px] text-slate-400 mt-1">Container Inherit: Thư mục con kế thừa</p>
+            </div>
+            <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+              <code class="text-emerald-400 font-bold font-mono text-xs">M</code>
+              <p class="text-[11px] text-slate-400 mt-1">Modify: Đọc, Ghi & XÓA tập tin</p>
+            </div>
+            <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+              <code class="text-cyan-400 font-bold font-mono text-xs">/T</code>
+              <p class="text-[11px] text-slate-400 mt-1">Traverse: Đệ quy toàn bộ thư mục con</p>
+            </div>
+            <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+              <code class="text-cyan-400 font-bold font-mono text-xs">/C</code>
+              <p class="text-[11px] text-slate-400 mt-1">Continue: Bỏ qua lỗi file hệ thống để chạy tiếp</p>
+            </div>
+            <div class="p-2.5 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+              <code class="text-cyan-400 font-bold font-mono text-xs">/Q</code>
+              <p class="text-[11px] text-slate-400 mt-1">Quiet: Chạy ngầm êm ái không spam màn hình</p>
+            </div>
+          </div>
+
+          <!-- Lưu ý quan trọng -->
+          <div class="p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 text-xs text-amber-200/90 space-y-1">
+            <strong class="text-amber-300 font-semibold flex items-center gap-1.5">
+              ⚠️ Lưu ý đặc biệt về tên máy tính (Computer Name):
+            </strong>
+            <p>
+              Tuyệt đối <strong>không copy cứng</strong> chuỗi <code class="text-amber-400 bg-amber-950/60 px-1 py-0.5 rounded">DESKTOP-4MHQHHS\pc</code> từ máy này sang máy khác. Khi cài lại Windows, Windows tự sinh tên máy ngẫu nhiên (ví dụ máy hiện tại là <code class="text-cyan-300 bg-slate-900 px-1 py-0.5 rounded">DESKTOP-6Q2H2UO\pc</code>). Dùng <code class="text-emerald-300">$account = whoami</code> sẽ luôn đúng 100% cho mọi máy.
+            </p>
+            <p class="text-slate-400 pt-1">
+              * Nếu lệnh có báo lỗi tại <code class="text-slate-300">System Volume Information</code> thì hãy hoàn toàn an tâm: Đó là phân vùng bảo vệ riêng của Windows, không phải thư mục backup của bạn.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5.3 SO SÁNH ĐỐI CHIẾU: ICACLS VS BẢN VÁ COMMIT 196358b -->
+      <div class="space-y-4 relative z-10">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <h3 class="text-lg font-bold text-white font-['Outfit'] tracking-wide">5.3 Phân Định Rõ Ràng: Lệnh icacls Làm Gì VS Bản Code Mới (196358b) Làm Gì?</h3>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-800">
+          <table class="w-full text-left text-xs font-sans">
+            <thead class="bg-slate-900/90 text-slate-300 uppercase tracking-wider text-[11px] border-b border-slate-800 font-semibold font-mono">
+              <tr>
+                <th class="p-4">Hạng mục so sánh</th>
+                <th class="p-4 text-emerald-400">Lệnh icacls (Hệ điều hành Windows)</th>
+                <th class="p-4 text-cyan-400">Bản vá mã nguồn (Commit 196358b)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 bg-slate-950/40 text-slate-300">
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="p-4 font-semibold text-white">Cấp bậc can thiệp</td>
+                <td class="p-4 text-emerald-300"><strong>Tầng sâu Hệ điều hành (OS Level)</strong>: Phân quyền trực tiếp trên MFT của ổ đĩa NTFS.</td>
+                <td class="p-4 text-cyan-300"><strong>Tầng Ứng dụng (Application Level)</strong>: Xử lý an toàn file, đổi tên và kiểm soát ngoại lệ.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="p-4 font-semibold text-white">Khắc phục gốc WinError 5?</td>
+                <td class="p-4 text-emerald-300"><strong>Có, triệt để 100%</strong>: Trao cho tài khoản mới quyền xóa và ghi đè file.</td>
+                <td class="p-4 text-slate-400">Không thể tự cấp quyền Admin (App chạy user-mode không thể tự vượt quyền OS). Bù lại: hiển thị hướng dẫn quyền rõ ràng.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="p-4 font-semibold text-white">Xử lý trùng tên đích (WinError 183)</td>
+                <td class="p-4 text-slate-400">Không can thiệp (Không biết nghiệp vụ kho của TikTool).</td>
+                <td class="p-4 text-cyan-300"><strong>Tự động xử lý</strong>: Hàm <code>_unique_destination</code> tự gắn thêm timestamp và chỉ số để không bị lỗi trùng.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="p-4 font-semibold text-white">Windows giữ handle file tạm thời</td>
+                <td class="p-4 text-slate-400">Không can thiệp.</td>
+                <td class="p-4 text-cyan-300"><strong>Tự động Retry 9 lần (mỗi lần 1s)</strong>: Chờ Windows nhả handle vừa chạy xong từ idevicebackup2 trước khi báo lỗi.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="p-4 font-semibold text-white">Độ an toàn Info.plist</td>
+                <td class="p-4 text-slate-400">Không can thiệp.</td>
+                <td class="p-4 text-cyan-300"><strong>Dùng tempfile.mkstemp duy nhất</strong> và dọn sạch file tạm trong <code>finally</code>, không bao giờ để lại file rác <code>.tmp</code>.</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition-colors">
+                <td class="p-4 font-semibold text-white">Bộ đếm banner và trạng thái</td>
+                <td class="p-4 text-slate-400">Không can thiệp.</td>
+                <td class="p-4 text-cyan-300"><strong>Bộ đếm khóa đồng bộ</strong>: Tránh banner báo thiếu máy do hàng đợi UI queue bị trễ; phân biệt rõ máy nạp xong với chuyển kho lỗi.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 5.4 GIẢI ĐÁP CÁC CÂU HỎI TRỌNG TÂM CỦA BẠN (FAQ) -->
+      <div class="space-y-4 relative z-10">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+          <h3 class="text-lg font-bold text-white font-['Outfit'] tracking-wide">5.4 Giải Đáp Nhanh 3 Thắc Mắc Quan Trọng Nhất</h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- Câu hỏi 1 -->
+          <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2.5">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">Câu hỏi 1</span>
+            <h4 class="text-sm font-bold text-white">"Kể cả không sửa code mới, chỉ cần chạy lại lệnh icacls là được đúng không?"</h4>
+            <p class="text-xs text-emerald-400 font-semibold">➔ ĐÚNG VẬY!</p>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Nếu nguyên nhân duy nhất là mất quyền NTFS sau khi cài lại Windows, chỉ cần chạy lệnh <code>icacls</code> cấp lại quyền Modify cho đúng tài khoản là bản TikTool cũ đã có thể chuyển kho bình thường. Bản vá code là để giải quyết thêm các tình huống va chạm tên và tăng cường bảo vệ.
+            </p>
+          </div>
+
+          <!-- Câu hỏi 2 -->
+          <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2.5">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Câu hỏi 2</span>
+            <h4 class="text-sm font-bold text-white">"Nếu máy KHÔNG bị lỗi Modify thì bản code mới có ảnh hưởng gì không?"</h4>
+            <p class="text-xs text-emerald-400 font-semibold">➔ HOÀN TOÀN KHÔNG ẢNH HƯỞNG TIÊU CỰC!</p>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Khi máy đã có đủ quyền Modify, code sẽ thực hiện chuyển kho ngay tức thì (0.001s). Vòng lặp thử lại 9 lần chỉ kích hoạt duy nhất khi bắt được ngoại lệ <code>PermissionError</code>. Khi không có lỗi, code chạy trơn tru, không có bất kỳ độ trễ nào.
+            </p>
+          </div>
+
+          <!-- Câu hỏi 3 -->
+          <div class="glass-card p-5 rounded-2xl border border-slate-800 space-y-2.5">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">Câu hỏi 3</span>
+            <h4 class="text-sm font-bold text-white">"Chuyển cùng ổ (F: ➔ F:) khác gì chuyển khác ổ (E: ➔ F:)?"</h4>
+            <p class="text-xs text-cyan-300 font-semibold">➔ CƠ CHẾ KHÁC BIỆT TẬN GỐC:</p>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              • <strong>Cùng ổ đĩa</strong>: Dùng <code>os.rename</code> thay đổi con trỏ bản ghi MFT trong tích tắc, không chép lại dữ liệu, an toàn 100%.
+              <br>• <strong>Khác ổ đĩa</strong>: Phải copy toàn bộ dữ liệu qua staging, đối soát mã băm SHA-256 rồi mới đổi tên và dọn dẹp nguồn.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5.5 CẨM NANG 3 BƯỚC VẬN HÀNH CHUẨN KHI CÀI LẠI MÁY FARM -->
+      <div class="p-6 bg-slate-900/90 rounded-2xl border border-emerald-500/30 space-y-4 relative z-10">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 text-base">📌</span>
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Quy Trình 3 Bước Chuẩn Mỗi Khi Cài Lại Máy Farm (Phone Farm Checklist)</h4>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1.5">
+            <div class="text-cyan-400 font-bold font-mono">BƯỚC 1: MỞ POWERSHELL ADMIN</div>
+            <p class="text-slate-400">Bấm phím Windows ➔ gõ <code>PowerShell</code> ➔ Chuột phải chọn <strong>Run as Administrator</strong>.</p>
+          </div>
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1.5">
+            <div class="text-emerald-400 font-bold font-mono">BƯỚC 2: CẤP QUYỀN ĐỘNG</div>
+            <p class="text-slate-400">Copy đoạn lệnh bên trên (dùng <code>$account = whoami</code>) và dán vào cửa sổ PowerShell rồi nhấn Enter.</p>
+          </div>
+          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1.5">
+            <div class="text-purple-400 font-bold font-mono">BƯỚC 3: MỞ TIKTOOL PRO V4</div>
+            <p class="text-slate-400">Chạy TikTool, cắm dàn iPhone và bấm Restore Pro. Mọi thao tác nạp và chuyển kho A ↔ B sẽ vận hành mượt mà 100%!</p>
           </div>
         </div>
       </div>
