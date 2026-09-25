@@ -183,7 +183,8 @@ DEFAULT_SETTINGS = {
     "dailyRestoreDate": "",
     "dailyRestoreCount": 0,
     "hourlyRestoreDate": "",
-    "hourlyRestoreCounts": {}
+    "hourlyRestoreCounts": {},
+    "showBackupIpaTabs": True,             # Ẩn/hiện 2 tab Sao Lưu & Cài IPA (gọn giao diện khi chỉ dùng Restore)
 }
 
 def _ts(): return datetime.now().strftime("%H:%M:%S")
@@ -1528,6 +1529,7 @@ class App(tk.Tk):
         self.var_auto_activate_after_restore = tk.BooleanVar(value=DEFAULT_SETTINGS["autoActivateAfterRestore"])
         self.var_active_store = tk.StringVar(value="A")  # Kho nguồn: A hoặc B
         self.var_custom_webclip_link = tk.StringVar(value=DEFAULT_SETTINGS.get("customWebclipLink", "https://linkm.site/"))
+        self.var_show_extra_tabs = tk.BooleanVar(value=DEFAULT_SETTINGS["showBackupIpaTabs"])  # Ẩn/hiện tab Sao Lưu & Cài IPA
 
         # Theo dõi các tiến trình đang thực hiện để cảnh báo khi tắt app
         self.active_restores = set()
@@ -1639,6 +1641,23 @@ class App(tk.Tk):
         # Badge luồng bên phải
         flow_badge = tk.Frame(row1, bg=COLOR_SUB_BG, highlightbackground=COLOR_BORDER_LIGHT, highlightthickness=1)
         flow_badge.pack(side="right")
+
+        # Nút bật/tắt hiển thị Tab Sao Lưu & Cài IPA (thu gọn giao diện khi chỉ dùng Restore)
+        self.btn_toggle_extra_tabs = tk.Button(
+            row1,
+            text=f"{Icons.GEAR}  Tab phụ: Hiện",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg=COLOR_TEXT_MAIN,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self._toggle_extra_tabs
+        )
+        self.btn_toggle_extra_tabs.pack(side="right", padx=(0, 8), ipady=2, ipadx=6)
 
         lbl_f1 = tk.Label(flow_badge, text="Activate", font=("Consolas", 8, "bold"), fg=COLOR_EMERALD_ACCENT, bg=COLOR_SUB_BG)
         lbl_f1.pack(side="left", padx=(6, 2), pady=2)
@@ -4350,6 +4369,27 @@ class App(tk.Tk):
         self.frame_ipa_panel.pack(fill="x")
         self._refresh_ipa_list()
 
+    # ---------------- ẨN/HIỆN TAB PHỤ (SAO LƯU & CÀI IPA) ----------------
+    def _toggle_extra_tabs(self):
+        """Bật/tắt hiển thị 2 tab Sao Lưu & Cài IPA để thu gọn giao diện khi chỉ dùng Restore."""
+        self.var_show_extra_tabs.set(not self.var_show_extra_tabs.get())
+        self._apply_extra_tabs_visibility()
+        self._save_settings_from_ui()
+
+    def _apply_extra_tabs_visibility(self):
+        visible = self.var_show_extra_tabs.get()
+        if visible:
+            self.btn_tab_backup.pack(side="left", padx=(0, 3), ipady=3, expand=True, fill="x")
+            self.btn_tab_ipa.pack(side="left", ipady=3, expand=True, fill="x")
+            self.btn_toggle_extra_tabs.config(text=f"{Icons.GEAR}  Tab phụ: Hiện", bg=COLOR_BTN_ELEVATED, fg=COLOR_TEXT_MAIN)
+        else:
+            self.btn_tab_backup.pack_forget()
+            self.btn_tab_ipa.pack_forget()
+            self.btn_toggle_extra_tabs.config(text=f"{Icons.GEAR}  Tab phụ: Ẩn", bg=COLOR_SUB_BG, fg=COLOR_CYAN_ACCENT)
+            # Nếu đang đứng ở tab bị ẩn thì tự động quay về Restore
+            if self.current_mode in ("BACKUP", "IPA"):
+                self._switch_to_restore()
+
     # ---------------- LOAD SETTINGS KHỞI ĐỘNG ----------------
     def _load_initial_settings(self):
         """Load settings.json ĐỒNG BỘ ngay khi khởi động để label paths hiển thị đúng
@@ -4396,6 +4436,11 @@ class App(tk.Tk):
         if "setLangAfterActive" in data: self.var_set_lang_after_active.set(bool(data["setLangAfterActive"]))
         if "autoActivateAfterRestore" in data: self.var_auto_activate_after_restore.set(bool(data["autoActivateAfterRestore"]))
         if "active" in data and data["active"] in ("A", "B"): self.var_active_store.set(data["active"])
+        if "showBackupIpaTabs" in data:
+            new_show_extra = bool(data["showBackupIpaTabs"])
+            if new_show_extra != self.var_show_extra_tabs.get():
+                self.var_show_extra_tabs.set(new_show_extra)
+                self._apply_extra_tabs_visibility()
         if "customWebclipLink" in data and data["customWebclipLink"]:
             # Only set on initial load, not during periodic sync (to avoid overwriting user edits)
             if not getattr(self, '_webclip_link_loaded', False):
@@ -4456,6 +4501,7 @@ class App(tk.Tk):
             data["setLangAfterActive"] = self.var_set_lang_after_active.get()
             data["autoActivateAfterRestore"] = self.var_auto_activate_after_restore.get()
             data["active"] = self.var_active_store.get()
+            data["showBackupIpaTabs"] = self.var_show_extra_tabs.get()
             data["customWebclipLink"] = self.var_custom_webclip_link.get().strip()
             data["dailyRestoreDate"] = self.daily_restore_date
             data["dailyRestoreCount"] = self.daily_restore_count
