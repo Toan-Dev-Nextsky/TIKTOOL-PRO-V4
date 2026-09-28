@@ -26,6 +26,7 @@ from tiktool_core import (  # noqa: E402
     load_concurrency,
     format_hourly_restore_history,
     hour_window,
+    hourly_restore_prompt,
     make_license_key,
     move_restored_backup,
     normalize_url,
@@ -273,20 +274,49 @@ class RegistryConfigTests(unittest.TestCase):
 
 
 class HourlyRestoreStatsTests(unittest.TestCase):
+    def test_hourly_prompt_warns_on_pace_and_advances_to_the_next_goal(self):
+        self.assertEqual(
+            ("idle", "Mục tiêu giờ: Đạt 100 máy"),
+            hourly_restore_prompt(50, 34),
+        )
+        self.assertEqual(
+            ("warning", "⚠ Đạt 50/59 · cần 2,0 máy/ph"),
+            hourly_restore_prompt(50, 35),
+        )
+        self.assertEqual("on_track", hourly_restore_prompt(59, 35)[0])
+        self.assertEqual("warning", hourly_restore_prompt(100, 59)[0])
+        self.assertIn("Khá", hourly_restore_prompt(100, 59)[1])
+        self.assertIn("Tốt", hourly_restore_prompt(110, 59)[1])
+        self.assertIn("Rất tốt", hourly_restore_prompt(120, 59)[1])
+        self.assertIn("Xuất sắc", hourly_restore_prompt(130, 59)[1])
+        self.assertEqual(
+            ("encourage", "Khá ✓ · Tốt +10 máy"),
+            hourly_restore_prompt(110, 35),
+        )
+        self.assertEqual(
+            ("encourage", "Tốt ✓ · Rất tốt +10 máy"),
+            hourly_restore_prompt(120, 35),
+        )
+        self.assertEqual(
+            ("encourage", "Rất tốt ✓ · Xuất sắc +5 máy"),
+            hourly_restore_prompt(130, 35),
+        )
+        self.assertEqual("excellent", hourly_restore_prompt(135, 35)[0])
+
     def test_rating_uses_the_approved_hourly_thresholds(self):
         """Catches boundary mistakes that assign a production count to the wrong tier."""
         cases = (
             (0, "Chưa đạt"),
-            (89, "Chưa đạt"),
-            (90, "Đạt"),
-            (99, "Đạt"),
-            (100, "Khá"),
-            (109, "Khá"),
-            (110, "Tốt"),
-            (119, "Tốt"),
-            (120, "Rất tốt"),
-            (124, "Rất tốt"),
-            (125, "Xuất sắc"),
+            (99, "Chưa đạt"),
+            (100, "Đạt"),
+            (109, "Đạt"),
+            (110, "Khá"),
+            (119, "Khá"),
+            (120, "Tốt"),
+            (129, "Tốt"),
+            (130, "Rất tốt"),
+            (134, "Rất tốt"),
+            (135, "Xuất sắc"),
             (200, "Xuất sắc"),
         )
 
@@ -298,15 +328,15 @@ class HourlyRestoreStatsTests(unittest.TestCase):
         """Catches the compact UI showing a harsh text label or the wrong star tier."""
         cases = (
             (0, "★☆☆☆☆"),
-            (89, "★☆☆☆☆"),
-            (90, "★★☆☆☆"),
-            (99, "★★☆☆☆"),
-            (100, "★★★☆☆"),
-            (109, "★★★☆☆"),
-            (110, "★★★★☆"),
-            (119, "★★★★☆"),
-            (120, "★★★★★"),
-            (125, "★★★★★"),
+            (99, "★☆☆☆☆"),
+            (100, "★★☆☆☆"),
+            (109, "★★☆☆☆"),
+            (110, "★★★☆☆"),
+            (119, "★★★☆☆"),
+            (120, "★★★★☆"),
+            (129, "★★★★☆"),
+            (130, "★★★★★"),
+            (135, "★★★★★"),
         )
 
         for count, expected in cases:
@@ -334,12 +364,12 @@ class HourlyRestoreStatsTests(unittest.TestCase):
 
     def test_history_lists_completed_hour_buckets_in_time_order(self):
         """Catches saved hourly results being inaccessible or sorted lexicographically wrong."""
-        history = format_hourly_restore_history({"14": 125, "09": 90, "10": 100})
+        history = format_hourly_restore_history({"14": 135, "09": 90, "10": 100})
 
         self.assertEqual(
-            "09:00–09:59  •  90 máy  •  ĐẠT\n"
-            "10:00–10:59  •  100 máy  •  KHÁ\n"
-            "14:00–14:59  •  125 máy  •  XUẤT SẮC",
+            "09:00–09:59  •  90 máy  •  CHƯA ĐẠT\n"
+            "10:00–10:59  •  100 máy  •  ĐẠT\n"
+            "14:00–14:59  •  135 máy  •  XUẤT SẮC",
             history,
         )
 
