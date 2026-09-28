@@ -374,7 +374,8 @@ class HourlyRestoreUiTests(unittest.TestCase):
             lbl_stat_hour_count=Label(),
             lbl_stat_hour_rating=Label(),
             lbl_stat_hour_rating_empty=Label(),
-            lbl_stat_daily_restore=Label(),
+            lbl_stat_hour_prompt=Label(),
+            card_hourly_performance=Label(),
             lbl_stat_daily_restore_value=Label(),
         )
 
@@ -384,8 +385,13 @@ class HourlyRestoreUiTests(unittest.TestCase):
 
         self.assertEqual("10:00–10:59", app.lbl_stat_hour_window.values["text"])
         self.assertEqual("110 máy", app.lbl_stat_hour_count.values["text"])
-        self.assertEqual("★★★★", app.lbl_stat_hour_rating.values["text"])
-        self.assertEqual("☆", app.lbl_stat_hour_rating_empty.values["text"])
+        self.assertEqual("★★★", app.lbl_stat_hour_rating.values["text"])
+        self.assertEqual("☆☆", app.lbl_stat_hour_rating_empty.values["text"])
+        self.assertEqual(
+            "Khá ✓ · Tốt +10 máy",
+            app.lbl_stat_hour_prompt.values["text"],
+        )
+        self.assertEqual("#0E7490", app.card_hourly_performance.values["highlightbackground"])
         self.assertEqual("212", app.lbl_stat_daily_restore_value.values["text"])
 
     def test_reset_confirmation_can_preserve_existing_statistics(self):
@@ -404,7 +410,7 @@ class HourlyRestoreUiTests(unittest.TestCase):
         """Catches retained hourly buckets having no user-visible comparison view."""
         app = types.SimpleNamespace(
             hourly_restore_stats=HourlyRestoreStats(
-                "2026-09-08", {"09": 90, "10": 125}
+                "2026-09-08", {"09": 90, "10": 135}
             )
         )
 
@@ -412,11 +418,11 @@ class HourlyRestoreUiTests(unittest.TestCase):
             BB_RB.App._show_hourly_restore_history(app)
 
         message = shown.call_args.args[1]
-        self.assertIn("09:00–09:59  •  90 máy  •  ĐẠT", message)
-        self.assertIn("10:00–10:59  •  125 máy  •  XUẤT SẮC", message)
-        self.assertIn("★☆☆☆☆  Dưới 90 máy/giờ  •  Chưa đạt", message)
-        self.assertIn("★★☆☆☆  90–99 máy/giờ  •  Đạt", message)
-        self.assertIn("★★★★★  120–124: Rất tốt  •  Từ 125: Xuất sắc", message)
+        self.assertIn("09:00–09:59  •  90 máy  •  CHƯA ĐẠT", message)
+        self.assertIn("10:00–10:59  •  135 máy  •  XUẤT SẮC", message)
+        self.assertIn("★☆☆☆☆  Dưới 100 máy/giờ  •  Chưa đạt", message)
+        self.assertIn("★★☆☆☆  100–109 máy/giờ  •  Đạt", message)
+        self.assertIn("★★★★★  130–134: Rất tốt  •  Từ 135: Xuất sắc", message)
 
 
 class PipelineTruthTests(unittest.TestCase):

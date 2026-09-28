@@ -24,6 +24,7 @@ from tiktool_core import (
     create_backup_job,
     format_hourly_restore_history,
     hour_window,
+    hourly_restore_prompt,
     load_concurrency,
     move_restored_backup,
     prepare_restore_in_place,
@@ -1411,8 +1412,10 @@ class App(tk.Tk):
             highlightthickness=1,
         )
         card_daily.pack(padx=2, pady=1)
+        self.card_hourly_performance = card_daily
+        self._performance_border_color = "#0E7490"
         card_daily.bind("<Enter>", lambda _e: card_daily.config(highlightbackground=perf_theme["cyan"]))
-        card_daily.bind("<Leave>", lambda _e: card_daily.config(highlightbackground="#0E7490"))
+        card_daily.bind("<Leave>", lambda _e: card_daily.config(highlightbackground=self._performance_border_color))
 
         hourly_row = tk.Frame(card_daily, bg=perf_theme["surface"])
         hourly_row.pack(fill="x", padx=(7, 6), pady=(3, 1))
@@ -1484,14 +1487,14 @@ class App(tk.Tk):
 
         daily_row = tk.Frame(card_daily, bg=perf_theme["surface"])
         daily_row.pack(fill="x", padx=(7, 6), pady=(1, 3))
-        self.lbl_stat_daily_restore = tk.Label(
+        self.lbl_stat_hour_prompt = tk.Label(
             daily_row,
-            text="Tổng hôm nay:",
+            text="Mục tiêu giờ: Đạt 100 máy",
             font=("Segoe UI", 8, "bold"),
-            fg="#CBD5E1",
+            fg=perf_theme["muted"],
             bg=perf_theme["surface"],
         )
-        self.lbl_stat_daily_restore.pack(side="left", padx=(0, 3))
+        self.lbl_stat_hour_prompt.pack(side="left", padx=(0, 3))
 
         daily_value_box = tk.Frame(
             daily_row,
@@ -2360,11 +2363,11 @@ class App(tk.Tk):
             "Sản lượng Restore theo giờ",
             f"KẾT QUẢ HÔM NAY\n\n{history}\n\n"
             "GIẢI THÍCH SỐ SAO\n"
-            "★☆☆☆☆  Dưới 90 máy/giờ  •  Chưa đạt\n"
-            "★★☆☆☆  90–99 máy/giờ  •  Đạt\n"
-            "★★★☆☆  100–109 máy/giờ  •  Khá\n"
-            "★★★★☆  110–119 máy/giờ  •  Tốt\n"
-            "★★★★★  120–124: Rất tốt  •  Từ 125: Xuất sắc",
+            "★☆☆☆☆  Dưới 100 máy/giờ  •  Chưa đạt\n"
+            "★★☆☆☆  100–109 máy/giờ  •  Đạt\n"
+            "★★★☆☆  110–119 máy/giờ  •  Khá\n"
+            "★★★★☆  120–129 máy/giờ  •  Tốt\n"
+            "★★★★★  130–134: Rất tốt  •  Từ 135: Xuất sắc",
         )
 
     def _save_daily_restore_stats(self):
@@ -2431,6 +2434,7 @@ class App(tk.Tk):
         hour_count = self.hourly_restore_stats.current_count(now)
         _, window_label = hour_window(now)
         star_rating = restore_star_rating(hour_count)
+        prompt_status, prompt_text = hourly_restore_prompt(hour_count, now.minute)
         if hasattr(self, "lbl_restore_done"):
             self.lbl_restore_done.config(text=f"Đã Restore: {self.restore_done_count}")
         if hasattr(self, "lbl_restore_done_status"):
@@ -2443,6 +2447,24 @@ class App(tk.Tk):
             self.lbl_stat_hour_window.config(text=window_label)
         if hasattr(self, "lbl_stat_hour_count"):
             self.lbl_stat_hour_count.config(text=f"{hour_count} máy")
+        prompt_colors = {
+            "idle": COLOR_TEXT_MUTED,
+            "on_track": COLOR_CYAN_ACCENT,
+            "warning": "#FBBF24",
+            "encourage": COLOR_EMERALD_ACCENT,
+            "excellent": "#FDE68A",
+        }
+        if hasattr(self, "lbl_stat_hour_prompt"):
+            self.lbl_stat_hour_prompt.config(
+                text=prompt_text, fg=prompt_colors[prompt_status]
+            )
+        if hasattr(self, "card_hourly_performance"):
+            self._performance_border_color = (
+                "#F59E0B" if prompt_status == "warning" else "#0E7490"
+            )
+            self.card_hourly_performance.config(
+                highlightbackground=self._performance_border_color
+            )
         if hasattr(self, "lbl_stat_hour_rating"):
             filled, separator, empty = star_rating.partition("☆")
             self.lbl_stat_hour_rating.config(text=filled or "")
