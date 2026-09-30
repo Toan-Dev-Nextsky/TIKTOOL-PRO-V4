@@ -26,7 +26,6 @@ from tiktool_core import (  # noqa: E402
     load_concurrency,
     format_hourly_restore_history,
     hour_window,
-    hourly_restore_prompt,
     make_license_key,
     move_restored_backup,
     normalize_url,
@@ -274,35 +273,6 @@ class RegistryConfigTests(unittest.TestCase):
 
 
 class HourlyRestoreStatsTests(unittest.TestCase):
-    def test_hourly_prompt_warns_on_pace_and_advances_to_the_next_goal(self):
-        self.assertEqual(
-            ("idle", "Mục tiêu giờ: Đạt 100 máy"),
-            hourly_restore_prompt(50, 34),
-        )
-        self.assertEqual(
-            ("warning", "⚠ Đạt 50/59 · cần 2,0 máy/ph"),
-            hourly_restore_prompt(50, 35),
-        )
-        self.assertEqual("on_track", hourly_restore_prompt(59, 35)[0])
-        self.assertEqual("warning", hourly_restore_prompt(100, 59)[0])
-        self.assertIn("Khá", hourly_restore_prompt(100, 59)[1])
-        self.assertIn("Tốt", hourly_restore_prompt(110, 59)[1])
-        self.assertIn("Rất tốt", hourly_restore_prompt(120, 59)[1])
-        self.assertIn("Xuất sắc", hourly_restore_prompt(130, 59)[1])
-        self.assertEqual(
-            ("encourage", "Khá ✓ · Tốt +10 máy"),
-            hourly_restore_prompt(110, 35),
-        )
-        self.assertEqual(
-            ("encourage", "Tốt ✓ · Rất tốt +10 máy"),
-            hourly_restore_prompt(120, 35),
-        )
-        self.assertEqual(
-            ("encourage", "Rất tốt ✓ · Xuất sắc +5 máy"),
-            hourly_restore_prompt(130, 35),
-        )
-        self.assertEqual("excellent", hourly_restore_prompt(135, 35)[0])
-
     def test_rating_uses_the_approved_hourly_thresholds(self):
         """Catches boundary mistakes that assign a production count to the wrong tier."""
         cases = (

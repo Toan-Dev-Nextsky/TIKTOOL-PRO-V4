@@ -11,6 +11,7 @@ import uuid
 import tempfile
 import base64
 import queue
+import random
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 import tkinter as tk
@@ -26,7 +27,6 @@ from tiktool_core import (
     create_backup_job,
     format_hourly_restore_history,
     hour_window,
-    hourly_restore_prompt,
     load_concurrency,
     move_restored_backup,
     prepare_restore_in_place,
@@ -98,6 +98,8 @@ class Icons:
     POWER = "\uE7E8"          # PowerButton
     REFRESH = "\uE72C"        # Refresh / Reboot
     ERASE = "\uE74C"          # Erase / Remove
+    SHOW_STATS = "\uE9A8"     # PasswordKeyShow
+    HIDE_STATS = "\uE9A9"     # PasswordKeyHide
 
 # BUNDLE IDS TIKTOK & PATHS
 BIDS_TIKTOK = ["com.ss.iphone.ugc.tiktok", "com.zhiliaoapp.musically", "com.ss.iphone.ugc.Aweme"]
@@ -113,6 +115,49 @@ NOOTA_PROFILE_IDENTIFIER = "com.apple.tvos.developersoftware"
 # Mật khẩu xác nhận bắt buộc trước khi Xoá Tất Cả Nội Dung & Cài Đặt (Reset dòng 2)
 # hàng loạt, chống bấm nhầm gây mất dữ liệu không thể hoàn tác trên thiết bị.
 ERASE_CONFIRM_PASSWORD = "k"
+
+PERFORMANCE_FOCUS_MESSAGES = (
+    "Làm đúng từng bước, kết quả tốt sẽ đến.",
+    "Tập trung vào máy đang xử lý, kiểm tra kỹ trước khi chuyển.",
+    "Giữ nhịp đều và ưu tiên chất lượng mỗi lần Restore.",
+    "Thao tác chắc tay giúp cả ca làm việc hiệu quả hơn.",
+    "Gặp lỗi hãy xử lý dứt điểm rồi mới tiếp tục.",
+    "Kiểm tra kết quả trước khi báo hoàn tất.",
+    "Phối hợp rõ ràng để cả dàn máy chạy trơn tru.",
+    "Bình tĩnh, tập trung và làm đúng quy trình.",
+    "Ưu tiên chính xác trước khi tăng tốc.",
+    "Mỗi máy hoàn tất đúng cách là một bước tiến tốt.",
+    "Trước khi Restore, kiểm tra cáp USB cắm chắc cả hai đầu.",
+    "Máy mất kết nối? Kiểm tra cáp và cổng USB trước khi thử lại.",
+    "Cắm máy xong, kiểm tra Trust rồi bấm Restore khi đã sẵn sàng.",
+    "Máy đã sẵn sàng thì nhớ bấm Restore, đừng để quên lượt.",
+    "Kiểm tra đúng tab Restore Pro trước khi thao tác với dàn máy.",
+    "Xác nhận chiều Kho A sang B hoặc B sang A trước mỗi đợt.",
+    "Đối chiếu Mục nhập và Mục xuất trước khi bắt đầu Restore.",
+    "Kho nguồn chứa backup; kho đích nhận bản đã chuyển xong.",
+    "Đếm máy kết nối và backup sẵn có trước khi xác nhận.",
+    "Đọc bảng ghép máy với backup trước khi bấm bắt đầu.",
+    "Kiểm tra đúng máy nhận và UDID khi ghép bản backup.",
+    "Mỗi đợt đã xác nhận chỉ bấm Bắt đầu Restore một lần.",
+    "Trước khi nạp lại, xem log và kho để tránh Restore hai lần.",
+    "Không rút cáp khi tiến trình Restore vẫn đang chạy.",
+    "Chờ Restore hoàn tất và chuyển kho xong rồi mới đổi lượt máy.",
+    "Máy báo Not Trust? Xác nhận Tin cậy trước khi chạy tiếp.",
+    "Gặp cảnh báo đỏ, đọc log và xử lý lỗi trước khi thao tác tiếp.",
+    "Giữ hub USB và cáp ổn định trong suốt đợt Restore.",
+    "Kiểm tra tùy chọn Tự Activate sau Restore trước mỗi đợt.",
+    "Máy đang khởi động lại cần thời gian; đừng vội rút cáp.",
+    "Nếu bật Tự Activate, chờ máy báo hoàn tất rồi mới rút.",
+    "Đổi chiều kho thì đọc lại nhãn Kho A và Kho B thật kỹ.",
+    "Một máy không nên nhận hai lệnh Restore liên tiếp.",
+    "Xem trạng thái từng thẻ máy để biết máy nào cần xử lý.",
+    "Kiểm tra đúng tab đang dùng: Restore, Backup hay Cài IPA.",
+    "Chưa chắc kho nguồn? Hỏi lại trước khi bấm Bắt đầu.",
+    "Không đổi đường dẫn kho trong khi Restore đang chạy.",
+    "Giữ dây cáp gọn gàng để tránh vô tình làm lỏng kết nối.",
+    "Kết thúc ca, kiểm tra xem còn máy nào đang chạy tác vụ.",
+    "Làm chắc từng bước để cả dàn máy hoàn thành đúng cách.",
+)
 
 # PRESETS NGÔN NGỮ PHỔ BIẾN
 LANG_PRESETS = [
@@ -185,6 +230,7 @@ DEFAULT_SETTINGS = {
     "dailyRestoreCount": 0,
     "hourlyRestoreDate": "",
     "hourlyRestoreCounts": {},
+    "performanceStatsHidden": False,      # Ẩn chỉ số hiệu suất cho nhân viên
     "showBackupIpaTabs": True,             # Ẩn/hiện 2 tab Sao Lưu & Cài IPA (gọn giao diện khi chỉ dùng Restore)
 }
 
@@ -1517,6 +1563,7 @@ class App(tk.Tk):
         self.daily_restore_date = datetime.now().strftime("%Y-%m-%d")
         self.daily_restore_count = 0  # Bộ đếm nick đã restore trong ngày
         self.hourly_restore_stats = HourlyRestoreStats(self.daily_restore_date, {})
+        self.performance_stats_hidden = DEFAULT_SETTINGS["performanceStatsHidden"]
         self._last_progress_log = {}  # Lưu % log gần nhất cho mỗi UDID để chống nghẽn log
         self._backup_name_counters = {}  # Đếm STT thư mục backup độc lập cho từng kho
         self._poll_lock = threading.Lock()
@@ -1842,9 +1889,8 @@ class App(tk.Tk):
         )
         card_daily.pack(padx=2, pady=1)
         self.card_hourly_performance = card_daily
-        self._performance_border_color = "#0E7490"
         card_daily.bind("<Enter>", lambda _e: card_daily.config(highlightbackground=perf_theme["cyan"]))
-        card_daily.bind("<Leave>", lambda _e: card_daily.config(highlightbackground=self._performance_border_color))
+        card_daily.bind("<Leave>", lambda _e: card_daily.config(highlightbackground="#0E7490"))
 
         hourly_row = tk.Frame(card_daily, bg=perf_theme["surface"])
         hourly_row.pack(fill="x", padx=(7, 6), pady=(3, 1))
@@ -1916,14 +1962,14 @@ class App(tk.Tk):
 
         daily_row = tk.Frame(card_daily, bg=perf_theme["surface"])
         daily_row.pack(fill="x", padx=(7, 6), pady=(1, 3))
-        self.lbl_stat_hour_prompt = tk.Label(
+        self.lbl_stat_daily_restore = tk.Label(
             daily_row,
-            text="Mục tiêu giờ: Đạt 100 máy",
+            text="Tổng hôm nay:",
             font=("Segoe UI", 8, "bold"),
-            fg=perf_theme["muted"],
+            fg="#CBD5E1",
             bg=perf_theme["surface"],
         )
-        self.lbl_stat_hour_prompt.pack(side="left", padx=(0, 3))
+        self.lbl_stat_daily_restore.pack(side="left", padx=(0, 3))
 
         daily_value_box = tk.Frame(
             daily_row,
@@ -1986,6 +2032,54 @@ class App(tk.Tk):
         btn_reset_daily.pack(side="left", padx=(0, 1), ipadx=2)
         btn_reset_daily.bind("<Enter>", lambda _e: btn_reset_daily.config(fg="#38BDF8"))
         btn_reset_daily.bind("<Leave>", lambda _e: btn_reset_daily.config(fg=perf_theme["muted"]))
+
+        self.btn_hide_performance_stats = tk.Button(
+            daily_row,
+            text=Icons.HIDE_STATS,
+            font=(FONT_MDL2, 12),
+            fg=perf_theme["muted"],
+            bg=perf_theme["surface"],
+            activebackground=perf_theme["surface"],
+            activeforeground=perf_theme["cyan"],
+            relief="flat",
+            bd=0,
+            padx=2,
+            pady=0,
+            cursor="hand2",
+            command=self._hide_performance_stats,
+        )
+        self.btn_hide_performance_stats.pack(side="left", padx=(3, 1))
+        self.btn_performance_history = btn_history
+        self.btn_performance_reset = btn_reset_daily
+
+        self.performance_hidden_overlay = tk.Frame(card_daily, bg=perf_theme["surface"])
+        self.btn_show_performance_stats = tk.Button(
+            self.performance_hidden_overlay,
+            text=Icons.SHOW_STATS,
+            font=(FONT_MDL2, 14),
+            fg=perf_theme["cyan"],
+            bg=perf_theme["surface"],
+            activebackground=perf_theme["surface"],
+            activeforeground=COLOR_TEXT_WHITE,
+            relief="flat",
+            bd=0,
+            padx=5,
+            pady=1,
+            cursor="hand2",
+            command=self._show_performance_stats,
+        )
+        self.btn_show_performance_stats.pack(side="right", padx=(3, 9))
+        self.performance_ticker_canvas = tk.Canvas(
+            self.performance_hidden_overlay,
+            height=22,
+            bg=perf_theme["surface"],
+            highlightthickness=0,
+            bd=0,
+        )
+        self.performance_ticker_canvas.pack(side="left", fill="both", expand=True, padx=(8, 2))
+        self._performance_ticker_after_id = None
+        self._performance_ticker_items = []
+        self._performance_ticker_last_message = None
 
         self.astro_bot = AstroBotCompanion(dev_title_bar)
         self.astro_bot.pack(side="left", fill="x", expand=True, padx=12)
@@ -3541,6 +3635,8 @@ class App(tk.Tk):
             self._reset_daily_restore_counter()
 
     def _show_hourly_restore_history(self):
+        if getattr(self, "performance_stats_hidden", False):
+            return
         history = format_hourly_restore_history(self.hourly_restore_stats.snapshot())
         if not history:
             history = "Chưa có máy Restore thành công trong hôm nay."
@@ -3554,6 +3650,98 @@ class App(tk.Tk):
             "★★★★☆  120–129 máy/giờ  •  Tốt\n"
             "★★★★★  130–134: Rất tốt  •  Từ 135: Xuất sắc",
         )
+
+    def _apply_performance_stats_visibility(self):
+        """Cover the performance card while retaining its existing layout size."""
+        if not hasattr(self, "performance_hidden_overlay"):
+            return
+        hidden = bool(self.performance_stats_hidden)
+        if hidden:
+            self.performance_hidden_overlay.place(relx=0, rely=0, relwidth=1, relheight=1)
+            self.performance_hidden_overlay.lift()
+            self._start_performance_ticker()
+        else:
+            self.performance_hidden_overlay.place_forget()
+            self._stop_performance_ticker()
+        button_state = "disabled" if hidden else "normal"
+        for button_name in (
+            "btn_hide_performance_stats",
+            "btn_performance_history",
+            "btn_performance_reset",
+        ):
+            getattr(self, button_name).config(state=button_state)
+
+    def _start_performance_ticker(self):
+        if not hasattr(self, "performance_ticker_canvas"):
+            return
+        if getattr(self, "_performance_ticker_after_id", None) is None:
+            self._performance_ticker_after_id = self.after(50, self._animate_performance_ticker)
+
+    def _stop_performance_ticker(self):
+        timer = getattr(self, "_performance_ticker_after_id", None)
+        if timer is not None:
+            self.after_cancel(timer)
+            self._performance_ticker_after_id = None
+        if hasattr(self, "performance_ticker_canvas"):
+            self.performance_ticker_canvas.delete("all")
+            self._performance_ticker_items = []
+
+    def _animate_performance_ticker(self):
+        self._performance_ticker_after_id = None
+        if not self.performance_stats_hidden or not self.performance_ticker_canvas.winfo_exists():
+            return
+        canvas = self.performance_ticker_canvas
+        width = canvas.winfo_width()
+        if width > 1:
+            items = self._performance_ticker_items
+            for item in items:
+                canvas.move(item, -2.5, 0)
+            self._performance_ticker_items = [
+                item for item in items
+                if (bounds := canvas.bbox(item)) and bounds[2] >= 0
+            ]
+            items = self._performance_ticker_items
+            last_bounds = canvas.bbox(items[-1]) if items else None
+            if not last_bounds or last_bounds[2] <= width - 30:
+                previous = self._performance_ticker_last_message
+                choices = [msg for msg in PERFORMANCE_FOCUS_MESSAGES if msg != previous]
+                message = random.choice(choices)
+                self._performance_ticker_last_message = message
+                item = canvas.create_text(
+                    width + 4 if items else 8,
+                    max(12, canvas.winfo_height() // 2),
+                    text=message,
+                    anchor="w",
+                    fill="#FDE68A",
+                    font=("Segoe UI", 8, "bold"),
+                )
+                items.append(item)
+        self._performance_ticker_after_id = self.after(50, self._animate_performance_ticker)
+
+    def _hide_performance_stats(self):
+        if self.performance_stats_hidden:
+            return
+        self.performance_stats_hidden = True
+        self._apply_performance_stats_visibility()
+        self._save_settings_from_ui()
+
+    def _show_performance_stats(self):
+        if not self.performance_stats_hidden:
+            return
+        password = simpledialog.askstring(
+            "",
+            "",
+            show="*",
+            parent=self,
+        )
+        if password is None:
+            return
+        if password.strip().lower() != ERASE_CONFIRM_PASSWORD.lower():
+            messagebox.showerror("", "Mã không đúng.")
+            return
+        self.performance_stats_hidden = False
+        self._apply_performance_stats_visibility()
+        self._save_settings_from_ui()
 
     def _save_daily_restore_stats(self):
         try:
@@ -3619,7 +3807,6 @@ class App(tk.Tk):
         hour_count = self.hourly_restore_stats.current_count(now)
         _, window_label = hour_window(now)
         star_rating = restore_star_rating(hour_count)
-        prompt_status, prompt_text = hourly_restore_prompt(hour_count, now.minute)
         if hasattr(self, "lbl_restore_done"):
             self.lbl_restore_done.config(text=f"Đã Restore: {self.restore_done_count}")
         if hasattr(self, "lbl_restore_done_status"):
@@ -3632,24 +3819,6 @@ class App(tk.Tk):
             self.lbl_stat_hour_window.config(text=window_label)
         if hasattr(self, "lbl_stat_hour_count"):
             self.lbl_stat_hour_count.config(text=f"{hour_count} máy")
-        prompt_colors = {
-            "idle": COLOR_TEXT_MUTED,
-            "on_track": COLOR_CYAN_ACCENT,
-            "warning": "#FBBF24",
-            "encourage": COLOR_EMERALD_ACCENT,
-            "excellent": "#FDE68A",
-        }
-        if hasattr(self, "lbl_stat_hour_prompt"):
-            self.lbl_stat_hour_prompt.config(
-                text=prompt_text, fg=prompt_colors[prompt_status]
-            )
-        if hasattr(self, "card_hourly_performance"):
-            self._performance_border_color = (
-                "#F59E0B" if prompt_status == "warning" else "#0E7490"
-            )
-            self.card_hourly_performance.config(
-                highlightbackground=self._performance_border_color
-            )
         if hasattr(self, "lbl_stat_hour_rating"):
             filled, separator, empty = star_rating.partition("☆")
             self.lbl_stat_hour_rating.config(text=filled or "")
@@ -4458,6 +4627,10 @@ class App(tk.Tk):
         if "setLangAfterActive" in data: self.var_set_lang_after_active.set(bool(data["setLangAfterActive"]))
         if "autoActivateAfterRestore" in data: self.var_auto_activate_after_restore.set(bool(data["autoActivateAfterRestore"]))
         if "active" in data and data["active"] in ("A", "B"): self.var_active_store.set(data["active"])
+        new_performance_hidden = bool(data.get("performanceStatsHidden", False))
+        if new_performance_hidden != self.performance_stats_hidden:
+            self.performance_stats_hidden = new_performance_hidden
+            self._apply_performance_stats_visibility()
         if "showBackupIpaTabs" in data:
             new_show_extra = bool(data["showBackupIpaTabs"])
             if new_show_extra != self.var_show_extra_tabs.get():
@@ -4529,6 +4702,7 @@ class App(tk.Tk):
             data["dailyRestoreCount"] = self.daily_restore_count
             data["hourlyRestoreDate"] = self.hourly_restore_stats.date
             data["hourlyRestoreCounts"] = self.hourly_restore_stats.snapshot()
+            data["performanceStatsHidden"] = self.performance_stats_hidden
 
             with open(SETTINGS_FP, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)

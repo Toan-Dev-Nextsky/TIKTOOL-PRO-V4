@@ -339,45 +339,6 @@ def restore_star_rating(count: int) -> str:
     return "★" * stars + "☆" * (5 - stars)
 
 
-def hourly_restore_prompt(count: int, minute: int) -> tuple[str, str]:
-    """Return the status and compact coaching message for the current hour."""
-    value = max(0, int(count))
-    minute = max(0, min(59, int(minute)))
-    if value >= 135:
-        return "excellent", "★ Xuất sắc! Giữ phong độ"
-
-    if value >= 130:
-        target_name, target = "Xuất sắc", 135
-    elif value >= 120:
-        target_name, target = "Rất tốt", 130
-    elif value >= 110:
-        target_name, target = "Tốt", 120
-    elif value >= 100:
-        target_name, target = "Khá", 110
-    else:
-        target_name, target = "Đạt", 100
-
-    if minute >= 35:
-        expected = (target * minute + 59) // 60
-        if value < expected:
-            remaining = 60 - minute
-            pace_tenths = ((target - value) * 10 + remaining - 1) // remaining
-            pace = f"{pace_tenths // 10},{pace_tenths % 10}"
-            return "warning", f"⚠ {target_name} {value}/{expected} · cần {pace} máy/ph"
-
-    if value >= 130:
-        return "encourage", f"Rất tốt ✓ · Xuất sắc +{135 - value} máy"
-    if value >= 120:
-        return "encourage", f"Tốt ✓ · Rất tốt +{130 - value} máy"
-    if value >= 110:
-        return "encourage", f"Khá ✓ · Tốt +{120 - value} máy"
-    if value >= 100:
-        return "encourage", f"Đạt ✓ · Khá +{110 - value} máy"
-    if minute >= 35:
-        return "on_track", f"Đạt đúng nhịp · còn {100 - value} máy"
-    return "idle", "Mục tiêu giờ: Đạt 100 máy"
-
-
 def format_hourly_restore_history(counts: dict[str, int]) -> str:
     """Format saved hourly production as a compact, chronological summary."""
     rows = []
