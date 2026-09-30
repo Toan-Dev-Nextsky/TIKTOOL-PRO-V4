@@ -459,7 +459,7 @@ class SyncCardsRebootTests(unittest.TestCase):
 
 
 class HourlyRestoreUiTests(unittest.TestCase):
-    def test_hidden_performance_requires_the_existing_management_password(self):
+    def test_hidden_performance_toggles_without_password(self):
         class Widget:
             def __init__(self):
                 self.values = {}
@@ -503,17 +503,9 @@ class HourlyRestoreUiTests(unittest.TestCase):
             BB_RB.App._show_hourly_restore_history(app)
         history.assert_not_called()
 
-        with patch.object(BB_RB.simpledialog, "askstring", return_value="wrong"), patch.object(
-            BB_RB.messagebox, "showerror"
-        ) as error:
+        with patch.object(BB_RB.simpledialog, "askstring") as password_dialog:
             BB_RB.App._show_performance_stats(app)
-        self.assertTrue(app.performance_stats_hidden)
-        self.assertTrue(overlay.visible)
-        self.assertEqual([True], saved)
-        error.assert_called_once()
-
-        with patch.object(BB_RB.simpledialog, "askstring", return_value=" K "):
-            BB_RB.App._show_performance_stats(app)
+        password_dialog.assert_not_called()
         self.assertFalse(app.performance_stats_hidden)
         self.assertFalse(overlay.visible)
         self.assertEqual("normal", app.btn_performance_history.values["state"])
