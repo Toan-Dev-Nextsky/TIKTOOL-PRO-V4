@@ -3728,6 +3728,17 @@ class App(tk.Tk):
     def _show_performance_stats(self):
         if not self.performance_stats_hidden:
             return
+        password = simpledialog.askstring(
+            "",
+            "",
+            show="*",
+            parent=self,
+        )
+        if password is None:
+            return
+        if password.strip().lower() != ERASE_CONFIRM_PASSWORD.lower():
+            messagebox.showerror("", "Mã không đúng.")
+            return
         self.performance_stats_hidden = False
         self._apply_performance_stats_visibility()
         self._save_settings_from_ui()
