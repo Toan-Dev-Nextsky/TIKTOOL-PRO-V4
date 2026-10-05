@@ -1,6 +1,11 @@
-"""Kiểm tra quyền NTFS của Kho A/B đúng như thao tác Restore cần, hỏi rồi sửa bằng icacls.
+"""Kiểm tra quyền NTFS của Kho A/B (hoặc cả một ổ/thư mục) đúng như thao tác Restore cần,
+hỏi rồi sửa bằng icacls.
 
 Không sửa dữ liệu backup thật: chỉ mở handle kiểm tra quyền và tạo/xóa file tạm của chính tool.
+Cách dùng: KIEM_TRA_QUYEN_KHO.bat            -> chọn chế độ
+           KIEM_TRA_QUYEN_KHO.bat E:         -> kiểm tra cả ổ E
+           KIEM_TRA_QUYEN_KHO.bat F:\\backups -> kiểm tra một thư mục
+           thêm --sau để kiểm tra từng file (chậm)
 """
 import ctypes
 import json
@@ -8,6 +13,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from ctypes import wintypes
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +21,11 @@ SETTINGS_FP = os.path.join(BASE_DIR, "settings.json")
 SKIP_DIRS = (".tiktool_work",)
 CHECK_PREFIX = ".tt_permcheck_"
 ROOT_FIX_THRESHOLD = 30
+SAMPLES_PER_UNIT = 5
+SYSTEM_DIRS_ANYWHERE = {"$recycle.bin", "system volume information"}
+SYSTEM_DIRS_AT_DRIVE_ROOT = {"windows", "program files", "program files (x86)", "programdata", "recovery",
+                             "perflogs", "config.msi", "users", "$windows.~bt", "$windows.~ws", "$winreagent"}
+FILE_ATTRIBUTE_REPARSE_POINT = 0x400
 
 kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 advapi32 = ctypes.WinDLL("advapi32", use_last_error=True)
@@ -215,24 +226,161 @@ def run_checks(stores, only=None):
 
 
 def backup_of(path, stores):
+    """Thư mục con cấp 1 của kho/ổ chứa path (đơn vị để báo cáo và cấp quyền)."""
     for _, store in stores:
-        if store and os.path.dirname(path) == store:
-            return path
-        if store and path.startswith(store + os.sep):
-            return os.path.join(store, os.path.relpath(path, store).split(os.sep)[0])
+        if not store:
+            continue
+        base = store.rstrip("\\/") + os.sep
+        if path.lower().startswith(base.lower()):
+            return os.path.join(store, path[len(base):].split(os.sep)[0])
     return path
 
 
-def report(total, issues, stores):
-    bad_backups = {backup_of(path, stores) for _, path, _ in issues}
+def backup_dir_of(path):
+    """Thư mục backup gần nhất (có Info.plist) chứa path; không có thì trả về chính thư mục đó."""
+    current = path if os.path.isdir(path) else os.path.dirname(path)
+    probe = current
+    while True:
+        if os.path.isfile(os.path.join(probe, "Info.plist")):
+            return probe
+        parent = os.path.dirname(probe)
+        if parent == probe:
+            return current
+        probe = parent
+
+
+def normalize_target(text):
+    text = text.strip().strip('"').strip()
+    if len(text) == 1 and text.isalpha():
+        text += ":"
+    if len(text) == 2 and text[1] == ":":
+        text += "\\"
+    return os.path.normpath(os.path.abspath(text))
+
+
+def scan_tree(start, unit_root, deep=False):
+    """Duyệt cây thư mục, kiểm tra quyền xóa/đổi tên thư mục và file.
+
+    Thư mục có Info.plist được coi là backup: kiểm tra thư mục, Info.plist và tạo/đổi tên/xóa file tạm.
+    Chế độ nhanh (mặc định) không đi vào từng file bên trong backup vì quyền NTFS kế thừa từ thư mục;
+    deep=True kiểm tra thêm từng file (rất chậm với ổ có hàng trăm backup).
+    Mỗi thư mục cấp 1 chỉ giữ vài mẫu lỗi cho mỗi loại để không tràn màn hình/bộ nhớ.
+    """
+    issues, counts, per_unit = [], {}, {}
+    stats = {"dirs": 0, "files": 0, "backups": 0}
+    units = [("", unit_root)]
+    drive_root = os.path.splitdrive(start)[0] + os.sep
+    last_progress = [time.monotonic()]
+
+    def progress():
+        now = time.monotonic()
+        if now - last_progress[0] >= 3:
+            last_progress[0] = now
+            print(f"    ... {stats['dirs']} thư mục, {stats['files']} file, {stats['backups']} backup", flush=True)
+
+    seen = set()
+
+    def add(kind, path, detail):
+        if (kind, path) in seen:
+            return
+        seen.add((kind, path))
+        counts[kind] = counts.get(kind, 0) + 1
+        key = (backup_of(path, units), kind)
+        per_unit[key] = per_unit.get(key, 0) + 1
+        if per_unit[key] <= SAMPLES_PER_UNIT:
+            issues.append((kind, path, detail))
+
+    def on_error(exc):
+        add(classify(win_code(exc)), exc.filename or start, f"không mở được thư mục ({exc.strerror or exc})")
+
+    problem = check_temp_cycle(start, make_dir=True)
+    if problem:
+        add(problem[0], start, f"không tạo/đổi tên thư mục được ({problem[1]})")
+    backup_tree = set()
+    for root, dirs, files in os.walk(start, onerror=on_error):
+        stats["dirs"] += 1
+        progress()
+        is_backup = "Info.plist" in files
+        if is_backup and not deep:
+            stats["backups"] += 1
+            stats["files"] += 1
+            dirs[:] = []
+            for kind, path, detail in check_backup(root, False):
+                add(kind, path, detail)
+            continue
+        keep = []
+        for name in dirs:
+            low = name.lower()
+            if (low in SYSTEM_DIRS_ANYWHERE or name in SKIP_DIRS or name.startswith(CHECK_PREFIX)
+                    or (root == drive_root and low in SYSTEM_DIRS_AT_DRIVE_ROOT)):
+                continue
+            path = os.path.join(root, name)
+            attrs = kernel32.GetFileAttributesW(path)
+            if attrs != INVALID_ATTRS and attrs & FILE_ATTRIBUTE_REPARSE_POINT:
+                continue
+            keep.append(name)
+            code = open_for_delete(path, True)
+            if code:
+                add(classify(code), path, f"không đổi tên/xóa được thư mục (WinError {code})")
+        dirs[:] = keep
+
+        inside = is_backup or os.path.dirname(root) in backup_tree
+        if inside:
+            backup_tree.add(root)
+        if is_backup:
+            stats["backups"] += 1
+            problem = check_temp_cycle(root)
+            if problem:
+                add(problem[0], root, problem[1])
+        for name in files:
+            path = os.path.join(root, name)
+            stats["files"] += 1
+            if stats["files"] % 2000 == 0:
+                progress()
+            if inside and is_readonly(path):
+                add("readonly", path, "file trong backup bật Chỉ đọc (Restore/chuyển kho không ghi/xóa được)")
+                continue
+            code = open_for_delete(path, False)
+            if code:
+                add(classify(code), path, f"không xóa/thay thế được file (WinError {code})")
+
+    for (unit, kind), n in per_unit.items():
+        if n > SAMPLES_PER_UNIT:
+            issues.append((kind, unit, f"... trong thư mục này có tổng cộng {n} mục lỗi loại này"))
+    return stats, issues, counts
+
+
+def scan_targets(targets, unit_root, deep=False):
+    total = {"dirs": 0, "files": 0, "backups": 0}
+    issues, counts = [], {}
+    for target in targets:
+        print(f"  Đang quét: {target}", flush=True)
+        stats, found, found_counts = scan_tree(target, unit_root, deep)
+        for key in total:
+            total[key] += stats[key]
+        issues.extend(found)
+        for kind, n in found_counts.items():
+            counts[kind] = counts.get(kind, 0) + n
+    summary = [f"Thư mục đã quét : {total['dirs']}",
+               f"File đã kiểm tra: {total['files']}",
+               f"Backup phát hiện: {total['backups']}"]
+    return summary, issues, counts
+
+
+def report(summary, issues, stores, counts=None):
+    if counts is None:
+        counts = {}
+        for kind, _, _ in issues:
+            counts[kind] = counts.get(kind, 0) + 1
+    bad_units = {backup_of(path, stores) for _, path, _ in issues}
     print()
     print("=" * 66)
-    print(f"  Tổng số backup đã kiểm tra : {total}")
-    print(f"  Backup có vấn đề           : {len(bad_backups)}")
+    for line in summary:
+        print(f"  {line}")
+    print(f"  Thư mục/backup có vấn đề : {len(bad_units)}")
     for kind in ("perm", "readonly", "lock", "other"):
-        count = sum(1 for k, _, _ in issues if k == kind)
-        if count:
-            print(f"    - {KIND_LABEL[kind]}: {count}")
+        if counts.get(kind):
+            print(f"    - {KIND_LABEL[kind]}: {counts[kind]}")
     print("=" * 66)
     shown_owner = set()
     for kind, path, detail in issues[:40]:
@@ -280,9 +428,10 @@ def apply_plan(plan_path):
     with open(plan_path, "r", encoding="utf-8-sig") as stream:
         plan = json.load(stream)
     failed = 0
-    for path in plan["readonly"]:
-        print(f"attrib -R {path}")
-        failed |= subprocess.run(["attrib", "-R", path]).returncode
+    for folder in plan["readonly_dirs"]:
+        pattern = os.path.join(folder, "*")
+        print(f"attrib -R \"{pattern}\" /S /D")
+        failed |= subprocess.run(["attrib", "-R", pattern, "/S", "/D"]).returncode
     for target in plan["targets"]:
         print(f"\nicacls \"{target}\" /grant \"{plan['account']}:(OI)(CI)M\" /T /C /Q")
         failed |= subprocess.run(["icacls", target, "/grant", f"{plan['account']}:(OI)(CI)M", "/T", "/C", "/Q"]).returncode
@@ -315,14 +464,52 @@ def main():
               "          Nên đóng lại và mở bằng double-click bình thường (giống cách chạy TikTool).")
     print("Hãy đóng TikTool và các cửa sổ File Explorer đang mở Kho A/B trước khi kiểm tra.\n")
 
-    try:
-        stores = load_stores()
-    except (OSError, ValueError) as exc:
-        print(f"Không đọc được {SETTINGS_FP}: {exc}")
-        return 1
+    args = sys.argv[1:]
+    deep = "--sau" in args
+    target = " ".join(a for a in args if a != "--sau").strip()
+    if not target:
+        print("Chọn chế độ kiểm tra:")
+        print("  1. Kho A/B trong settings.json (mặc định)")
+        print("  2. Cả một ổ đĩa hoặc một thư mục bất kỳ (ví dụ: E:   hoặc   F:\\backups)")
+        try:
+            if input("Chọn 1 hoặc 2 (Enter = 1): ").strip() == "2":
+                target = input("Nhập ổ hoặc thư mục cần kiểm tra: ").strip()
+                if not target:
+                    print("Chưa nhập ổ/thư mục.")
+                    return 1
+                deep = ask("Kiểm tra sâu TỪNG FILE trong backup? (rất chậm, Enter/n = nhanh theo thư mục)")
+        except EOFError:
+            pass
+        print()
 
-    total, issues = run_checks(stores)
-    report(total, issues, stores)
+    if target:
+        root = normalize_target(target)
+        if not os.path.isdir(root):
+            print(f"Không tìm thấy ổ/thư mục: {root}")
+            return 1
+        stores = [("Ổ", root)]
+        print(f"Kiểm tra toàn bộ: {root}  [{'SÂU từng file' if deep else 'NHANH theo thư mục'}]"
+              "  (bỏ qua System Volume Information, $RECYCLE.BIN, thư mục Windows)")
+
+        def recheck(paths):
+            return scan_targets(paths, root, deep)
+
+        summary, issues, counts = recheck([root])
+    else:
+        try:
+            stores = load_stores()
+        except (OSError, ValueError) as exc:
+            print(f"Không đọc được {SETTINGS_FP}: {exc}")
+            return 1
+
+        def recheck(paths):
+            total, found = run_checks(stores, only=set(paths))
+            return [f"Tổng số backup đã kiểm tra : {total}"], found, None
+
+        total, issues = run_checks(stores)
+        summary, counts = [f"Tổng số backup đã kiểm tra : {total}"], None
+
+    report(summary, issues, stores, counts)
     if not issues:
         print("\nKẾT LUẬN: Quyền NTFS OK. Nếu Restore vẫn lỗi lẻ tẻ thì nguyên nhân không phải do quyền\n"
               "(hãy xem log: file bị khóa tạm, lỗi Pair/USB, hoặc app bản cũ).")
@@ -335,27 +522,33 @@ def main():
     fixable = [(k, p) for k, p, _ in issues if k in ("perm", "readonly")]
     if not fixable:
         return 1
-    readonly = sorted({p for k, p in fixable if k == "readonly"})
+    readonly_dirs = sorted({backup_dir_of(p) for k, p in fixable if k == "readonly"})
     store_paths = [s for _, s in stores if s and os.path.isdir(s)]
-    perm_backups = sorted({backup_of(p, stores) for k, p in fixable if k == "perm"})
-    if any(p in store_paths for p in perm_backups) or len(perm_backups) > ROOT_FIX_THRESHOLD:
+    perm_units = sorted({backup_of(p, stores) for k, p in fixable if k == "perm"})
+    if any(p in store_paths for p in perm_units) or len(perm_units) > ROOT_FIX_THRESHOLD:
         targets = store_paths
     else:
-        targets = perm_backups
+        targets = perm_units
 
-    print(f"\nSẽ cấp quyền Modify cho tài khoản \"{account}\" trên {len(targets)} thư mục"
-          f"{' và bỏ Chỉ đọc cho ' + str(len(readonly)) + ' file' if readonly else ''}:")
-    for target in targets[:10]:
-        print(f"  - {target}")
-    if len(targets) > 10:
-        print(f"  ... và {len(targets) - 10} thư mục khác")
+    if targets:
+        print(f"\nSẽ cấp quyền Modify cho tài khoản \"{account}\" trên {len(targets)} thư mục:")
+        for item in targets[:10]:
+            print(f"  - {item}")
+        if len(targets) > 10:
+            print(f"  ... và {len(targets) - 10} thư mục khác")
+    if readonly_dirs:
+        print(f"\nSẽ bỏ thuộc tính Chỉ đọc trong {len(readonly_dirs)} thư mục backup:")
+        for item in readonly_dirs[:10]:
+            print(f"  - {item}")
+        if len(readonly_dirs) > 10:
+            print(f"  ... và {len(readonly_dirs) - 10} thư mục khác")
     if not ask("\nSửa ngay? Windows sẽ hỏi quyền Admin"):
         print("Đã bỏ qua, không thay đổi gì.")
         return 1
 
     fd, plan_path = tempfile.mkstemp(prefix="tt_permfix_", suffix=".json")
     with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        json.dump({"account": account, "targets": targets, "readonly": readonly}, stream, ensure_ascii=False)
+        json.dump({"account": account, "targets": targets, "readonly_dirs": readonly_dirs}, stream, ensure_ascii=False)
     try:
         result = apply_plan(plan_path) if is_admin() else run_elevated(plan_path)
     finally:
@@ -368,13 +561,15 @@ def main():
         return 1
 
     print("\nKiểm tra lại các mục vừa sửa...")
-    only = set(targets) | {backup_of(p, stores) for _, p in fixable}
-    _, remaining = run_checks(stores, only=only)
+    covered = [t.rstrip("\\/").lower() + os.sep for t in targets]
+    only = sorted(set(targets) | {d for d in readonly_dirs
+                                  if not any((d.lower() + os.sep).startswith(c) for c in covered)})
+    summary, remaining, _ = recheck(only)
     remaining = [i for i in remaining if i[0] in ("perm", "readonly")]
     if not remaining:
         print("KẾT QUẢ: Đã sửa xong, tất cả mục lỗi quyền giờ đều OK.")
         return 0
-    report(len(only), remaining, stores)
+    report(summary, remaining, stores)
     print("\nVẫn còn lỗi quyền. Có thể thư mục có quyền Deny riêng hoặc chủ sở hữu là SID cũ.\n"
           "Thử trong PowerShell (Run as administrator), thay <thư mục> bằng đường dẫn bị lỗi:\n"
           f"  takeown /F \"<thư mục>\" /R /D Y\n"

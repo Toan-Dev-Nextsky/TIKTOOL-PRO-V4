@@ -4,9 +4,9 @@ chcp 65001 >nul
 cls
 
 if exist "C:\Python311\python.exe" (
-    "C:\Python311\python.exe" "KIEM_TRA_QUYEN_KHO.py"
+    "C:\Python311\python.exe" "KIEM_TRA_QUYEN_KHO.py" %*
 ) else (
-    python "KIEM_TRA_QUYEN_KHO.py"
+    python "KIEM_TRA_QUYEN_KHO.py" %*
 )
 
 echo.
