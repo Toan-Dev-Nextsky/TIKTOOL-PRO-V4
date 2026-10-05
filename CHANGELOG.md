@@ -2,6 +2,11 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Compact UI & Permission Check Tool] - 2026-10-05
+
+- Thêm nút `⚙ Tab phụ` ẩn/hiện tab Backup và Cài IPA, lưu trạng thái vào `settings.json` (`showBackupIpaTabs`).
+- Thêm `KIEM_TRA_QUYEN_KHO.bat`/`.py`: kiểm tra quyền NTFS từng backup trong Kho A/B đúng như thao tác Restore, phân loại thiếu quyền / Chỉ đọc / bị khóa, hiện chủ sở hữu (SID cũ) và hỏi rồi sửa bằng `icacls` + `attrib -R` qua UAC, sau đó tự kiểm tra lại.
+
 ## [4.9.8 Restore Transfer Reliability Maintenance] - 2026-09-24
 
 ### 🛠️ Khắc Phục Quyền NTFS Sau Khi Cài Lại Windows

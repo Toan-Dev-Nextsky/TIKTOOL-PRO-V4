@@ -7,6 +7,16 @@
 
 ---
 
+## ✅ PHIÊN 2026-10-05 — NÚT ẨN TAB PHỤ & TOOL KIỂM TRA QUYỀN KHO
+
+* **Nút `⚙ Tab phụ`** (commit `8afe43d`): ẩn/hiện tab Backup và Cài IPA, lưu vào `settings.json` khóa `showBackupIpaTabs`; đang ở tab bị ẩn thì tự quay về Restore. Không ảnh hưởng hiệu năng.
+* **Tool `KIEM_TRA_QUYEN_KHO.bat/.py`** (zero-pip, ctypes): đọc Kho A/B từ `settings.json`, kiểm tra từng backup đúng quyền Restore cần (DELETE/đổi tên thư mục, thay `Info.plist`, Chỉ đọc, tạo/đổi tên/xóa file tạm; kiểm tra từng file nếu A/B khác ổ), báo loại lỗi (thiếu quyền / Chỉ đọc / bị khóa) và chủ sở hữu (phát hiện SID cũ). Hỏi y/n rồi tự nâng quyền Admin chạy `icacls /grant <whoami>:(OI)(CI)M /T /C /Q` + `attrib -R`, sau đó tự kiểm tra lại. Phải chạy bằng double-click bình thường (không Run as admin) để kết quả giống TikTool.
+* **Đã kiểm chứng**: 456 backup trên máy này OK; deny DE+DC giả lập bị phát hiện khớp `os.rename` thật (WinError 5); bước `--apply` chạy đúng. Chưa test vòng UAC trên máy không Admin.
+* **Vấn đề mở**: Máy farm khác (đã `icacls` thành công) vẫn chuyển kho lẻ tẻ 13/14, 10/14. Log máy này (394/394 OK) sạch nên cần log máy farm: lọc `chưa chuyển được backup`, `Lỗi chuẩn bị`, `Restore lỗi`, `Lỗi Pair`, `WinError` và kiểm tra có commit `196358b` không. Nghi vấn: app bản cũ, file bị khóa tạm (Defender/Explorer/Indexer) quá 9s, Pair/USB.
+* **Tài liệu `HUONG_DAN_QUYEN_NTFS_VA_RESTORE_CHUYEN_KHO.html` còn điểm chưa chính xác**: ghi chuyển khác ổ "an toàn tuyệt đối" nhưng `transfer_backup_immutable` (dòng 770-775) có thể xóa đích khi `rmtree` nguồn lỗi giữa chừng; thiếu giải thích `/L`.
+
+---
+
 ## ✅ PHIÊN 2026-09-24 — SỬA LỖI QUYỀN NTFS, CHUYỂN KHO VÀ BỘ ĐẾM RESTORE
 
 * **Nguyên nhân `WinError 5`**: Sau khi cài lại Windows, tài khoản local mới có SID mới. Các kho NTFS cũ giữ ACL trỏ tới SID trước đó; quyền Read/Write không đủ để thay `Info.plist` atomic hoặc đổi tên/xóa thư mục backup. Tài khoản hiện tại được cấp Modify đệ quy trên E: và F: bằng `icacls /grant ... /T /C /L /Q`. Các từ chối còn lại ở `System Volume Information` là vùng hệ thống, không phải backup.
