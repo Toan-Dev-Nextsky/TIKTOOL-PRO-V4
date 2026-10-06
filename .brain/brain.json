@@ -3,7 +3,7 @@
     "schema_version": "1.1.0",
     "awf_version": "3.3.0",
     "created_at": "2026-09-04T15:07:00+07:00",
-    "last_updated": "2026-09-09T11:30:00+07:00"
+    "last_updated": "2026-10-06T10:00:00+07:00"
   },
   "project": {
     "name": "TIKTOK PRO (TIKTOOL PRO V4)",
@@ -115,7 +115,8 @@
       ,"go-ios Prepare Cloud Configuration: Log đã ghi nhận ios.exe prepare có thể lỗi 'A cloud configuration is already present on this device'. Đây là lỗi Skip Setup, không phải bằng chứng lệnh ideviceactivation chưa Activate; log phải phân biệt hai giai đoạn.",
       "Tkinter Border Integer & Contrast Separation: Khung viền Tkinter yêu cầu highlightthickness là số nguyên. Để tách thẻ hiệu suất với nền Soft Charcoal #1A1D23, thẻ giữ viền ngoài 1px cyan #0E7490 (hover #38BDF8), các viền con bên trong (khung giờ, nút) gỡ bỏ để tiết kiệm diện tích. Riêng hộp số sản lượng giữ viền vàng hổ phách 1px #FACC15 (hover #FDE047) giúp con số 14pt bold nổi bật tuyệt đối.",
       "DeviceCard Geometry Stability: Thẻ DeviceCard bắt buộc thừa kế trực tiếp từ tk.Frame với viền chữ nhật tiêu chuẩn để duy trì cấu trúc co giãn ổn định, không bọc canvas cong ngoài container tránh làm vỡ layout lưới thiết bị.",
-      "Transparent Badge Surface in Star Glow: Để hiệu ứng sparkle/glow của sao không làm xuất hiện hộp viền kỳ lạ quanh icon sao, profile sao luôn đặt nền surface trùng màu thẻ (#0F172A) với border_width = 0."
+      "Transparent Badge Surface in Star Glow: Để hiệu ứng sparkle/glow của sao không làm xuất hiện hộp viền kỳ lạ quanh icon sao, profile sao luôn đặt nền surface trùng màu thẻ (#0F172A) với border_width = 0.",
+      "Persistence of Store Transfer Counters (2026-10-06): Thống kê 'Tổng kho', 'Đã chuyển', 'Còn lại' trên giao diện phụ thuộc vào restore_done_count (công thức: Tổng kho = Còn lại + Đã chuyển). Trước đây restore_done_count chỉ lưu trên RAM trong phiên chạy, khi tắt ứng dụng mở lại sẽ bị reset về 0 khiến 'Đã chuyển' về 0 và 'Tổng kho' bị sụt giảm bằng đúng số lượng 'Còn lại'. Khắc phục: lưu trường 'restoreDoneCount' trực tiếp vào settings.json trong _save_daily_restore_stats, _save_settings_from_ui, nạp lại an toàn trong _apply_settings_to_ui, và ghi lại khi bấm nút reset bộ đếm."
     ],
     "conventions": [
       "Luôn acquire SEMAPHORE trước khi thực hiện các tác vụ nặng (Backup, Restore, Activate) để kiểm soát tải CPU và băng thông USB.",

@@ -417,6 +417,25 @@ class HourlyRestoreUiTests(unittest.TestCase):
             self.assertEqual("2026-09-08", saved["hourlyRestoreDate"])
             self.assertEqual({"09": 100, "10": 112}, saved["hourlyRestoreCounts"])
 
+    def test_transferred_counter_survives_app_restart(self):
+        """Catches the Tổng kho / Đã chuyển / Còn lại stats resetting to 0 after reopening the app."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            settings_path = Path(temp_dir, "settings.json")
+            settings_path.write_text(json.dumps({"storeA": "A"}), encoding="utf-8")
+            app = types.SimpleNamespace(
+                restore_done_count=17,
+                daily_restore_date="2026-09-08",
+                daily_restore_count=20,
+                hourly_restore_stats=HourlyRestoreStats("2026-09-08", {}),
+                last_json_mtime=0,
+            )
+
+            with patch.object(BB_RB, "SETTINGS_FP", str(settings_path)):
+                BB_RB.App._save_daily_restore_stats(app)
+
+            saved = json.loads(settings_path.read_text(encoding="utf-8"))
+            self.assertEqual(17, saved["restoreDoneCount"])
+
     def test_counter_labels_show_hour_range_count_rating_and_daily_total(self):
         """Catches the new hourly evaluation being calculated but not shown to the operator."""
         class Label:

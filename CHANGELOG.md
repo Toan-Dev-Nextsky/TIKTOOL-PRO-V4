@@ -2,6 +2,14 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Transfer Counters Persistence] - 2026-10-06
+
+- **Lưu trữ bền vững bộ đếm chuyển kho (Tổng kho, Đã chuyển, Còn lại)**:
+  - Khắc phục lỗi khi tắt ứng dụng mở lại bị mất dữ liệu thống kê số nick đã chuyển trong phiên làm việc.
+  - Lưu trường `restoreDoneCount` trực tiếp vào `settings.json` trong `_save_daily_restore_stats`, `_save_settings_from_ui`, và cập nhật khi người dùng bấm nút reset bộ đếm (`_reset_restore_counter`).
+  - Nạp lại an toàn giá trị `restoreDoneCount` từ `settings.json` khi khởi động ứng dụng, giúp các thẻ "Tổng kho", "Đã chuyển" và "Còn lại" giữ nguyên trạng thái phiên làm việc trước khi tắt app.
+  - Bổ sung kiểm thử tự động `test_transferred_counter_survives_app_restart` bảo vệ luồng lưu trữ bộ đếm.
+
 ## [Sửa lỗi Restore chuyển kho] - 2026-09-24
 
 - Khi chuẩn bị Restore, ghi `Info.plist` qua tệp tạm riêng và báo rõ nếu tài khoản Windows thiếu quyền Modify trên kho backup sau khi cài lại Windows.
