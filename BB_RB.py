@@ -230,6 +230,7 @@ DEFAULT_SETTINGS = {
     "dailyRestoreCount": 0,
     "hourlyRestoreDate": "",
     "hourlyRestoreCounts": {},
+    "restoreDoneCount": 0,
     "performanceStatsHidden": False,      # Ẩn chỉ số hiệu suất cho nhân viên
     "showBackupIpaTabs": True,             # Ẩn/hiện 2 tab Sao Lưu & Cài IPA (gọn giao diện khi chỉ dùng Restore)
 }
@@ -3615,6 +3616,7 @@ class App(tk.Tk):
 
     def _reset_restore_counter(self):
         self.restore_done_count = 0
+        self._save_daily_restore_stats()
         self._update_restore_counter()
         self._on_store_switch()
 
@@ -3753,6 +3755,7 @@ class App(tk.Tk):
             data["dailyRestoreCount"] = self.daily_restore_count
             data["hourlyRestoreDate"] = self.hourly_restore_stats.date
             data["hourlyRestoreCounts"] = self.hourly_restore_stats.snapshot()
+            data["restoreDoneCount"] = getattr(self, "restore_done_count", 0)
             with open(SETTINGS_FP, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
             self.last_json_mtime = os.path.getmtime(SETTINGS_FP)
@@ -4646,6 +4649,11 @@ class App(tk.Tk):
             loc, lng = _parse_lang_preset(data["langLocale"])
             self.lbl_current_lang.config(text=f"[{data['langLocale']}]")
 
+        try:
+            self.restore_done_count = max(0, int(data.get("restoreDoneCount", self.restore_done_count)))
+        except (TypeError, ValueError):
+            pass
+
         today = datetime.now().strftime("%Y-%m-%d")
         saved_date = data.get("dailyRestoreDate", "")
         if saved_date == today:
@@ -4702,6 +4710,7 @@ class App(tk.Tk):
             data["dailyRestoreCount"] = self.daily_restore_count
             data["hourlyRestoreDate"] = self.hourly_restore_stats.date
             data["hourlyRestoreCounts"] = self.hourly_restore_stats.snapshot()
+            data["restoreDoneCount"] = self.restore_done_count
             data["performanceStatsHidden"] = self.performance_stats_hidden
 
             with open(SETTINGS_FP, "w", encoding="utf-8") as f:
