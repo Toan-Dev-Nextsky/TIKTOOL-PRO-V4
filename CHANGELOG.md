@@ -2,6 +2,15 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Reboot Log & Connected Counter] - 2026-10-08
+
+- **Nhật Ký Hệ Thống ghi đúng chu kỳ reboot sau Restore/Activate** (branch `backup/before-refactor-v5-beta`):
+  - Sau khi sửa race condition `RebootTracker` (giữ thẻ thiết bị suốt lúc reboot), `_sync_cards` không còn ghi log khi iPhone rút ra và bộ đếm dùng `len(self.rows)` nên luôn hiện máy "đang kết nối" dù máy đã ngắt USB.
+  - Nay ghi 1 lần `Đã ngắt kết nối (iPhone đang khởi động lại)...` khi máy rời USB và `Đã kết nối lại sau khởi động lại: <tên> • iOS <x>` khi máy quay lại + Trust; thẻ đổi thành `Hoàn tất • Đã kết nối lại` (không ghi đè nếu máy đang có tác vụ khác như Dev Mode).
+  - `Số thiết bị đang kết nối`, `Tổng` (thanh trạng thái) và `lbl_stat_total_dev` đếm số máy thật sự đang cắm USB (`trusted_cnt + untrusted_cnt`); bot Astro vẫn dùng số thẻ để giữ trạng thái "đang khởi động lại".
+- **Giao diện bộ đếm thiết bị**: chuyển vào chính giữa thanh tiêu đề Nhật Ký Hệ Thống (grid 3 cột `uniform`), bỏ khung viền; chữ màu Emerald, con số tách riêng cỡ `13 bold` màu vàng `#FBBF24`.
+- **Kiểm thử**: thêm 2 test trong `SyncCardsRebootTests` (log ngắt/kết nối lại đúng 1 lần, bộ đếm phản ánh USB thật). 123/123 tests PASS.
+
 ## [4.9.8 Transfer Counters Persistence] - 2026-10-06
 
 - **Lưu trữ bền vững bộ đếm chuyển kho (Tổng kho, Đã chuyển, Còn lại)**:

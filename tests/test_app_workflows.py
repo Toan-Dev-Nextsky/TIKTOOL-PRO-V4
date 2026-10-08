@@ -374,6 +374,7 @@ class SyncCardsRebootTests(unittest.TestCase):
     def make_app(self):
         steps = []
         messages = []
+        labels = {}
         card = types.SimpleNamespace(
             info={"ios": "17.0", "name": "iPhone", "trusted": True},
             push_step=steps.append,
@@ -381,6 +382,9 @@ class SyncCardsRebootTests(unittest.TestCase):
             destroy=lambda: steps.append("DESTROYED"),
             update_trust_status=lambda trusted, info: steps.append(f"TRUST={trusted}"),
         )
+        def make_label(name):
+            return types.SimpleNamespace(config=lambda **kwargs: labels.__setitem__(name, kwargs.get("text")))
+
         label = types.SimpleNamespace(config=lambda **kwargs: None)
         app = types.SimpleNamespace(
             rows={"u1": card},
@@ -391,12 +395,14 @@ class SyncCardsRebootTests(unittest.TestCase):
             _relayout_cards=lambda: None,
             _update_all_cards_ipa_status=lambda: None,
             _refresh_mascot_state=lambda dev_cnt, untrusted_cnt: None,
-            lbl_dev_count=label,
+            lbl_dev_count=make_label("dev_count"),
             lbl_trust_count=label,
             lbl_untrust_count=label,
+            lbl_log_dev_info=make_label("log_dev_info"),
             current_mode="RESTORE",
             steps=steps,
             messages=messages,
+            labels=labels,
             card=card,
         )
         app._sync_cards = types.MethodType(BB_RB.App._sync_cards, app)
@@ -456,6 +462,37 @@ class SyncCardsRebootTests(unittest.TestCase):
 
         self.assertNotIn("u1", app.rows)
         self.assertIn("Đã ngắt kết nối.", app.messages)
+
+    def test_reboot_disconnect_and_reconnect_are_logged_once(self):
+        """Catches the System Log hiding the post-restore USB disconnect/reconnect cycle."""
+        app = self.make_app()
+        app.reboot_tracker.mark("u1", timeout=180.0)
+
+        app._sync_cards(["u1"], {"u1": True})
+        app._sync_cards([], {})
+        app._sync_cards([], {})
+        app._sync_cards(["u1"], {"u1": True})
+
+        disconnects = [m for m in app.messages if m.startswith("Đã ngắt kết nối")]
+        reconnects = [m for m in app.messages if m.startswith("Đã kết nối lại")]
+        self.assertEqual(len(disconnects), 1)
+        self.assertEqual(len(reconnects), 1)
+
+    def test_connected_count_reflects_usb_presence_during_reboot(self):
+        """Catches the counter showing a rebooting (unplugged) iPhone as still connected."""
+        app = self.make_app()
+        app.reboot_tracker.mark("u1", timeout=180.0)
+
+        app._sync_cards(["u1"], {"u1": True})
+        self.assertEqual(app.labels["log_dev_info"], "1")
+
+        app._sync_cards([], {})
+        self.assertIn("u1", app.rows)
+        self.assertEqual(app.labels["log_dev_info"], "0")
+        self.assertEqual(app.labels["dev_count"], "Tổng: 0")
+
+        app._sync_cards(["u1"], {"u1": True})
+        self.assertEqual(app.labels["log_dev_info"], "1")
 
 
 class HourlyRestoreUiTests(unittest.TestCase):

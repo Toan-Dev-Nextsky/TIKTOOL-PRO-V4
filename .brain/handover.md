@@ -1,9 +1,19 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-09-24 02:37:35 (GMT+9)
+**Thời gian cập nhật**: 2026-10-08 07:30 (GMT+7)
 **Phiên bản hiện tại**: `4.9.8 Astro Companion UX Edition`  
 **Trạng thái**: Bản sửa độ tin cậy Restore đã hoàn tất; kiểm thử tự động **119/119 PASS**. Tài khoản Windows hiện tại đã được cấp Modify trên E: và F:. Còn việc đối soát thủ công các backup của một đợt trước đã restore trên iPhone nhưng nằm lại Kho A.
+
+---
+
+## ✅ PHIÊN 2026-10-08 — LOG REBOOT & BỘ ĐẾM THIẾT BỊ (branch `backup/before-refactor-v5-beta`)
+
+* **Hiện tượng**: Sau Restore (Activate tự động hoặc thủ công), iPhone reboot ngắt USB rồi cắm lại, nhưng Nhật Ký Hệ Thống không có dòng ngắt kết nối và "Số thiết bị đang kết nối" luôn = 1 (Trust 0 / Not Trust 0 / Tổng 1). Branch `backup/before-refactor` cũ hiện đúng.
+* **Nguyên nhân**: Bản cũ hiện đúng chỉ nhờ lỗi race (xóa khóa reboot ngay khi máy còn cắm → thẻ bị xóa khi rút). v5 đã sửa race và giữ thẻ suốt lúc reboot, nhưng nhánh giữ thẻ `continue` im lặng và bộ đếm dùng `len(self.rows)`.
+* **Khắc phục** (`App._sync_cards`): log 1 lần `Đã ngắt kết nối (iPhone đang khởi động lại)...` và `Đã kết nối lại sau khởi động lại: <tên> • iOS <x>`; thẻ đổi `Hoàn tất • Đã kết nối lại` nếu udid không có operation đang chạy; `Tổng`, `lbl_stat_total_dev`, `lbl_log_dev_info` đếm `trusted_cnt + untrusted_cnt`. Bot Astro vẫn nhận `len(self.rows)`.
+* **UI**: bộ đếm nằm giữa header log (grid 3 cột `uniform="log_head_side"`), không viền; chữ Emerald 9 bold, số `lbl_log_dev_info` riêng 13 bold `#FBBF24` (label chỉ chứa con số).
+* **Kiểm thử**: +2 test `SyncCardsRebootTests`; 123/123 PASS. User đã xác nhận log thực tế hiển thị đúng.
 
 ---
 

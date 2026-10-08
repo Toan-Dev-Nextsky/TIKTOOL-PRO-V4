@@ -2190,24 +2190,32 @@ class App(tk.Tk):
 
         frame_log_head = tk.Frame(frame_log, bg=COLOR_PANEL_BG)
         frame_log_head.pack(fill="x", padx=2, pady=(2, 0))
+        # 3 cột: tiêu đề | badge ở chính giữa | cột trống cân đối
+        frame_log_head.columnconfigure(0, weight=1, uniform="log_head_side")
+        frame_log_head.columnconfigure(2, weight=1, uniform="log_head_side")
 
         # Tiêu đề "❯_ NHẬT KÝ HỆ THỐNG"
         lbl_log_head = tk.Label(frame_log_head, text="❯_ NHẬT KÝ HỆ THỐNG", font=("Segoe UI", 9, "bold"), fg=COLOR_CYAN_ACCENT, bg=COLOR_PANEL_BG, anchor="w")
-        lbl_log_head.pack(side="left", padx=8, pady=2)
+        lbl_log_head.grid(row=0, column=0, sticky="w", padx=8, pady=2)
 
-        # Thông tin thiết bị kết nối dạng badge
-        self.lbl_log_dev_info = tk.Label(
-            frame_log_head,
-            text="Số thiết bị đang kết nối: 0",
+        # Thông tin thiết bị kết nối (nằm giữa, không khung viền, số to đậm màu vàng sáng nổi bật)
+        frame_dev_badge = tk.Frame(frame_log_head, bg=COLOR_PANEL_BG)
+        frame_dev_badge.grid(row=0, column=1)
+        tk.Label(
+            frame_dev_badge,
+            text="Số thiết bị đang kết nối:",
             font=("Segoe UI", 9, "bold"),
             fg=COLOR_EMERALD_ACCENT,
-            bg=COLOR_SUB_BG,
-            highlightbackground=COLOR_BORDER_LIGHT,
-            highlightthickness=1,
-            padx=6,
-            pady=1
+            bg=COLOR_PANEL_BG,
+        ).pack(side="left")
+        self.lbl_log_dev_info = tk.Label(
+            frame_dev_badge,
+            text="0",
+            font=("Segoe UI", 13, "bold"),
+            fg="#FBBF24",
+            bg=COLOR_PANEL_BG,
         )
-        self.lbl_log_dev_info.pack(side="right", padx=10, pady=2)
+        self.lbl_log_dev_info.pack(side="left", padx=(5, 0))
 
         self.txt_log = tk.Text(frame_log, font=("Consolas", 10), bg=COLOR_CONSOLE_BG, fg="#CBD5E1", bd=0, highlightthickness=0, insertbackground=COLOR_CYAN_ACCENT, selectbackground=COLOR_CYAN_MAIN, selectforeground="#FFFFFF")
         self.txt_log.pack(fill="both", expand=True, padx=6, pady=4)
@@ -5068,6 +5076,8 @@ class App(tk.Tk):
                     if self.reboot_tracker.is_waiting(udid, now=now_ts):
                         # Ghi nhận máy đã thật sự rút khỏi USB để phân biệt
                         # "chưa kịp reboot" với "đã reboot xong và cắm lại".
+                        if not self.reboot_tracker.saw_absence(udid):
+                            self.log(udid, "Đã ngắt kết nối (iPhone đang khởi động lại)...")
                         self.reboot_tracker.note_absent(udid)
                         self.rows[udid].push_step("Hoàn tất • Đang khởi động lại...")
                         continue
@@ -5102,6 +5112,10 @@ class App(tk.Tk):
                         # (chưa kịp reboot), khóa mất tác dụng và thẻ bị xoá oan.
                         if trust_results.get(udid, False) and self.reboot_tracker.saw_absence(udid):
                             self.reboot_tracker.clear(udid)
+                            self.log(udid, f"Đã kết nối lại sau khởi động lại: {card.info.get('name', 'iPhone')} • iOS {card.info.get('ios', '?')}")
+                            operations = getattr(self, "operations", None)
+                            if operations is None or udid not in operations.snapshot():
+                                card.push_step("Hoàn tất • Đã kết nối lại")
                     else:
                         if card.info.get("trusted") != is_trusted:
                             info = info_results.get(udid) or self._build_info(udid, is_trusted=False)
@@ -5117,13 +5131,16 @@ class App(tk.Tk):
                 self._update_all_cards_ipa_status()
 
             dev_cnt = len(self.rows)
-            self.lbl_dev_count.config(text=f"Tổng: {dev_cnt}")
+            # Thẻ của máy đang reboot vẫn được giữ lại, nhưng bộ đếm phải phản ánh
+            # số máy thật sự đang cắm USB (giống hành vi trước khi giữ thẻ).
+            connected_cnt = trusted_cnt + untrusted_cnt
+            self.lbl_dev_count.config(text=f"Tổng: {connected_cnt}")
             self.lbl_trust_count.config(text=f"Trust: {trusted_cnt}")
             self.lbl_untrust_count.config(text=f"Not Trust: {untrusted_cnt}")
             if hasattr(self, "lbl_stat_total_dev"):
-                self.lbl_stat_total_dev.config(text=str(dev_cnt))
+                self.lbl_stat_total_dev.config(text=str(connected_cnt))
             if hasattr(self, "lbl_log_dev_info"):
-                self.lbl_log_dev_info.config(text=f"Số thiết bị đang kết nối: {dev_cnt}")
+                self.lbl_log_dev_info.config(text=str(connected_cnt))
             self._refresh_mascot_state(dev_cnt, untrusted_cnt)
 
     # BẢNG PHÂN BỔ HIỂN THỊ CHI TIẾT

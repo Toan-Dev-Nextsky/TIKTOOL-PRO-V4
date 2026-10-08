@@ -1,20 +1,19 @@
 {
-  "updated_at": "2026-09-24T02:37:29+09:00",
+  "updated_at": "2026-10-08T07:30:00+07:00",
   "working_on": {
-    "feature": "Restore NTFS permissions and transfer reliability",
-    "task": "Diagnose restore batch failures after Windows reinstall; repair safe backup transfer, permission diagnostics, retry behavior, and accurate per-batch counts.",
+    "feature": "Reboot disconnect/reconnect log & connected device counter (branch backup/before-refactor-v5-beta)",
+    "task": "System Log không ghi khi iPhone ngắt/kết nối lại lúc reboot sau Restore và bộ đếm 'Số thiết bị đang kết nối' luôn hiện máy dù đã rút; đưa bộ đếm vào giữa header log, số to màu vàng.",
     "status": "completed",
     "files": [
       "BB_RB.py",
-      "tiktool_core.py",
       "tests/test_app_workflows.py",
-      "tests/test_tiktool_core.py",
       "CHANGELOG.md",
+      "AGENTS.md",
       ".brain/brain.json",
       ".brain/session.json",
       ".brain/handover.md"
     ],
-    "notes": "Root cause: old NTFS ACLs referenced the previous Windows SID; current account lacked Modify/Delete. User granted Modify recursively on E: and F:, with only protected System Volume Information failures (E: 8, F: 6). Code now uses unique temporary Info.plist files with cleanup and clearer PermissionError, collision-safe/permission-retrying backup moves, ownership-aware cross-volume cleanup, explicit restore-success/move-failure logging, and a locked per-batch moved counter. Operational log 2026-09-24: two 9-device batches, 18/18 restore and move successes; first batch auto-activated 9/9. 119/119 unit tests passed. One prior 228-store batch left eight successful-phone-restore backups in source A and one backup that did not begin restore due to Info.plist permission; check handover before retrying those devices. settings.json contains user-specific store paths and is intentionally excluded from commits."
+    "notes": "Root cause: v5 giữ thẻ trong lúc reboot (fix race RebootTracker) nhưng _sync_cards không log và đếm theo len(self.rows). Fix: log ngắt/kết nối lại 1 lần, đếm connected_cnt = trusted_cnt + untrusted_cnt cho lbl_dev_count/lbl_stat_total_dev/lbl_log_dev_info; mascot vẫn dùng len(self.rows). UI: lbl_log_dev_info chỉ chứa số (13 bold #FBBF24), nhãn chữ Emerald riêng, căn giữa header bằng grid 3 cột uniform, không viền. User xác nhận log hiển thị đúng qua ảnh chụp. 123/123 tests PASS. settings.json không commit."
   },
   "pending_tasks": [
     {
@@ -29,6 +28,16 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-10-08T07:30:00+07:00",
+      "type": "reboot_log_connected_counter",
+      "description": "_sync_cards ghi log 'Đã ngắt kết nối (iPhone đang khởi động lại)...' và 'Đã kết nối lại sau khởi động lại' đúng 1 lần mỗi chu kỳ reboot; bộ đếm thiết bị đếm máy thật trên USB; bộ đếm chuyển vào giữa header Nhật Ký Hệ Thống, không viền, số vàng #FBBF24 13 bold. Thêm 2 test SyncCardsRebootTests (123/123 PASS).",
+      "files": [
+        "BB_RB.py",
+        "tests/test_app_workflows.py",
+        "CHANGELOG.md"
+      ]
+    },
     {
       "timestamp": "2026-09-24T02:37:29+09:00",
       "type": "restore_ntfs_permissions_transfer_reliability",
