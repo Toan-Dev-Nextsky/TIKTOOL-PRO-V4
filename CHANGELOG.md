@@ -2,6 +2,23 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Skip Setup Timeout and Retry Safety] - 2026-10-08
+
+- Tăng thời gian chờ `ios prepare --skip-all` từ 40 lên 120 giây. Giữ log đầu ra khi timeout, đọc lại trạng thái Activate để chẩn đoán rồi dừng tự gửi lại; trạng thái Activated không được coi là bằng chứng đã qua Setup Assistant.
+- Chỉ thử lại lỗi kết nối rõ ràng trước khi prepare bắt đầu, sau khi pairing thành công và xác nhận máy Activated. Không gửi lại khi cấu hình có thể đã ghi hoặc máy báo đã tồn tại cloud configuration.
+- Mỗi lần thử có trạng thái độc lập; lỗi thật không giữ trạng thái timeout cũ. Chỉ chấp nhận lệnh thành công khi mã thoát là 0 và không có lỗi/timeout; chuỗi `"ok"` trong output không đủ để báo thành công.
+- Skip Setup chưa xác nhận sẽ dừng ở 45%, yêu cầu kiểm tra thiết bị và không chạy bước đổi ngôn ngữ. Thông báo lỗi không tự khẳng định iPhone vẫn ở màn hình Hello.
+- Kiểm chứng: compile thành công, 140 unit tests PASS; 6 test mới kiểm tra timeout không gửi trùng, giữ output, không đổi ngôn ngữ sau lỗi, kiểm tra trạng thái trước retry và báo đúng lỗi cuối. Settings thật không bị thay đổi bởi test. Chưa xác nhận bản sửa Auto Activate trên thiết bị thật.
+- Tham khảo trình tự ghi cấu hình trong go-ios: https://github.com/danielpaulus/go-ios/blob/main/ios/mcinstall/prepare.go (mã nguồn upstream, không khẳng định trùng hoàn toàn binary v1.0.172 đang cài).
+
+## [4.9.8 Deferred Reboot During Batch Restore] - 2026-10-08
+
+- Restore theo đợt dùng `--no-reboot`; chỉ gửi `idevicediagnostics restart` sau khi toàn bộ lệnh restore trong đợt đã kết thúc. Tránh máy hoàn tất sớm reboot khi các máy khác còn truyền dữ liệu.
+- Đăng ký toàn bộ máy trước khi khởi chạy worker. Worker đã nạp xong nhả semaphore trước khi chờ cả đợt; lỗi pairing, chuẩn bị backup, truyền dữ liệu hoặc tạo thread đều giải phóng hàng chờ.
+- Giữ thao tác chuyển kho và bộ đếm theo kết quả restore thành công. Reboot lỗi được báo riêng, không tự Activate máy chưa gửi được lệnh reboot; thông báo cuối đợt không yêu cầu rút toàn bộ máy khi còn lỗi.
+- File log lưu đầy đủ UDID, tên backup và mã thoát; giao diện dùng cả đầu và cuối UDID để phân biệt các máy có cùng tiền tố `000081`.
+- Kiểm chứng ban đầu: compile thành công, 134 unit tests PASS, bao gồm test nhiều worker với một slot USB và các nhánh thất bại. Log thực tế sau sửa xác nhận 4 đợt đầu (19:46:37–20:14:24), tổng 49/49 lượt restore và chuyển kho thành công; reboot chỉ được gửi sau lệnh restore cuối. Windows vẫn ghi nhận crash `AppleUsbFilter.dll` lúc 20:14:33 sau khi truyền dữ liệu xong; sửa này tránh reboot sớm, không phải bản vá bên trong driver Apple. Chi tiết bàn giao trong `NHAT_KY_SUA_RESTORE_AUTO_ACTIVATE_2026-10-08.md`.
+
 ## [4.9.8 Available Devices Guard for Batch Operations] - 2026-10-08
 
 - **Lọc máy sẵn sàng cho toàn bộ thao tác hàng loạt (`_available_udids`)**:

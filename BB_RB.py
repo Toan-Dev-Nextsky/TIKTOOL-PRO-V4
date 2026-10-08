@@ -23,6 +23,7 @@ from tiktool_core import (
     OperationRegistry,
     ProcessRunner,
     RebootTracker,
+    RestoreBatchGate,
     cleanup_owned_job,
     create_backup_job,
     format_hourly_restore_history,
@@ -3264,7 +3265,12 @@ class App(tk.Tk):
             skip_detail = ""
             _t_stage = time.monotonic()
             for skip_attempt in range(1, 4):
-                _res2 = PROCESS_RUNNER.run_capture(cmd2, timeout=40)
+                # Each attempt owns its result; never retain an earlier timeout.
+                skip_state = "failed"
+                skip_detail = ""
+                # prepare writes configuration before finishing. Give it time to
+                # finish instead of killing it at 40s and replaying those writes.
+                _res2 = PROCESS_RUNNER.run_capture(cmd2, timeout=120)
                 rc2 = _res2.returncode
                 out2 = _res2.output
 
@@ -3280,53 +3286,69 @@ class App(tk.Tk):
                 _skip_display_out = "\n".join(_skip_display_lines)
                 low2 = (_skip_display_out or "").lower()
 
+                if _skip_display_out:
+                    self.log(udid, f"Skip Setup lần {skip_attempt}/3 (exit {rc2}):\n{_skip_display_out}",
+                             is_err=(not _res2.timed_out and rc2 != 0),
+                             is_warn=_res2.timed_out)
+
                 if _res2.timed_out:
-                    # Timeout thường do go-ios tunnel hoặc lockdownd phản hồi chậm.
-                    # iPhone CÓ THỂ đã nhận lệnh, nhưng không có gì xác nhận -> không báo thành công.
+                    # Device writes may already have happened. ActivationState
+                    # proves activation only, not completion of Setup Assistant.
                     skip_state = "sent"
-                    skip_detail = "timeout 40s, không có phản hồi"
-                    self.log(udid, f"⚠️ Lệnh Skip Setup đã gửi nhưng KHÔNG có phản hồi (timeout 40s, lần {skip_attempt}/3).", is_warn=True)
-                    if skip_attempt < 3:
-                        self._update_card_progress(udid, step=f"Gửi lại Skip Setup ({skip_attempt}/3)...")
-                        continue
+                    state_after_timeout = query_activation_state(udid)
+                    skip_detail = f"timeout 120s; trạng thái Activate: {state_after_timeout or 'không đọc được'}"
+                    self.log(udid, f"⚠️ Skip Setup chưa kết thúc sau 120s. {skip_detail}. Cấu hình có thể đã được ghi; dừng tự gửi lại để tránh ghi trùng.", is_warn=True)
                     break
 
-                if (rc2 == 0) or ('"ok"' in low2) or (low2.strip() == "ok"):
+                if _res2.ok:
                     skip_state = "ok"
-                    if _skip_display_out:
-                        self.log(udid, _skip_display_out)
                     break
 
                 skip_detail = _skip_display_out or f"rc={rc2}"
-                self.log(udid, skip_detail, is_err=True)
-
-                _retryable = any(
+                # Retry only an explicit connection failure before preparation
+                # starts. An ambiguous disconnect may follow a successful write.
+                preparation_started = any(marker in low2 for marker in (
+                    "device is activated", "send flush request", "get cloud config",
+                    "cloud configuration", "cloud config", "add profile", "add response",
+                ))
+                _retryable = not preparation_started and any(
                     marker in low2
                     for marker in (
-                        "lockdownd", "could not connect", "failed to connect", "connection",
-                        "pair", "not trusted", "denied", "no device found", "device not found",
+                        "could not connect", "failed to connect", "not paired",
+                        "not trusted", "no device found", "device not found",
                     )
-                ) or not low2.strip()
+                )
 
                 if skip_attempt < 3 and _retryable:
                     self.log(udid, f"⚠️ Skip Setup lỗi kết nối/pairing. Xác thực lại pairing rồi thử lại sau 5s (lần {skip_attempt}/3)...", is_warn=True)
                     self._update_card_progress(udid, step=f"Re-pair & retry Skip Setup ({skip_attempt}/3)...")
-                    pair_validate(udid, log_fn=lambda s, **_: self.log(udid, s))
+                    if not pair_validate(udid, log_fn=lambda s, **_: self.log(udid, s)):
+                        self.log(udid, "Pairing chưa sẵn sàng; dừng thử lại Skip Setup.", is_warn=True)
+                        break
                     time.sleep(5)
+                    retry_state = query_activation_state(udid)
+                    if activation_state_is_activated(retry_state) is not True:
+                        self.log(udid, f"Chưa xác nhận thiết bị sẵn sàng Activate ({retry_state or 'không đọc được'}); dừng thử lại Skip Setup.", is_warn=True)
+                        break
                     continue
                 break
             self.log(udid, f"⏱ Giai đoạn 2 Skip Setup: {time.monotonic() - _t_stage:.1f}s (kết quả: {skip_state})")
 
             if skip_state == "failed":
                 self._update_card_progress(udid, pct=45, task=f"{task} lỗi", step="Skip Setup thất bại")
-                self.log(udid, f"Skip Setup Assistant THẤT BẠI ({skip_detail}). iPhone vẫn đang ở màn hình cài đặt ban đầu — cần chạy lại Batch Activate.", is_err=True)
+                self.log(udid, f"Skip Setup Assistant THẤT BẠI ({skip_detail}). Hãy kiểm tra màn hình iPhone; lỗi này chưa xác định được máy đã qua Setup Assistant hay chưa.", is_err=True)
+                return False
+
+            if skip_state != "ok":
+                self._update_card_progress(udid, pct=45, task=f"{task} cần kiểm tra", step="Skip Setup chưa xác nhận")
+                self.log(udid, f"⚠️ Skip Setup không có phản hồi xác nhận hoàn tất ({skip_detail}). Dừng các bước tiếp theo; hãy kiểm tra màn hình iPhone trước khi chạy lại.", is_warn=True)
                 return False
 
             self._update_card_progress(
                 udid,
                 pct=80,
                 task=f"{task} 80%",
-                step="Skip Setup OK" if skip_state == "ok" else "Skip Setup chưa xác nhận",
+                step="Skip Setup OK",
             )
 
             # === GIAI ĐOẠN 3: Set Language & Locale (80% → 100%) ===
@@ -3381,11 +3403,6 @@ class App(tk.Tk):
             if activation_state_is_activated(final_state) is False:
                 self._update_card_progress(udid, task=f"{task} lỗi", step=f"Chưa Activate ({final_state})")
                 self.log(udid, f"Thiết bị vẫn CHƯA được kích hoạt (state={final_state}).", is_err=True)
-                return False
-
-            if skip_state != "ok":
-                self._update_card_progress(udid, pct=100, task=f"{task} cần kiểm tra", step="Skip Setup chưa xác nhận")
-                self.log(udid, f"⚠️ Batch Activate chạy xong nhưng Skip Setup không có phản hồi xác nhận ({skip_detail}). Hãy xem màn hình iPhone; nếu vẫn ở màn hình Hello thì bấm lại BATCH ACTIVATE (ALL).", is_warn=True)
                 return False
 
             # === HOÀN TẤT ===
@@ -4893,9 +4910,9 @@ class App(tk.Tk):
             pass
 
     def log(self, udid, line, is_err=False, is_warn=False, is_ok=False):
-        prefix = (udid[:6] + "...") if udid else "SYSTEM"
+        prefix = f"{udid[:6]}...{udid[-8:]}" if udid and len(udid) > 16 else (udid or "SYSTEM")
         msg = f"[{_ts()}] {prefix}: {line}\n"
-        self._append_log_file(msg)
+        self._append_log_file(f"[{_ts()}] {udid or 'SYSTEM'}: {line}\n")
         App._post_ui(self, self._write_log, msg, is_err, is_warn, is_ok)
 
     def _write_log(self, msg, is_err, is_warn=False, is_ok=False):
@@ -5230,6 +5247,12 @@ class App(tk.Tk):
         self.frame_dev_zone.pack(fill="both", expand=True)
 
     def _execute_confirmed_restore(self):
+        if self.active_restores:
+            messagebox.showwarning("RESTORE ĐANG CHẠY", "Chờ đợt Restore hiện tại kết thúc trước khi chạy đợt mới.")
+            return
+        if not which_tool("idevicediagnostics"):
+            messagebox.showerror("THIẾU CÔNG CỤ", "Cần idevicediagnostics.exe để khởi động lại máy sau khi cả đợt Restore kết thúc.")
+            return
         self.btn_run_conf.config(state="disabled", bg="#94A3B8")
         self.btn_cancel_conf.config(state="disabled", bg="#94A3B8")
 
@@ -5245,16 +5268,30 @@ class App(tk.Tk):
         auto_activate = bool(self.var_auto_activate_after_restore.get())
         set_language = bool(self.var_set_lang_after_active.get())
         language_preset = self.var_lang_locale.get()
-        with self.lock:
-            self._restore_batch_moved_count = 0
+        jobs = []
         for target_udid, bk_path in self.pending_restore_map:
             if not self._begin_operation(target_udid, "restore"):
                 continue
-            threading.Thread(
-                target=self._restore_worker,
-                args=(target_udid, bk_path, target_root, src_label, auto_activate, set_language, language_preset, True),
-                daemon=True,
-            ).start()
+            jobs.append((target_udid, bk_path))
+        restore_batch = RestoreBatchGate(udid for udid, _ in jobs)
+        with self.lock:
+            self._restore_batch_moved_count = 0
+            # Reserve every member before the first thread can finish.
+            self.active_restores.update(udid for udid, _ in jobs)
+        self.log("SYSTEM", f"Restore {len(jobs)} máy: hoãn reboot đến khi toàn bộ lệnh restore trong đợt kết thúc.")
+        for target_udid, bk_path in jobs:
+            try:
+                threading.Thread(
+                    target=self._restore_worker,
+                    args=(target_udid, bk_path, target_root, src_label, auto_activate, set_language, language_preset, True, restore_batch),
+                    daemon=True,
+                ).start()
+            except Exception as exc:
+                with self.lock:
+                    self.active_restores.discard(target_udid)
+                self.operations.end(target_udid, "restore")
+                restore_batch.complete(target_udid)
+                self.log(target_udid, f"Không khởi chạy được Restore: {exc}", is_err=True)
         
         self.after(1200, self._hide_confirm_frame)
 
@@ -5529,6 +5566,9 @@ class App(tk.Tk):
     def start_restore_all(self):
         if not self._require_license():
             return
+        if getattr(self, "active_restores", None):
+            messagebox.showwarning("RESTORE ĐANG CHẠY", "Chờ đợt Restore hiện tại kết thúc trước khi chạy đợt mới.")
+            return
         available = self._available_udids()
         if not available:
             messagebox.showwarning("CẢNH BÁO", "Không có thiết bị kết nối sẵn sàng (máy đợt trước có thể đang khởi động lại)!")
@@ -5610,7 +5650,7 @@ class App(tk.Tk):
         self.log("SYSTEM", f"Restore chuyển kho: {src_label} ➜ {'B' if src_label == 'A' else 'A'} | {len(all_bks)} bản backup | {len(self.pending_restore_map)} máy ghép nối")
         self._show_confirm_frame(confirm_items)
 
-    def _restore_worker(self, target_udid, backup_folder_full, target_after_restore, source_store="A", auto_activate=False, set_language=False, language_preset=None, operation_reserved=False):
+    def _restore_worker(self, target_udid, backup_folder_full, target_after_restore, source_store="A", auto_activate=False, set_language=False, language_preset=None, operation_reserved=False, restore_batch=None):
         with self.lock:
             self.active_restores.add(target_udid)
             active_count = len(self.active_restores)
@@ -5618,9 +5658,11 @@ class App(tk.Tk):
         row = self.rows.get(target_udid)
         original_info = None
         restore_ok = False
+        slot_held = False
         if not SEMAPHORE.acquire(timeout=1):
             if row: row.push_step("Đang chờ slot...")
             SEMAPHORE.acquire()
+        slot_held = True
         try:
             if not pair_validate(target_udid, log_fn=lambda s, **_: self.log(target_udid, s)):
                 if row: row.push_step("Lỗi Pair")
@@ -5638,6 +5680,9 @@ class App(tk.Tk):
             base_dir = os.path.dirname(backup_folder_full)
             src_name = os.path.basename(backup_folder_full)
             cmd = ["idevicebackup2", "-u", target_udid, "-s", src_name, "restore", os.path.normpath(base_dir), "--settings", "--remove"]
+            if restore_batch is not None:
+                cmd.append("--no-reboot")
+            self.log(target_udid, f"Bắt đầu Restore: {src_name} | hoãn reboot={restore_batch is not None}")
 
             if row:
                 row.push_step("Restore 0%")
@@ -5663,12 +5708,36 @@ class App(tk.Tk):
                     row.push_step(f"Restore {pct}%")
 
             rc, last_lines = run_stream(cmd, on_line=on_line)
+            self.log(target_udid, f"Restore kết thúc: exit {rc} | backup {src_name}", is_err=rc != 0)
             if rc == 0:
                 restore_ok = True
                 self.log(target_udid, "Khôi phục dữ liệu Restore hoàn tất thành công.")
-                
-                # KHÓA TRẠNG THÁI REBOOT TRONG 35 GIÂY (Ngăn không cho Polling báo Not Trust)
+                reboot_ok = True
+                if restore_batch is not None:
+                    # Release USB capacity before waiting, including batches larger
+                    # than MAX_CONCURRENCY. Every worker/failure must reach the gate.
+                    SEMAPHORE.release()
+                    slot_held = False
+                    if row:
+                        row.push_step("Đã nạp xong • Chờ cả đợt trước khi reboot")
+                    restore_batch.complete(target_udid)
+                    restore_batch.wait()
                 self.reboot_tracker.mark(target_udid, timeout=135.0)
+                if restore_batch is not None:
+                    try:
+                        self.log(target_udid, "Cả đợt đã kết thúc truyền dữ liệu. Gửi lệnh reboot.")
+                        reboot_rc, reboot_output = run_capture(
+                            [which_tool("idevicediagnostics"), "-u", target_udid, "restart"], timeout=15
+                        )
+                        reboot_ok = reboot_rc == 0
+                        if not reboot_ok:
+                            self.log(target_udid, f"Restore đã xong nhưng lệnh reboot lỗi (exit {reboot_rc}): {reboot_output}. Cần khởi động lại iPhone thủ công.", is_err=True)
+                    except Exception as exc:
+                        reboot_ok = False
+                        self.log(target_udid, f"Không gửi được lệnh reboot: {exc}. Cần khởi động lại iPhone thủ công.", is_err=True)
+                    if not reboot_ok:
+                        self.reboot_tracker.clear(target_udid)
+                        restore_batch.reboot_failed(target_udid)
 
                 try:
                     os.makedirs(target_after_restore, exist_ok=True)
@@ -5685,10 +5754,10 @@ class App(tk.Tk):
                     
                     if row:
                         row.set_pct(100)
-                        row.push_step("Hoàn tất Restore 100%")
+                        row.push_step("Hoàn tất Restore 100%" if reboot_ok else "Đã nạp xong • Cần khởi động lại iPhone")
 
                     # === TỰ ĐỘNG ACTIVATE SAU RESTORE (nếu bật) ===
-                    if auto_activate:
+                    if auto_activate and reboot_ok:
                         transitioned = operation_reserved and self.operations.transition(
                             target_udid, "restore", "auto_activate"
                         )
@@ -5715,7 +5784,15 @@ class App(tk.Tk):
                 if row: row.push_step(f"Restore lỗi (exit {rc})")
                 for line in last_lines[-10:]:
                     self.log(target_udid, line, is_err=True)
+        except Exception as exc:
+            self.log(target_udid, f"Ngoại lệ Restore: {exc}", is_err=True)
+            if row:
+                row.push_step("Lỗi Restore • Xem nhật ký")
         finally:
+            if slot_held:
+                SEMAPHORE.release()
+            if restore_batch is not None:
+                restore_batch.complete(target_udid)
             if original_info and not restore_ok:
                 # Restore lỗi: trả Info.plist về đúng nguyên trạng để bản backup
                 # không bị mang UDID của máy vừa nạp thất bại.
@@ -5727,7 +5804,6 @@ class App(tk.Tk):
                 self.active_restores.discard(target_udid)
                 _all_done = len(self.active_restores) == 0  # Kiểm tra trong lock
                 batch_done_count = getattr(self, "_restore_batch_moved_count", 0)
-            SEMAPHORE.release()
             if operation_reserved:
                 self.operations.end(target_udid, "restore")
             if _all_done and auto_activate:
@@ -5737,16 +5813,22 @@ class App(tk.Tk):
             # === THÔNG BÁO RÚT MÁY KHI TẤT CẢ ĐỢT XONG (chỉ khi Auto Activate TẮT) ===
             if _all_done and not auto_activate:
                 done_count = batch_done_count
+                batch_has_errors = restore_batch is not None and (
+                    done_count != restore_batch.total or restore_batch.reboot_failure_count() > 0
+                )
                 self._set_mascot_state(
-                    "celebrate",
+                    "alert" if batch_has_errors else "celebrate",
                     count=done_count,
-                    message=f"Tuyệt vời! Đã hoàn tất {done_count} máy. Cắm mẻ mới nào!",
+                    message=f"Đã chuyển {done_count} máy; kiểm tra các máy báo lỗi." if batch_has_errors else f"Tuyệt vời! Đã hoàn tất {done_count} máy. Cắm mẻ mới nào!",
                     hold_seconds=12,
                 )
                 banner = "=" * 58
                 self.log("SYSTEM", banner, is_warn=True)
-                self.log("SYSTEM", f"🔔 ĐÃ RESTORE XONG {done_count} MÁY – RÚT TẤT CẢ RA & CẮM ĐỢT MỚI!", is_warn=True)
-                self.log("SYSTEM", "   Tất cả iPhone đang reboot, KHÔNG cần chờ thêm.", is_warn=True)
+                if batch_has_errors:
+                    self.log("SYSTEM", f"ĐỢT RESTORE KẾT THÚC: đã chuyển {done_count}/{restore_batch.total} máy; {restore_batch.reboot_failure_count()} máy cần reboot thủ công. Kiểm tra máy báo lỗi trước khi chạy tiếp.", is_warn=True)
+                else:
+                    self.log("SYSTEM", f"🔔 ĐÃ RESTORE XONG {done_count} MÁY – RÚT TẤT CẢ RA & CẮM ĐỢT MỚI!", is_warn=True)
+                    self.log("SYSTEM", "   Các lệnh Restore đã hoàn tất; thiết bị đã được yêu cầu reboot.", is_warn=True)
                 self.log("SYSTEM", banner, is_warn=True)
                 def _beep_all_done():
                     # 1. Nhấp nháy icon TikTool trên thanh taskbar (màu cam) để dù tắt tiếng vẫn biết
