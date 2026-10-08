@@ -237,6 +237,40 @@ class OperationRegistry:
             return dict(self._operations)
 
 
+class RestoreBatchGate:
+    """Do not reboot a restored device while any batch member is transferring.
+
+    Workers must release their transfer semaphore before waiting. Completion is
+    idempotent so early failures and thread-start failures also release the gate.
+    """
+
+    def __init__(self, udids):
+        self._pending = set(udids)
+        self.total = len(self._pending)
+        self._lock = threading.Lock()
+        self._ready = threading.Event()
+        self._reboot_failures = set()
+        if not self._pending:
+            self._ready.set()
+
+    def complete(self, udid):
+        with self._lock:
+            self._pending.discard(udid)
+            if not self._pending:
+                self._ready.set()
+
+    def wait(self):
+        self._ready.wait()
+
+    def reboot_failed(self, udid):
+        with self._lock:
+            self._reboot_failures.add(udid)
+
+    def reboot_failure_count(self):
+        with self._lock:
+            return len(self._reboot_failures)
+
+
 class RebootTracker:
     """Keep temporary reboot state independent from USB presence polling."""
 

@@ -639,6 +639,72 @@ class PipelineTruthTests(unittest.TestCase):
             any("hoàn tất thành công" in str(args).lower() for args, _ in app.messages)
         )
 
+    def test_skip_timeout_keeps_output_and_does_not_replay_or_set_language(self):
+        app = self.make_app(set_language=True)
+        partial = 'device is activated:true\nget cloud config\nprofile write started'
+        result, runner = self.run_activate(
+            app,
+            capture_results=[(0, "activated"), (0, "Activated"), (0, "Activated")],
+            runner_results=[cmd_result(-1, partial, timed_out=True)],
+            set_language=True,
+        )
+        self.assertFalse(result)
+        self.assertEqual(1, len(runner.commands))
+        self.assertTrue(any(partial in args[1] for args, _ in app.messages))
+        self.assertFalse(any("hoàn tất thành công" in str(args) for args, _ in app.messages))
+
+    def test_skip_nonzero_exit_with_ok_text_is_failure(self):
+        app = self.make_app()
+        result, runner = self.run_activate(
+            app, [(0, "activated"), (0, "Activated")],
+            [cmd_result(1, 'previous response: "ok"; failed setting cloud config')],
+        )
+        self.assertFalse(result)
+        self.assertEqual(1, len(runner.commands))
+
+    def test_skip_retries_preparation_connection_failure_after_readiness_check(self):
+        app = self.make_app()
+        result, runner = self.run_activate(
+            app,
+            [(0, "activated"), (0, "Activated"), (0, "Activated"), (0, "Activated")],
+            [cmd_result(1, 'could not connect to lockdownd'), cmd_result(0, 'ok')],
+        )
+        self.assertTrue(result)
+        self.assertEqual(2, len(runner.commands))
+
+    def test_skip_does_not_retry_when_readiness_is_unknown(self):
+        app = self.make_app()
+        result, runner = self.run_activate(
+            app, [(0, "activated"), (0, "Activated"), (1, "disconnected")],
+            [cmd_result(1, 'could not connect to lockdownd')],
+        )
+        self.assertFalse(result)
+        self.assertEqual(1, len(runner.commands))
+
+    def test_skip_does_not_replay_after_preparation_started(self):
+        app = self.make_app()
+        result, runner = self.run_activate(
+            app, [(0, "activated"), (0, "Activated")],
+            [cmd_result(1, 'device is activated:true\nget cloud config\nfailed to connect')],
+        )
+        self.assertFalse(result)
+        self.assertEqual(1, len(runner.commands))
+
+    def test_skip_retry_reports_latest_error_and_stops_language(self):
+        app = self.make_app(set_language=True)
+        result, runner = self.run_activate(
+            app, [(0, "activated"), (0, "Activated"), (0, "Activated")],
+            [cmd_result(1, 'could not connect'),
+             cmd_result(1, 'A cloud configuration is already present on this device')],
+            set_language=True,
+        )
+        self.assertFalse(result)
+        self.assertEqual(2, len(runner.commands))
+        self.assertTrue(any('THẤT BẠI (A cloud configuration' in str(args)
+                            for args, _ in app.messages))
+        self.assertFalse(any('không có phản hồi xác nhận' in str(args)
+                             for args, _ in app.messages))
+
     def test_batch_activate_succeeds_when_only_language_step_fails(self):
         """Catches a failed language command blocking an otherwise activated device."""
         app = self.make_app(set_language=True)
