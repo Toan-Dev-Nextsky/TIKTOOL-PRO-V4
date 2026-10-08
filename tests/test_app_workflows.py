@@ -380,6 +380,7 @@ class SyncCardsRebootTests(unittest.TestCase):
             push_step=steps.append,
             set_pct=lambda pct: None,
             destroy=lambda: steps.append("DESTROYED"),
+            grid_forget=lambda: None,
             update_trust_status=lambda trusted, info: steps.append(f"TRUST={trusted}"),
         )
         def make_label(name):
@@ -493,6 +494,93 @@ class SyncCardsRebootTests(unittest.TestCase):
 
         app._sync_cards(["u1"], {"u1": True})
         self.assertEqual(app.labels["log_dev_info"], "1")
+
+    def test_rebooting_card_is_hidden_from_grid_until_device_returns(self):
+        """Catches the grid showing unplugged rebooting iPhones while the counter says fewer."""
+        app = self.make_app()
+        app.reboot_tracker.mark("u1", timeout=180.0)
+
+        app._sync_cards(["u1"], {"u1": True})
+        self.assertNotIn("u1", app._reboot_hidden_cards)
+
+        app._sync_cards([], {})
+        self.assertIn("u1", app.rows)
+        self.assertIn("u1", app._reboot_hidden_cards)
+
+        app._sync_cards(["u1"], {"u1": False})  # cắm lại, chưa Trust xong
+        self.assertNotIn("u1", app._reboot_hidden_cards)
+
+    def test_relayout_skips_hidden_cards_and_renumbers_slots(self):
+        """Catches hidden rebooting cards still occupying grid slots."""
+        events = []
+
+        def make_card(name):
+            return types.SimpleNamespace(
+                set_slot=lambda n: events.append((name, "slot", n)),
+                grid_forget=lambda: events.append((name, "forget")),
+                grid=lambda **kw: events.append((name, "grid")),
+            )
+
+        app = types.SimpleNamespace(
+            rows={"a": make_card("a"), "b": make_card("b"), "c": make_card("c")},
+            _reboot_hidden_cards={"a"},
+            grid_container=types.SimpleNamespace(columnconfigure=lambda *a, **k: None),
+            _update_all_cards_ipa_status=lambda: None,
+        )
+        BB_RB.App._relayout_cards(app, cols=3)
+
+        self.assertNotIn(("a", "grid"), events)
+        self.assertIn(("b", "slot", 1), events)
+        self.assertIn(("c", "slot", 2), events)
+
+
+class BackupAllocationOrderTests(unittest.TestCase):
+    """Restore phải lấy backup theo số thứ tự đầu tên thư mục từ bé đến lớn."""
+
+    def make_store(self, root, names_and_dates):
+        for name, last_dt in names_and_dates:
+            path = make_backup(root, name=name)
+            if last_dt is not None:
+                info_path = Path(path, "Info.plist")
+                with open(info_path, "rb") as stream:
+                    info = plistlib.load(stream)
+                info["Last Backup Date"] = last_dt
+                with open(info_path, "wb") as stream:
+                    plistlib.dump(info, stream)
+
+    def test_numeric_prefix_order_beats_windows_lexical_order(self):
+        """Catches 100_iPhone being picked before 43_iPhone (NTFS sorts '1' < '4')."""
+        with tempfile.TemporaryDirectory() as root:
+            self.make_store(root, [("100_iPhone", None), ("43_iPhone", None), ("9_iPhone", None), ("44_iPhone", None)])
+
+            names = [bk["folder_name"] for bk in BB_RB.list_valid_backups(root)]
+
+        self.assertEqual(names, ["9_iPhone", "43_iPhone", "44_iPhone", "100_iPhone"])
+
+    def test_numeric_prefix_order_beats_older_backup_date(self):
+        """Catches a returned/imported backup with an old date jumping ahead of smaller numbers."""
+        with tempfile.TemporaryDirectory() as root:
+            self.make_store(root, [
+                ("43_iPhone", datetime(2026, 10, 5)),
+                ("80_iPhone", datetime(2026, 1, 1)),
+            ])
+
+            names = [bk["folder_name"] for bk in BB_RB.list_valid_backups(root)]
+
+        self.assertEqual(names, ["43_iPhone", "80_iPhone"])
+
+    def test_unnumbered_folders_follow_numbered_ones_by_backup_date(self):
+        """Catches unnumbered backups being picked before the numbered sequence."""
+        with tempfile.TemporaryDirectory() as root:
+            self.make_store(root, [
+                ("Phoi_moi", datetime(2026, 2, 1)),
+                ("Phoi_cu", datetime(2026, 1, 1)),
+                ("50_iPhone", datetime(2026, 9, 1)),
+            ])
+
+            names = [bk["folder_name"] for bk in BB_RB.list_valid_backups(root)]
+
+        self.assertEqual(names, ["50_iPhone", "Phoi_cu", "Phoi_moi"])
 
 
 class HourlyRestoreUiTests(unittest.TestCase):

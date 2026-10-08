@@ -2,6 +2,12 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Reboot Card Hiding & Numeric Backup Order] - 2026-10-08
+
+- **Ẩn thẻ máy đang reboot khỏi lưới**: thẻ của iPhone đã rút USB để reboot được ẩn (`_reboot_hidden_cards`, `grid_forget`) và các thẻ còn lại dồn Slot; đối tượng thẻ vẫn giữ để worker cập nhật tiếp, hiện lại ngay khi máy cắm lại. Lưới, "Số thiết bị đang kết nối" và "Tổng" luôn khớp nhau.
+- **Thứ tự phân bổ Restore theo số tên thư mục**: `list_valid_backups` sắp xếp bằng `backup_sort_key` — số đầu tên thư mục từ bé đến lớn (9 < 43 < 100), thư mục không có số đứng sau; hòa thì theo `Last Backup Date` rồi tên. Trước đây chỉ theo `Last Backup Date`, khi trùng/thiếu ngày thì theo thứ tự chữ cái NTFS (`100_iPhone` đứng trước `43_iPhone`). Đã áp dụng cả branch `backup/before-refactor` (`ae1b376`).
+- **Kiểm thử**: +2 test ẩn thẻ/relayout, +3 test `BackupAllocationOrderTests`. 128/128 tests PASS.
+
 ## [4.9.8 Reboot Log & Connected Counter] - 2026-10-08
 
 - **Nhật Ký Hệ Thống ghi đúng chu kỳ reboot sau Restore/Activate** (branch `backup/before-refactor-v5-beta`):

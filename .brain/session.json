@@ -29,6 +29,16 @@
   ],
   "recent_changes": [
     {
+      "timestamp": "2026-10-08T09:00:00+07:00",
+      "type": "reboot_card_hiding_numeric_backup_order",
+      "description": "Ẩn thẻ máy đang rút USB để reboot khỏi lưới (_reboot_hidden_cards) cho khớp bộ đếm; list_valid_backups sắp xếp theo số đầu tên thư mục (backup_sort_key) thay vì chỉ Last Backup Date. Thứ tự mới cũng đã commit trên backup/before-refactor (ae1b376). 128/128 PASS.",
+      "files": [
+        "BB_RB.py",
+        "tests/test_app_workflows.py",
+        "CHANGELOG.md"
+      ]
+    },
+    {
       "timestamp": "2026-10-08T07:30:00+07:00",
       "type": "reboot_log_connected_counter",
       "description": "_sync_cards ghi log 'Đã ngắt kết nối (iPhone đang khởi động lại)...' và 'Đã kết nối lại sau khởi động lại' đúng 1 lần mỗi chu kỳ reboot; bộ đếm thiết bị đếm máy thật trên USB; bộ đếm chuyển vào giữa header Nhật Ký Hệ Thống, không viền, số vàng #FBBF24 13 bold. Thêm 2 test SyncCardsRebootTests (123/123 PASS).",

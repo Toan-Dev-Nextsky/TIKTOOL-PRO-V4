@@ -602,8 +602,15 @@ def list_valid_backups(parent_dir):
             b_info = read_backup_info(full)
             if b_info:
                 out.append(b_info)
-    out.sort(key=lambda bk: (bk["last_dt"] or datetime.min), reverse=False)
+    out.sort(key=backup_sort_key)
     return out
+
+def backup_sort_key(bk):
+    """Thứ tự phân bổ Restore: số đầu tên thư mục từ bé đến lớn (9 < 43 < 100),
+    thư mục không có số đứng sau; hòa thì dùng ngày backup cũ trước rồi tới tên."""
+    m = re.match(r"^(\d+)", bk["folder_name"])
+    index_key = (0, int(m.group(1))) if m else (1, 0)
+    return (*index_key, bk["last_dt"] or datetime.min, bk["folder_name"].lower())
 
 def _max_backup_index(root_dir):
     max_n = 0
@@ -1541,6 +1548,7 @@ class App(tk.Tk):
         self.ui_queue = queue.Queue()
         self.operations = OperationRegistry()
         self.reboot_tracker = RebootTracker()
+        self._reboot_hidden_cards = set()
         self.process_runner = PROCESS_RUNNER
         self.log_file_lock = threading.Lock()
         self.log_file_path = os.path.join(
@@ -5053,7 +5061,12 @@ class App(tk.Tk):
             else:
                 self.grid_container.columnconfigure(col, weight=0, uniform="")
 
-        udid_list = list(self.rows.keys())
+        # Thẻ của máy đang rút USB để reboot được ẩn khỏi lưới (vẫn giữ đối tượng)
+        hidden = getattr(self, "_reboot_hidden_cards", ())
+        for udid in hidden:
+            if udid in self.rows:
+                self.rows[udid].grid_forget()
+        udid_list = [u for u in self.rows.keys() if u not in hidden]
         for idx, udid in enumerate(udid_list):
             r = idx // cols
             c = idx % cols
@@ -5070,6 +5083,7 @@ class App(tk.Tk):
             trusted_cnt = 0
             untrusted_cnt = 0
             now_ts = time.time()
+            hidden = self.__dict__.setdefault("_reboot_hidden_cards", set())
 
             for udid in list(self.rows.keys()):
                 if udid not in current_udids:
@@ -5080,13 +5094,22 @@ class App(tk.Tk):
                             self.log(udid, "Đã ngắt kết nối (iPhone đang khởi động lại)...")
                         self.reboot_tracker.note_absent(udid)
                         self.rows[udid].push_step("Hoàn tất • Đang khởi động lại...")
+                        # Ẩn thẻ khỏi lưới cho khớp số máy thật trên USB, nhưng giữ
+                        # đối tượng để worker vẫn cập nhật được và không mất tiến độ.
+                        if udid not in hidden:
+                            hidden.add(udid)
+                            need_relayout = True
                         continue
+                    hidden.discard(udid)
                     self.rows[udid].destroy()
                     del self.rows[udid]
                     need_relayout = True
                     self.log(udid, "Đã ngắt kết nối.")
 
             for udid in current_udids:
+                if udid in hidden:
+                    hidden.discard(udid)
+                    need_relayout = True
                 is_locked_reboot = self.reboot_tracker.is_waiting(udid, now=now_ts)
                 
                 if is_locked_reboot:
