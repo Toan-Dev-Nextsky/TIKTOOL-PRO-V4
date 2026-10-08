@@ -532,8 +532,15 @@ def list_valid_backups(parent_dir):
             b_info = read_backup_info(full)
             if b_info:
                 out.append(b_info)
-    out.sort(key=lambda bk: (bk["last_dt"] or datetime.min), reverse=False)
+    out.sort(key=backup_sort_key)
     return out
+
+def backup_sort_key(bk):
+    """Thứ tự phân bổ Restore: số đầu tên thư mục từ bé đến lớn (9 < 43 < 100),
+    thư mục không có số đứng sau; hòa thì dùng ngày backup cũ trước rồi tới tên."""
+    m = re.match(r"^(\d+)", bk["folder_name"])
+    index_key = (0, int(m.group(1))) if m else (1, 0)
+    return (*index_key, bk["last_dt"] or datetime.min, bk["folder_name"].lower())
 
 def _max_backup_index(root_dir):
     max_n = 0
