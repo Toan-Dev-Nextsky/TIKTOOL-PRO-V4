@@ -534,6 +534,55 @@ class SyncCardsRebootTests(unittest.TestCase):
         self.assertIn(("c", "slot", 2), events)
 
 
+class AvailableDevicesTests(unittest.TestCase):
+    """Thao tác hàng loạt không được chạy vào máy đang reboot / đã rút ra (thẻ ẩn)."""
+
+    def make_app(self, store_root=None):
+        messages = []
+
+        def card(name):
+            return types.SimpleNamespace(info={"name": name, "ios": "26.6.1", "ios_t": (26, 6, 1), "trusted": True})
+
+        app = types.SimpleNamespace(
+            rows={"ready": card("Ready"), "rebooting": card("Rebooting"), "hidden": card("Hidden")},
+            reboot_tracker=RebootTracker(),
+            _reboot_hidden_cards={"hidden"},
+            log=lambda udid, line, **kwargs: messages.append(line),
+            messages=messages,
+            _require_license=lambda: True,
+            _save_settings_from_ui=lambda: None,
+            var_active_store=types.SimpleNamespace(get=lambda: "A"),
+            lbl_path_a=types.SimpleNamespace(cget=lambda key: store_root or ""),
+            lbl_path_b=types.SimpleNamespace(cget=lambda key: ""),
+            pending_restore_map=[],
+            shown=[],
+        )
+        app.reboot_tracker.mark("rebooting", timeout=135.0)
+        app.reboot_tracker.mark("hidden", timeout=135.0)
+        app._show_confirm_frame = lambda items: app.shown.extend(items)
+        app._available_udids = types.MethodType(BB_RB.App._available_udids, app)
+        return app
+
+    def test_available_udids_excludes_rebooting_and_hidden_devices(self):
+        """Catches batch actions targeting phones that are rebooting or already unplugged."""
+        app = self.make_app()
+
+        self.assertEqual(app._available_udids(), ["ready"])
+        self.assertTrue(any("Bỏ qua 2 máy" in m for m in app.messages))
+
+    def test_restore_allocation_skips_previous_batch_still_rebooting(self):
+        """Catches ghost cards of the previous batch reserving backups in the restore plan."""
+        with tempfile.TemporaryDirectory() as root:
+            for name in ("47_iPhone", "48_iPhone", "49_iPhone"):
+                make_backup(root, name=name)
+            app = self.make_app(store_root=root)
+
+            BB_RB.App.start_restore_all(app)
+
+        self.assertEqual([udid for udid, _ in app.pending_restore_map], ["ready"])
+        self.assertEqual([item["folder_name"] for item in app.shown], ["47_iPhone"])
+
+
 class BackupAllocationOrderTests(unittest.TestCase):
     """Restore phải lấy backup theo số thứ tự đầu tên thư mục từ bé đến lớn."""
 
@@ -1551,6 +1600,7 @@ class PowerAndResetTests(unittest.TestCase):
         app._reboot_worker = types.MethodType(BB_RB.App._reboot_worker, app)
         app._shutdown_worker = types.MethodType(BB_RB.App._shutdown_worker, app)
         app._erase_worker = types.MethodType(BB_RB.App._erase_worker, app)
+        app._available_udids = types.MethodType(BB_RB.App._available_udids, app)
         return app
 
     def test_reboot_worker_uses_diagnostics_tool(self):
@@ -1696,11 +1746,13 @@ class CrashLogTests(unittest.TestCase):
         app = types.SimpleNamespace(
             rows={"u1": card} if rows is None else rows,
             operations=BB_RB.OperationRegistry(),
+            reboot_tracker=BB_RB.RebootTracker(),
             log=lambda *args, **kwargs: messages.append((args, kwargs)),
             _require_license=lambda: True,
             messages=messages,
             steps=steps,
         )
+        app._available_udids = types.MethodType(BB_RB.App._available_udids, app)
         app._begin_operation = types.MethodType(BB_RB.App._begin_operation, app)
         app._clear_crashlog_worker = types.MethodType(BB_RB.App._clear_crashlog_worker, app)
         app._launch_clear_crashlog = types.MethodType(BB_RB.App._launch_clear_crashlog, app)

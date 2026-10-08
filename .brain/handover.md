@@ -14,8 +14,8 @@
 * **Khắc phục** (`App._sync_cards`): log 1 lần `Đã ngắt kết nối (iPhone đang khởi động lại)...` và `Đã kết nối lại sau khởi động lại: <tên> • iOS <x>`; thẻ đổi `Hoàn tất • Đã kết nối lại` nếu udid không có operation đang chạy; `Tổng`, `lbl_stat_total_dev`, `lbl_log_dev_info` đếm `trusted_cnt + untrusted_cnt`. Bot Astro vẫn nhận `len(self.rows)`.
 * **UI**: bộ đếm nằm giữa header log (grid 3 cột `uniform="log_head_side"`), không viền; chữ Emerald 9 bold, số `lbl_log_dev_info` riêng 13 bold `#FBBF24` (label chỉ chứa con số).
 * **Kiểm thử**: +2 test `SyncCardsRebootTests`; 123/123 PASS. User đã xác nhận log thực tế hiển thị đúng.
-* **Bổ sung — ẩn thẻ khi reboot**: lưới vẫn hiện đủ thẻ trong khi bộ đếm báo ít hơn → thẻ máy vắng mặt đang reboot được ẩn (`_reboot_hidden_cards`), hiện lại khi cắm lại. Việc mở: `start_restore_all` vẫn duyệt `self.rows` nên có thể phân bổ cho máy đang reboot nếu bấm Restore quá sớm.
-* **Bổ sung — thứ tự phân bổ Restore**: `backup_sort_key` ưu tiên số đầu tên thư mục từ bé đến lớn (đã kiểm trên kho thật: A bắt đầu `47_iPhone`, B bắt đầu `1_iPhone`). Áp dụng cả `backup/before-refactor` (`ae1b376`, 65/65 PASS). v5-beta 128/128 PASS.
+* **Bổ sung — lọc máy sẵn sàng (`_available_udids`)**: mọi thao tác hàng loạt (Restore, Activate, Lang, DevMode, NOOTA, Crashlog, Power, IPA, Backup, Webclip) đều lọc qua `_available_udids()`, bỏ qua máy trong `reboot_tracker.is_waiting()` và máy có thẻ ẩn (`_reboot_hidden_cards`), triệt để chặn máy ma và tránh Restore đè. Thêm 2 test `AvailableDevicesTests` (130/130 PASS).
+* **Bổ sung — thứ tự phân bổ Restore**: `backup_sort_key` ưu tiên số đầu tên thư mục từ bé đến lớn (đã kiểm trên kho thật: A bắt đầu `47_iPhone`, B bắt đầu `1_iPhone`). Áp dụng cả `backup/before-refactor` (`ae1b376`, 65/65 PASS). v5-beta 130/130 PASS.
 
 ---
 

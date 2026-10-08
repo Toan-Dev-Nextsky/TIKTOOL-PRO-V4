@@ -2389,14 +2389,15 @@ class App(tk.Tk):
         if not ok:
             messagebox.showerror("Set Language/Locale", f"Không tìm thấy ios.exe hợp lệ.\n\n{msg}")
             return
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Set Language/Locale", "Không có thiết bị kết nối.")
             return
                 
         preset = self.var_lang_locale.get()
         loc, lng = _parse_lang_preset(preset)
         self.log("SYSTEM", f"Bắt đầu cài đặt ngôn ngữ {lng}/{loc} bằng lệnh cho toàn bộ máy...")
-        for udid in list(self.rows.keys()):
+        for udid in udids:
             self._launch_language(udid)
 
     # ================== BATCH ACTIVATE ENGINE ==================
@@ -2415,12 +2416,13 @@ class App(tk.Tk):
             messagebox.showerror("Batch Activation", "Không tìm thấy ideviceactivation.exe")
             return
 
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Batch Activation", "Không có thiết bị.")
             return
 
         self.log("SYSTEM", "Bắt đầu Batch Activate cho toàn bộ thiết bị...")
-        for udid in list(self.rows.keys()):
+        for udid in udids:
             self._launch_activate(udid)
 
     # ================== BATCH DEVELOPER MODE ENGINE ==================
@@ -2433,13 +2435,14 @@ class App(tk.Tk):
             messagebox.showerror("Developer Mode", "Không tìm thấy công cụ idevicedevmodectl.exe trong thư mục ứng dụng.")
             return
 
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Developer Mode", "Không có thiết bị kết nối.")
             return
 
-        self.log("SYSTEM", f"Bắt đầu kiểm tra và kích hoạt Developer Mode cho {len(self.rows)} thiết bị...")
+        self.log("SYSTEM", f"Bắt đầu kiểm tra và kích hoạt Developer Mode cho {len(udids)} thiết bị...")
         started = 0
-        for udid in list(self.rows.keys()):
+        for udid in udids:
             if self._launch_devmode(udid):
                 started += 1
         if started == 0:
@@ -2645,22 +2648,23 @@ class App(tk.Tk):
         if not ok:
             messagebox.showerror("Chặn Update iOS", f"Không tìm thấy ios.exe hợp lệ.\n\n{msg}")
             return
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Chặn Update iOS", "Không có thiết bị kết nối.")
             return
-        self.log("SYSTEM", f"Bắt đầu chặn cập nhật iOS cho {len(self.rows)} thiết bị...")
+        self.log("SYSTEM", f"Bắt đầu chặn cập nhật iOS cho {len(udids)} thiết bị...")
         threading.Thread(
             target=self._block_update_all_worker,
-            args=(profile_path,),
+            args=(profile_path, udids),
             daemon=True,
         ).start()
 
-    def _block_update_all_worker(self, profile_path):
+    def _block_update_all_worker(self, profile_path, udids=None):
         """Worker gửi profile chặn update tới toàn bộ thiết bị."""
         ios_exe = _fixed_ios_exe()
         total = 0
         success = 0
-        for udid in list(self.rows.keys()):
+        for udid in (udids if udids is not None else list(self.rows.keys())):
             if not self._begin_operation(udid, "block_update"):
                 continue
             total += 1
@@ -2736,21 +2740,23 @@ class App(tk.Tk):
         if not ok:
             messagebox.showerror("Gỡ Chặn Update", f"Không tìm thấy ios.exe hợp lệ.\n\n{msg}")
             return
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Gỡ Chặn Update", "Không có thiết bị kết nối.")
             return
-        self.log("SYSTEM", f"Bắt đầu gỡ chặn cập nhật iOS cho {len(self.rows)} thiết bị...")
+        self.log("SYSTEM", f"Bắt đầu gỡ chặn cập nhật iOS cho {len(udids)} thiết bị...")
         threading.Thread(
             target=self._unblock_update_all_worker,
+            args=(udids,),
             daemon=True,
         ).start()
 
-    def _unblock_update_all_worker(self):
+    def _unblock_update_all_worker(self, udids=None):
         """Worker xóa profile chặn update khỏi toàn bộ thiết bị."""
         ios_exe = _fixed_ios_exe()
         total = 0
         success = 0
-        for udid in list(self.rows.keys()):
+        for udid in (udids if udids is not None else list(self.rows.keys())):
             if not self._begin_operation(udid, "unblock_update"):
                 continue
             total += 1
@@ -2860,13 +2866,14 @@ class App(tk.Tk):
             messagebox.showerror("Xóa Crash Log", "Không tìm thấy công cụ idevicecrashreport.exe trong thư mục ứng dụng.")
             return
 
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Xóa Crash Log", "Không có thiết bị kết nối.")
             return
 
-        self.log("SYSTEM", f"Bắt đầu xóa crash log cho {len(self.rows)} thiết bị (xóa toàn bộ, không giữ bản sao)...")
+        self.log("SYSTEM", f"Bắt đầu xóa crash log cho {len(udids)} thiết bị (xóa toàn bộ, không giữ bản sao)...")
         started = 0
-        for udid in list(self.rows.keys()):
+        for udid in udids:
             if self._launch_clear_crashlog(udid):
                 started += 1
         if started == 0:
@@ -2949,20 +2956,21 @@ class App(tk.Tk):
         if not exe:
             messagebox.showerror("Khởi động lại", "Không tìm thấy công cụ idevicediagnostics.exe.")
             return
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Khởi động lại", "Không có thiết bị kết nối.")
             return
         ans = messagebox.askyesno(
             "XÁC NHẬN KHỞI ĐỘNG LẠI",
-            f"Bạn có chắc chắn muốn KHỞI ĐỘNG LẠI (Reboot) {len(self.rows)} thiết bị đang kết nối?",
+            f"Bạn có chắc chắn muốn KHỞI ĐỘNG LẠI (Reboot) {len(udids)} thiết bị đang kết nối?",
             icon="question",
             default="no",
         )
         if not ans:
             return
-        self.log("SYSTEM", f"Bắt đầu khởi động lại {len(self.rows)} thiết bị...")
+        self.log("SYSTEM", f"Bắt đầu khởi động lại {len(udids)} thiết bị...")
         started = 0
-        for udid in list(self.rows.keys()):
+        for udid in udids:
             if self._launch_power_worker(udid, "restart", "reboot", self._reboot_worker):
                 started += 1
         if started == 0:
@@ -2976,21 +2984,22 @@ class App(tk.Tk):
         if not exe:
             messagebox.showerror("Tắt nguồn", "Không tìm thấy công cụ idevicediagnostics.exe.")
             return
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Tắt nguồn", "Không có thiết bị kết nối.")
             return
         ans = messagebox.askyesno(
             "XÁC NHẬN TẮT NGUỒN",
-            f"Bạn có chắc chắn muốn TẮT NGUỒN (Shutdown) {len(self.rows)} thiết bị đang kết nối?\n\n"
+            f"Bạn có chắc chắn muốn TẮT NGUỒN (Shutdown) {len(udids)} thiết bị đang kết nối?\n\n"
             "Sau khi tắt nguồn, bạn sẽ phải bật lại thủ công bằng nút nguồn trên từng máy.",
             icon="warning",
             default="no",
         )
         if not ans:
             return
-        self.log("SYSTEM", f"Bắt đầu tắt nguồn {len(self.rows)} thiết bị...")
+        self.log("SYSTEM", f"Bắt đầu tắt nguồn {len(udids)} thiết bị...")
         started = 0
-        for udid in list(self.rows.keys()):
+        for udid in udids:
             if self._launch_power_worker(udid, "shutdown", "shutdown", self._shutdown_worker):
                 started += 1
         if started == 0:
@@ -3008,12 +3017,13 @@ class App(tk.Tk):
         if not ok:
             messagebox.showerror("Xoá tất cả dữ liệu", f"Không tìm thấy ios.exe hợp lệ.\n\n{msg}")
             return
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showinfo("Xoá tất cả dữ liệu", "Không có thiết bị kết nối.")
             return
         ans = messagebox.askyesno(
             "XÁC NHẬN XOÁ TOÀN BỘ DỮ LIỆU",
-            f"Bạn chuẩn bị XOÁ TẤT CẢ NỘI DUNG & CÀI ĐẶT cho {len(self.rows)} thiết bị.\n\n"
+            f"Bạn chuẩn bị XOÁ TẤT CẢ NỘI DUNG & CÀI ĐẶT cho {len(udids)} thiết bị.\n\n"
             "• Máy sẽ trở về màn hình Setup Hello.\n"
             "• File backup trên máy tính KHÔNG bị xoá.\n"
             "• Không thể hoàn tác sau khi lệnh gửi đi.\n\n"
@@ -3032,9 +3042,9 @@ class App(tk.Tk):
         if pwd is None or pwd.strip().lower() != ERASE_CONFIRM_PASSWORD.lower():
             messagebox.showerror("Xoá tất cả dữ liệu", "Mật khẩu xác nhận không đúng. Đã huỷ thao tác.")
             return
-        self.log("SYSTEM", f"Bắt đầu xoá tất cả dữ liệu {len(self.rows)} thiết bị...")
+        self.log("SYSTEM", f"Bắt đầu xoá tất cả dữ liệu {len(udids)} thiết bị...")
         started = 0
-        for udid in list(self.rows.keys()):
+        for udid in udids:
             if self._launch_power_worker(udid, "erase", "erase", self._erase_worker):
                 started += 1
         if started == 0:
@@ -3469,7 +3479,7 @@ class App(tk.Tk):
 
             total = 0
             success = 0
-            for udid in list(self.rows.keys()):
+            for udid in self._available_udids():
                 if hasattr(self, "operations") and not self._begin_operation(udid, "webclip"):
                     continue
                 total += 1
@@ -5076,6 +5086,23 @@ class App(tk.Tk):
             card.grid(row=r, column=c, padx=4, pady=3, sticky="ew")
         self._update_all_cards_ipa_status()
 
+    def _available_udids(self):
+        """Máy thật sự sẵn sàng cho thao tác hàng loạt: đang có trên USB và không
+        trong khoá reboot. Thẻ của máy vừa Restore/reboot (kể cả đã rút ra, đang
+        ẩn) vẫn nằm trong self.rows nên phải lọc, tránh phân bổ/chạy lệnh vào máy ma
+        hoặc Restore đè lên máy vừa nạp xong."""
+        hidden = getattr(self, "_reboot_hidden_cards", ())
+        ready = []
+        skipped = 0
+        for udid in list(self.rows.keys()):
+            if udid in hidden or self.reboot_tracker.is_waiting(udid):
+                skipped += 1
+            else:
+                ready.append(udid)
+        if skipped:
+            self.log("SYSTEM", f"Bỏ qua {skipped} máy đang khởi động lại / chưa cắm lại.", is_warn=True)
+        return ready
+
     def _sync_cards(self, current_udids, trust_results, info_results=None):
         info_results = info_results or {}
         with self.lock:
@@ -5235,7 +5262,8 @@ class App(tk.Tk):
     def start_install_ipa_all(self):
         if not self._require_license():
             return
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showwarning("CẢNH BÁO", "Không có thiết bị kết nối!")
             return
 
@@ -5251,7 +5279,6 @@ class App(tk.Tk):
             return
 
         uninstall_first = self.var_ipa_uninstall_first.get()
-        udids = list(self.rows.keys())
 
         started_count = 0
         for udid in udids:
@@ -5357,14 +5384,14 @@ class App(tk.Tk):
     def start_backup_all(self):
         if not self._require_license():
             return
-        if not self.rows:
+        udids = self._available_udids()
+        if not udids:
             messagebox.showwarning("CẢNH BÁO", "Không có thiết bị kết nối!")
             return
         target_root = self.lbl_path_gen.cget("text").strip()
         os.makedirs(target_root, exist_ok=True)
         self._save_settings_from_ui()
 
-        udids = list(self.rows.keys())
         names_by_udid = self._reserve_backup_names(target_root, udids)
         remove_tiktok = bool(self.var_tik.get())
         remove_tiktok_lite = bool(self.var_lite.get())
@@ -5502,8 +5529,9 @@ class App(tk.Tk):
     def start_restore_all(self):
         if not self._require_license():
             return
-        if not self.rows:
-            messagebox.showwarning("CẢNH BÁO", "Không có thiết bị kết nối!")
+        available = self._available_udids()
+        if not available:
+            messagebox.showwarning("CẢNH BÁO", "Không có thiết bị kết nối sẵn sàng (máy đợt trước có thể đang khởi động lại)!")
             return
         
         # Xác định kho nguồn / kho đích theo lựa chọn radio
@@ -5529,8 +5557,9 @@ class App(tk.Tk):
             return
 
         connected_devices = []
-        for udid, row in list(self.rows.items()):
-            if not row.info.get("trusted", True):
+        for udid in available:
+            row = self.rows.get(udid)
+            if row is None or not row.info.get("trusted", True):
                 continue
             connected_devices.append({
                 "udid": udid,

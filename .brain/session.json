@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-10-08T07:30:00+07:00",
+  "updated_at": "2026-10-08T09:30:00+07:00",
   "working_on": {
-    "feature": "Reboot disconnect/reconnect log & connected device counter (branch backup/before-refactor-v5-beta)",
-    "task": "System Log không ghi khi iPhone ngắt/kết nối lại lúc reboot sau Restore và bộ đếm 'Số thiết bị đang kết nối' luôn hiện máy dù đã rút; đưa bộ đếm vào giữa header log, số to màu vàng.",
+    "feature": "Available devices guard for batch operations & numeric backup order",
+    "task": "Lọc máy sẵn sàng qua _available_udids() cho mọi thao tác hàng loạt; sắp xếp phân bổ Restore theo số đầu tên thư mục.",
     "status": "completed",
     "files": [
       "BB_RB.py",
@@ -13,7 +13,7 @@
       ".brain/session.json",
       ".brain/handover.md"
     ],
-    "notes": "Root cause: v5 giữ thẻ trong lúc reboot (fix race RebootTracker) nhưng _sync_cards không log và đếm theo len(self.rows). Fix: log ngắt/kết nối lại 1 lần, đếm connected_cnt = trusted_cnt + untrusted_cnt cho lbl_dev_count/lbl_stat_total_dev/lbl_log_dev_info; mascot vẫn dùng len(self.rows). UI: lbl_log_dev_info chỉ chứa số (13 bold #FBBF24), nhãn chữ Emerald riêng, căn giữa header bằng grid 3 cột uniform, không viền. User xác nhận log hiển thị đúng qua ảnh chụp. 123/123 tests PASS. settings.json không commit."
+    "notes": "_available_udids loại bỏ máy trong reboot_tracker.is_waiting() hoặc _reboot_hidden_cards, ngăn máy ma chiếm phôi và ngăn restore đè. Sắp xếp backup_sort_key ưu tiên số đầu tên thư mục. 130/130 tests PASS. settings.json không commit."
   },
   "pending_tasks": [
     {
@@ -28,6 +28,16 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-10-08T09:30:00+07:00",
+      "type": "available_devices_guard",
+      "description": "_available_udids() lọc bỏ máy đang reboot/thẻ ẩn khỏi toàn bộ thao tác hàng loạt (Restore, Activate, Lang, DevMode, NOOTA, Crashlog, Power, IPA, Backup, Webclip), chặn máy ma và restore đè. Thêm 2 test AvailableDevicesTests (130/130 PASS).",
+      "files": [
+        "BB_RB.py",
+        "tests/test_app_workflows.py",
+        "CHANGELOG.md"
+      ]
+    },
     {
       "timestamp": "2026-10-08T09:00:00+07:00",
       "type": "reboot_card_hiding_numeric_backup_order",

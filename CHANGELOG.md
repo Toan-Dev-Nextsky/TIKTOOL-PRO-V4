@@ -2,6 +2,15 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Available Devices Guard for Batch Operations] - 2026-10-08
+
+- **Lọc máy sẵn sàng cho toàn bộ thao tác hàng loạt (`_available_udids`)**:
+  - Khắc phục rủi ro thẻ máy đang reboot (kể cả đã rút USB, đang ẩn) bị các nút hàng loạt nhận là máy sẵn sàng.
+  - Phân bổ Restore (`start_restore_all`): loại bỏ máy ma của đợt trước để backup không bị gán nhầm; ngăn nguy cơ Restore đè lên máy vừa nạp xong đang cắm trên dock.
+  - Áp dụng đồng bộ cho: Batch Activate, Đổi ngôn ngữ, Bật Dev Mode, Chặn/Gỡ Chặn Update, Xoá Crash Log, Khởi động lại, Tắt nguồn, Xoá tất cả dữ liệu (D.2), Cài IPA, Backup, Tạo Web App.
+  - Log cảnh báo rõ: `Bỏ qua N máy đang khởi động lại / chưa cắm lại.` khi có thiết bị bị bỏ qua. Auto Activate sau Restore giữ luồng quét riêng không bị ảnh hưởng.
+- **Kiểm thử**: +2 test trong `AvailableDevicesTests` (lọc máy sẵn sàng, Restore không phân bổ cho máy đang reboot). 130/130 tests PASS.
+
 ## [4.9.8 Reboot Card Hiding & Numeric Backup Order] - 2026-10-08
 
 - **Ẩn thẻ máy đang reboot khỏi lưới**: thẻ của iPhone đã rút USB để reboot được ẩn (`_reboot_hidden_cards`, `grid_forget`) và các thẻ còn lại dồn Slot; đối tượng thẻ vẫn giữ để worker cập nhật tiếp, hiện lại ngay khi máy cắm lại. Lưới, "Số thiết bị đang kết nối" và "Tổng" luôn khớp nhau.
