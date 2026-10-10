@@ -39,6 +39,12 @@ from tiktool_core import (
     validate_backup,
 )
 
+# Bound the on-screen history; the complete diagnostic log remains on disk.
+UI_LOG_MAX_LINES = 2000
+UI_LOG_MAX_CHARS = 250000
+UI_LOG_ENTRY_MAX_CHARS = 8000
+UI_QUEUE_SLICE_SECONDS = 0.008
+
 # ================== BẢNG MÀU DARK THEME PRO – SOFT CHARCOAL SLATE THEME ==================
 COLOR_BG_DARK = "#1A1D23"           # Nền chính app (appDark-950: warm soft slate-charcoal)
 COLOR_HEADER_BG = "#22262E"         # Nền Header / Toolbar (appDark-900: section container)
@@ -720,9 +726,12 @@ class GradientProgressBar(tk.Canvas):
 
     def set_value(self, val):
         try:
-            self._value = max(0.0, min(100.0, float(val)))
+            value = max(0.0, min(100.0, float(val)))
         except (ValueError, TypeError):
-            self._value = 0.0
+            value = 0.0
+        if value == self._value:
+            return
+        self._value = value
         self._redraw()
 
     @staticmethod
@@ -3741,10 +3750,15 @@ class App(tk.Tk):
             items = self._performance_ticker_items
             for item in items:
                 canvas.move(item, -2.5, 0)
-            self._performance_ticker_items = [
-                item for item in items
-                if (bounds := canvas.bbox(item)) and bounds[2] >= 0
-            ]
+            visible_items = []
+            for item in items:
+                bounds = canvas.bbox(item)
+                if bounds and bounds[2] >= 0:
+                    visible_items.append(item)
+                else:
+                    # Dropping the Python ID alone leaves the Tk item alive.
+                    canvas.delete(item)
+            self._performance_ticker_items = visible_items
             items = self._performance_ticker_items
             last_bounds = canvas.bbox(items[-1]) if items else None
             if not last_bounds or last_bounds[2] <= width - 30:
@@ -4784,6 +4798,7 @@ class App(tk.Tk):
         self.ui_queue.put((callback, args, kwargs))
 
     def _drain_ui_queue(self):
+        deadline = time.monotonic() + UI_QUEUE_SLICE_SECONDS
         try:
             for _ in range(200):
                 try:
@@ -4794,6 +4809,8 @@ class App(tk.Tk):
                     callback(*args, **kwargs)
                 except Exception as e:
                     self._append_log_file(f"[{_ts()}] SYSTEM: Lỗi UI queue: {e}\n")
+                if time.monotonic() >= deadline:
+                    break
         finally:
             try:
                 self.after(50, self._drain_ui_queue)
@@ -4913,6 +4930,9 @@ class App(tk.Tk):
         prefix = f"{udid[:6]}...{udid[-8:]}" if udid and len(udid) > 16 else (udid or "SYSTEM")
         msg = f"[{_ts()}] {prefix}: {line}\n"
         self._append_log_file(f"[{_ts()}] {udid or 'SYSTEM'}: {line}\n")
+        # Bound payload size before it enters the UI queue, not only the widget.
+        if len(msg) > UI_LOG_ENTRY_MAX_CHARS:
+            msg = msg[:UI_LOG_ENTRY_MAX_CHARS] + "… [xem đầy đủ trong file log]\n"
         App._post_ui(self, self._write_log, msg, is_err, is_warn, is_ok)
 
     def _write_log(self, msg, is_err, is_warn=False, is_ok=False):
@@ -4930,6 +4950,12 @@ class App(tk.Tk):
             else:
                 tag = "err" if is_err else ("alert" if is_warn else ("ok" if is_ok else "log_body"))
                 self.txt_log.insert("end", msg, tag)
+            line_count = int(self.txt_log.index("end-1c").split(".")[0])
+            if line_count > UI_LOG_MAX_LINES:
+                self.txt_log.delete("1.0", f"{line_count - UI_LOG_MAX_LINES + 1}.0")
+            char_count = self.txt_log.count("1.0", "end-1c", "chars")
+            if char_count and char_count[0] > UI_LOG_MAX_CHARS:
+                self.txt_log.delete("1.0", f"1.0 + {char_count[0] - UI_LOG_MAX_CHARS} chars")
             self.txt_log.see("end")
         except Exception: pass
 

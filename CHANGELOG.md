@@ -2,6 +2,13 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Long-running UI Resource Bounds] - 2026-10-10
+
+- Xóa item chữ chạy khỏi Tk Canvas khi ra khỏi màn hình; trước đây chỉ bỏ ID khỏi danh sách Python nên item tiếp tục tích tụ.
+- Giới hạn log trên giao diện ở 2.000 dòng / 250.000 ký tự, rút gọn thông báo lớn trước khi vào UI queue; bản đầy đủ vẫn ghi file. UI queue nhường event loop sau khoảng 8 ms giữa các callback, thanh tiến độ không vẽ lại khi giá trị không đổi.
+- Compile và 146 tests PASS, gồm mô phỏng 12.000 khung hình ticker và hàng nghìn dòng log. Settings thật không đổi. Chưa xác nhận qua một phiên chạy dài trên thiết bị thật.
+- Windows event 2004 ghi nhận thiếu bộ nhớ ảo với 3uTools dùng ~7,96 GiB và pythonw ~345 MiB lúc 16:37:08 ngày 10/10. Chưa quy được lỗi vẽ desktop trực tiếp cho TIKTOOL; xem `NHAT_KY_LAG_DESKTOP_2026-10-10.md`.
+
 ## [4.9.8 Daily Restore Counter Reset on New Day] - 2026-10-10
 
 - **Khắc phục lỗi "Tổng hôm nay" không reset về 0 khi sang ngày mới**:
