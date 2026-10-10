@@ -1,9 +1,30 @@
 # 📋 TÀI LIỆU BÀN GIAO (HANDOVER DOCUMENT)
 
 **Dự án**: TikTok Pro (TIKTOOL PRO V4)  
-**Thời gian cập nhật**: 2026-10-08 07:30 (GMT+7)
+**Thời gian cập nhật**: 2026-10-10 11:45 (GMT+7)
 **Phiên bản hiện tại**: `4.9.8 Astro Companion UX Edition`  
-**Trạng thái**: Bản sửa độ tin cậy Restore đã hoàn tất; kiểm thử tự động **119/119 PASS**. Tài khoản Windows hiện tại đã được cấp Modify trên E: và F:. Còn việc đối soát thủ công các backup của một đợt trước đã restore trên iPhone nhưng nằm lại Kho A.
+**Trạng thái**: Đã khắc phục lỗi bộ đếm "Tổng hôm nay" không reset về 0 qua ngày mới; kiểm thử tự động **142/142 PASS**.
+
+---
+
+## ✅ PHIÊN 2026-10-10 — SỬA LỖI BỘ ĐẾM "TỔNG HÔM NAY" RESET SANG NGÀY MỚI (branch `backup/before-refactor-v5-beta`)
+
+* **Hiện tượng**: Số liệu "Tổng hôm nay" khi bước sang ngày mới không tự reset về 0 (ví dụ hôm trước làm 1000 thì hôm sau vẫn giữ 1000).
+* **Nguyên nhân**:
+  - Tại commit `a688b89` (06/10/2026), ứng dụng bắt đầu lưu và tải lại `restoreDoneCount` ("Đã chuyển") từ `settings.json` để bảo toàn số liệu chuyển kho giữa các phiên làm việc.
+  - Tuy nhiên, nhánh logic cũ trong `_apply_settings_to_ui` lúc tải `dailyRestoreDate`:
+    `if self.restore_done_count > 0: self.daily_restore_count = self.restore_done_count`
+    vốn trước đây không bị kích hoạt (do `restoreDoneCount` khởi động app luôn = 0), nay khi có `restoreDoneCount` lưu từ hôm trước (> 0), nhánh này lập tức gán đè giá trị đó vào `daily_restore_count` ("Tổng hôm nay").
+  - Đồng thời cơ chế `max(saved_count, self.restore_done_count)` khiến việc người dùng bấm nút reset "Tổng hôm nay" về 0 trong ngày có thể bị vòng lặp đồng bộ settings kéo ngược lại giá trị của "Đã chuyển".
+* **Khắc phục**:
+  - Tách logic sang hàm `App._load_daily_restore_from_settings(data, today)`.
+  - Tuyệt đối không lấy hay fallback `daily_restore_count` từ `restore_done_count`. Hai bộ đếm có vòng đời khác nhau hoàn toàn: "Đã chuyển" (`restoreDoneCount`) phục vụ thống kê phiên/kho xuyên suốt, còn "Tổng hôm nay" (`dailyRestoreCount`) chỉ đếm trong ngày `today` và tự động về 0 khi sang ngày mới.
+* **Kiểm thử & Tài liệu**:
+  - Bổ sung 2 unit test trong `tests/test_app_workflows.py`:
+    1. Sang ngày mới, `restoreDoneCount = 1000` nhưng `dailyRestoreCount` vẫn về 0.
+    2. Cùng ngày, `dailyRestoreCount` giữ nguyên số đã lưu trong ngày, không bị đè bởi `restoreDoneCount`.
+  - Cập nhật tài liệu: `AGENTS.md`, `CHANGELOG.md`, `.brain/brain.json`, `.brain/session.json`, `.brain/handover.md`.
+  - 142/142 unit tests PASS. Compile sạch.
 
 ---
 

@@ -1,8 +1,8 @@
 {
-  "updated_at": "2026-10-08T09:30:00+07:00",
+  "updated_at": "2026-10-10T11:45:00+07:00",
   "working_on": {
-    "feature": "Available devices guard for batch operations & numeric backup order",
-    "task": "Lọc máy sẵn sàng qua _available_udids() cho mọi thao tác hàng loạt; sắp xếp phân bổ Restore theo số đầu tên thư mục.",
+    "feature": "Daily restore counter reset on new day",
+    "task": "Tách logic nạp bộ đếm ngày ra _load_daily_restore_from_settings, không gán nhầm hoặc fallback từ restoreDoneCount (bảo toàn qua nhiều ngày).",
     "status": "completed",
     "files": [
       "BB_RB.py",
@@ -13,7 +13,7 @@
       ".brain/session.json",
       ".brain/handover.md"
     ],
-    "notes": "_available_udids loại bỏ máy trong reboot_tracker.is_waiting() hoặc _reboot_hidden_cards, ngăn máy ma chiếm phôi và ngăn restore đè. Sắp xếp backup_sort_key ưu tiên số đầu tên thư mục. 130/130 tests PASS. settings.json không commit."
+    "notes": "Tổng hôm nay luôn reset về 0 khi ngày != today. Đã chuyển (restoreDoneCount) vẫn giữ nguyên giá trị bền vững. 142/142 tests PASS. settings.json không commit."
   },
   "pending_tasks": [
     {
@@ -28,6 +28,17 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-10-10T11:45:00+07:00",
+      "type": "daily_restore_reset_fix",
+      "description": "_load_daily_restore_from_settings() độc lập tách biệt Tổng hôm nay (dailyRestoreCount) khỏi Đã chuyển (restoreDoneCount). Đảm bảo sang ngày mới luôn về 0 và đặt lại về 0 trong ngày không bị kéo ngược lại. Thêm 2 unit test (142/142 PASS).",
+      "files": [
+        "BB_RB.py",
+        "tests/test_app_workflows.py",
+        "CHANGELOG.md",
+        "AGENTS.md"
+      ]
+    },
     {
       "timestamp": "2026-10-08T09:30:00+07:00",
       "type": "available_devices_guard",

@@ -4692,23 +4692,8 @@ class App(tk.Tk):
             loc, lng = _parse_lang_preset(data["langLocale"])
             self.lbl_current_lang.config(text=f"[{data['langLocale']}]")
 
-        try:
-            self.restore_done_count = max(0, int(data.get("restoreDoneCount", self.restore_done_count)))
-        except (TypeError, ValueError):
-            pass
-
         today = datetime.now().strftime("%Y-%m-%d")
-        saved_date = data.get("dailyRestoreDate", "")
-        if saved_date == today:
-            saved_count = int(data.get("dailyRestoreCount", 0))
-            self.daily_restore_count = max(saved_count, self.restore_done_count)
-            self.daily_restore_date = today
-        else:
-            if self.restore_done_count > 0:
-                self.daily_restore_count = self.restore_done_count
-                self.daily_restore_date = today
-            elif not saved_date:
-                self.daily_restore_date = today
+        App._load_daily_restore_from_settings(self, data, today)
 
         saved_hourly_date = str(data.get("hourlyRestoreDate", ""))
         saved_hourly_counts = data.get("hourlyRestoreCounts", {})
@@ -4729,6 +4714,21 @@ class App(tk.Tk):
         self._update_restore_counter()
 
         self._on_store_switch()
+
+    def _load_daily_restore_from_settings(self, data, today):
+        """Tổng hôm nay chỉ lấy từ dailyRestore*; không suy ra từ restoreDoneCount (bền qua nhiều ngày)."""
+        try:
+            self.restore_done_count = max(0, int(data.get("restoreDoneCount", self.restore_done_count)))
+        except (TypeError, ValueError):
+            pass
+        if data.get("dailyRestoreDate", "") == today:
+            try:
+                self.daily_restore_count = max(0, int(data.get("dailyRestoreCount", 0)))
+            except (TypeError, ValueError):
+                self.daily_restore_count = 0
+        else:
+            self.daily_restore_count = 0
+        self.daily_restore_date = today
 
     def _save_settings_from_ui(self):
         try:

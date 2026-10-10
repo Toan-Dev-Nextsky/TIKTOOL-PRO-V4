@@ -2,6 +2,19 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [4.9.8 Daily Restore Counter Reset on New Day] - 2026-10-10
+
+- **Khắc phục lỗi "Tổng hôm nay" không reset về 0 khi sang ngày mới**:
+  - Tách logic nạp bộ đếm ngày ra hàm riêng `_load_daily_restore_from_settings(data, today)`.
+  - Loại bỏ hoàn toàn việc fallback hoặc so sánh `max(saved_count, restore_done_count)` giữa "Tổng hôm nay" và "Đã chuyển" (`restoreDoneCount`). "Đã chuyển" là bộ đếm chuyển kho bảo toàn qua nhiều ngày/phiên làm việc, trong khi "Tổng hôm nay" phải luôn reset về 0 khi `dailyRestoreDate != today`.
+  - Ngăn ngừa tình trạng sau khi bấm đặt lại "Tổng hôm nay" về 0 trong ngày bị vòng lặp đồng bộ settings kéo ngược lại giá trị lớn của "Đã chuyển".
+- **Kiểm thử**:
+  - Thêm 2 test mới trong `tests/test_app_workflows.py`:
+    1. Kiểm tra sang ngày mới `restoreDoneCount` lớn (1000) nhưng `dailyRestoreCount` vẫn reset về 0.
+    2. Kiểm tra cùng ngày giữ đúng giá trị đã lưu của ngày, không bị ghi đè bởi `restoreDoneCount`.
+  - Đã chạy `py_compile` và toàn bộ 142/142 unit tests PASS.
+
+
 ## [4.9.8 Skip Setup Timeout and Retry Safety] - 2026-10-08
 
 - Tăng thời gian chờ `ios prepare --skip-all` từ 40 lên 120 giây. Giữ log đầu ra khi timeout, đọc lại trạng thái Activate để chẩn đoán rồi dừng tự gửi lại; trạng thái Activated không được coi là bằng chứng đã qua Setup Assistant.
