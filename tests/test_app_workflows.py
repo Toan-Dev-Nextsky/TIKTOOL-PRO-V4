@@ -485,6 +485,34 @@ class HourlyRestoreUiTests(unittest.TestCase):
             saved = json.loads(settings_path.read_text(encoding="utf-8"))
             self.assertEqual(17, saved["restoreDoneCount"])
 
+    def test_daily_total_resets_on_new_day_even_with_persisted_transfer_counter(self):
+        """Catches yesterday's Tổng hôm nay coming back via the persisted Đã chuyển counter."""
+        app = types.SimpleNamespace(
+            restore_done_count=0,
+            daily_restore_date="2026-09-09",
+            daily_restore_count=0,
+        )
+        data = {"restoreDoneCount": 1000, "dailyRestoreDate": "2026-09-08", "dailyRestoreCount": 1000}
+
+        BB_RB.App._load_daily_restore_from_settings(app, data, "2026-09-09")
+
+        self.assertEqual(1000, app.restore_done_count)
+        self.assertEqual(0, app.daily_restore_count)
+        self.assertEqual("2026-09-09", app.daily_restore_date)
+
+    def test_daily_total_same_day_uses_saved_count_not_transfer_counter(self):
+        """Catches a manual daily reset being undone by the larger Đã chuyển counter."""
+        app = types.SimpleNamespace(
+            restore_done_count=0,
+            daily_restore_date="2026-09-09",
+            daily_restore_count=0,
+        )
+        data = {"restoreDoneCount": 500, "dailyRestoreDate": "2026-09-09", "dailyRestoreCount": 3}
+
+        BB_RB.App._load_daily_restore_from_settings(app, data, "2026-09-09")
+
+        self.assertEqual(3, app.daily_restore_count)
+
     def test_counter_labels_show_hour_range_count_rating_and_daily_total(self):
         """Catches the new hourly evaluation being calculated but not shown to the operator."""
         class Label:

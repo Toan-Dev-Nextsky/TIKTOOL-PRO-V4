@@ -2,6 +2,13 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Daily Restore Counter Reset on New Day] - 2026-10-10
+
+- **Khắc phục lỗi "Tổng hôm nay" không reset về 0 khi sang ngày mới** (lỗi phát sinh từ commit `4441970` lưu `restoreDoneCount`):
+  - Tách logic nạp bộ đếm ngày ra `_load_daily_restore_from_settings(data, today)`; "Tổng hôm nay" không còn lấy/so `max` với "Đã chuyển" (`restoreDoneCount`, bền qua nhiều ngày).
+  - Đặt lại "Tổng hôm nay" trong ngày không còn bị đồng bộ settings kéo ngược về giá trị "Đã chuyển".
+- **Kiểm thử**: +2 test trong `tests/test_app_workflows.py`; 78/78 PASS. Cùng bản sửa với commit `233b688` trên `backup/before-refactor-v5-beta`.
+
 ## [Backport Restore và Auto Activate vào backup/before-refactor] - 2026-10-08
 
 - Áp dụng bản sửa từ commit `e5330ba` của nhánh beta, giữ cấu trúc nhánh hiện tại. Bổ sung `_available_udids` cho phân bổ Restore để loại máy đang reboot hoặc bị ẩn.

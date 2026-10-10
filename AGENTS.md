@@ -14,6 +14,7 @@ TIKTOOL PRO V4 (`BB_RB.py`) is a Windows Tkinter/ttk desktop application for man
   - `restoreDoneCount`: Session transfer counter ("Đã chuyển"). Persisted across app restarts in `settings.json`.
   - `dailyRestoreDate` & `dailyRestoreCount`: Daily restore total ("Tổng hôm nay").
   - `hourlyRestoreDate` & `hourlyRestoreCounts`: Hourly restore breakdown & rating.
+  - `dailyRestoreCount` must NEVER be derived from `restoreDoneCount` (the latter spans days); load logic lives in `_load_daily_restore_from_settings`.
 - **Formulas for Dual Store Panel**:
   - "Đã chuyển" = `self.restore_done_count`
   - "Còn lại" = Number of valid backups currently in source store directory (`curr_src_count`)
