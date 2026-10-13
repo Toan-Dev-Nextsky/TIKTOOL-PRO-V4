@@ -445,8 +445,8 @@ def check_device_trust(udid):
     except Exception:
         return False
 
-def run_stream(cmd_list, on_line=None, timeout=7200):
-    result = PROCESS_RUNNER.run_stream(cmd_list, on_line=on_line, timeout=timeout)
+def run_stream(cmd_list, on_line=None, timeout=7200, cancel_check=None):
+    result = PROCESS_RUNNER.run_stream(cmd_list, on_line=on_line, timeout=timeout, cancel_check=cancel_check)
     if result.error and on_line:
         on_line(result.error, is_err=True)
     return result.returncode, list(result.lines[-200:])
@@ -1194,6 +1194,7 @@ class App(tk.Tk):
 
         # Theo dõi các tiến trình đang thực hiện để cảnh báo khi tắt app
         self.active_restores = set()
+        self._restore_device_absent_since = {}
         self.active_backups = set()
         self.active_activates = set()
         self.auto_activate_queue = []
@@ -3374,6 +3375,12 @@ class App(tk.Tk):
     def _sync_cards(self, current_udids, trust_results, info_results=None):
         info_results = info_results or {}
         with self.lock:
+            absent_since = self.__dict__.setdefault("_restore_device_absent_since", {})
+            for udid in getattr(self, "active_restores", ()):
+                if udid in current_udids:
+                    absent_since.pop(udid, None)
+                else:
+                    absent_since.setdefault(udid, time.monotonic())
             need_relayout = False
             trusted_cnt = 0
             untrusted_cnt = 0
@@ -3792,7 +3799,12 @@ class App(tk.Tk):
                 row.push_step("Restore 0%")
                 row.set_pct(0)
 
+            last_restore_output = time.monotonic()
+
             def on_line(s, is_err=False):
+                nonlocal last_restore_output
+                if not is_err:
+                    last_restore_output = time.monotonic()
                 if is_err or self._should_log_stream_line(target_udid, s):
                     self.log(target_udid, s, is_err=is_err)
                 pct = self._parse_any_percent(s)
@@ -3800,7 +3812,15 @@ class App(tk.Tk):
                     row.set_pct(pct)
                     row.push_step(f"Restore {pct}%")
 
-            rc, last_lines = run_stream(cmd, on_line=on_line)
+            def disconnected_restore():
+                with self.lock:
+                    absent_at = getattr(self, "_restore_device_absent_since", {}).get(target_udid)
+                now = time.monotonic()
+                if absent_at is not None and now - absent_at >= 30 and now - last_restore_output >= 30:
+                    return "Dừng Restore: máy mất kết nối USB liên tục ít nhất 30s; giữ backup nguồn, giải phóng đợt chờ reboot."
+                return ""
+
+            rc, last_lines = run_stream(cmd, on_line=on_line, cancel_check=disconnected_restore)
             self.log(target_udid, f"Restore kết thúc: exit {rc} | backup {src_name}", is_err=rc != 0)
             if rc == 0:
                 restore_ok = True
@@ -3814,7 +3834,9 @@ class App(tk.Tk):
                     if row:
                         row.push_step("Đã nạp xong • Chờ cả đợt trước khi reboot")
                     restore_batch.complete(target_udid)
-                    restore_batch.wait()
+                    while not restore_batch.wait(timeout=15):
+                        pending = restore_batch.pending_udids()
+                        self.log(target_udid, f"Chờ {len(pending)} máy kết thúc Restore trước khi reboot: {', '.join(pending)}", is_warn=True)
                 self.reboot_tracker.mark(target_udid, timeout=135.0)
                 if restore_batch is not None:
                     try:
@@ -3895,6 +3917,7 @@ class App(tk.Tk):
                     self.log(target_udid, f"Lỗi hoàn tác Info.plist: {e}", is_warn=True)
             with self.lock:
                 self.active_restores.discard(target_udid)
+                getattr(self, "_restore_device_absent_since", {}).pop(target_udid, None)
                 _all_done = len(self.active_restores) == 0  # Kiểm tra trong lock
                 batch_done_count = getattr(self, "_restore_batch_moved_count", 0)
             if operation_reserved:

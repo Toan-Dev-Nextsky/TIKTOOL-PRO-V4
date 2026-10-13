@@ -129,7 +129,7 @@ class ProcessRunner:
         finally:
             self._unregister(process)
 
-    def run_stream(self, command, on_line=None, timeout: float = 3600) -> CommandResult:
+    def run_stream(self, command, on_line=None, timeout: float = 3600, cancel_check=None) -> CommandResult:
         try:
             process = self._start(command)
         except (OSError, ValueError) as exc:
@@ -178,9 +178,26 @@ class ProcessRunner:
         reader_thread = threading.Thread(target=reader, daemon=True)
         reader_thread.start()
         timed_out = False
+        cancel_reason = ""
         try:
             try:
-                process.wait(timeout=timeout)
+                deadline = time.monotonic() + timeout
+                while True:
+                    if process.poll() is not None:
+                        break
+                    if cancel_check:
+                        cancel_reason = cancel_check() or ""
+                        if cancel_reason:
+                            self._stop_process(process)
+                            break
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise subprocess.TimeoutExpired(command, timeout)
+                    try:
+                        process.wait(timeout=min(0.5, remaining))
+                        break
+                    except subprocess.TimeoutExpired:
+                        continue
             except subprocess.TimeoutExpired:
                 timed_out = True
                 self._stop_process(process)
@@ -188,11 +205,11 @@ class ProcessRunner:
             if reader_thread.is_alive():
                 read_errors.append("Output reader did not stop")
             return CommandResult(
-                process.returncode if process.returncode is not None else -1,
+                -1 if cancel_reason else (process.returncode if process.returncode is not None else -1),
                 "\n".join(lines),
                 tuple(lines),
                 timed_out=timed_out,
-                error="; ".join(read_errors) or ("Command timed out" if timed_out else ""),
+                error=cancel_reason or "; ".join(read_errors) or ("Command timed out" if timed_out else ""),
             )
         finally:
             if process.stdout is not None:
@@ -259,8 +276,12 @@ class RestoreBatchGate:
             if not self._pending:
                 self._ready.set()
 
-    def wait(self):
-        self._ready.wait()
+    def wait(self, timeout=None):
+        return self._ready.wait(timeout)
+
+    def pending_udids(self):
+        with self._lock:
+            return tuple(sorted(self._pending))
 
     def reboot_failed(self, udid):
         with self._lock:

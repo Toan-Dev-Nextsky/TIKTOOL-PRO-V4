@@ -2,6 +2,13 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Restore batch chờ máy mất kết nối] - 2026-10-13
+
+- Backport từ `fe610ed` sang `backup/before-refactor`: compile thành công, 84/84 tests PASS, settings thật không đổi. Kết quả 148 tests bên dưới thuộc nhánh beta.
+- Đợt trong Screenshot_7 có 12 máy: 10 thành công, 2 mất USB nhưng lệnh chưa thoát nên giữ gate reboot. Nay dừng lệnh của máy vắng ít nhất 30 giây và không có output không-lỗi ít nhất 30 giây, rồi giải phóng gate theo luồng lỗi.
+- Giữ backup nguồn/hoàn tác Info.plist cho máy bị dừng, không tính thành công hoặc Auto Activate. Chỉ reboot các máy thành công sau khi toàn bộ lệnh đã dừng; log mỗi 15 giây nêu UDID còn chờ.
+- Compile thành công, 148 tests PASS, settings thật không đổi; chưa xác nhận trên iPhone thật sau sửa. Chi tiết: `NHAT_KY_RESTORE_CHO_REBOOT_2026-10-13.md`.
+
 ## [4.9.8 Long-running UI Resource Bounds] - 2026-10-10
 
 - Backport từ commit `142e1ec` của nhánh beta sang `backup/before-refactor`: compile thành công, 82/82 tests trên nhánh đích PASS, settings thật không đổi. Kết quả 146 tests dưới đây mô tả nhánh beta.

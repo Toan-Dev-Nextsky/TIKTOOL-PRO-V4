@@ -15,9 +15,9 @@ class ObservedGate(RestoreBatchGate):
         super().__init__(udids)
         self.waiting = threading.Event()
 
-    def wait(self):
+    def wait(self, timeout=None):
         self.waiting.set()
-        super().wait()
+        return super().wait(timeout)
 
 
 class RestoreBatchTests(unittest.TestCase):
@@ -27,6 +27,39 @@ class RestoreBatchTests(unittest.TestCase):
         app._reboot_hidden_cards = {'hidden'}
         app.reboot_tracker.mark('rebooting', 135)
         self.assertEqual(['ready'], BB_RB.App._available_udids(app))
+
+    def test_disconnected_restore_cancels_only_after_absence_and_silence(self):
+        import time
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp, 'A')
+            source.mkdir()
+            backup = make_backup(source, udid='ORIGINAL')
+            app = self.make_app(['u1'])
+            app._restore_device_absent_since = {}
+            gate = RestoreBatchGate(['u1'])
+
+            def stalled(cmd, on_line=None, cancel_check=None):
+                now = time.monotonic()
+                self.assertEqual('', cancel_check())
+                app._restore_device_absent_since['u1'] = now - 40
+                # Old absence alone must not cancel a transfer still producing output.
+                self.assertEqual('', cancel_check())
+                with patch.object(BB_RB.time, 'monotonic', return_value=now + 40):
+                    self.assertTrue(cancel_check())
+                    app._restore_device_absent_since.clear()
+                    self.assertEqual('', cancel_check())
+                return -1, ['device disconnected']
+
+            with patch.object(BB_RB, 'pair_validate', return_value=True), \
+                    patch.object(BB_RB, 'run_stream', side_effect=stalled), \
+                    patch.object(BB_RB, 'run_capture') as reboot:
+                BB_RB.App._restore_worker(app, 'u1', backup, str(Path(temp, 'B')),
+                                         operation_reserved=True, restore_batch=gate)
+            self.assertTrue(gate.wait(timeout=0))
+            self.assertEqual((), gate.pending_udids())
+            reboot.assert_not_called()
+            self.assertEqual('ORIGINAL', read_udid(backup))
+            self.assertTrue(Path(backup).exists())
 
     def make_app(self, udids):
         app = make_worker_app()
@@ -57,7 +90,7 @@ class RestoreBatchTests(unittest.TestCase):
             reboots = []
             commands = []
 
-            def restore(cmd, on_line=None):
+            def restore(cmd, on_line=None, cancel_check=None):
                 commands.append(cmd)
                 udid = cmd[cmd.index('-u') + 1]
                 if udid == 'slow':
@@ -110,7 +143,7 @@ class RestoreBatchTests(unittest.TestCase):
                 app = self.make_app(['good', 'bad'])
                 gate = ObservedGate(['good', 'bad'])
 
-                def restore(cmd, on_line=None):
+                def restore(cmd, on_line=None, cancel_check=None):
                     if cmd[cmd.index('-u') + 1] == 'bad':
                         if failure == 'exception':
                             raise OSError('USB error')
