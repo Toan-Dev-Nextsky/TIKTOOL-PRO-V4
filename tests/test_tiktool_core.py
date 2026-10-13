@@ -465,6 +465,16 @@ class ProcessRunnerTests(unittest.TestCase):
         self.assertEqual([("tail", False)], seen)
         self.assertEqual({}, self.runner.active_snapshot())
 
+    def test_stream_cancellation_reaps_child_and_cannot_report_success(self):
+        result = self.runner.run_stream(
+            [sys.executable, "-c", "import time; time.sleep(60)"],
+            timeout=90, cancel_check=lambda: "device disconnected",
+        )
+        self.assertFalse(result.ok)
+        self.assertNotEqual(0, result.returncode)
+        self.assertEqual("device disconnected", result.error)
+        self.assertEqual({}, self.runner.active_snapshot())
+
     def test_stream_marks_error_lines(self):
         """Catches streamed failure text being presented as a normal success line."""
         seen = []

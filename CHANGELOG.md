@@ -2,6 +2,12 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Restore batch chờ máy mất kết nối] - 2026-10-13
+
+- Đợt trong Screenshot_7 có 12 máy: 10 thành công, 2 mất USB nhưng lệnh chưa thoát nên giữ gate reboot. Nay dừng lệnh của máy vắng ít nhất 30 giây và không có output không-lỗi ít nhất 30 giây, rồi giải phóng gate theo luồng lỗi.
+- Giữ backup nguồn/hoàn tác Info.plist cho máy bị dừng, không tính thành công hoặc Auto Activate. Chỉ reboot các máy thành công sau khi toàn bộ lệnh đã dừng; log mỗi 15 giây nêu UDID còn chờ.
+- Compile thành công, 148 tests PASS, settings thật không đổi; chưa xác nhận trên iPhone thật sau sửa. Chi tiết: `NHAT_KY_RESTORE_CHO_REBOOT_2026-10-13.md`.
+
 ## [4.9.8 Long-running UI Resource Bounds] - 2026-10-10
 
 - Xóa item chữ chạy khỏi Tk Canvas khi ra khỏi màn hình; trước đây chỉ bỏ ID khỏi danh sách Python nên item tiếp tục tích tụ.
