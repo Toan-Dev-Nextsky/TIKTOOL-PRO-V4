@@ -24,3 +24,11 @@ TIKTOOL PRO V4 (`BB_RB.py`) is a Windows Tkinter/ttk desktop application for man
 - **Available Devices for Batch Operations**: always filter target devices via `self._available_udids()` instead of iterating `self.rows.keys()` directly, so rebooting devices (in `reboot_tracker.is_waiting()`) and absent devices (`_reboot_hidden_cards`) are excluded.
 - **Resetting Counters**:
   - Clicking the refresh button beside the transfer counters resets `restore_done_count = 0`, syncs to `settings.json`, and refreshes the labels.
+
+## Performance Card (Updated 2026-10-18)
+
+- The performance card always shows the hour window, hourly device count, star rating, daily total, history button, and daily reset button.
+- The scrolling messages, hide/show icons, covering overlay, animation timer, and password prompt for revealing statistics have been removed at the user's request.
+- Legacy `performanceStatsHidden` settings are ignored and removed by `_save_settings_from_ui` when saving settings.
+- AstroBot status messages are a separate component. The password confirmation for erasing device data is also separate from the removed statistics feature.
+- The removal was applied to both `backup/before-refactor-v5-beta` and `backup/before-refactor`; see `CHANGELOG.md` for the change record and verification.

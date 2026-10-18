@@ -2,6 +2,14 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Luôn hiển thị chỉ số hiệu suất] - 2026-10-18
+
+- Gỡ toàn bộ chữ chạy, danh sách thông báo, nút ẩn/hiện và hộp mật khẩu của khung hiệu suất. Khung luôn hiển thị giờ, số máy, đánh giá sao, "Tổng hôm nay", nút Chi tiết và nút đặt lại.
+- Bỏ lớp phủ che chỉ số và timer chạy chữ. Cấu hình cũ `performanceStatsHidden` không còn được sử dụng và được xóa khi lưu cấu hình qua `_save_settings_from_ui`.
+- Giữ nguyên đánh giá theo giờ, các bộ đếm, thông báo trạng thái AstroBot và xác nhận mật khẩu cho thao tác xóa dữ liệu thiết bị.
+- Áp dụng trên `backup/before-refactor-v5-beta` và `backup/before-refactor` (commit `c7abf32` trên branch `backup/before-refactor`). Xóa hai kiểm thử chỉ dành cho tính năng ẩn chỉ số và ticker đã gỡ.
+- Kiểm chứng trên mỗi branch: biên dịch thành công, 13 kiểm thử `HourlyRestoreUiTests` đạt. Đã sao lưu `settings.json` trước kiểm tra và xác nhận cấu hình không bị thay đổi bởi kiểm thử. Chưa kiểm tra trực tiếp giao diện ứng dụng sau sửa.
+
 ## [Restore batch chờ máy mất kết nối] - 2026-10-13
 
 - Đợt trong Screenshot_7 có 12 máy: 10 thành công, 2 mất USB nhưng lệnh chưa thoát nên giữ gate reboot. Nay dừng lệnh của máy vắng ít nhất 30 giây và không có output không-lỗi ít nhất 30 giây, rồi giải phóng gate theo luồng lỗi.
