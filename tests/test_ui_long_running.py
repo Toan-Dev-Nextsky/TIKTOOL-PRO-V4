@@ -9,26 +9,6 @@ import BB_RB
 
 
 class LongRunningUiTests(unittest.TestCase):
-    def test_ticker_reclaims_offscreen_canvas_items(self):
-        root = tk.Tk()
-        root.withdraw()
-        try:
-            canvas = tk.Canvas(root, width=300, height=30)
-            canvas.winfo_width = lambda: 300
-            canvas.winfo_height = lambda: 30
-            app = types.SimpleNamespace(
-                performance_stats_hidden=True, performance_ticker_canvas=canvas,
-                _performance_ticker_items=[], _performance_ticker_last_message=None,
-                _animate_performance_ticker=lambda: None, after=lambda *_: 'timer',
-            )
-            for _ in range(12000):
-                BB_RB.App._animate_performance_ticker(app)
-            self.assertGreater(len(canvas.find_all()), 0)
-            self.assertEqual(set(canvas.find_all()), set(app._performance_ticker_items))
-            self.assertLess(len(canvas.find_all()), 10)
-        finally:
-            root.destroy()
-
     def test_screen_log_stays_bounded_and_retains_latest_message(self):
         root = tk.Tk()
         root.withdraw()

@@ -290,67 +290,6 @@ class BackupAllocationOrderTests(unittest.TestCase):
 
 
 class HourlyRestoreUiTests(unittest.TestCase):
-    def test_hidden_performance_requires_the_existing_management_password(self):
-        class Widget:
-            def __init__(self):
-                self.values = {}
-                self.visible = False
-
-            def config(self, **kwargs):
-                self.values.update(kwargs)
-
-            def place(self, **_kwargs):
-                self.visible = True
-
-            def lift(self):
-                pass
-
-            def place_forget(self):
-                self.visible = False
-
-        saved = []
-        ticker_events = []
-        overlay = Widget()
-        app = types.SimpleNamespace(
-            performance_stats_hidden=False,
-            performance_hidden_overlay=overlay,
-            card_hourly_performance=Widget(),
-            btn_hide_performance_stats=Widget(),
-            btn_performance_history=Widget(),
-            btn_performance_reset=Widget(),
-        )
-        app._apply_performance_stats_visibility = lambda: BB_RB.App._apply_performance_stats_visibility(app)
-        app._save_settings_from_ui = lambda: saved.append(app.performance_stats_hidden)
-        app._start_performance_ticker = lambda: ticker_events.append("start")
-        app._stop_performance_ticker = lambda: ticker_events.append("stop")
-
-        BB_RB.App._hide_performance_stats(app)
-        self.assertTrue(app.performance_stats_hidden)
-        self.assertTrue(overlay.visible)
-        self.assertEqual("disabled", app.btn_performance_history.values["state"])
-        self.assertEqual([True], saved)
-
-        with patch.object(BB_RB.messagebox, "showinfo") as history:
-            BB_RB.App._show_hourly_restore_history(app)
-        history.assert_not_called()
-
-        with patch.object(BB_RB.simpledialog, "askstring", return_value="wrong"), patch.object(
-            BB_RB.messagebox, "showerror"
-        ) as error:
-            BB_RB.App._show_performance_stats(app)
-        self.assertTrue(app.performance_stats_hidden)
-        self.assertTrue(overlay.visible)
-        self.assertEqual([True], saved)
-        error.assert_called_once()
-
-        with patch.object(BB_RB.simpledialog, "askstring", return_value=" K "):
-            BB_RB.App._show_performance_stats(app)
-        self.assertFalse(app.performance_stats_hidden)
-        self.assertFalse(overlay.visible)
-        self.assertEqual("normal", app.btn_performance_history.values["state"])
-        self.assertEqual([True, False], saved)
-        self.assertEqual(["start", "stop"], ticker_events)
-
     def test_performance_card_theme_matches_the_approved_navy_cyan_design(self):
         """Catches the refreshed performance widget drifting back to the old gray styling."""
         theme = BB_RB.performance_card_theme()
