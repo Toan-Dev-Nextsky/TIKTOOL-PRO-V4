@@ -185,6 +185,7 @@ DEFAULT_SETTINGS = {
     "langLocale": "ja_JP|ja",            # Mặc định là tiếng Nhật
     "setLangAfterActive": True,           # Đặt ngôn ngữ tự động sau khi Batch Activate
     "autoActivateAfterRestore": True,      # Tự động Activate ngay sau khi Restore xong
+    "autoWebclipAfterRestore": False,      # Tự tạo Web App rồi Activate sau khi Restore xong
     "active": "A",                        # Kho nguồn mặc định: "A" (A->B) hoặc "B" (B->A)
     "customWebclipLink": "",                      # Để trống, người dùng tự nhập link
     "dailyRestoreDate": "",
@@ -1546,6 +1547,7 @@ class App(tk.Tk):
         self.var_lang_locale = tk.StringVar(value=DEFAULT_SETTINGS["langLocale"])
         self.var_set_lang_after_active = tk.BooleanVar(value=DEFAULT_SETTINGS["setLangAfterActive"])
         self.var_auto_activate_after_restore = tk.BooleanVar(value=DEFAULT_SETTINGS["autoActivateAfterRestore"])
+        self.var_auto_webclip_after_restore = tk.BooleanVar(value=DEFAULT_SETTINGS["autoWebclipAfterRestore"])
         self.var_active_store = tk.StringVar(value="A")  # Kho nguồn: A hoặc B
         self.var_custom_webclip_link = tk.StringVar(value=DEFAULT_SETTINGS.get("customWebclipLink", "https://linkm.site/"))
         self.var_show_extra_tabs = tk.BooleanVar(value=DEFAULT_SETTINGS["showBackupIpaTabs"])  # Ẩn/hiện tab Sao Lưu & Cài IPA
@@ -3386,6 +3388,20 @@ class App(tk.Tk):
             row.set_pct(0)
         return False
 
+    def _push_webclip_profile(self, udid, url, label):
+        """Tạo file mobileconfig tạm và gửi cho một thiết bị, dọn file sau khi xong."""
+        profile_path = os.path.join(tempfile.gettempdir(), f"webclip_{uuid.uuid4()}.mobileconfig")
+        try:
+            with open(profile_path, "w", encoding="utf-8") as f:
+                f.write(_make_webclip_mobileconfig(label, url))
+            return self._push_webclip_to_device(udid, profile_path, label, url, max_retries=2)
+        finally:
+            try:
+                if os.path.exists(profile_path):
+                    os.remove(profile_path)
+            except Exception:
+                pass
+
     def _push_webclip_all(self, label, url):
         ok, msg = _ios_usable()
         if not ok:
@@ -3829,6 +3845,20 @@ class App(tk.Tk):
             command=self._save_settings_from_ui
         )
         self.chk_auto_act.pack(side="left", padx=(2, 0))
+
+        self.chk_auto_webclip = tk.Checkbutton(
+            box_opt,
+            text=f"{Icons.GLOBE}  Tạo Web App + Activate sau Restore",
+            font=("Segoe UI", 8, "bold"),
+            fg=COLOR_CYAN_ACCENT,
+            bg=COLOR_KHO_BG,
+            selectcolor=COLOR_KHO_INNER,
+            activebackground=COLOR_KHO_BG,
+            activeforeground=COLOR_CYAN_ACCENT,
+            variable=self.var_auto_webclip_after_restore,
+            command=self._save_settings_from_ui
+        )
+        self.chk_auto_webclip.pack(side="left", padx=(10, 0))
 
         # BỘ ĐẾM RESTORE THÀNH CÔNG
         self.box_restore_pill = tk.Frame(box_opt, bg=COLOR_EMERALD_BG, highlightbackground=COLOR_EMERALD_MAIN, highlightthickness=1)
@@ -4492,6 +4522,7 @@ class App(tk.Tk):
         if "removeTikTokLite" in data: self.var_lite.set(bool(data["removeTikTokLite"]))
         if "setLangAfterActive" in data: self.var_set_lang_after_active.set(bool(data["setLangAfterActive"]))
         if "autoActivateAfterRestore" in data: self.var_auto_activate_after_restore.set(bool(data["autoActivateAfterRestore"]))
+        if "autoWebclipAfterRestore" in data: self.var_auto_webclip_after_restore.set(bool(data["autoWebclipAfterRestore"]))
         if "active" in data and data["active"] in ("A", "B"): self.var_active_store.set(data["active"])
         if "showBackupIpaTabs" in data:
             new_show_extra = bool(data["showBackupIpaTabs"])
@@ -4562,6 +4593,7 @@ class App(tk.Tk):
             data["langLocale"] = self.var_lang_locale.get()
             data["setLangAfterActive"] = self.var_set_lang_after_active.get()
             data["autoActivateAfterRestore"] = self.var_auto_activate_after_restore.get()
+            data["autoWebclipAfterRestore"] = self.var_auto_webclip_after_restore.get()
             data["active"] = self.var_active_store.get()
             data["showBackupIpaTabs"] = self.var_show_extra_tabs.get()
             data["customWebclipLink"] = self.var_custom_webclip_link.get().strip()
@@ -5100,6 +5132,14 @@ class App(tk.Tk):
             src_label = "B"
 
         auto_activate = bool(self.var_auto_activate_after_restore.get())
+        auto_webclip = bool(self.var_auto_webclip_after_restore.get())
+        # Tạo Web App sau Restore cũng cần chờ máy reboot xong rồi mới Activate.
+        auto_activate = auto_activate or auto_webclip
+        webclip_url = normalize_url(self.var_custom_webclip_link.get()) if auto_webclip else ""
+        webclip_label = ""
+        if webclip_url:
+            host = webclip_url.split("://", 1)[-1].split("/", 1)[0].strip()
+            webclip_label = host.upper() if host else "Custom Web App"
         set_language = bool(self.var_set_lang_after_active.get())
         language_preset = self.var_lang_locale.get()
         jobs = []
@@ -5117,7 +5157,7 @@ class App(tk.Tk):
             try:
                 threading.Thread(
                     target=self._restore_worker,
-                    args=(target_udid, bk_path, target_root, src_label, auto_activate, set_language, language_preset, True, restore_batch),
+                    args=(target_udid, bk_path, target_root, src_label, auto_activate, set_language, language_preset, True, restore_batch, auto_webclip, webclip_url, webclip_label),
                     daemon=True,
                 ).start()
             except Exception as exc:
@@ -5425,6 +5465,14 @@ class App(tk.Tk):
 
         self._save_settings_from_ui()
 
+        if self.var_auto_webclip_after_restore.get() and not normalize_url(self.var_custom_webclip_link.get()):
+            messagebox.showwarning(
+                "THIẾU LINK WEB APP",
+                "Đã bật 'Tạo Web App + Activate sau Restore' nhưng ô Link Web App đang trống.\n"
+                "Vui lòng nhập link web app trước khi Restore.",
+            )
+            return
+
         all_bks = list_valid_backups(source_root)
         if not all_bks:
             messagebox.showerror("LỖI", f"Kho {src_label} không chứa bản backup hợp lệ nào!")
@@ -5484,7 +5532,7 @@ class App(tk.Tk):
         self.log("SYSTEM", f"Restore chuyển kho: {src_label} ➜ {'B' if src_label == 'A' else 'A'} | {len(all_bks)} bản backup | {len(self.pending_restore_map)} máy ghép nối")
         self._show_confirm_frame(confirm_items)
 
-    def _restore_worker(self, target_udid, backup_folder_full, target_after_restore, source_store="A", auto_activate=False, set_language=False, language_preset=None, operation_reserved=False, restore_batch=None):
+    def _restore_worker(self, target_udid, backup_folder_full, target_after_restore, source_store="A", auto_activate=False, set_language=False, language_preset=None, operation_reserved=False, restore_batch=None, auto_webclip=False, webclip_url="", webclip_label=""):
         with self.lock:
             self.active_restores.add(target_udid)
             active_count = len(self.active_restores)
@@ -5610,9 +5658,13 @@ class App(tk.Tk):
                         )
                         if transitioned:
                             self._queue_auto_activate(
-                                target_udid, set_language, language_preset, transitioned
+                                target_udid, set_language, language_preset, transitioned,
+                                auto_webclip, webclip_url, webclip_label,
                             )
-                            self.log(target_udid, "⚡ Đã đưa vào hàng chờ Auto Activate của cả đợt Restore.")
+                            if auto_webclip:
+                                self.log(target_udid, f"⚡ Đã đưa vào hàng chờ: gửi Web App '{webclip_label}' rồi Activate sau khi máy reboot xong.")
+                            else:
+                                self.log(target_udid, "⚡ Đã đưa vào hàng chờ Auto Activate của cả đợt Restore.")
                         else:
                             self.log(target_udid, "Không thể đặt Auto Activate: trạng thái Restore đã thay đổi.", is_err=True)
                     # (Thông báo rút máy sẽ hiện sau khi TẤT CẢ máy trong đợt hoàn tất — xem finally bên dưới)
@@ -5726,12 +5778,16 @@ class App(tk.Tk):
         except Exception:
             pass
 
-    def _queue_auto_activate(self, udid, set_language, language_preset, operation_reserved):
+    def _queue_auto_activate(self, udid, set_language, language_preset, operation_reserved,
+                             auto_webclip=False, webclip_url="", webclip_label=""):
         """Giữ máy đã restore trong hàng chờ cho Auto Activate theo cả đợt."""
         with self.lock:
             if any(job[0] == udid for job in self.auto_activate_queue):
                 return False
-            self.auto_activate_queue.append((udid, set_language, language_preset, operation_reserved))
+            self.auto_activate_queue.append(
+                (udid, set_language, language_preset, operation_reserved,
+                 auto_webclip, webclip_url, webclip_label)
+            )
             return True
 
     def _start_auto_activate_batch_if_ready(self):
@@ -5779,11 +5835,12 @@ class App(tk.Tk):
 
                     launched.add(udid)
                     pending.pop(udid)
-                    _, set_language, language_preset, operation_reserved = job
+                    _, set_language, language_preset, operation_reserved, auto_webclip, webclip_url, webclip_label = job
                     self.log(udid, f"USB đã ổn định. Bắt đầu Auto Activate bằng pipeline Batch Activate. ⏱ Chờ reboot + ổn định: {time.monotonic() - _t_batch:.0f}s")
                     threading.Thread(
                         target=self._auto_activate_launch,
-                        args=(udid, set_language, language_preset, operation_reserved),
+                        args=(udid, set_language, language_preset, operation_reserved,
+                              auto_webclip, webclip_url, webclip_label),
                         daemon=True,
                     ).start()
 
@@ -5791,7 +5848,8 @@ class App(tk.Tk):
                     break
                 time.sleep(AUTO_ACTIVATE_READY_INTERVAL_SECONDS)
 
-            for udid, (_, _, _, operation_reserved) in pending.items():
+            for udid, job in pending.items():
+                operation_reserved = job[3]
                 self.log(udid, "Không thấy lại thiết bị USB đủ ổn định sau Restore. Bỏ qua Auto Activate cho máy này.", is_err=True)
                 if operation_reserved:
                     self.operations.end(udid, "auto_activate")
@@ -5803,7 +5861,8 @@ class App(tk.Tk):
                 self.auto_activate_batch_active = False
             self._start_auto_activate_batch_if_ready()
 
-    def _auto_activate_launch(self, udid, set_language, language_preset, operation_reserved):
+    def _auto_activate_launch(self, udid, set_language, language_preset, operation_reserved,
+                              auto_webclip=False, webclip_url="", webclip_label=""):
         """Chờ lockdownd và xác thực lại pairing trước khi chạy pipeline Batch Activate.
 
         Sau Restore + reboot, pairing record cũ có thể bị ghi đè và lockdownd chưa
@@ -5826,7 +5885,33 @@ class App(tk.Tk):
         else:
             self.log(udid, f"⚠️ lockdownd chưa phản hồi sau {AUTO_ACTIVATE_LOCKDOWN_TIMEOUT}s (thiết bị chưa Activate thường chưa trả lời). Tiếp tục Activate.", is_warn=True)
 
-        if operation_reserved and not self.operations.transition(
+        if auto_webclip and webclip_url:
+            if operation_reserved and not self.operations.transition(
+                udid, "auto_activate", "webclip"
+            ):
+                self.log(
+                    udid,
+                    "Không thể gửi Web App sau Restore: trạng thái thiết bị đã thay đổi.",
+                    is_err=True,
+                )
+                return False
+
+            self._update_card_step(udid, "Gửi Web App...")
+            if self._push_webclip_profile(udid, webclip_url, webclip_label or "Web App"):
+                self.log(udid, f"✓ Đã gửi Web App '{webclip_label}' trước khi Activate.")
+            else:
+                self.log(udid, "⚠️ Gửi Web App sau Restore thất bại; vẫn tiếp tục Activate. Có thể gửi lại thủ công sau.", is_err=True)
+
+            if operation_reserved and not self.operations.transition(
+                udid, "webclip", "activate"
+            ):
+                self.log(
+                    udid,
+                    "Không thể bắt đầu Activate: trạng thái thiết bị đã thay đổi.",
+                    is_err=True,
+                )
+                return False
+        elif operation_reserved and not self.operations.transition(
             udid, "auto_activate", "activate"
         ):
             self.log(

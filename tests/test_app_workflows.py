@@ -65,6 +65,7 @@ def make_worker_app():
         var_lite=_Value(False),
         var_patch_backup_lang=_Value(False),
         var_auto_activate_after_restore=_Value(False),
+        var_auto_webclip_after_restore=_Value(False),
         log=lambda *args, **kwargs: messages.append((args, kwargs)),
         after=lambda delay, callback, *args: callback(*args),
         messages=messages,
@@ -552,6 +553,8 @@ class AvailableDevicesTests(unittest.TestCase):
             _require_license=lambda: True,
             _save_settings_from_ui=lambda: None,
             var_active_store=types.SimpleNamespace(get=lambda: "A"),
+            var_auto_webclip_after_restore=types.SimpleNamespace(get=lambda: False),
+            var_custom_webclip_link=types.SimpleNamespace(get=lambda: ""),
             lbl_path_a=types.SimpleNamespace(cget=lambda key: store_root or ""),
             lbl_path_b=types.SimpleNamespace(cget=lambda key: ""),
             pending_restore_map=[],
@@ -1311,6 +1314,68 @@ class AutoActivateBatchTests(unittest.TestCase):
         self.assertEqual(["u1"], [args[0] for args, _ in calls])
         self.assertEqual("activate", calls[0][0][4])
         self.assertEqual({"u1": "activate"}, app.operations.snapshot())
+
+    def test_auto_activate_after_restore_pushes_webclip_before_activate(self):
+        """Catches 'Tạo Web App + Activate sau Restore' skipping the profile push."""
+        app = self.make_app()
+        app.operations.begin("u1", "auto_activate")
+        calls = []
+        pushed = []
+        app._batch_activate_worker = lambda *args, **kwargs: calls.append((args, kwargs))
+        app._push_webclip_profile = lambda udid, url, label: pushed.append((udid, url, label)) or True
+
+        with patch.object(BB_RB.time, "sleep"), patch.object(
+            BB_RB, "ideviceinfo_k", return_value="iPhone"
+        ), patch.object(BB_RB, "pair_validate", return_value=True):
+            app._auto_activate_launch(
+                "u1", False, "ja_JP|ja", True, True, "https://linkm.site/", "LINKM.SITE"
+            )
+
+        self.assertEqual([("u1", "https://linkm.site/", "LINKM.SITE")], pushed)
+        self.assertEqual(["u1"], [args[0] for args, _ in calls])
+        self.assertEqual("activate", calls[0][0][4])
+        self.assertEqual({"u1": "activate"}, app.operations.snapshot())
+
+    def test_auto_activate_still_runs_when_webclip_push_fails(self):
+        """Catches a failed profile push blocking the activation of a restored device."""
+        app = self.make_app()
+        app.operations.begin("u1", "auto_activate")
+        calls = []
+        app._batch_activate_worker = lambda *args, **kwargs: calls.append((args, kwargs))
+        app._push_webclip_profile = lambda udid, url, label: False
+
+        with patch.object(BB_RB.time, "sleep"), patch.object(
+            BB_RB, "ideviceinfo_k", return_value="iPhone"
+        ), patch.object(BB_RB, "pair_validate", return_value=True):
+            app._auto_activate_launch(
+                "u1", False, "ja_JP|ja", True, True, "https://linkm.site/", "LINKM.SITE"
+            )
+
+        self.assertEqual(["u1"], [args[0] for args, _ in calls])
+        self.assertEqual({"u1": "activate"}, app.operations.snapshot())
+
+    def test_auto_activate_batch_forwards_webclip_job_to_launch(self):
+        app = self.make_app()
+        app.operations.begin("u1", "auto_activate")
+        launches = []
+        app._auto_activate_launch = lambda *args, **kwargs: launches.append(args)
+        BB_RB.App._queue_auto_activate(
+            app, "u1", True, "ja_JP|ja", True, True, "https://linkm.site/", "LINKM.SITE"
+        )
+        jobs = list(app.auto_activate_queue)
+        app.auto_activate_queue.clear()
+
+        with patch.object(BB_RB.threading, "Thread", _ImmediateThread), patch.object(
+            BB_RB.time, "sleep"
+        ), patch.object(BB_RB, "get_connected_udids", return_value=["u1"]), patch.object(
+            BB_RB, "AUTO_ACTIVATE_SETTLE_SECONDS", 0
+        ), patch.object(BB_RB, "AUTO_ACTIVATE_STABLE_SAMPLES", 1):
+            BB_RB.App._run_auto_activate_batch(app, jobs)
+
+        self.assertEqual(
+            [("u1", True, "ja_JP|ja", True, True, "https://linkm.site/", "LINKM.SITE")],
+            launches,
+        )
 
     def test_parse_any_percent_filters_subfile_transfers(self):
         """Catches sub-file transfer progress corrupting overall restore/backup percentage."""

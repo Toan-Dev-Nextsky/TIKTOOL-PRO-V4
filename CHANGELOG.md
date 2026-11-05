@@ -2,6 +2,14 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Tự tạo Web App + Activate sau Restore] - 2026-11-05
+
+- Thêm checkbox `Tạo Web App + Activate sau Restore` ngay cạnh `Tự Activate sau Restore` trong khung Restore (khóa `autoWebclipAfterRestore`, mặc định tắt).
+- Khi bật: sau khi cả đợt Restore xong, máy reboot và lên USB ổn định, app tự gửi WebClip profile lấy từ ô `Link` ở hàng WEB APP rồi chạy pipeline `Batch Activate` (Activate → Skip Setup → Set Lang). Không cần bấm `Tạo Web App` và `Batch Activate` thủ công.
+- Bật tùy chọn này cũng tự bật luồng chờ reboot/Auto Activate dù `Tự Activate sau Restore` đang tắt. `start_restore_all` chặn Restore nếu tùy chọn bật mà ô Link đang trống.
+- Quyền sở hữu thiết bị đi đúng thứ tự `restore` → `auto_activate` → `webclip` → `activate`; gửi WebClip lỗi vẫn tiếp tục Activate và ghi cảnh báo để gửi lại thủ công.
+- Kiểm thử: +3 test trong `AutoActivateBatchTests` cho gửi WebClip trước Activate, gửi lỗi vẫn Activate, và truyền job qua batch. `py_compile` thành công, 149/149 unit tests PASS; đã sao lưu và khôi phục `settings.json` sau khi chạy test.
+
 ## [Luôn hiển thị chỉ số hiệu suất] - 2026-10-18
 
 - Gỡ toàn bộ chữ chạy, danh sách thông báo, nút ẩn/hiện và hộp mật khẩu của khung hiệu suất. Khung luôn hiển thị giờ, số máy, đánh giá sao, "Tổng hôm nay", nút Chi tiết và nút đặt lại.
