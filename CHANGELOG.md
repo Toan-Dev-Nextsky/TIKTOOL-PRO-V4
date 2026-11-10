@@ -2,6 +2,16 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Hiển thị lưới thẻ thiết bị tối thiểu 4 cột] - 2026-11-10
+
+- **Sắp xếp lại lưới thẻ thiết bị**: Chuyển số cột mặc định và tối thiểu từ 3 lên **tối thiểu 4 thiết bị / hàng** (`_calculate_columns`, `_grid_cols = 4`).
+- **Tối ưu không gian dọc**: Với dàn 14-16 máy làm farm, giao diện 4 cột chỉ chiếm 4 hàng (thay vì 5 hàng như trước), giúp toàn bộ các máy từ `slot 01` đến `slot 14` hiển thị trọn vẹn trên màn hình mà không bị tràn hay che khuất các slot cuối.
+- **Tinh chỉnh tỷ lệ nội dung thẻ**:
+  - Dòng Model & ECID dùng font `Consolas 8` gọn gàng, đồng bộ với font dòng UDID, hiển thị sắc nét không bị tràn.
+  - Rút ngắn thông minh UDID 40 ký tự giữ hiển thị cân đối; UDID 25 ký tự giữ nguyên vẹn.
+  - Ngưỡng co giãn responsive: Màn hình thường/mặc định (`< 1750px`) hiển thị 4 cột; Full HD lớn (`1750px - 2200px`) hiển thị 5 cột; màn hình siêu rộng 2K/4K (`>= 2200px`) hiển thị 6 cột.
+- **Kiểm thử**: Bổ sung 2 unit test trong `SyncCardsRebootTests` kiểm tra tối thiểu 4 cột trên mọi kích thước màn hình và cách phân bổ 14 máy. 151/151 unit tests PASS (100%).
+
 ## [Tự tạo Web App + Activate sau Restore] - 2026-11-05
 
 - Thêm checkbox `Tạo Web App + Activate sau Restore` ngay cạnh `Tự Activate sau Restore` trong khung Restore (khóa `autoWebclipAfterRestore`, mặc định tắt).

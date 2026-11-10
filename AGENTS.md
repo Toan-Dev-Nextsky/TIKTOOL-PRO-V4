@@ -36,3 +36,8 @@ TIKTOOL PRO V4 (`BB_RB.py`) is a Windows Tkinter/ttk desktop application for man
 - Legacy `performanceStatsHidden` settings are ignored and removed by `_save_settings_from_ui` when saving settings.
 - AstroBot status messages are a separate component. The password confirmation for erasing device data is also separate from the removed statistics feature.
 - The removal was applied to both `backup/before-refactor-v5-beta` and `backup/before-refactor`; see `CHANGELOG.md` for the change record and verification.
+
+## Device Card Grid (Updated 2026-11-10)
+- Device cards grid displays a minimum of 4 columns (`_grid_cols = 4`, `_calculate_columns`) across standard screen sizes and window widths (< 1750px) to prevent vertical overflow for 14-16 device farms.
+- Responsive scaling: 4 columns (< 1750px), 5 columns (1750px - 2200px), 6 columns (>= 2200px).
+- Device card inner text: `lbl_sub` uses `Consolas 8` for Model/ECID, and `udid_short` formats intelligently so lines never overflow in 4 columns.

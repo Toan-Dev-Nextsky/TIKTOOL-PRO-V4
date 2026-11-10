@@ -534,6 +534,55 @@ class SyncCardsRebootTests(unittest.TestCase):
         self.assertIn(("b", "slot", 1), events)
         self.assertIn(("c", "slot", 2), events)
 
+    def test_calculate_columns_minimum_is_four(self):
+        """Lưới thiết bị tối thiểu luôn hiển thị 4 cột (thay vì 3 cột như trước)."""
+        app = types.SimpleNamespace(_grid_cols=4, dev_canvas=types.SimpleNamespace(winfo_width=lambda: 0))
+        # Chiều rộng nhỏ hoặc mặc định: tối thiểu luôn là 4 cột
+        for w in (0, -1, 500, 800, 1180, 1300, 1550, 1740):
+            cols = BB_RB.App._calculate_columns(app, width=w)
+            self.assertEqual(cols, 4, f"Width {w} should give 4 columns, got {cols}")
+
+        # Màn hình rộng Full HD (>= 1750px): 5 cột
+        self.assertEqual(BB_RB.App._calculate_columns(app, width=1750), 5)
+        self.assertEqual(BB_RB.App._calculate_columns(app, width=1920), 5)
+
+        # Màn hình 2K/4K (>= 2200px): 6 cột
+        self.assertEqual(BB_RB.App._calculate_columns(app, width=2200), 6)
+        self.assertEqual(BB_RB.App._calculate_columns(app, width=2560), 6)
+
+    def test_relayout_cards_four_columns_fourteen_devices(self):
+        """14 thiết bị xếp 4 cột chỉ chiếm 4 hàng (thay vì 5 hàng bị tràn màn hình)."""
+        grid_positions = {}
+
+        def make_card(name):
+            return types.SimpleNamespace(
+                set_slot=lambda n: None,
+                grid_forget=lambda: None,
+                grid=lambda row, column, **kw: grid_positions.update({name: (row, column)}),
+            )
+
+        rows = {f"dev_{i:02d}": make_card(f"dev_{i:02d}") for i in range(1, 15)}
+        app = types.SimpleNamespace(
+            rows=rows,
+            _reboot_hidden_cards=set(),
+            _calculate_columns=lambda: 4,
+            grid_container=types.SimpleNamespace(columnconfigure=lambda *a, **k: None),
+            _update_all_cards_ipa_status=lambda: None,
+        )
+        BB_RB.App._relayout_cards(app)
+
+        self.assertEqual(app._grid_cols, 4)
+        self.assertEqual(len(grid_positions), 14)
+        # Các cột từ 0 đến 3
+        max_col = max(c for r, c in grid_positions.values())
+        max_row = max(r for r, c in grid_positions.values())
+        self.assertEqual(max_col, 3)  # 4 cột: 0, 1, 2, 3
+        self.assertEqual(max_row, 3)  # 4 hàng: row 0, 1, 2, 3
+        self.assertEqual(grid_positions["dev_01"], (0, 0))
+        self.assertEqual(grid_positions["dev_04"], (0, 3))
+        self.assertEqual(grid_positions["dev_05"], (1, 0))
+        self.assertEqual(grid_positions["dev_14"], (3, 1))
+
 
 class AvailableDevicesTests(unittest.TestCase):
     """Thao tác hàng loạt không được chạy vào máy đang reboot / đã rút ra (thẻ ẩn)."""

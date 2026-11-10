@@ -885,7 +885,7 @@ class GradientButton(tk.Canvas):
         text_fg = "#94A3B8" if self.state == "disabled" else self.fg
         self.create_text(w / 2, cy, text=display_text, fill=text_fg, font=self.font)
 
-# ================== CARD THIẾT BỊ LƯỚI 3 COLUMNS ==================
+# ================== CARD THIẾT BỊ LƯỚI 4 COLUMNS ==================
 class DeviceCard(tk.Frame):
     def __init__(self, master, udid, info, app_ref=None):
         self.udid = udid
@@ -960,11 +960,11 @@ class DeviceCard(tk.Frame):
         # Dòng 2: Model & ECID tinh gọn 1 dòng duy nhất màu Tech Cyan
         ecid_str = info.get('ecid', '—') or '—'
         model_str = info.get('model', 'N/A') or 'N/A'
-        lbl_sub = tk.Label(self, text=f"Model: {model_str}  •  ECID: {ecid_str}", font=("Consolas", 9), fg=COLOR_CYAN_ACCENT, bg=COLOR_CARD_BG, anchor="w")
+        lbl_sub = tk.Label(self, text=f"Model: {model_str} • ECID: {ecid_str}", font=("Consolas", 8), fg=COLOR_CYAN_ACCENT, bg=COLOR_CARD_BG, anchor="w")
         lbl_sub.pack(fill="x", padx=6, pady=(0, 1))
 
         # Dòng 2b: UDID đầy đủ — bấm để copy vào clipboard (đổi màu nổi bật nếu khớp IPA)
-        udid_short = udid if len(udid) <= 40 else udid[:20] + "…" + udid[-8:]
+        udid_short = udid if len(udid) <= 25 else udid[:14] + "…" + udid[-8:]
         if self.has_matched_ipa:
             udid_init_txt = f"UDID: {udid_short}  ✔ CÓ IPA KÝ"
             udid_init_fg = "#34D399"
@@ -1007,7 +1007,7 @@ class DeviceCard(tk.Frame):
     def _restore_udid_display(self):
         if not hasattr(self, "lbl_udid") or not self.lbl_udid.winfo_exists():
             return
-        udid_short = self.udid if len(self.udid) <= 40 else self.udid[:20] + "…" + self.udid[-8:]
+        udid_short = self.udid if len(self.udid) <= 25 else self.udid[:14] + "…" + self.udid[-8:]
         if getattr(self, "has_matched_ipa", False):
             self.lbl_udid.config(text=f"UDID: {udid_short}  ✔ CÓ IPA KÝ", fg="#34D399", font=("Consolas", 8, "bold"))
         else:
@@ -1022,7 +1022,7 @@ class DeviceCard(tk.Frame):
             self.configure(highlightbackground=COLOR_RED_ERR, highlightthickness=1)
             return
 
-        udid_short = self.udid if len(self.udid) <= 40 else self.udid[:20] + "…" + self.udid[-8:]
+        udid_short = self.udid if len(self.udid) <= 25 else self.udid[:14] + "…" + self.udid[-8:]
 
         if has_match:
             # === KHỚP MÃ IPA: VIỀN XANH LỤC BẢO NỔI BẬT + BADGE XANH ===
@@ -1541,7 +1541,7 @@ class App(tk.Tk):
         self._poll_lock = threading.Lock()
         self._poll_sync_pending = False
         self._poll_latest = None
-        self._grid_cols = 3  # Số cột thẻ thiết bị (tự động co giãn theo kích thước cửa sổ)
+        self._grid_cols = 4  # Số cột thẻ thiết bị tối thiểu 4 (tự động co giãn theo kích thước cửa sổ)
 
         # Variables
         self.var_lang_locale = tk.StringVar(value=DEFAULT_SETTINGS["langLocale"])
@@ -3715,7 +3715,7 @@ class App(tk.Tk):
     def _on_canvas_configure(self, event):
         self.dev_canvas.itemconfig(self.dev_canvas_window, width=event.width)
         new_cols = self._calculate_columns(event.width)
-        if new_cols != getattr(self, "_grid_cols", 3):
+        if new_cols != getattr(self, "_grid_cols", 4):
             self._relayout_cards(cols=new_cols)
 
     # ---------------- BẢNG CẤU HÌNH RESTORE ----------------
@@ -4914,10 +4914,10 @@ class App(tk.Tk):
         threading.Thread(target=_poll, daemon=True).start()
 
     def _calculate_columns(self, width=None):
-        """Tính toán số cột thẻ thiết bị tối ưu:
-        - Mặc định mở app (width 1300px, canvas ~1276px): hiển thị đúng 3 thiết bị trên 1 hàng
-        - Khi phóng to Full HD (width ~1920px, canvas ~1896px): hiển thị 5 thiết bị trên 1 hàng
-        - Màn hình siêu rộng 2K/4K (width >= 2100px): 6 cột
+        """Tính toán số cột thẻ thiết bị tối ưu (tối thiểu 4 thiết bị / hàng):
+        - Mặc định & màn hình tiêu chuẩn (width < 1750px): tối thiểu 4 thiết bị trên 1 hàng
+        - Khi phóng to Full HD (1750px <= width < 2200px): hiển thị 5 thiết bị trên 1 hàng
+        - Màn hình siêu rộng 2K/4K (width >= 2200px): 6 cột
         """
         if width is None:
             try:
@@ -4925,12 +4925,10 @@ class App(tk.Tk):
             except Exception:
                 width = 0
         if width <= 0:
-            return getattr(self, "_grid_cols", 3)
-        if width < 800:
-            return 2
-        elif width < 1550:
-            return 3
-        elif width < 2100:
+            return getattr(self, "_grid_cols", 4)
+        if width < 1750:
+            return 4
+        elif width < 2200:
             return 5
         else:
             return 6

@@ -1,19 +1,16 @@
 {
-  "updated_at": "2026-10-10T11:45:00+07:00",
+  "updated_at": "2026-11-10T15:40:00+07:00",
   "working_on": {
-    "feature": "Daily restore counter reset on new day",
-    "task": "Tách logic nạp bộ đếm ngày ra _load_daily_restore_from_settings, không gán nhầm hoặc fallback từ restoreDoneCount (bảo toàn qua nhiều ngày).",
+    "feature": "Device card grid minimum 4 columns layout",
+    "task": "Sắp xếp lại lưới thẻ thiết bị tối thiểu 4 cột (thay vì 3), tối ưu font Model/ECID và UDID, co giãn responsive 4/5/6 cột.",
     "status": "completed",
     "files": [
       "BB_RB.py",
       "tests/test_app_workflows.py",
       "CHANGELOG.md",
-      "AGENTS.md",
-      ".brain/brain.json",
-      ".brain/session.json",
-      ".brain/handover.md"
+      "AGENTS.md"
     ],
-    "notes": "Tổng hôm nay luôn reset về 0 khi ngày != today. Đã chuyển (restoreDoneCount) vẫn giữ nguyên giá trị bền vững. 142/142 tests PASS. settings.json không commit."
+    "notes": "14 máy hiển thị gọn trong 4 hàng, không tràn màn hình. 151/151 unit tests PASS. settings.json không commit."
   },
   "pending_tasks": [
     {
