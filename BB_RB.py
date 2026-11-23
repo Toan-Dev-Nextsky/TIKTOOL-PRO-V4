@@ -108,6 +108,7 @@ class Icons:
 # BUNDLE IDS TIKTOK & PATHS
 BIDS_TIKTOK = ["com.ss.iphone.ugc.tiktok", "com.zhiliaoapp.musically", "com.ss.iphone.ugc.Aweme"]
 BIDS_TIKTOK_LITE = ["com.ss.iphone.ugc.tiktok.lite", "com.zhiliaoapp.musicallylite"]
+BIDS_TIKTOK_PRO = ["com.ss.iphone.ugc.tiktok.pro"]
 REQ_BACKUP_FILES = ["Manifest.db", "Info.plist", "Manifest.plist"]
 
 # CHẶN CẬP NHẬT iOS (NO OTA UPDATE)
@@ -181,6 +182,7 @@ DEFAULT_SETTINGS = {
     "ipasDir": IPAS_DIR,
     "removeTikTok": False,
     "removeTikTokLite": True,
+    "removeTikTokPro": False,
     "deepFlags": True,
     "langLocale": "ja_JP|ja",            # Mặc định là tiếng Nhật
     "setLangAfterActive": True,           # Đặt ngôn ngữ tự động sau khi Batch Activate
@@ -4434,7 +4436,9 @@ class App(tk.Tk):
         tk.Checkbutton(box_chk, text="Gỡ TikTok", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_BG, selectcolor=COLOR_KHO_INNER, activebackground=COLOR_KHO_BG, activeforeground=COLOR_TEXT_WHITE, variable=self.var_tik, command=self._save_settings_from_ui).pack(side="left", padx=4)
 
         self.var_lite = tk.BooleanVar(value=True)
+        self.var_pro = tk.BooleanVar(value=False)
         tk.Checkbutton(box_chk, text="Gỡ TikTok Lite", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_BG, selectcolor=COLOR_KHO_INNER, activebackground=COLOR_KHO_BG, activeforeground=COLOR_TEXT_WHITE, variable=self.var_lite, command=self._save_settings_from_ui).pack(side="left", padx=4)
+        tk.Checkbutton(box_chk, text="Gỡ TikTok Pro", font=("Segoe UI", 8, "bold"), fg=COLOR_TEXT_MAIN, bg=COLOR_KHO_BG, selectcolor=COLOR_KHO_INNER, activebackground=COLOR_KHO_BG, activeforeground=COLOR_TEXT_WHITE, variable=self.var_pro, command=self._save_settings_from_ui).pack(side="left", padx=4)
 
         self.btn_start_backup = GradientButton(
             f,
@@ -4545,6 +4549,7 @@ class App(tk.Tk):
         if "generalBackupDir" in data and self.lbl_path_gen.cget("text") != data["generalBackupDir"]: self.lbl_path_gen.config(text=data["generalBackupDir"])
         if "removeTikTok" in data: self.var_tik.set(bool(data["removeTikTok"]))
         if "removeTikTokLite" in data: self.var_lite.set(bool(data["removeTikTokLite"]))
+        if "removeTikTokPro" in data: self.var_pro.set(bool(data["removeTikTokPro"]))
         if "setLangAfterActive" in data: self.var_set_lang_after_active.set(bool(data["setLangAfterActive"]))
         if "autoActivateAfterRestore" in data: self.var_auto_activate_after_restore.set(bool(data["autoActivateAfterRestore"]))
         if "autoWebclipAfterRestore" in data: self.var_auto_webclip_after_restore.set(bool(data["autoWebclipAfterRestore"]))
@@ -4615,6 +4620,7 @@ class App(tk.Tk):
             data["generalBackupDir"] = self.lbl_path_gen.cget("text").strip()
             data["removeTikTok"] = self.var_tik.get()
             data["removeTikTokLite"] = self.var_lite.get()
+            data["removeTikTokPro"] = self.var_pro.get()
             data["langLocale"] = self.var_lang_locale.get()
             data["setLangAfterActive"] = self.var_set_lang_after_active.get()
             data["autoActivateAfterRestore"] = self.var_auto_activate_after_restore.get()
@@ -5329,6 +5335,7 @@ class App(tk.Tk):
         names_by_udid = self._reserve_backup_names(target_root, udids)
         remove_tiktok = bool(self.var_tik.get())
         remove_tiktok_lite = bool(self.var_lite.get())
+        remove_tiktok_pro = bool(self.var_pro.get())
 
         for udid in udids:
             if not self._begin_operation(udid, "backup"):
@@ -5336,7 +5343,8 @@ class App(tk.Tk):
             reserved_name = names_by_udid.get(udid)
             threading.Thread(
                 target=self._backup_worker,
-                args=(udid, target_root, reserved_name, remove_tiktok, remove_tiktok_lite, True),
+                args=(udid, target_root, reserved_name, remove_tiktok, remove_tiktok_lite),
+                kwargs={"operation_reserved": True, "remove_tiktok_pro": remove_tiktok_pro},
                 daemon=True,
             ).start()
 
@@ -5380,7 +5388,7 @@ class App(tk.Tk):
                 dup_idx += 1
         return candidate
 
-    def _backup_worker(self, udid, target_root, reserved_name=None, remove_tiktok=False, remove_tiktok_lite=False, operation_reserved=False):
+    def _backup_worker(self, udid, target_root, reserved_name=None, remove_tiktok=False, remove_tiktok_lite=False, operation_reserved=False, remove_tiktok_pro=False):
         with self.lock:
             self.active_backups.add(udid)
             active_count = len(self.active_backups)
@@ -5445,6 +5453,9 @@ class App(tk.Tk):
 
                 if remove_tiktok_lite:
                     uninstall_app_any(udid, BIDS_TIKTOK_LITE, "TikTok Lite", row, lambda s, is_err=False: self.log(udid, s, is_err=is_err))
+
+                if remove_tiktok_pro:
+                    uninstall_app_any(udid, BIDS_TIKTOK_PRO, "TikTok Pro", row, lambda s, is_err=False: self.log(udid, s, is_err=is_err))
             else:
                 if row: row.push_step("Lỗi Backup")
         finally:
