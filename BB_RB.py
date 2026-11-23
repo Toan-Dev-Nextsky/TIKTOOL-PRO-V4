@@ -1771,6 +1771,22 @@ class App(tk.Tk):
         )
         btn_ttlite_appstore.pack(side="left", ipady=2, ipadx=6)
 
+        btn_ttpro_appstore = tk.Button(
+            row2,
+            text=f"{Icons.PHONE}  TikTok Pro",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_BTN_ELEVATED,
+            activebackground=COLOR_WHITE_BORDER,
+            fg=COLOR_TEXT_MAIN,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            highlightbackground=COLOR_BORDER_LIGHT,
+            highlightthickness=1,
+            command=self.install_tiktok_pro_webclip_all,
+        )
+        btn_ttpro_appstore.pack(side="left", padx=(5, 0), ipady=2, ipadx=6)
+
         lbl_hint_ic = tk.Label(row2, text=Icons.LIGHTBULB, font=(FONT_MDL2, 8), fg=COLOR_CYAN_ACCENT, bg=COLOR_PANEL_BG)
         lbl_hint_ic.pack(side="right", padx=(0, 2))
 
@@ -3494,6 +3510,15 @@ class App(tk.Tk):
             target=self._push_webclip_all,
             args=("TikTok Lite - AppStore", "https://apps.apple.com/jp/app/tiktok-lite/id6447160980"),
             daemon=True
+        ).start()
+
+    def install_tiktok_pro_webclip_all(self):
+        if not self._require_license():
+            return
+        threading.Thread(
+            target=self._push_webclip_all,
+            args=("TikTok Pro", "https://apps.apple.com/us/app/tiktok-pro-events/id6741796873"),
+            daemon=True,
         ).start()
 
     # ================== CHỌN KHO NGUỒN & ĐẾM BACKUP ==================
