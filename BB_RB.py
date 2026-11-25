@@ -3950,11 +3950,11 @@ class App(tk.Tk):
             box_opt,
             text=f"{Icons.CANCEL}  Chặn Update iOS + Activate sau Restore",
             font=("Segoe UI", 8, "bold"),
-            fg="#F59E0B",
+            fg=COLOR_CYAN_ACCENT,
             bg=COLOR_KHO_BG,
             selectcolor=COLOR_KHO_INNER,
             activebackground=COLOR_KHO_BG,
-            activeforeground="#F59E0B",
+            activeforeground=COLOR_CYAN_ACCENT,
             variable=self.var_auto_block_update_after_restore,
             command=self._save_settings_from_ui
         )
