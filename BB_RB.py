@@ -103,6 +103,7 @@ class Icons:
     TRASH = "\uE74D"          # Delete
     POWER = "\uE7E8"          # PowerButton
     ERASE = "\uE74C"          # Erase / Remove
+    SHIELD = "\uEA18"         # DefenderApp / Shield
 
 # BUNDLE IDS TIKTOK & PATHS
 BIDS_TIKTOK = ["com.ss.iphone.ugc.tiktok", "com.zhiliaoapp.musically", "com.ss.iphone.ugc.Aweme"]
@@ -3948,7 +3949,7 @@ class App(tk.Tk):
 
         self.chk_auto_block_update = tk.Checkbutton(
             box_opt,
-            text=f"{Icons.CANCEL}  Chặn Update iOS + Activate sau Restore",
+            text=f"{Icons.SHIELD}  Chặn Update iOS + Activate sau Restore",
             font=("Segoe UI", 8, "bold"),
             fg=COLOR_CYAN_ACCENT,
             bg=COLOR_KHO_BG,
