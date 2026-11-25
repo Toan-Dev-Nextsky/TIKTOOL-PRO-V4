@@ -43,6 +43,7 @@ UI_LOG_MAX_LINES = 2000
 UI_LOG_MAX_CHARS = 250000
 UI_LOG_ENTRY_MAX_CHARS = 8000
 UI_QUEUE_SLICE_SECONDS = 0.008
+POLL_IOS_RETRY_INTERVAL = 3.0
 
 # ================== BẢNG MÀU DARK THEME PRO – SOFT CHARCOAL SLATE THEME ==================
 COLOR_BG_DARK = "#1A1D23"           # Nền chính app (appDark-950: warm soft slate-charcoal)
@@ -501,13 +502,19 @@ def run_stream(cmd_list, on_line=None, timeout=7200, cancel_check=None):
         returncode = -1
     return returncode, list(result.lines[-200:])
 
-def get_connected_udids(timeout=2):
+def poll_connected_udids(timeout=2):
+    """Đọc danh sách UDID đang cắm; trả None nếu idevice_id lỗi/timeout để không xóa nhầm cache."""
     exe = which_tool("idevice_id")
-    if not exe: return []
+    if not exe:
+        return []
     rc, out = run_capture([exe, "-l"], timeout=timeout)
     if rc != 0:
-        return []
+        return None
     return [line.strip() for line in out.splitlines() if re.fullmatch(r"[0-9a-fA-F-]{16,}", line.strip())]
+
+def get_connected_udids(timeout=2):
+    res = poll_connected_udids(timeout=timeout)
+    return res if res is not None else []
 
 def query_activation_state(udid):
     """Đọc trạng thái kích hoạt thật của thiết bị bằng `ideviceactivation state`."""
@@ -4991,52 +4998,89 @@ class App(tk.Tk):
         }
 
     # ================== POLLING SIÊU TỐC TỰ ĐỘNG LÀM SẠCH CACHE KHÔNG DELAY ==================
+    def _poll_once(self, executor, info_cache, ios_retry_ts):
+        udids = poll_connected_udids()
+        if udids is None:
+            # idevice_id bị timeout/lỗi tạm thời khi USB tải nặng: giữ nguyên cache, bỏ qua nhịp này.
+            return False
+
+        current_set = set(udids)
+        now_mono = time.monotonic()
+        busy_ops = self.operations.snapshot() if hasattr(self, "operations") else {}
+        reboot_tracker = getattr(self, "reboot_tracker", None)
+
+        for cached_u in list(TRUSTED_CACHE):
+            if cached_u not in current_set and busy_ops.get(cached_u) not in ("restore", "backup"):
+                TRUSTED_CACHE.discard(cached_u)
+        for cached_u in list(info_cache.keys()):
+            is_rebooting = reboot_tracker.is_waiting(cached_u) if reboot_tracker else False
+            if cached_u not in current_set and cached_u not in busy_ops and not is_rebooting:
+                info_cache.pop(cached_u, None)
+                ios_retry_ts.pop(cached_u, None)
+
+        if udids:
+            skip_trust_ops = {"restore", "backup"}
+            untrusted_targets = [
+                u for u in udids
+                if u not in TRUSTED_CACHE and busy_ops.get(u) not in skip_trust_ops
+            ]
+            futures = {u: executor.submit(check_device_trust, u) for u in untrusted_targets}
+            new_results = {u: f.result() for u, f in futures.items()}
+
+            trust_results = {}
+            for u in udids:
+                if u in TRUSTED_CACHE or busy_ops.get(u) in skip_trust_ops:
+                    trust_results[u] = True
+                else:
+                    trust_results[u] = new_results.get(u, False)
+        else:
+            trust_results = {}
+
+        info_futures = {}
+        for u in udids:
+            trusted = trust_results.get(u, False)
+            cached = info_cache.get(u)
+            is_busy = u in busy_ops
+            is_rebooting = reboot_tracker.is_waiting(u) if reboot_tracker else False
+
+            if is_busy:
+                if cached is None and not trusted:
+                    info_cache[u] = self._build_info(u, is_trusted=False)
+                continue
+            if is_rebooting and cached is not None and cached.get("trusted") == trusted:
+                continue
+
+            if cached is None or cached.get("trusted") != trusted:
+                info_futures[u] = executor.submit(self._build_info, u, trusted)
+                ios_retry_ts[u] = now_mono
+            elif (
+                trusted
+                and parse_ios_ver(cached.get("ios", "")) == (0, 0, 0)
+                and (now_mono - ios_retry_ts.get(u, 0.0) >= POLL_IOS_RETRY_INTERVAL)
+            ):
+                info_futures[u] = executor.submit(self._build_info, u, trusted)
+                ios_retry_ts[u] = now_mono
+
+        for u, future in info_futures.items():
+            info_cache[u] = future.result()
+        info_results = {u: info_cache[u] for u in udids if u in info_cache}
+
+        self._queue_poll_sync(udids, trust_results, info_results)
+        return True
+
     def _start_polling(self):
         def _poll():
             info_cache = {}
+            ios_retry_ts = {}
             with ThreadPoolExecutor(max_workers=MAX_CONCURRENCY) as executor:
                 while True:
-                    udids = get_connected_udids()
-                    current_set = set(udids)
-                    
-                    for cached_u in list(TRUSTED_CACHE):
-                        if cached_u not in current_set:
-                            TRUSTED_CACHE.discard(cached_u)
-                            info_cache.pop(cached_u, None)
-                    for cached_u in list(info_cache.keys()):
-                        if cached_u not in current_set:
-                            info_cache.pop(cached_u, None)
-
-                    if udids:
-                        untrusted_targets = [u for u in udids if u not in TRUSTED_CACHE]
-                        futures = {u: executor.submit(check_device_trust, u) for u in untrusted_targets}
-                        new_results = {u: f.result() for u, f in futures.items()}
-                        
-                        trust_results = {u: (True if u in TRUSTED_CACHE else new_results.get(u, False)) for u in udids}
-                    else:
-                        trust_results = {}
-
-                    info_futures = {}
-                    for u in udids:
-                        trusted = trust_results.get(u, False)
-                        cached = info_cache.get(u)
-                        need_info = (
-                            cached is None
-                            or cached.get("trusted") != trusted
-                            or (trusted and parse_ios_ver(cached.get("ios", "")) == (0, 0, 0))
-                        )
-                        if need_info:
-                            info_futures[u] = executor.submit(self._build_info, u, trusted)
-                    for u, future in info_futures.items():
-                        info_cache[u] = future.result()
-                    info_results = {u: info_cache[u] for u in udids if u in info_cache}
-
                     try:
-                        self._queue_poll_sync(udids, trust_results, info_results)
+                        self._poll_once(executor, info_cache, ios_retry_ts)
                     except Exception:
                         break
 
-                    time.sleep(0.3)
+                    has_active_ops = bool(hasattr(self, "operations") and self.operations.snapshot())
+                    time.sleep(1.0 if has_active_ops else 0.3)
 
         threading.Thread(target=_poll, daemon=True).start()
 

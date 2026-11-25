@@ -2,6 +2,12 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Chống tranh chấp USB trong Polling khi chạy nhiều máy] - 2026-11-26
+
+- Tách `poll_connected_udids` phân biệt lỗi/timeout `idevice_id -l` (`None`) với trường hợp không còn máy cắm (`[]`) để tránh xóa nhầm `TRUSTED_CACHE` và `info_cache` khi USB đang tải nặng.
+- Trong `_poll_once` (`_start_polling`): không gọi `idevicepair validate` hoặc `_build_info` (`ideviceinfo`) vào máy đang chạy `restore`/`backup` hoặc giữ thẻ đang reboot (`reboot_tracker`), giãn chu kỳ đọc lại máy bị `iOS ?` lên `3.0s`, và tự giãn nhịp polling từ `0.3s` lên `1.0s` khi có tác vụ đang chạy.
+- Bổ sung 3 unit test kiểm chứng trong `BugFixAuditRegressionTests` ([tests/test_app_workflows.py](file:///c:/TIKTOOL%20PRO%20V4/tests/test_app_workflows.py)).
+
 ## [Tự Chặn Update iOS + Kết hợp Tạo Web App + Activate sau Restore] - 2026-11-25
 
 - Thêm checkbox `✕ Chặn Update iOS + Activate sau Restore` (khóa `autoBlockUpdateAfterRestore`, mặc định tắt) ngay cạnh `Tạo Web App + Activate sau Restore` trong khung Restore.

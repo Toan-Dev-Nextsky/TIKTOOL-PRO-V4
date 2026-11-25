@@ -2490,6 +2490,103 @@ class BugFixAuditRegressionTests(unittest.TestCase):
             self.assertEqual(1, err_box.call_count)
             self.assertEqual([], restore_app.shown)
 
+    def test_poll_skips_tick_when_idevice_id_times_out_preserving_caches(self):
+        """Timeout/lỗi idevice_id -l không được xóa TRUSTED_CACHE hay info_cache."""
+        from concurrent.futures import ThreadPoolExecutor
+
+        sync_calls = []
+        app = types.SimpleNamespace(
+            operations=BB_RB.OperationRegistry(),
+            reboot_tracker=RebootTracker(),
+            _queue_poll_sync=lambda *args: sync_calls.append(args),
+        )
+        info_cache = {"u1": {"name": "iPhone", "ios": "26.6.1", "trusted": True}}
+        ios_retry_ts = {"u1": 10.0}
+        BB_RB.TRUSTED_CACHE.add("u1")
+        try:
+            with patch.object(BB_RB, "which_tool", return_value="idevice_id.exe"), patch.object(
+                BB_RB, "run_capture", return_value=(-1, "")
+            ), ThreadPoolExecutor(max_workers=2) as executor:
+                ran = BB_RB.App._poll_once(app, executor, info_cache, ios_retry_ts)
+
+            self.assertFalse(ran)
+            self.assertIn("u1", BB_RB.TRUSTED_CACHE)
+            self.assertIn("u1", info_cache)
+            self.assertEqual([], sync_calls)
+        finally:
+            BB_RB.TRUSTED_CACHE.discard("u1")
+
+    def test_poll_never_spawns_ideviceinfo_for_busy_or_rebooting_devices(self):
+        """Máy đang Restore/Backup hoặc đang reboot giữ cache info, không bắn thêm _build_info vào lockdownd."""
+        from concurrent.futures import ThreadPoolExecutor
+
+        build_calls = []
+        sync_calls = []
+        app = types.SimpleNamespace(
+            operations=BB_RB.OperationRegistry(),
+            reboot_tracker=RebootTracker(),
+            _build_info=lambda u, is_trusted=True: build_calls.append((u, is_trusted)) or {
+                "name": "iPhone", "ios": "26.6.1", "ios_t": (26, 6, 1), "trusted": is_trusted
+            },
+            _queue_poll_sync=lambda udids, tr, ir: sync_calls.append((udids, tr, ir)),
+        )
+        app.operations.begin("u-restoring", "restore")
+        app.operations.begin("u-auto", "auto_activate")
+        app.reboot_tracker.mark("u-auto", timeout=135.0)
+        info_cache = {
+            "u-restoring": {"name": "iPhone", "ios": "26.6.1", "trusted": True},
+            "u-auto": {"name": "iPhone", "ios": "26.6.1", "trusted": True},
+        }
+        ios_retry_ts = {}
+        BB_RB.TRUSTED_CACHE.update(["u-restoring", "u-auto"])
+        try:
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                # Nhịp 1: cả 2 máy tạm vắng trên bus (u-auto đang reboot); u-restoring giữ cache, u-auto giữ info_cache nhưng hạ TRUSTED_CACHE
+                with patch.object(BB_RB, "poll_connected_udids", return_value=[]):
+                    BB_RB.App._poll_once(app, executor, info_cache, ios_retry_ts)
+                self.assertIn("u-restoring", BB_RB.TRUSTED_CACHE)
+                self.assertIn("u-auto", info_cache)
+                self.assertNotIn("u-auto", BB_RB.TRUSTED_CACHE)
+
+                # Nhịp 2: u-auto cắm lại sau reboot, u-restoring vẫn đang chạy restore
+                with patch.object(BB_RB, "poll_connected_udids", return_value=["u-restoring", "u-auto"]), patch.object(
+                    BB_RB, "check_device_trust", return_value=True
+                ) as trust_chk:
+                    BB_RB.App._poll_once(app, executor, info_cache, ios_retry_ts)
+
+                self.assertEqual([], build_calls)
+                self.assertEqual(["u-auto"], [c.args[0] for c in trust_chk.call_args_list])
+        finally:
+            BB_RB.TRUSTED_CACHE.discard("u-restoring")
+            BB_RB.TRUSTED_CACHE.discard("u-auto")
+
+    def test_poll_throttles_unknown_ios_retries_when_idle(self):
+        """Máy rảnh bị iOS '?' chỉ thử đọc lại theo chu kỳ POLL_IOS_RETRY_INTERVAL, không bắn 0.3s/lần."""
+        from concurrent.futures import ThreadPoolExecutor
+
+        build_calls = []
+        app = types.SimpleNamespace(
+            operations=BB_RB.OperationRegistry(),
+            reboot_tracker=RebootTracker(),
+            _build_info=lambda u, is_trusted=True: build_calls.append(u) or {
+                "name": "iPhone", "ios": "?", "ios_t": (0, 0, 0), "trusted": is_trusted
+            },
+            _queue_poll_sync=lambda *_a: None,
+        )
+        info_cache = {"u1": {"name": "iPhone", "ios": "?", "ios_t": (0, 0, 0), "trusted": True}}
+        ios_retry_ts = {"u1": 100.0}
+        BB_RB.TRUSTED_CACHE.add("u1")
+        try:
+            with patch.object(BB_RB, "poll_connected_udids", return_value=["u1"]), patch.object(
+                BB_RB.time, "monotonic", side_effect=[101.0, 104.5]
+            ), ThreadPoolExecutor(max_workers=2) as executor:
+                BB_RB.App._poll_once(app, executor, info_cache, ios_retry_ts)
+                self.assertEqual([], build_calls)
+                BB_RB.App._poll_once(app, executor, info_cache, ios_retry_ts)
+                self.assertEqual(["u1"], build_calls)
+        finally:
+            BB_RB.TRUSTED_CACHE.discard("u1")
+
 
 if __name__ == "__main__":
     unittest.main()
