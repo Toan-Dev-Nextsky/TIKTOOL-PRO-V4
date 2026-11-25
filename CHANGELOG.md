@@ -2,12 +2,6 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
-## [Hiển thị % Pin + GB Trống trên thẻ & Cảnh báo đầy ổ cứng PC] - 2026-11-25
-
-- **Thẻ thiết bị hiển thị `% Pin` & `GB Trống`**: Thêm dòng `health_row` (`Consolas 8 bold`) đọc qua `ideviceinfo -q com.apple.mobile.battery` và `com.apple.disk_usage`, đổi màu cảnh báo tự động (Pin `< 20%` vàng, `< 15%` đỏ, kèm `⚡` khi đang sạc; Bộ nhớ trống `< 5.0 GB` vàng, `< 3.0 GB` đỏ). Làm mới định kỳ `45s`/lần và **chỉ chạy khi máy rảnh**, không hỏi khi đang Restore/Backup/Activate để giữ nguyên tốc độ vận hành.
-- **Theo dõi ổ cứng PC & Cảnh báo trước Backup/Restore**: Thêm `lbl_pc_disk_status` trên thanh trạng thái dưới cùng hiển thị dung lượng trống ổ đĩa đích hiện tại; `start_backup_all` và `start_restore_all` tự động cảnh báo xác nhận nếu ổ cứng PC sắp đầy hoặc nếu máy iPhone ghép nối có Pin `< 20%` / Trống `< 3.0 GB`.
-- **Tối ưu phản hồi UI khi bắt đầu Restore**: Rút ngắn độ trễ đóng bảng xác nhận từ `1200ms` xuống `150ms` và hiển thị `"Restore 0% • Đối chiếu dữ liệu..."` trong lúc `idevicebackup2` / iOS `backupd` đối chiếu Manifest ban đầu.
-
 ## [Tự Chặn Update iOS + Kết hợp Tạo Web App + Activate sau Restore] - 2026-11-25
 
 - Thêm checkbox `✕ Chặn Update iOS + Activate sau Restore` (khóa `autoBlockUpdateAfterRestore`, mặc định tắt) ngay cạnh `Tạo Web App + Activate sau Restore` trong khung Restore.

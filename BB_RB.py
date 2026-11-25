@@ -44,16 +44,6 @@ UI_LOG_MAX_CHARS = 250000
 UI_LOG_ENTRY_MAX_CHARS = 8000
 UI_QUEUE_SLICE_SECONDS = 0.008
 
-# SỨC KHỎE THIẾT BỊ & CẢNH BÁO DUNG LƯỢNG Ổ CỨNG PC
-HEALTH_REFRESH_INTERVAL = 45.0
-DEVICE_BATTERY_WARN_PCT = 20
-DEVICE_BATTERY_CRITICAL_PCT = 15
-DEVICE_STORAGE_WARN_GB = 3.0
-DEVICE_STORAGE_LOW_GB = 5.0
-PC_DISK_WARN_GB = 15.0
-PC_DISK_CAUTION_GB = 25.0
-PC_DISK_SAME_VOL_WARN_GB = 5.0
-
 # ================== BẢNG MÀU DARK THEME PRO – SOFT CHARCOAL SLATE THEME ==================
 COLOR_BG_DARK = "#1A1D23"           # Nền chính app (appDark-950: warm soft slate-charcoal)
 COLOR_HEADER_BG = "#22262E"         # Nền Header / Toolbar (appDark-900: section container)
@@ -554,142 +544,6 @@ def ideviceinfo_k(u, k):
         time.sleep(0.1)
     return ""
 
-def parse_plist_or_kv(raw_text):
-    """Parse XML plist (từ ideviceinfo -x) hoặc fallback text dạng Key: Value."""
-    text = (raw_text or "").strip()
-    if not text:
-        return {}
-    if "<plist" in text:
-        start = text.find("<?xml")
-        if start < 0:
-            start = text.find("<plist")
-        chunk = text[start:] if start >= 0 else text
-        try:
-            loaded = plistlib.loads(chunk.encode("utf-8", errors="ignore"))
-            if isinstance(loaded, dict):
-                return loaded
-        except Exception:
-            pass
-    parsed = {}
-    for line in text.splitlines():
-        if ":" not in line:
-            continue
-        k, v = line.split(":", 1)
-        k = k.strip()
-        v = v.strip()
-        if not k:
-            continue
-        low = v.lower()
-        if low == "true":
-            parsed[k] = True
-        elif low == "false":
-            parsed[k] = False
-        elif re.fullmatch(r"-?\d+", v):
-            try:
-                parsed[k] = int(v)
-            except ValueError:
-                parsed[k] = v
-        elif re.fullmatch(r"-?\d+\.\d+", v):
-            try:
-                parsed[k] = float(v)
-            except ValueError:
-                parsed[k] = v
-        else:
-            parsed[k] = v
-    return parsed
-
-def query_device_health(udid):
-    """Đọc % pin, trạng thái sạc và dung lượng trống (GB) của iPhone qua ideviceinfo."""
-    result = {"battery_pct": None, "battery_charging": False, "free_gb": None}
-    exe = which_tool("ideviceinfo")
-    if not exe or not udid:
-        return result
-    try:
-        rc_bat, out_bat = run_capture([exe, "-u", udid, "-q", "com.apple.mobile.battery", "-x"], timeout=1.5)
-        if rc_bat == 0 and out_bat:
-            bat = parse_plist_or_kv(out_bat)
-            cap = bat.get("BatteryCurrentCapacity")
-            if isinstance(cap, (int, float)) and not isinstance(cap, bool):
-                result["battery_pct"] = max(0, min(100, int(cap)))
-            result["battery_charging"] = bool(bat.get("BatteryIsCharging", False))
-    except Exception:
-        pass
-    try:
-        # Không dùng --simple vì domain com.apple.disk_usage yêu cầu phiên lockdown đã Pair.
-        rc_disk, out_disk = run_capture([exe, "-u", udid, "-q", "com.apple.disk_usage", "-x"], timeout=1.5)
-        if rc_disk == 0 and out_disk:
-            disk = parse_plist_or_kv(out_disk)
-            avail = disk.get("TotalDataAvailable")
-            if avail is None:
-                avail = disk.get("AmountDataAvailable")
-            if isinstance(avail, (int, float)) and not isinstance(avail, bool) and avail >= 0:
-                result["free_gb"] = round(float(avail) / (1024 ** 3), 1)
-    except Exception:
-        pass
-    return result
-
-def format_device_health_display(info):
-    """Trả về (bat_txt, bat_fg, sto_txt, sto_fg) theo ngưỡng cảnh báo pin & bộ nhớ."""
-    info = info or {}
-    if not info.get("trusted", True):
-        return ("Pin: --", COLOR_TEXT_DIM, "Trống: --", COLOR_TEXT_DIM)
-
-    bat_pct = info.get("battery_pct")
-    bolt = "⚡" if info.get("battery_charging") else ""
-    if isinstance(bat_pct, (int, float)) and not isinstance(bat_pct, bool):
-        pct_int = max(0, min(100, int(bat_pct)))
-        if pct_int < DEVICE_BATTERY_CRITICAL_PCT:
-            bat_txt, bat_fg = f"⚠ Pin: {pct_int}%{bolt}", COLOR_RED_ERR
-        elif pct_int < DEVICE_BATTERY_WARN_PCT:
-            bat_txt, bat_fg = f"⚠ Pin: {pct_int}%{bolt}", "#FBBF24"
-        else:
-            bat_txt, bat_fg = f"Pin: {pct_int}%{bolt}", COLOR_EMERALD_ACCENT
-    else:
-        bat_txt, bat_fg = "Pin: --", COLOR_TEXT_DIM
-
-    free_gb = info.get("free_gb")
-    if isinstance(free_gb, (int, float)) and not isinstance(free_gb, bool):
-        gb_val = max(0.0, float(free_gb))
-        if gb_val < DEVICE_STORAGE_WARN_GB:
-            sto_txt, sto_fg = f"⚠ Trống: {gb_val:.1f}GB", COLOR_RED_ERR
-        elif gb_val < DEVICE_STORAGE_LOW_GB:
-            sto_txt, sto_fg = f"Trống: {gb_val:.1f}GB", "#FBBF24"
-        else:
-            sto_txt, sto_fg = f"Trống: {gb_val:.1f}GB", COLOR_CYAN_ACCENT
-    else:
-        sto_txt, sto_fg = "Trống: --", COLOR_TEXT_DIM
-
-    return (bat_txt, bat_fg, sto_txt, sto_fg)
-
-def get_path_free_gb(path):
-    """Trả về dung lượng trống (GB) của ổ đĩa chứa path (hoặc None nếu không hợp lệ)."""
-    if not path or not str(path).strip():
-        return None
-    try:
-        curr = os.path.abspath(str(path).strip())
-        while curr and not os.path.exists(curr):
-            parent = os.path.dirname(curr)
-            if not parent or parent == curr:
-                return None
-            curr = parent
-        if not curr or not os.path.exists(curr):
-            return None
-        usage = shutil.disk_usage(curr)
-        return round(float(usage.free) / (1024 ** 3), 1)
-    except OSError:
-        return None
-
-def _same_drive_root(path_a, path_b):
-    """True nếu 2 đường dẫn nằm trên cùng ký tự ổ đĩa (chuyển kho dùng rename)."""
-    if not path_a or not path_b or not str(path_a).strip() or not str(path_b).strip():
-        return False
-    try:
-        drv_a = os.path.splitdrive(os.path.abspath(str(path_a).strip()))[0].lower()
-        drv_b = os.path.splitdrive(os.path.abspath(str(path_b).strip()))[0].lower()
-        return bool(drv_a and drv_a == drv_b)
-    except Exception:
-        return False
-
 def pair_validate(udid, log_fn):
     code, _ = run_stream(["idevicepair", "-u", udid, "validate"], on_line=lambda s, **_: log_fn(s))
     if code != 0:
@@ -1092,7 +946,7 @@ class DeviceCard(tk.Frame):
 
         # Dòng 1: Tiêu đề thiết bị (Trái) & Slot badge (Phải)
         top_row = tk.Frame(self, bg=COLOR_CARD_BG)
-        top_row.pack(fill="x", padx=6, pady=(3, 0))
+        top_row.pack(fill="x", padx=6, pady=(4, 1))
 
         if not is_trusted:
             icon_char = Icons.WARNING
@@ -1133,7 +987,7 @@ class DeviceCard(tk.Frame):
         ecid_str = info.get('ecid', '—') or '—'
         model_str = info.get('model', 'N/A') or 'N/A'
         lbl_sub = tk.Label(self, text=f"Model: {model_str} • ECID: {ecid_str}", font=("Consolas", 8), fg=COLOR_CYAN_ACCENT, bg=COLOR_CARD_BG, anchor="w")
-        lbl_sub.pack(fill="x", padx=6, pady=(0, 0))
+        lbl_sub.pack(fill="x", padx=6, pady=(0, 1))
 
         # Dòng 2b: UDID đầy đủ — bấm để copy vào clipboard (đổi màu nổi bật nếu khớp IPA)
         udid_short = udid if len(udid) <= 25 else udid[:14] + "…" + udid[-8:]
@@ -1147,7 +1001,7 @@ class DeviceCard(tk.Frame):
             udid_font = ("Consolas", 8)
 
         self.lbl_udid = tk.Label(self, text=udid_init_txt, font=udid_font, fg=udid_init_fg, bg=COLOR_CARD_BG, anchor="w", cursor="hand2")
-        self.lbl_udid.pack(fill="x", padx=6, pady=(0, 1))
+        self.lbl_udid.pack(fill="x", padx=6, pady=(0, 2))
         def _copy_udid(e, u=udid):
             self.clipboard_clear()
             self.clipboard_append(u)
@@ -1155,22 +1009,9 @@ class DeviceCard(tk.Frame):
             self.after(1500, self._restore_udid_display)
         self.lbl_udid.bind("<Button-1>", _copy_udid)
 
-        # Dòng 2c: Sức khỏe thiết bị (% Pin & Dung lượng GB trống)
-        health_row = tk.Frame(self, bg=COLOR_CARD_BG)
-        health_row.pack(fill="x", padx=6, pady=(0, 1))
-
-        self.lbl_battery = tk.Label(health_row, text="Pin: --", font=("Consolas", 8, "bold"), fg=COLOR_TEXT_DIM, bg=COLOR_CARD_BG, anchor="w")
-        self.lbl_battery.pack(side="left")
-
-        self.lbl_health_sep = tk.Label(health_row, text=" • ", font=("Consolas", 8), fg=COLOR_TEXT_DIM, bg=COLOR_CARD_BG)
-        self.lbl_health_sep.pack(side="left")
-
-        self.lbl_storage = tk.Label(health_row, text="Trống: --", font=("Consolas", 8, "bold"), fg=COLOR_TEXT_DIM, bg=COLOR_CARD_BG, anchor="w")
-        self.lbl_storage.pack(side="left")
-
         # Dòng 3: Trạng thái bước hiện tại (Trái) & % Tiến độ (Phải)
         status_row = tk.Frame(self, bg=COLOR_CARD_BG)
-        status_row.pack(fill="x", padx=6, pady=(1, 2))
+        status_row.pack(fill="x", padx=6, pady=(1, 3))
 
         step_txt = "Sẵn sàng" if is_trusted else f"{Icons.WARNING}  BẤM TIN CẬY"
         step_fg = COLOR_EMERALD_ACCENT if is_trusted else COLOR_RED_ERR
@@ -1184,11 +1025,10 @@ class DeviceCard(tk.Frame):
 
         # Dòng 4: Thanh tiến trình Gradient full chiều ngang
         prog_f = tk.Frame(self, bg=COLOR_CARD_BG)
-        prog_f.pack(fill="x", padx=6, pady=(0, 4))
+        prog_f.pack(fill="x", padx=6, pady=(0, 5))
 
         self.pb = GradientProgressBar(prog_f, height=8, trough_color=COLOR_INNER_DARK, color_start=COLOR_BLUE_MAIN, color_end=COLOR_CYAN_ACCENT)
         self.pb.pack(fill="x", expand=True)
-        self.update_health(info)
 
     def _restore_udid_display(self):
         if not hasattr(self, "lbl_udid") or not self.lbl_udid.winfo_exists():
@@ -1273,16 +1113,6 @@ class DeviceCard(tk.Frame):
         if self.app_ref:
             self.app_ref._launch_devmode(self.udid)
 
-    def update_health(self, info=None):
-        """Cập nhật hiển thị % pin và GB trống trên thẻ thiết bị."""
-        if info is not None:
-            self.info = info
-        bat_txt, bat_fg, sto_txt, sto_fg = format_device_health_display(self.info)
-        if hasattr(self, "lbl_battery") and self.lbl_battery.winfo_exists():
-            self.lbl_battery.config(text=bat_txt, fg=bat_fg)
-        if hasattr(self, "lbl_storage") and self.lbl_storage.winfo_exists():
-            self.lbl_storage.config(text=sto_txt, fg=sto_fg)
-
     def update_trust_status(self, is_trusted, info):
         self.info = info
         if not is_trusted:
@@ -1307,7 +1137,6 @@ class DeviceCard(tk.Frame):
 
         self.lbl_top.config(text=title_txt, fg=title_color)
         self.lbl_step.config(text=step_txt, fg=step_fg, bg=COLOR_CARD_BG)
-        self.update_health(info)
 
     def set_pct(self, p):
         if self.app_ref and not self.app_ref._is_ui_thread():
@@ -2311,11 +2140,6 @@ class App(tk.Tk):
 
         self.lbl_restore_done_status = tk.Label(frame_trust_status, text="Restored: 0", font=("Segoe UI", 8, "bold"), fg=COLOR_CYAN_ACCENT, bg=COLOR_PANEL_BG)
         self.lbl_restore_done_status.pack(side="left", padx=4, pady=2)
-
-        tk.Label(frame_trust_status, text="•", font=("Segoe UI", 8), fg=COLOR_TEXT_DIM, bg=COLOR_PANEL_BG).pack(side="left", padx=2)
-
-        self.lbl_pc_disk_status = tk.Label(frame_trust_status, text="Ổ đích: --", font=("Segoe UI", 8, "bold"), fg=COLOR_EMERALD_ACCENT, bg=COLOR_PANEL_BG)
-        self.lbl_pc_disk_status.pack(side="left", padx=4, pady=2)
 
         # Hiển thị số phiên bản hiện tại & libimobiledevice ở góc phải thanh trạng thái
         self.lbl_version_status = tk.Label(
@@ -3826,47 +3650,7 @@ class App(tk.Tk):
                     self.box_restore_pill.config(bg="#0C4A6E", highlightbackground=COLOR_BLUE_MAIN)
                     self.lbl_restore_done.config(fg=COLOR_CYAN_ACCENT, bg="#0C4A6E")
 
-        self._update_pc_disk_status()
         self._save_settings_from_ui()
-
-    def _update_pc_disk_status(self):
-        """Hiển thị dung lượng trống ổ đĩa đích hiện tại trên thanh trạng thái dưới cùng."""
-        if not hasattr(self, "lbl_pc_disk_status"):
-            return
-        if getattr(self, "current_mode", "RESTORE") == "BACKUP" and hasattr(self, "lbl_path_gen"):
-            target_path = self.lbl_path_gen.cget("text").strip()
-            prefix = "Ổ Backup"
-        else:
-            active = self.var_active_store.get() if hasattr(self, "var_active_store") else "A"
-            if active == "A" and hasattr(self, "lbl_path_b"):
-                target_path = self.lbl_path_b.cget("text").strip()
-            elif hasattr(self, "lbl_path_a"):
-                target_path = self.lbl_path_a.cget("text").strip()
-            else:
-                target_path = ""
-            prefix = "Ổ đích"
-
-        free_gb = get_path_free_gb(target_path)
-        if free_gb is None:
-            self.lbl_pc_disk_status.config(text=f"{prefix}: --", fg=COLOR_TEXT_DIM)
-            return
-
-        drive = os.path.splitdrive(os.path.abspath(target_path))[0].upper() or "PC"
-        if free_gb < PC_DISK_WARN_GB:
-            self.lbl_pc_disk_status.config(
-                text=f"⚠ {prefix} ({drive}) SẮP ĐẦY: còn {free_gb:.1f} GB",
-                fg=COLOR_RED_ERR,
-            )
-        elif free_gb < PC_DISK_CAUTION_GB:
-            self.lbl_pc_disk_status.config(
-                text=f"⚠ {prefix} ({drive}): trống {free_gb:.1f} GB",
-                fg="#FBBF24",
-            )
-        else:
-            self.lbl_pc_disk_status.config(
-                text=f"{prefix} ({drive}): trống {free_gb:.1f} GB",
-                fg=COLOR_EMERALD_ACCENT,
-            )
 
     def _count_backups_in_dir(self, dir_path):
         """Đếm số thư mục backup hợp lệ trong một thư mục"""
@@ -4754,7 +4538,6 @@ class App(tk.Tk):
         self.frame_backup_panel.pack_forget()
         self.frame_ipa_panel.pack_forget()
         self.frame_restore_panel.pack(fill="x")
-        self._update_pc_disk_status()
 
     def _switch_to_backup(self):
         self.current_mode = "BACKUP"
@@ -4765,7 +4548,6 @@ class App(tk.Tk):
         self.frame_restore_panel.pack_forget()
         self.frame_ipa_panel.pack_forget()
         self.frame_backup_panel.pack(fill="x")
-        self._update_pc_disk_status()
 
     def _switch_to_ipa(self):
         self.current_mode = "IPA"
@@ -4820,8 +4602,6 @@ class App(tk.Tk):
 
     # ---------------- JSON SYNC ----------------
     def _start_json_sync_loop(self):
-        disk_tick = [0]
-
         def _check():
             try:
                 if os.path.exists(SETTINGS_FP):
@@ -4833,9 +4613,6 @@ class App(tk.Tk):
                             self._apply_settings_to_ui(data)
             except Exception: pass
             self._update_restore_counter()
-            disk_tick[0] += 1
-            if disk_tick[0] % 15 == 1:
-                self._update_pc_disk_status()
             self.after(1000, _check)
 
         self.after(500, _check)
@@ -5197,15 +4974,11 @@ class App(tk.Tk):
                 "imei": "—",
                 "sn": "—",
                 "ecid": "—",
-                "trusted": False,
-                "battery_pct": None,
-                "battery_charging": False,
-                "free_gb": None,
+                "trusted": False
             }
 
         ios_str = ideviceinfo_k(u, "ProductVersion")
         dev_name = ideviceinfo_k(u, "DeviceName")
-        health = query_device_health(u)
         return {
             "name": dev_name if dev_name else "iPhone",
             "model": ideviceinfo_k(u, "ProductType") or "",
@@ -5214,17 +4987,13 @@ class App(tk.Tk):
             "imei": ideviceinfo_k(u, "InternationalMobileEquipmentIdentity") or ideviceinfo_k(u, "IMEI") or "",
             "sn": ideviceinfo_k(u, "SerialNumber") or "",
             "ecid": ideviceinfo_k(u, "UniqueChipID") or "",
-            "trusted": True,
-            "battery_pct": health.get("battery_pct"),
-            "battery_charging": health.get("battery_charging", False),
-            "free_gb": health.get("free_gb"),
+            "trusted": True
         }
 
     # ================== POLLING SIÊU TỐC TỰ ĐỘNG LÀM SẠCH CACHE KHÔNG DELAY ==================
     def _start_polling(self):
         def _poll():
             info_cache = {}
-            health_ts = {}
             with ThreadPoolExecutor(max_workers=MAX_CONCURRENCY) as executor:
                 while True:
                     udids = get_connected_udids()
@@ -5234,11 +5003,9 @@ class App(tk.Tk):
                         if cached_u not in current_set:
                             TRUSTED_CACHE.discard(cached_u)
                             info_cache.pop(cached_u, None)
-                            health_ts.pop(cached_u, None)
                     for cached_u in list(info_cache.keys()):
                         if cached_u not in current_set:
                             info_cache.pop(cached_u, None)
-                            health_ts.pop(cached_u, None)
 
                     if udids:
                         untrusted_targets = [u for u in udids if u not in TRUSTED_CACHE]
@@ -5249,10 +5016,7 @@ class App(tk.Tk):
                     else:
                         trust_results = {}
 
-                    now_mono = time.monotonic()
-                    busy_ops = self.operations.snapshot() if hasattr(self, "operations") else {}
                     info_futures = {}
-                    health_futures = {}
                     for u in udids:
                         trusted = trust_results.get(u, False)
                         cached = info_cache.get(u)
@@ -5263,26 +5027,8 @@ class App(tk.Tk):
                         )
                         if need_info:
                             info_futures[u] = executor.submit(self._build_info, u, trusted)
-                        elif (
-                            trusted
-                            and u not in busy_ops
-                            and not self.reboot_tracker.is_waiting(u)
-                            and (now_mono - health_ts.get(u, 0.0) >= HEALTH_REFRESH_INTERVAL)
-                        ):
-                            health_futures[u] = executor.submit(query_device_health, u)
                     for u, future in info_futures.items():
                         info_cache[u] = future.result()
-                        health_ts[u] = now_mono
-                    for u, future in health_futures.items():
-                        try:
-                            health = future.result()
-                            if u in info_cache and isinstance(health, dict):
-                                updated = dict(info_cache[u])
-                                updated.update(health)
-                                info_cache[u] = updated
-                            health_ts[u] = now_mono
-                        except Exception:
-                            pass
                     info_results = {u: info_cache[u] for u in udids if u in info_cache}
 
                     try:
@@ -5442,14 +5188,6 @@ class App(tk.Tk):
                             card.update_trust_status(is_trusted, info)
                             if trust_changed and is_trusted:
                                 self.log(udid, f"Đã xác nhận Trust: {info['name']} • iOS {info['ios']}")
-                        elif new_info is not None:
-                            health_keys = ("battery_pct", "battery_charging", "free_gb")
-                            if any(card.info.get(k) != new_info.get(k) for k in health_keys):
-                                for k in health_keys:
-                                    if k in new_info:
-                                        card.info[k] = new_info[k]
-                                if hasattr(card, "update_health"):
-                                    card.update_health(card.info)
 
             if need_relayout:
                 self._relayout_cards()
@@ -5709,25 +5447,6 @@ class App(tk.Tk):
         target_root = self.lbl_path_gen.cget("text").strip()
         os.makedirs(target_root, exist_ok=True)
         self._save_settings_from_ui()
-
-        free_gb = get_path_free_gb(target_root)
-        min_needed_gb = max(PC_DISK_WARN_GB, round(len(udids) * 2.5, 1))
-        if free_gb is not None and free_gb < min_needed_gb:
-            drive = os.path.splitdrive(os.path.abspath(target_root))[0].upper() or target_root
-            self.log(
-                "SYSTEM",
-                f"⚠ Cảnh báo dung lượng ổ cứng PC ({drive}): còn {free_gb:.1f} GB (khuyến nghị tối thiểu {min_needed_gb:.1f} GB cho {len(udids)} máy).",
-                is_warn=True,
-            )
-            if not messagebox.askyesno(
-                "CẢNH BÁO ĐẦY Ổ CỨNG PC",
-                f"Ổ đĩa lưu Backup ({drive}) chỉ còn trống {free_gb:.1f} GB!\n"
-                f"Sao lưu {len(udids)} máy nên có tối thiểu ~{min_needed_gb:.1f} GB trống để tránh đầy ổ giữa chừng.\n\n"
-                "Bạn vẫn muốn tiếp tục Backup chứ?",
-                icon="warning",
-                default="no",
-            ):
-                return
 
         names_by_udid = self._reserve_backup_names(target_root, udids)
         remove_tiktok = bool(self.var_tik.get())
@@ -5998,67 +5717,6 @@ class App(tk.Tk):
         if not self.pending_restore_map:
             messagebox.showerror("LỖI", f"Không ghép được bản backup nào tương thích cho các thiết bị đã Trust!")
             return
-
-        # Kiểm tra dung lượng ổ cứng đích PC trước khi mở bảng xác nhận
-        pc_free_gb = get_path_free_gb(target_root)
-        if pc_free_gb is not None:
-            same_vol = _same_drive_root(source_root, target_root)
-            warn_gb = PC_DISK_SAME_VOL_WARN_GB if same_vol else max(PC_DISK_WARN_GB, round(len(self.pending_restore_map) * 2.5, 1))
-            if pc_free_gb < warn_gb:
-                drive = os.path.splitdrive(os.path.abspath(target_root))[0].upper() or target_root
-                self.log(
-                    "SYSTEM",
-                    f"⚠ Cảnh báo ổ đích PC ({drive}): chỉ còn {pc_free_gb:.1f} GB (ngưỡng khuyến nghị {warn_gb:.1f} GB).",
-                    is_warn=True,
-                )
-                if not messagebox.askyesno(
-                    "CẢNH BÁO ĐẦY Ổ CỨNG PC",
-                    f"Ổ đĩa Kho đích ({drive}) chỉ còn trống {pc_free_gb:.1f} GB!\n"
-                    f"Khuyến nghị trống tối thiểu {warn_gb:.1f} GB để chuyển {len(self.pending_restore_map)} bản backup an toàn.\n\n"
-                    "Bạn vẫn muốn tiếp tục Restore?",
-                    icon="warning",
-                    default="no",
-                ):
-                    self.pending_restore_map = []
-                    return
-
-        # Kiểm tra Pin yếu (< 20%) hoặc Bộ nhớ iPhone sắp đầy (< 3.0 GB)
-        device_warnings = []
-        for target_udid, _ in self.pending_restore_map:
-            row = self.rows.get(target_udid)
-            dev_info = getattr(row, "info", {}) or {}
-            bat_pct = dev_info.get("battery_pct")
-            free_dev_gb = dev_info.get("free_gb")
-            issues = []
-            if isinstance(bat_pct, (int, float)) and not isinstance(bat_pct, bool) and bat_pct < DEVICE_BATTERY_WARN_PCT:
-                issues.append(f"Pin {int(bat_pct)}%")
-            if isinstance(free_dev_gb, (int, float)) and not isinstance(free_dev_gb, bool) and free_dev_gb < DEVICE_STORAGE_WARN_GB:
-                issues.append(f"Trống {float(free_dev_gb):.1f}GB")
-            if issues:
-                slot_no = getattr(row, "slot_num", None)
-                slot_prefix = f"Slot {slot_no:02d} • " if isinstance(slot_no, int) else ""
-                dev_label = dev_info.get("name", "iPhone")
-                device_warnings.append(f"• {slot_prefix}{dev_label} ({target_udid[-6:]}): {', '.join(issues)}")
-
-        if device_warnings:
-            self.log(
-                "SYSTEM",
-                f"⚠ Cảnh báo Pin/Dung lượng trước Restore ({len(device_warnings)} máy): " + "; ".join(device_warnings),
-                is_warn=True,
-            )
-            preview = "\n".join(device_warnings[:8])
-            if len(device_warnings) > 8:
-                preview += f"\n... và {len(device_warnings) - 8} máy khác."
-            if not messagebox.askyesno(
-                "CẢNH BÁO PIN / DUNG LƯỢNG IPHONE",
-                f"Phát hiện {len(device_warnings)} thiết bị có Pin < {DEVICE_BATTERY_WARN_PCT}% hoặc Bộ nhớ trống < {DEVICE_STORAGE_WARN_GB:.0f}GB:\n\n"
-                f"{preview}\n\n"
-                "Restore có thể lỗi giữa chừng nếu máy sập nguồn hoặc đầy bộ nhớ. Bạn vẫn muốn tiếp tục?",
-                icon="warning",
-                default="no",
-            ):
-                self.pending_restore_map = []
-                return
 
         self.log("SYSTEM", f"Restore chuyển kho: {src_label} ➜ {'B' if src_label == 'A' else 'A'} | {len(all_bks)} bản backup | {len(self.pending_restore_map)} máy ghép nối")
         self._show_confirm_frame(confirm_items)
