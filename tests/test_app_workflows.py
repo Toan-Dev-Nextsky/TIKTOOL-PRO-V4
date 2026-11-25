@@ -2491,5 +2491,150 @@ class BugFixAuditRegressionTests(unittest.TestCase):
             self.assertEqual([], restore_app.shown)
 
 
+class DeviceHealthAndDiskWarningTests(unittest.TestCase):
+    """Kiểm tra đọc % Pin, GB trống iPhone, thanh dung lượng ổ PC và cảnh báo trước Backup/Restore."""
+
+    def test_parse_plist_and_query_device_health_xml_and_fallback(self):
+        bat_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>BatteryCurrentCapacity</key>
+    <integer>85</integer>
+    <key>BatteryIsCharging</key>
+    <true/>
+</dict>
+</plist>"""
+        disk_xml = """<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+    <key>TotalDataAvailable</key>
+    <integer>34359738368</integer>
+</dict>
+</plist>"""
+
+        def fake_capture(cmd, timeout=1.5):
+            if "com.apple.mobile.battery" in cmd:
+                return (0, bat_xml)
+            if "com.apple.disk_usage" in cmd:
+                return (0, disk_xml)
+            return (1, "")
+
+        with patch.object(BB_RB, "which_tool", return_value="ideviceinfo.exe"), patch.object(
+            BB_RB, "run_capture", side_effect=fake_capture
+        ):
+            health = BB_RB.query_device_health("00008101-TEST")
+
+        self.assertEqual(85, health["battery_pct"])
+        self.assertTrue(health["battery_charging"])
+        self.assertEqual(32.0, health["free_gb"])
+
+        # Fallback khi ideviceinfo lỗi
+        with patch.object(BB_RB, "which_tool", return_value="ideviceinfo.exe"), patch.object(
+            BB_RB, "run_capture", return_value=(1, "ERROR: device busy")
+        ):
+            empty_health = BB_RB.query_device_health("00008101-TEST")
+        self.assertIsNone(empty_health["battery_pct"])
+        self.assertFalse(empty_health["battery_charging"])
+        self.assertIsNone(empty_health["free_gb"])
+
+        # Fallback key-value text
+        kv = BB_RB.parse_plist_or_kv("BatteryCurrentCapacity: 42\nBatteryIsCharging: false\n")
+        self.assertEqual({"BatteryCurrentCapacity": 42, "BatteryIsCharging": False}, kv)
+
+    def test_format_device_health_display_thresholds(self):
+        bat_txt, bat_fg, sto_txt, sto_fg = BB_RB.format_device_health_display(
+            {"trusted": True, "battery_pct": 88, "battery_charging": True, "free_gb": 44.2}
+        )
+        self.assertEqual("Pin: 88%⚡", bat_txt)
+        self.assertEqual(BB_RB.COLOR_EMERALD_ACCENT, bat_fg)
+        self.assertEqual("Trống: 44.2GB", sto_txt)
+        self.assertEqual(BB_RB.COLOR_CYAN_ACCENT, sto_fg)
+
+        bat_txt, bat_fg, sto_txt, sto_fg = BB_RB.format_device_health_display(
+            {"trusted": True, "battery_pct": 18, "battery_charging": False, "free_gb": 4.1}
+        )
+        self.assertEqual("⚠ Pin: 18%", bat_txt)
+        self.assertEqual("#FBBF24", bat_fg)
+        self.assertEqual("Trống: 4.1GB", sto_txt)
+        self.assertEqual("#FBBF24", sto_fg)
+
+        bat_txt, bat_fg, sto_txt, sto_fg = BB_RB.format_device_health_display(
+            {"trusted": True, "battery_pct": 12, "battery_charging": False, "free_gb": 1.8}
+        )
+        self.assertEqual("⚠ Pin: 12%", bat_txt)
+        self.assertEqual(BB_RB.COLOR_RED_ERR, bat_fg)
+        self.assertEqual("⚠ Trống: 1.8GB", sto_txt)
+        self.assertEqual(BB_RB.COLOR_RED_ERR, sto_fg)
+
+        bat_txt, bat_fg, sto_txt, sto_fg = BB_RB.format_device_health_display({"trusted": False, "battery_pct": 90, "free_gb": 50.0})
+        self.assertEqual("Pin: --", bat_txt)
+        self.assertEqual("Trống: --", sto_txt)
+
+    def test_get_path_free_gb_and_same_drive_root(self):
+        self.assertIsNone(BB_RB.get_path_free_gb(""))
+        fake_usage = types.SimpleNamespace(total=100 * (1024 ** 3), used=90 * (1024 ** 3), free=10 * (1024 ** 3))
+        with tempfile.TemporaryDirectory() as root:
+            nested = os.path.join(root, "does_not_exist_yet", "child")
+            with patch.object(BB_RB.shutil, "disk_usage", return_value=fake_usage):
+                self.assertEqual(10.0, BB_RB.get_path_free_gb(nested))
+        self.assertTrue(BB_RB._same_drive_root("F:/Recycle Bin", "F:/backup a"))
+        self.assertFalse(BB_RB._same_drive_root("F:/Recycle Bin", "D:/backup b"))
+        self.assertFalse(BB_RB._same_drive_root("F:/Recycle Bin", ""))
+
+    def test_start_backup_all_warns_when_pc_disk_low_and_aborts_on_no(self):
+        with tempfile.TemporaryDirectory() as root:
+            started = []
+            app = types.SimpleNamespace(
+                _require_license=lambda: True,
+                _available_udids=lambda: ["u1", "u2"],
+                lbl_path_gen=types.SimpleNamespace(cget=lambda _k: root),
+                _save_settings_from_ui=lambda: None,
+                _reserve_backup_names=lambda *_a: {"u1": "1_iPhone", "u2": "2_iPhone"},
+                var_tik=types.SimpleNamespace(get=lambda: False),
+                var_lite=types.SimpleNamespace(get=lambda: True),
+                var_pro=types.SimpleNamespace(get=lambda: False),
+                _begin_operation=lambda u, _k: started.append(u) or True,
+                log=lambda *_a, **_kw: None,
+            )
+            with patch.object(BB_RB, "get_path_free_gb", return_value=8.5), patch.object(
+                BB_RB.messagebox, "askyesno", return_value=False
+            ) as ask_box:
+                BB_RB.App.start_backup_all(app)
+            self.assertEqual(1, ask_box.call_count)
+            self.assertEqual([], started)
+
+    def test_start_restore_all_warns_on_low_pc_disk_and_low_device_health(self):
+        with tempfile.TemporaryDirectory() as root:
+            make_backup(root, name="1_iPhone")
+
+            # 1) Ổ đích khác ổ nguồn và thiếu dung lượng -> cảnh báo, chọn No thì hủy
+            app_disk = AvailableDevicesTests().make_app(store_root=root)
+            app_disk.lbl_path_b = types.SimpleNamespace(cget=lambda _k: "D:/target_other_drive")
+            with patch.object(BB_RB, "_same_drive_root", return_value=False), patch.object(
+                BB_RB, "get_path_free_gb", return_value=6.0
+            ), patch.object(BB_RB.messagebox, "askyesno", return_value=False) as ask_box:
+                BB_RB.App.start_restore_all(app_disk)
+            self.assertEqual(1, ask_box.call_count)
+            self.assertEqual([], app_disk.pending_restore_map)
+            self.assertEqual([], app_disk.shown)
+
+            # 2) iPhone Pin < 20% và Trống < 3GB -> cảnh báo, chọn No thì hủy; chọn Yes thì mở bảng xác nhận
+            app_dev = AvailableDevicesTests().make_app(store_root=root)
+            app_dev.rows["ready"].slot_num = 1
+            app_dev.rows["ready"].info.update({"battery_pct": 14, "free_gb": 1.8})
+            with patch.object(BB_RB.messagebox, "askyesno", return_value=False) as ask_dev_no:
+                BB_RB.App.start_restore_all(app_dev)
+            self.assertEqual(1, ask_dev_no.call_count)
+            self.assertEqual([], app_dev.pending_restore_map)
+            self.assertEqual([], app_dev.shown)
+
+            with patch.object(BB_RB.messagebox, "askyesno", return_value=True) as ask_dev_yes:
+                BB_RB.App.start_restore_all(app_dev)
+            self.assertEqual(1, ask_dev_yes.call_count)
+            self.assertEqual([("ready", os.path.join(root, "1_iPhone"))], app_dev.pending_restore_map)
+            self.assertEqual(1, len(app_dev.shown))
+
+
 if __name__ == "__main__":
     unittest.main()
