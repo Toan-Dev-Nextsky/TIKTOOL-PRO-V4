@@ -2,6 +2,17 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Sửa 11 lỗi vận hành, ký IPA và quản lý thiết bị] - 2026-11-25
+
+- **Làm mới Trust & iOS sau Reboot / Erase D.2**: Xóa `TRUSTED_CACHE` và `info_cache` khi thiết bị rời bus USB hoặc hoàn tất `erase` để bắt buộc `idevicepair validate` thật khi máy lên lại; tự đọc lại `ProductVersion` nếu thiết bị bị kẹt `iOS ?` và cảnh báo rõ nếu chưa đọc được khi Restore.
+- **Phân bổ Restore 2 lượt (2-Pass Matching)**: Tách Lượt 1 ghép toàn bộ các cặp trùng `UDID` trước, Lượt 2 mới ghép phần còn lại theo tương thích iOS để máy đứng trước không lấy nhầm backup của máy đứng sau.
+- **Cài IPA & Ký IPA (`TIK_SIGNER.py`)**:
+  - Sửa `_install_ipa_worker` nhận diện đúng `TikTok Pro` (`BIDS_TIKTOK_PRO` / `CFBundleIdentifier`) thay vì gỡ nhầm TikTok thường.
+  - Sửa `_find_signed_ipa` đối chiếu đầy đủ `UDID` (tránh trùng tiền tố chip `00008101`), giữ đúng tên file gốc khi xuất file đã ký (`build_signed_ipa_filename`), đưa hộp thoại hoàn tất về UI thread và sửa nhãn nút `Sao Chép UDID`.
+- **Gửi Profile song song & Chính xác trạng thái**: Chuyển `_push_webclip_all`, `_block_update_all_worker`, `_unblock_update_all_worker` sang chạy song song (`ThreadPoolExecutor` + `NOOTA_SEMAPHORE`, timeout 30s), chỉ tính thành công khi `rc == 0` và không có `level=fatal`/`level=error`.
+- **An toàn đóng app, cấu hình & trải nghiệm**: Cảnh báo đầy đủ trong `_on_app_close` cho `erase`, `install_ipa`, `devmode` và tác vụ hệ thống trước khi `terminate_all()`; đồng bộ lưu `ipasDir` qua `_write_json_atomic` không ghi đĩa thừa khi nạp settings; làm gọn log lỗi `ErrorCode: 14002` (bỏ mảng `CommandErrorArchive`); tách icon WebClip cho `TikTok Pro` và bỏ khai báo lặp `Icons.REFRESH`.
+- **Kiểm thử**: Bổ sung 12 unit test trong `BugFixAuditRegressionTests` ([tests/test_app_workflows.py](file:///c:/TIKTOOL%20PRO%20V4/tests/test_app_workflows.py)). `py_compile` sạch và **163/163 unit tests PASS**.
+
 ## [Hiển thị lưới thẻ thiết bị tối thiểu 4 cột] - 2026-11-10
 
 - **Sắp xếp lại lưới thẻ thiết bị**: Chuyển số cột mặc định và tối thiểu từ 3 lên **tối thiểu 4 thiết bị / hàng** (`_calculate_columns`, `_grid_cols = 4`).

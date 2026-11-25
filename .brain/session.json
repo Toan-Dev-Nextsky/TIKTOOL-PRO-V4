@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-11-10T15:40:00+07:00",
+  "updated_at": "2026-11-25T15:23:00+07:00",
   "working_on": {
-    "feature": "Device card grid minimum 4 columns layout",
-    "task": "Sắp xếp lại lưới thẻ thiết bị tối thiểu 4 cột (thay vì 3), tối ưu font Model/ECID và UDID, co giãn responsive 4/5/6 cột.",
+    "feature": "Audit and fix 11 bugs across BB_RB.py and TIK_SIGNER.py",
+    "task": "Sửa 11 lỗi thực tế: TRUSTED_CACHE sau reboot/erase, khôi phục máy kẹt iOS ?, phân bổ Restore 2 lượt, nhận diện gỡ app TikTok Pro, chống báo thành công giả & song song hóa WebClip/NOOTA, sửa khớp UDID/tên file/UI thread trong TIK_SIGNER.py, bảo vệ _on_app_close, lưu ipasDir atomic, gọn log 14002, tách icon WebClip TikTok Pro.",
     "status": "completed",
     "files": [
       "BB_RB.py",
+      "TIK_SIGNER.py",
       "tests/test_app_workflows.py",
-      "CHANGELOG.md",
-      "AGENTS.md"
+      "CHANGELOG.md"
     ],
-    "notes": "14 máy hiển thị gọn trong 4 hàng, không tràn màn hình. 151/151 unit tests PASS. settings.json không commit."
+    "notes": "163/163 unit tests PASS (bao gồm 12 test mới trong BugFixAuditRegressionTests). py_compile sạch. settings.json giữ nguyên không commit."
   },
   "pending_tasks": [
     {
@@ -25,6 +25,17 @@
     }
   ],
   "recent_changes": [
+    {
+      "timestamp": "2026-11-25T15:23:00+07:00",
+      "type": "bugfix_audit_11_issues",
+      "description": "Khắc phục 11 lỗi trong BB_RB.py và TIK_SIGNER.py: xóa TRUSTED_CACHE khi rời USB/erase; tự đọc lại ProductVersion khi kẹt iOS ?; tách ghép nối Restore 2 lượt; nhận diện gỡ TikTok Pro trước TikTok thường; chặn false-positive và chạy song song WebClip/NOOTA; khớp đủ UDID và giữ tên IPA gốc trong TIK_SIGNER.py; bảo vệ _on_app_close cho erase/install_ipa/devmode; lưu ipasDir atomic; gọn log ErrorCode 14002; tách icon TikTok Pro WebClip. Thêm 12 unit test (163/163 PASS).",
+      "files": [
+        "BB_RB.py",
+        "TIK_SIGNER.py",
+        "tests/test_app_workflows.py",
+        "CHANGELOG.md"
+      ]
+    },
     {
       "timestamp": "2026-10-10T11:45:00+07:00",
       "type": "daily_restore_reset_fix",

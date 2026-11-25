@@ -164,6 +164,32 @@ def match_cert_for_udid(cert_list, udid):
     return None
 
 
+def find_signed_ipa_in_dir(ipas_dir, udid):
+    """Tìm file IPA đã ký khớp đầy đủ UDID (tránh trùng 8 ký tự đầu mã chip 00008101)."""
+    if not udid or not os.path.isdir(ipas_dir):
+        return None
+    udid_low = udid.lower()
+    udid_clean = udid_low.replace("-", "")
+    for f in sorted(os.listdir(ipas_dir)):
+        fl = f.lower()
+        if not fl.endswith(".ipa") or "und3fined" in fl or "unsigned" in fl:
+            continue
+        fl_clean = fl.replace("-", "")
+        if udid_low in fl or udid_clean in fl_clean:
+            return os.path.join(ipas_dir, f)
+    return None
+
+
+def build_signed_ipa_filename(ipa_path, udid):
+    """Sinh tên file IPA đầu ra theo tên file gốc + UDID đầy đủ."""
+    orig_stem = os.path.splitext(os.path.basename(ipa_path))[0]
+    orig_stem = re.sub(r"(?i)[-_.]*(?:und3fined|unsigned|signed|orig|raw)$", "", orig_stem).strip("-_. ")
+    orig_stem = re.sub(r"[0-9a-fA-F]{8}[-_][0-9a-fA-F]{16}|[0-9a-fA-F]{25,}", "", orig_stem).strip("-_. ")
+    if not orig_stem:
+        orig_stem = "App"
+    return f"{orig_stem}_{udid}_Signed.ipa"
+
+
 # ═══════════════════════════════════════════════════════════
 #  GIAO DIỆN CHÍNH (GUI)
 # ═══════════════════════════════════════════════════════════
@@ -260,7 +286,7 @@ class TikSignerApp(ttk.Window):
                                         font=("Segoe UI", 10, "bold"))
         self._dev_count_lbl.pack(side=LEFT)
 
-        ttk.Button(tb, text="📋 Sao Chép 10 UDID",
+        ttk.Button(tb, text="📋 Sao Chép UDID",
                    bootstyle="outline-info", width=18,
                    command=self._copy_udids).pack(side=RIGHT, padx=2)
         ttk.Button(tb, text="💾 Xuất File UDID (.txt)",
@@ -506,16 +532,7 @@ class TikSignerApp(ttk.Window):
             messagebox.showinfo("Thành công", f"Đã xuất danh sách UDID thành công:\n{path}")
 
     def _find_signed_ipa(self, udid):
-        if not os.path.isdir(IPAS_DIR):
-            return None
-        for f in os.listdir(IPAS_DIR):
-            if f.lower().endswith(".ipa") and udid[:8].lower() in f.lower():
-                return os.path.join(IPAS_DIR, f)
-        for f in os.listdir(IPAS_DIR):
-            fl = f.lower()
-            if fl.endswith(".ipa") and "signed" in fl and "unsigned" not in fl:
-                return os.path.join(IPAS_DIR, f)
-        return None
+        return find_signed_ipa_in_dir(IPAS_DIR, udid)
 
     def _update_row(self, udid, col_idx, value):
         def _do():
@@ -564,8 +581,8 @@ class TikSignerApp(ttk.Window):
                 failed += 1
                 continue
 
-            # Đặt tên file IPA chứa đầy đủ UDID để TIKTOOL PRO tự nhận diện đúng máy
-            out_name = f"TikTok_Lite_{udid}_Signed.ipa"
+            # Đặt tên file IPA theo tên gốc + đầy đủ UDID để TIKTOOL PRO tự nhận diện đúng app & máy
+            out_name = build_signed_ipa_filename(ipa_path, udid)
             out_path = os.path.join(IPAS_DIR, out_name)
 
             self._log(f"[{idx}/{total}] Đang ký cho: {name} (UDID: {udid[:8]}...)", tag="info")
@@ -607,13 +624,16 @@ class TikSignerApp(ttk.Window):
 
         self._log(f"══════════ HOÀN TẤT KÝ: {success}/{total} máy thành công ══════════", tag="warn")
         self._status(f"Ký xong: ✅ {success} thành công / ❌ {failed} thất bại.")
-        self.after(0, lambda: self._set_busy(False))
 
-        if success > 0:
-            messagebox.showinfo(
-                "Ký Xong Hàng Loạt",
-                f"Đã ký xong {success} file IPA thành công!\nCác file IPA đã được lưu tại:\n{IPAS_DIR}\n\nAnh có thể dùng TIKTOOL PRO để cài đặt hàng loạt ngay!",
-            )
+        def _finish_on_ui():
+            self._set_busy(False)
+            if success > 0:
+                messagebox.showinfo(
+                    "Ký Xong Hàng Loạt",
+                    f"Đã ký xong {success} file IPA thành công!\nCác file IPA đã được lưu tại:\n{IPAS_DIR}\n\nAnh có thể dùng TIKTOOL PRO để cài đặt hàng loạt ngay!",
+                )
+
+        self.after(0, _finish_on_ui)
 
 
 # ═══════════════════════════════════════════════════════════

@@ -102,7 +102,6 @@ class Icons:
     ARROW_RIGHT = "\uE72A"    # Forward / ArrowRight
     TRASH = "\uE74D"          # Delete
     POWER = "\uE7E8"          # PowerButton
-    REFRESH = "\uE72C"        # Refresh / Reboot
     ERASE = "\uE74C"          # Erase / Remove
 
 # BUNDLE IDS TIKTOK & PATHS
@@ -345,9 +344,26 @@ def run_capture(cmd_list, timeout=120):
 # ================== CẤU HÌNH & TIỆN ÍCH WEBCLIP / WEB APP ==================
 WEBCLIP_TIKTOK_PNG = os.path.join(BASE_DIR, "tiktok.png")
 WEBCLIP_TIKTOK_LITE_PNG = os.path.join(BASE_DIR, "tiktok_lite.png")
+WEBCLIP_TIKTOK_PRO_PNG = os.path.join(BASE_DIR, "tiktok_pro.png")
 WEBCLIP_FUN_PNG = os.path.join(BASE_DIR, "fun.png")
 WEBCLIP_2FA_PNG = os.path.join(BASE_DIR, "2FA.png")
 WEBCLIP_DEFAULT_PNG = os.path.join(BASE_DIR, "webapp.png")
+
+def _write_json_atomic(path, payload):
+    """Ghi file JSON an toàn qua file tạm cùng thư mục rồi os.replace."""
+    target_dir = os.path.dirname(os.path.abspath(path)) or "."
+    os.makedirs(target_dir, exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(prefix=".settings_", suffix=".tmp", dir=target_dir)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            json.dump(payload, stream, ensure_ascii=False, indent=2)
+        os.replace(tmp_path, path)
+    finally:
+        if os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
 
 def _xml_escape(s):
     s = str(s if s else "")
@@ -376,7 +392,13 @@ def _pick_webclip_icon_path(label, url):
         return WEBCLIP_2FA_PNG
     if "tiktok lite" in t or "id6447160980" in u:
         return WEBCLIP_TIKTOK_LITE_PNG
-    if ("tiktok" in t and "lite" not in t) or "id1235601864" in u:
+    if "tiktok pro" in t or "tiktok-pro" in u or "id6741796873" in u:
+        if os.path.isfile(WEBCLIP_TIKTOK_PRO_PNG):
+            return WEBCLIP_TIKTOK_PRO_PNG
+        if os.path.isfile(WEBCLIP_DEFAULT_PNG):
+            return WEBCLIP_DEFAULT_PNG
+        return ""
+    if ("tiktok" in t and "lite" not in t and "pro" not in t) or "id1235601864" in u:
         return WEBCLIP_TIKTOK_PNG
     if "fun" in t or ".fun" in u:
         return WEBCLIP_FUN_PNG
@@ -2595,19 +2617,24 @@ class App(tk.Tk):
         ).start()
 
     def _block_update_all_worker(self, profile_path, udids=None):
-        """Worker gửi profile chặn update tới toàn bộ thiết bị."""
+        """Worker gửi profile chặn update song song tới toàn bộ thiết bị."""
         ios_exe = _fixed_ios_exe()
-        total = 0
+        candidates = list(udids if udids is not None else self.rows.keys())
+        reserved = [u for u in candidates if self._begin_operation(u, "block_update")]
+        total = len(reserved)
         success = 0
-        for udid in (udids if udids is not None else list(self.rows.keys())):
-            if not self._begin_operation(udid, "block_update"):
-                continue
-            total += 1
+
+        def _run_one(udid):
             try:
-                if self._block_update_single(udid, profile_path, ios_exe):
-                    success += 1
+                return bool(self._block_update_single(udid, profile_path, ios_exe))
             finally:
                 self.operations.end(udid, "block_update")
+
+        if reserved:
+            with ThreadPoolExecutor(max_workers=min(total, MAX_CONCURRENCY)) as pool:
+                futures = [pool.submit(_run_one, u) for u in reserved]
+                success = sum(1 for fut in futures if fut.result())
+
         self.log(
             None,
             f"Chặn Update iOS: thành công {success}/{total} thiết bị.",
@@ -2644,10 +2671,10 @@ class App(tk.Tk):
                 if row:
                     row.set_task(f"Block Update {attempt}/{attempts}")
                     row.push_step(f"Gửi profile chặn update {attempt}/{attempts}")
-                rc, out = run_capture(cmd)
+                rc, out = run_capture(cmd, timeout=30)
                 out = (out or "").strip()
                 low = out.lower()
-                ok = (rc == 0) or ("profile added" in low) or ("install profile" in low) or ("success" in low) or ('"ok"' in low) or (low == "ok")
+                ok = (rc == 0) and ("level=fatal" not in low) and ("level=error" not in low)
                 if out:
                     self.log(udid, out, is_err=(not ok))
                 if ok:
@@ -2687,19 +2714,24 @@ class App(tk.Tk):
         ).start()
 
     def _unblock_update_all_worker(self, udids=None):
-        """Worker xóa profile chặn update khỏi toàn bộ thiết bị."""
+        """Worker xóa profile chặn update song song khỏi toàn bộ thiết bị."""
         ios_exe = _fixed_ios_exe()
-        total = 0
+        candidates = list(udids if udids is not None else self.rows.keys())
+        reserved = [u for u in candidates if self._begin_operation(u, "unblock_update")]
+        total = len(reserved)
         success = 0
-        for udid in (udids if udids is not None else list(self.rows.keys())):
-            if not self._begin_operation(udid, "unblock_update"):
-                continue
-            total += 1
+
+        def _run_one(udid):
             try:
-                if self._unblock_update_single(udid, ios_exe):
-                    success += 1
+                return bool(self._unblock_update_single(udid, ios_exe))
             finally:
                 self.operations.end(udid, "unblock_update")
+
+        if reserved:
+            with ThreadPoolExecutor(max_workers=min(total, MAX_CONCURRENCY)) as pool:
+                futures = [pool.submit(_run_one, u) for u in reserved]
+                success = sum(1 for fut in futures if fut.result())
+
         self.log(
             None,
             f"Gỡ chặn Update iOS: thành công {success}/{total} thiết bị.",
@@ -2756,10 +2788,10 @@ class App(tk.Tk):
                 if row:
                     row.set_task(f"Unblock Update {attempt}/{attempts}")
                     row.push_step(f"Xóa profile chặn update {attempt}/{attempts}")
-                rc, out = run_capture(cmd)
+                rc, out = run_capture(cmd, timeout=30)
                 out = (out or "").strip()
                 low = out.lower()
-                ok = (rc == 0) or ("removed" in low) or ("success" in low) or ('"ok"' in low) or (low == "ok")
+                ok = (rc == 0) and ("level=fatal" not in low) and ("level=error" not in low)
                 if out:
                     self.log(udid, out, is_err=(not ok))
                 if ok:
@@ -3090,6 +3122,8 @@ class App(tk.Tk):
                 if row:
                     row.set_pct(100)
                     row.push_step("Đã xoá dữ liệu ✔")
+                # Xoá dữ liệu sẽ mất sạch bản ghi Trust trên iPhone; bỏ cache Trust ngay.
+                TRUSTED_CACHE.discard(udid)
                 # Máy sẽ mất kết nối trong thời gian dài; khóa card 180s.
                 self.reboot_tracker.mark(udid, timeout=180.0)
             else:
@@ -3218,6 +3252,8 @@ class App(tk.Tk):
                 if _res2.error and not _res2.timed_out:
                     _skip_display_lines.append(_res2.error)
                 _skip_display_out = "\n".join(_skip_display_lines)
+                # Lược bỏ mảng byte thô CommandErrorArchive dài hàng nghìn ký tự của go-ios trên UI log.
+                _skip_display_out = re.sub(r"CommandErrorArchive:\[[0-9\s]+\]\s*", "", _skip_display_out)
                 low2 = (_skip_display_out or "").lower()
 
                 if _skip_display_out:
@@ -3238,7 +3274,14 @@ class App(tk.Tk):
                     skip_state = "ok"
                     break
 
-                skip_detail = _skip_display_out or f"rc={rc2}"
+                if "cloud configuration is already present" in low2 or "errorcode:14002" in low2:
+                    skip_detail = (
+                        "A cloud configuration is already present on this device — "
+                        "máy đã có Cloud Config / có thể đã vào màn hình chính từ trước; "
+                        "nếu chỉ cần đổi ngôn ngữ hãy dùng nút 'Đổi lệnh'"
+                    )
+                else:
+                    skip_detail = _skip_display_out or f"rc={rc2}"
                 # Retry only an explicit connection failure before preparation
                 # starts. An ambiguous disconnect may follow a successful write.
                 preparation_started = any(marker in low2 for marker in (
@@ -3384,10 +3427,10 @@ class App(tk.Tk):
             if row:
                 row.set_task(f"Web App {attempt}/{attempts}")
                 row.push_step(f"Đẩy Web App {attempt}/{attempts}")
-            rc, out = run_capture(cmd)
+            rc, out = run_capture(cmd, timeout=30)
             out = (out or "").strip()
             low = out.lower()
-            ok = (rc == 0) or ("profile added" in low) or ("install profile" in low) or ("success" in low) or ('"ok"' in low) or (low == "ok")
+            ok = (rc == 0) and ("level=fatal" not in low) and ("level=error" not in low)
             if out:
                 self.log(udid, out, is_err=(not ok))
             if ok:
@@ -3442,18 +3485,33 @@ class App(tk.Tk):
             with open(profile_path, "w", encoding="utf-8") as f:
                 f.write(profile_xml)
 
-            total = 0
-            success = 0
+            has_ops = hasattr(self, "operations")
+            reserved = []
             for udid in self._available_udids():
-                if hasattr(self, "operations") and not self._begin_operation(udid, "webclip"):
+                if has_ops and not self._begin_operation(udid, "webclip"):
                     continue
-                total += 1
+                reserved.append(udid)
+
+            total = len(reserved)
+            success = 0
+
+            def _push_one(udid):
+                if not NOOTA_SEMAPHORE.acquire(timeout=1):
+                    row = self.rows.get(udid)
+                    if row:
+                        row.push_step("Chờ slot Web App...")
+                    NOOTA_SEMAPHORE.acquire()
                 try:
-                    if self._push_webclip_to_device(udid, profile_path, label, url, max_retries=2):
-                        success += 1
+                    return bool(self._push_webclip_to_device(udid, profile_path, label, url, max_retries=2))
                 finally:
-                    if hasattr(self, "operations"):
+                    NOOTA_SEMAPHORE.release()
+                    if has_ops:
                         self.operations.end(udid, "webclip")
+
+            if reserved:
+                with ThreadPoolExecutor(max_workers=min(total, MAX_CONCURRENCY)) as pool:
+                    futures = [pool.submit(_push_one, u) for u in reserved]
+                    success = sum(1 for fut in futures if fut.result())
 
             self.log(None, f"Web App '{label}': thành công {success}/{total} thiết bị.", is_err=(success != total))
             if total == 0:
@@ -3662,8 +3720,7 @@ class App(tk.Tk):
             data["hourlyRestoreDate"] = self.hourly_restore_stats.date
             data["hourlyRestoreCounts"] = self.hourly_restore_stats.snapshot()
             data["restoreDoneCount"] = getattr(self, "restore_done_count", 0)
-            with open(SETTINGS_FP, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
+            _write_json_atomic(SETTINGS_FP, data)
             self.last_json_mtime = os.path.getmtime(SETTINGS_FP)
         except Exception as e:
             pass
@@ -4106,6 +4163,7 @@ class App(tk.Tk):
         p = filedialog.askdirectory(initialdir=self.lbl_ipa_dir.cget("text") or IPAS_DIR)
         if p:
             self.lbl_ipa_dir.config(text=p)
+            self._save_settings_from_ui()
             self._refresh_ipa_list()
 
     def _get_available_signed_ipas(self):
@@ -4518,8 +4576,7 @@ class App(tk.Tk):
                 unsafe_key = "patchBackupLang" + "BeforeRestore"
                 removed_unsafe_setting = data.pop(unsafe_key, None) is not None
                 if repaired or removed_unsafe_setting:
-                    with open(SETTINGS_FP, "w", encoding="utf-8") as f:
-                        json.dump(data, f, ensure_ascii=False, indent=2)
+                    _write_json_atomic(SETTINGS_FP, data)
                 self.last_json_mtime = os.path.getmtime(SETTINGS_FP)
                 self._apply_settings_to_ui(data)
                 self.log("SYSTEM", f"Đã load cấu hình từ settings.json thành công.")
@@ -4544,53 +4601,60 @@ class App(tk.Tk):
         self.after(500, _check)
 
     def _apply_settings_to_ui(self, data):
-        if "storeA" in data and self.lbl_path_a.cget("text") != data["storeA"]: self.lbl_path_a.config(text=data["storeA"])
-        if "storeB" in data and self.lbl_path_b.cget("text") != data["storeB"]: self.lbl_path_b.config(text=data["storeB"])
-        if "generalBackupDir" in data and self.lbl_path_gen.cget("text") != data["generalBackupDir"]: self.lbl_path_gen.config(text=data["generalBackupDir"])
-        if "removeTikTok" in data: self.var_tik.set(bool(data["removeTikTok"]))
-        if "removeTikTokLite" in data: self.var_lite.set(bool(data["removeTikTokLite"]))
-        if "removeTikTokPro" in data: self.var_pro.set(bool(data["removeTikTokPro"]))
-        if "setLangAfterActive" in data: self.var_set_lang_after_active.set(bool(data["setLangAfterActive"]))
-        if "autoActivateAfterRestore" in data: self.var_auto_activate_after_restore.set(bool(data["autoActivateAfterRestore"]))
-        if "autoWebclipAfterRestore" in data: self.var_auto_webclip_after_restore.set(bool(data["autoWebclipAfterRestore"]))
-        if "active" in data and data["active"] in ("A", "B"): self.var_active_store.set(data["active"])
-        if "showBackupIpaTabs" in data:
-            new_show_extra = bool(data["showBackupIpaTabs"])
-            if new_show_extra != self.var_show_extra_tabs.get():
-                self.var_show_extra_tabs.set(new_show_extra)
-                self._apply_extra_tabs_visibility()
-        if "customWebclipLink" in data and data["customWebclipLink"]:
-            # Only set on initial load, not during periodic sync (to avoid overwriting user edits)
-            if not getattr(self, '_webclip_link_loaded', False):
-                self.var_custom_webclip_link.set(data["customWebclipLink"])
-                self._webclip_link_loaded = True
-        if "langLocale" in data and data["langLocale"]:
-            self.var_lang_locale.set(data["langLocale"])
-            loc, lng = _parse_lang_preset(data["langLocale"])
-            self.lbl_current_lang.config(text=f"[{data['langLocale']}]")
+        self._applying_settings = True
+        try:
+            if "storeA" in data and self.lbl_path_a.cget("text") != data["storeA"]: self.lbl_path_a.config(text=data["storeA"])
+            if "storeB" in data and self.lbl_path_b.cget("text") != data["storeB"]: self.lbl_path_b.config(text=data["storeB"])
+            if "generalBackupDir" in data and self.lbl_path_gen.cget("text") != data["generalBackupDir"]: self.lbl_path_gen.config(text=data["generalBackupDir"])
+            if "ipasDir" in data and data["ipasDir"] and hasattr(self, "lbl_ipa_dir") and self.lbl_ipa_dir.cget("text") != data["ipasDir"]:
+                self.lbl_ipa_dir.config(text=data["ipasDir"])
+                if getattr(self, "current_mode", "") == "IPA":
+                    self._refresh_ipa_list()
+            if "removeTikTok" in data: self.var_tik.set(bool(data["removeTikTok"]))
+            if "removeTikTokLite" in data: self.var_lite.set(bool(data["removeTikTokLite"]))
+            if "removeTikTokPro" in data: self.var_pro.set(bool(data["removeTikTokPro"]))
+            if "setLangAfterActive" in data: self.var_set_lang_after_active.set(bool(data["setLangAfterActive"]))
+            if "autoActivateAfterRestore" in data: self.var_auto_activate_after_restore.set(bool(data["autoActivateAfterRestore"]))
+            if "autoWebclipAfterRestore" in data: self.var_auto_webclip_after_restore.set(bool(data["autoWebclipAfterRestore"]))
+            if "active" in data and data["active"] in ("A", "B"): self.var_active_store.set(data["active"])
+            if "showBackupIpaTabs" in data:
+                new_show_extra = bool(data["showBackupIpaTabs"])
+                if new_show_extra != self.var_show_extra_tabs.get():
+                    self.var_show_extra_tabs.set(new_show_extra)
+                    self._apply_extra_tabs_visibility()
+            if "customWebclipLink" in data and data["customWebclipLink"]:
+                # Only set on initial load, not during periodic sync (to avoid overwriting user edits)
+                if not getattr(self, '_webclip_link_loaded', False):
+                    self.var_custom_webclip_link.set(data["customWebclipLink"])
+                    self._webclip_link_loaded = True
+            if "langLocale" in data and data["langLocale"]:
+                self.var_lang_locale.set(data["langLocale"])
+                loc, lng = _parse_lang_preset(data["langLocale"])
+                self.lbl_current_lang.config(text=f"[{data['langLocale']}]")
 
-        today = datetime.now().strftime("%Y-%m-%d")
-        App._load_daily_restore_from_settings(self, data, today)
+            today = datetime.now().strftime("%Y-%m-%d")
+            App._load_daily_restore_from_settings(self, data, today)
 
-        saved_hourly_date = str(data.get("hourlyRestoreDate", ""))
-        saved_hourly_counts = data.get("hourlyRestoreCounts", {})
-        if saved_hourly_date == today:
-            saved_stats = HourlyRestoreStats(today, saved_hourly_counts)
-            current_counts = (
-                self.hourly_restore_stats.snapshot()
-                if self.hourly_restore_stats.date == today
-                else {}
-            )
-            merged_counts = saved_stats.snapshot()
-            for hour, count in current_counts.items():
-                merged_counts[hour] = max(count, merged_counts.get(hour, 0))
-            self.hourly_restore_stats = HourlyRestoreStats(today, merged_counts)
-        elif self.hourly_restore_stats.date != today:
-            self.hourly_restore_stats = HourlyRestoreStats(today, {})
+            saved_hourly_date = str(data.get("hourlyRestoreDate", ""))
+            saved_hourly_counts = data.get("hourlyRestoreCounts", {})
+            if saved_hourly_date == today:
+                saved_stats = HourlyRestoreStats(today, saved_hourly_counts)
+                current_counts = (
+                    self.hourly_restore_stats.snapshot()
+                    if self.hourly_restore_stats.date == today
+                    else {}
+                )
+                merged_counts = saved_stats.snapshot()
+                for hour, count in current_counts.items():
+                    merged_counts[hour] = max(count, merged_counts.get(hour, 0))
+                self.hourly_restore_stats = HourlyRestoreStats(today, merged_counts)
+            elif self.hourly_restore_stats.date != today:
+                self.hourly_restore_stats = HourlyRestoreStats(today, {})
 
-        self._update_restore_counter()
-
-        self._on_store_switch()
+            self._update_restore_counter()
+            self._on_store_switch()
+        finally:
+            self._applying_settings = False
 
     def _load_daily_restore_from_settings(self, data, today):
         """Tổng hôm nay chỉ lấy từ dailyRestore*; không suy ra từ restoreDoneCount (bền qua nhiều ngày)."""
@@ -4608,16 +4672,20 @@ class App(tk.Tk):
         self.daily_restore_date = today
 
     def _save_settings_from_ui(self):
+        if getattr(self, "_applying_settings", False):
+            return
         try:
             data = DEFAULT_SETTINGS.copy()
             if os.path.exists(SETTINGS_FP):
                 with open(SETTINGS_FP, "r", encoding="utf-8") as f: data.update(json.load(f))
             data.pop("patchBackupLang" + "BeforeRestore", None)
-            repair_ipas_path(data, BASE_DIR)
 
             data["storeA"] = self.lbl_path_a.cget("text").strip()
             data["storeB"] = self.lbl_path_b.cget("text").strip()
             data["generalBackupDir"] = self.lbl_path_gen.cget("text").strip()
+            if hasattr(self, "lbl_ipa_dir"):
+                data["ipasDir"] = self.lbl_ipa_dir.cget("text").strip()
+            repair_ipas_path(data, BASE_DIR)
             data["removeTikTok"] = self.var_tik.get()
             data["removeTikTokLite"] = self.var_lite.get()
             data["removeTikTokPro"] = self.var_pro.get()
@@ -4635,8 +4703,7 @@ class App(tk.Tk):
             data["restoreDoneCount"] = self.restore_done_count
             data.pop("performanceStatsHidden", None)
 
-            with open(SETTINGS_FP, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
+            _write_json_atomic(SETTINGS_FP, data)
 
             self.last_json_mtime = os.path.getmtime(SETTINGS_FP)
         except Exception as e:
@@ -4912,8 +4979,11 @@ class App(tk.Tk):
                     current_set = set(udids)
                     
                     for cached_u in list(TRUSTED_CACHE):
-                        if cached_u not in current_set and not self.reboot_tracker.is_waiting(cached_u):
-                            TRUSTED_CACHE.remove(cached_u)
+                        if cached_u not in current_set:
+                            TRUSTED_CACHE.discard(cached_u)
+                            info_cache.pop(cached_u, None)
+                    for cached_u in list(info_cache.keys()):
+                        if cached_u not in current_set:
                             info_cache.pop(cached_u, None)
 
                     if udids:
@@ -4929,7 +4999,12 @@ class App(tk.Tk):
                     for u in udids:
                         trusted = trust_results.get(u, False)
                         cached = info_cache.get(u)
-                        if cached is None or cached.get("trusted") != trusted:
+                        need_info = (
+                            cached is None
+                            or cached.get("trusted") != trusted
+                            or (trusted and parse_ios_ver(cached.get("ios", "")) == (0, 0, 0))
+                        )
+                        if need_info:
                             info_futures[u] = executor.submit(self._build_info, u, trusted)
                     for u, future in info_futures.items():
                         info_cache[u] = future.result()
@@ -5079,10 +5154,18 @@ class App(tk.Tk):
                             if operations is None or udid not in operations.snapshot():
                                 card.push_step("Hoàn tất • Đã kết nối lại")
                     else:
-                        if card.info.get("trusted") != is_trusted:
-                            info = info_results.get(udid) or self._build_info(udid, is_trusted=False)
+                        new_info = info_results.get(udid)
+                        trust_changed = card.info.get("trusted") != is_trusted
+                        ios_recovered = (
+                            is_trusted
+                            and parse_ios_ver(card.info.get("ios", "")) == (0, 0, 0)
+                            and new_info is not None
+                            and parse_ios_ver(new_info.get("ios", "")) != (0, 0, 0)
+                        )
+                        if trust_changed or ios_recovered:
+                            info = new_info or self._build_info(udid, is_trusted=is_trusted)
                             card.update_trust_status(is_trusted, info)
-                            if is_trusted:
+                            if trust_changed and is_trusted:
                                 self.log(udid, f"Đã xác nhận Trust: {info['name']} • iOS {info['ios']}")
 
             if need_relayout:
@@ -5289,6 +5372,12 @@ class App(tk.Tk):
 
                     if "tiktok.lite" in fn_norm or "musicallylite" in fn_norm:
                         uninstall_app_any(udid, BIDS_TIKTOK_LITE, "TikTok Lite", row,
+                                          lambda s, is_err=False: self.log(udid, s, is_err=is_err))
+                        uninstalled = True
+                    elif "tiktok.pro" in fn_norm:
+                        bid = _extract_bundle_id_from_ipa(ipa_path)
+                        bids = list(dict.fromkeys(([bid] if bid else []) + list(BIDS_TIKTOK_PRO)))
+                        uninstall_app_any(udid, bids, "TikTok Pro", row,
                                           lambda s, is_err=False: self.log(udid, s, is_err=is_err))
                         uninstalled = True
                     elif "tiktok" in fn_norm or "musically" in fn_norm or "ugc" in fn_norm:
@@ -5517,38 +5606,69 @@ class App(tk.Tk):
             row = self.rows.get(udid)
             if row is None or not row.info.get("trusted", True):
                 continue
+            ios_str = row.info.get("ios", "?")
+            ios_t = row.info.get("ios_t") or parse_ios_ver(ios_str)
+            if ios_t == (0, 0, 0):
+                fresh_ios = ideviceinfo_k(udid, "ProductVersion")
+                if fresh_ios:
+                    ios_str = fresh_ios
+                    ios_t = parse_ios_ver(fresh_ios)
+                    row.info["ios"] = ios_str
+                    row.info["ios_t"] = ios_t
+                if ios_t == (0, 0, 0):
+                    self.log(
+                        udid,
+                        "Chưa đọc được phiên bản iOS của thiết bị (lockdownd đang bận); tạm bỏ qua trong đợt Restore này.",
+                        is_warn=True,
+                    )
+                    continue
             connected_devices.append({
                 "udid": udid,
                 "name": row.info.get("name", "iPhone"),
-                "ios_str": row.info.get("ios", "?"),
-                "ios_t": row.info.get("ios_t", (0, 0, 0))
+                "ios_str": ios_str,
+                "ios_t": ios_t,
             })
 
         if not connected_devices:
-            messagebox.showwarning("CẢNH BÁO", "Tất cả các máy kết nối đều NOT TRUST!\nVui lòng bấm 'Tin Cậy' trên điện thoại trước khi khôi phục.")
+            messagebox.showwarning("CẢNH BÁO", "Tất cả các máy kết nối đều NOT TRUST (hoặc chưa đọc được iOS)!\nVui lòng bấm 'Tin Cậy' trên điện thoại trước khi khôi phục.")
             return
 
         self.pending_restore_map = []
         confirm_items = []
         used_backup_paths = set()
+        assigned_by_udid = {}
 
+        # Lượt 1 (Ưu tiên 1): Ghép toàn bộ bản backup trùng UDID trước để máy đứng trước
+        # không lấy mất bản backup mang UDID của máy đứng sau.
         for dev in connected_devices:
-            chosen = None
-            match_type = ""
-
-            matched_udid_bks = [bk for bk in all_bks if bk["udid"] == dev["udid"] and bk["path"] not in used_backup_paths and bk["ios_t"] <= dev["ios_t"]]
+            matched_udid_bks = [
+                bk for bk in all_bks
+                if bk["udid"] == dev["udid"]
+                and bk["path"] not in used_backup_paths
+                and bk["ios_t"] <= dev["ios_t"]
+            ]
             if matched_udid_bks:
                 chosen = matched_udid_bks[0]
-                match_type = "UDID Khớp (Ưu tiên 1)"
+                used_backup_paths.add(chosen["path"])
+                assigned_by_udid[dev["udid"]] = (chosen, "UDID Khớp (Ưu tiên 1)")
 
-            if not chosen:
-                compatible_bks = [bk for bk in all_bks if bk["path"] not in used_backup_paths and bk["ios_t"] <= dev["ios_t"]]
+        # Lượt 2 (Ưu tiên 2): Các máy chưa có cặp mới ghép theo thứ tự kho và tương thích iOS.
+        for dev in connected_devices:
+            if dev["udid"] not in assigned_by_udid:
+                compatible_bks = [
+                    bk for bk in all_bks
+                    if bk["path"] not in used_backup_paths
+                    and bk["ios_t"] <= dev["ios_t"]
+                ]
                 if compatible_bks:
                     chosen = compatible_bks[0]
-                    match_type = "Tương thích iOS (Ưu tiên 2)"
+                    used_backup_paths.add(chosen["path"])
+                    assigned_by_udid[dev["udid"]] = (chosen, "Tương thích iOS (Ưu tiên 2)")
 
-            if chosen:
-                used_backup_paths.add(chosen["path"])
+        for dev in connected_devices:
+            pair = assigned_by_udid.get(dev["udid"])
+            if pair:
+                chosen, match_type = pair
                 self.pending_restore_map.append((dev["udid"], chosen["path"]))
                 confirm_items.append({
                     "folder_name": chosen["folder_name"],
@@ -5967,24 +6087,39 @@ class App(tk.Tk):
         n_rest = sum(kind == "restore" for kind in operations.values())
         n_bk = sum(kind == "backup" for kind in operations.values())
         n_act = sum(kind in ("activate", "auto_activate", "language", "webclip") for kind in operations.values())
+        n_erase = sum(kind == "erase" for kind in operations.values())
+        n_ipa = sum(kind == "install_ipa" for kind in operations.values())
+        n_dev = sum(kind == "devmode" for kind in operations.values())
+        n_other = sum(
+            kind in ("block_update", "unblock_update", "clear_crashlog", "reboot", "shutdown")
+            for kind in operations.values()
+        )
 
-        if n_rest > 0 or n_bk > 0 or n_act > 0:
+        if any((n_rest, n_bk, n_act, n_erase, n_ipa, n_dev, n_other)):
             details = []
+            if n_erase > 0:
+                details.append(f"• {n_erase} máy iPhone đang XOÁ DỮ LIỆU (ERASE D.2)")
             if n_rest > 0:
                 details.append(f"• {n_rest} máy iPhone đang RESTORE dữ liệu")
             if n_bk > 0:
                 details.append(f"• {n_bk} máy iPhone đang SAO LƯU (BACKUP)")
+            if n_ipa > 0:
+                details.append(f"• {n_ipa} máy iPhone đang CÀI ĐẶT IPA")
+            if n_dev > 0:
+                details.append(f"• {n_dev} máy iPhone đang BẬT DEVELOPER MODE")
             if n_act > 0:
-                details.append(f"• {n_act} máy iPhone đang KÍCH HOẠT / AUTO ACTIVATE")
+                details.append(f"• {n_act} máy iPhone đang KÍCH HOẠT / WEB APP / ĐỔI NGÔN NGỮ")
+            if n_other > 0:
+                details.append(f"• {n_other} máy iPhone đang chạy tác vụ hệ thống (Update/CrashLog/Nguồn)")
 
             detail_str = "\n".join(details)
             msg = (
                 f"⚠️ CẢNH BÁO: HỆ THỐNG ĐANG CÓ TIẾN TRÌNH HOẠT ĐỘNG!\n\n"
                 f"{detail_str}\n\n"
                 f"❌ NẾU BẠN TẮT APP NGAY LÚC NÀY:\n"
-                f"• Thiết bị đang Restore sẽ bị nạp dở dữ liệu ➔ RẤT DỄ BỊ LỖI TREO TÁO / HỎNG HĐH (bắt buộc phải cắm máy tính restore lại)!\n"
-                f"• Bản Backup đang tạo sẽ bị gián đoạn, hỏng file (thiếu Manifest.db)!\n"
-                f"• Thiết bị đang kích hoạt sẽ chưa xong các bước bỏ qua thiết lập.\n\n"
+                f"• Thiết bị đang Restore / Xoá dữ liệu sẽ bị ngắt giữa chừng ➔ RẤT DỄ TREO TÁO / LỖI HĐH!\n"
+                f"• Bản Backup đang tạo hoặc IPA đang cài sẽ bị gián đoạn!\n"
+                f"• Thiết bị đang kích hoạt / bật DevMode sẽ chưa hoàn tất các bước cấu hình.\n\n"
                 f"👉 BẠN CÓ THỰC SỰ MUỐN DỪNG VÀ ÉP TẮT APP NGAY BÂY GIỜ KHÔNG?"
             )
             ans = messagebox.askyesno(
@@ -5996,8 +6131,8 @@ class App(tk.Tk):
             if not ans:
                 return  # Người dùng chọn Không: Hủy đóng app, tiếp tục làm việc bình thường
 
-            # Nếu người dùng chấp nhận ép tắt, dừng toàn bộ subprocess đã đăng ký.
-            self.process_runner.terminate_all()
+        # Dừng toàn bộ subprocess đã đăng ký trước khi thoát để không để lại tiến trình mồ côi.
+        self.process_runner.terminate_all()
 
         try:
             self._save_settings_from_ui()

@@ -2037,5 +2037,351 @@ class CrashLogTests(unittest.TestCase):
         self.assertIn("đang bận", self.logged_text(app))
 
 
+class BugFixAuditRegressionTests(unittest.TestCase):
+    def test_erase_worker_evicts_trusted_cache(self):
+        """Bug #1: Erasing a device wipes pairing, so TRUSTED_CACHE must drop the UDID."""
+        app = types.SimpleNamespace(
+            rows={},
+            log=lambda *_a, **_kw: None,
+            operations=BB_RB.OperationRegistry(),
+            reboot_tracker=BB_RB.RebootTracker(),
+        )
+        app.operations.begin("u-erase", "erase")
+        BB_RB.TRUSTED_CACHE.add("u-erase")
+        try:
+            with patch.object(BB_RB, "_fixed_ios_exe", return_value="ios.exe"), patch.object(
+                BB_RB, "run_capture", return_value=(0, "ok")
+            ):
+                BB_RB.App._erase_worker(app, "u-erase", operation_reserved=True)
+            self.assertNotIn("u-erase", BB_RB.TRUSTED_CACHE)
+        finally:
+            BB_RB.TRUSTED_CACHE.discard("u-erase")
+
+    def test_sync_cards_updates_card_when_missing_ios_version_recovers(self):
+        """Bug #6: A trusted device initially stuck at iOS '?' refreshes once ProductVersion arrives."""
+        updates = []
+        card = types.SimpleNamespace(
+            info={"ios": "?", "ios_t": (0, 0, 0), "name": "iPhone", "trusted": True},
+            push_step=lambda _t: None,
+            set_pct=lambda _p: None,
+            destroy=lambda: None,
+            grid_forget=lambda: None,
+        )
+
+        def update_trust(is_trusted, info):
+            card.info = info
+            updates.append((is_trusted, info["ios"]))
+
+        card.update_trust_status = update_trust
+        label = types.SimpleNamespace(config=lambda **_kw: None)
+        app = types.SimpleNamespace(
+            rows={"u1": card},
+            lock=threading.Lock(),
+            reboot_tracker=RebootTracker(),
+            log=lambda *_a, **_kw: None,
+            _build_info=lambda u, is_trusted=True: {"name": "iPhone", "ios": "?", "trusted": is_trusted},
+            _relayout_cards=lambda: None,
+            _update_all_cards_ipa_status=lambda: None,
+            _refresh_mascot_state=lambda *_a: None,
+            lbl_dev_count=label,
+            lbl_trust_count=label,
+            lbl_untrust_count=label,
+            lbl_log_dev_info=label,
+            current_mode="RESTORE",
+        )
+        recovered = {"name": "iPhone 12", "ios": "18.2", "ios_t": (18, 2, 0), "trusted": True}
+
+        BB_RB.App._sync_cards(app, ["u1"], {"u1": True}, {"u1": recovered})
+
+        self.assertEqual([(True, "18.2")], updates)
+        self.assertEqual("18.2", card.info["ios"])
+
+    def test_restore_two_pass_matching_preserves_exact_udid_for_later_device(self):
+        """Bug #5: Earlier unmatched device must not steal a backup whose UDID matches a later device."""
+        with tempfile.TemporaryDirectory() as root:
+            make_backup(root, name="1_iPhone", udid="u2")
+            make_backup(root, name="2_iPhone", udid="FOREIGN-UDID")
+
+            def card(name):
+                return types.SimpleNamespace(
+                    info={"name": name, "ios": "18.5", "ios_t": (18, 5, 0), "trusted": True}
+                )
+
+            shown = []
+            app = types.SimpleNamespace(
+                rows={"u1": card("Phone 1"), "u2": card("Phone 2")},
+                reboot_tracker=RebootTracker(),
+                _reboot_hidden_cards=set(),
+                log=lambda *_a, **_kw: None,
+                _require_license=lambda: True,
+                _save_settings_from_ui=lambda: None,
+                var_active_store=_Value("A"),
+                var_auto_webclip_after_restore=_Value(False),
+                var_custom_webclip_link=_Value(""),
+                lbl_path_a=types.SimpleNamespace(cget=lambda _k: root),
+                lbl_path_b=types.SimpleNamespace(cget=lambda _k: ""),
+                pending_restore_map=[],
+                _show_confirm_frame=shown.extend,
+            )
+            app._available_udids = types.MethodType(BB_RB.App._available_udids, app)
+
+            BB_RB.App.start_restore_all(app)
+
+        by_udid = {item["udid"]: (item["folder_name"], item["match_type"]) for item in shown}
+        self.assertEqual(("1_iPhone", "UDID Khớp (Ưu tiên 1)"), by_udid["u2"])
+        self.assertEqual(("2_iPhone", "Tương thích iOS (Ưu tiên 2)"), by_udid["u1"])
+
+    def test_restore_recovers_or_warns_when_device_ios_is_unknown(self):
+        """Bug #6: start_restore_all re-queries ProductVersion for 'iOS ?' devices and logs if still unreadable."""
+        with tempfile.TemporaryDirectory() as root:
+            make_backup(root, name="1_iPhone", udid="A")
+            make_backup(root, name="2_iPhone", udid="B")
+            messages = []
+
+            def card(name):
+                return types.SimpleNamespace(
+                    info={"name": name, "ios": "?", "ios_t": (0, 0, 0), "trusted": True}
+                )
+
+            shown = []
+            app = types.SimpleNamespace(
+                rows={"u_ok": card("Recovered"), "u_stuck": card("Stuck")},
+                reboot_tracker=RebootTracker(),
+                _reboot_hidden_cards=set(),
+                log=lambda u, line, **_kw: messages.append((u, line)),
+                _require_license=lambda: True,
+                _save_settings_from_ui=lambda: None,
+                var_active_store=_Value("A"),
+                var_auto_webclip_after_restore=_Value(False),
+                var_custom_webclip_link=_Value(""),
+                lbl_path_a=types.SimpleNamespace(cget=lambda _k: root),
+                lbl_path_b=types.SimpleNamespace(cget=lambda _k: ""),
+                pending_restore_map=[],
+                _show_confirm_frame=shown.extend,
+            )
+            app._available_udids = types.MethodType(BB_RB.App._available_udids, app)
+
+            with patch.object(
+                BB_RB,
+                "ideviceinfo_k",
+                side_effect=lambda u, _k: "18.3" if u == "u_ok" else "",
+            ):
+                BB_RB.App.start_restore_all(app)
+
+        self.assertEqual(["u_ok"], [u for u, _ in app.pending_restore_map])
+        self.assertTrue(any(u == "u_stuck" and "Chưa đọc được phiên bản iOS" in m for u, m in messages))
+
+    def test_install_ipa_uninstalls_tiktok_pro_without_touching_standard_tiktok(self):
+        """Bug #2: Installing a TikTok Pro IPA must uninstall BIDS_TIKTOK_PRO, not BIDS_TIKTOK."""
+        uninstalled = []
+        app = types.SimpleNamespace(
+            rows={},
+            log=lambda *_a, **_kw: None,
+            operations=BB_RB.OperationRegistry(),
+        )
+        udid = "00008101-000C604836FA001E"
+        app.operations.begin(udid, "install_ipa")
+        ipa_path = f"C:/ipas/TikTok_Pro_{udid}_Signed.ipa"
+
+        with patch.object(BB_RB, "pair_validate", return_value=True), patch.object(
+            BB_RB, "_extract_bundle_id_from_ipa", return_value=""
+        ), patch.object(
+            BB_RB,
+            "uninstall_app_any",
+            side_effect=lambda _u, bids, label, *_rest: uninstalled.append((tuple(bids), label)) or True,
+        ), patch.object(BB_RB, "install_ipa", return_value=True):
+            BB_RB.App._install_ipa_worker(app, udid, [ipa_path], uninstall_first=True, operation_reserved=True)
+
+        self.assertEqual([(tuple(BB_RB.BIDS_TIKTOK_PRO), "TikTok Pro")], uninstalled)
+
+    def test_profile_push_nonzero_exit_never_reports_false_success(self):
+        """Bug #3: Error output containing 'install profile' or 'ok' must not pass when rc != 0."""
+        app = types.SimpleNamespace(rows={}, log=lambda *_a, **_kw: None)
+        err_out = 'level=fatal msg="failed to install profile: previous state ok"'
+
+        with patch.object(BB_RB, "run_capture", return_value=(1, err_out)), patch.object(BB_RB.time, "sleep"):
+            self.assertFalse(BB_RB.App._block_update_single(app, "u1", "noota.mobileconfig", "ios.exe", max_retries=0))
+            self.assertFalse(BB_RB.App._push_webclip_to_device(app, "u1", "clip.mobileconfig", "Web", "https://a.com", max_retries=0))
+
+        with patch.object(
+            BB_RB,
+            "run_capture",
+            side_effect=[(0, "com.apple.tvos.developersoftware"), (1, 'failed: "ok" removed=false')],
+        ), patch.object(BB_RB.time, "sleep"):
+            self.assertFalse(BB_RB.App._unblock_update_single(app, "u1", "ios.exe", max_retries=0))
+
+    def test_push_webclip_all_processes_multiple_devices_and_removes_temp_profile(self):
+        """Bug #8: Parallel WebClip push reserves all ready devices and cleans up its temp mobileconfig."""
+        pushed = []
+        seen_paths = []
+        ui_posts = []
+        app = types.SimpleNamespace(
+            rows={
+                "u1": types.SimpleNamespace(push_step=lambda _t: None),
+                "u2": types.SimpleNamespace(push_step=lambda _t: None),
+            },
+            reboot_tracker=RebootTracker(),
+            _reboot_hidden_cards=set(),
+            operations=BB_RB.OperationRegistry(),
+            log=lambda *_a, **_kw: None,
+            _post_ui=lambda cb, *a, **kw: ui_posts.append((cb, a, kw)),
+        )
+        app._available_udids = types.MethodType(BB_RB.App._available_udids, app)
+        app._begin_operation = types.MethodType(BB_RB.App._begin_operation, app)
+
+        def fake_push(udid, profile_path, label, url, max_retries=2):
+            self.assertTrue(os.path.isfile(profile_path))
+            seen_paths.append(profile_path)
+            pushed.append(udid)
+            return True
+
+        app._push_webclip_to_device = fake_push
+        with patch.object(BB_RB, "_ios_usable", return_value=(True, "ios.exe")):
+            ok = BB_RB.App._push_webclip_all(app, "Test", "https://example.com")
+
+        self.assertTrue(ok)
+        self.assertCountEqual(["u1", "u2"], pushed)
+        self.assertEqual({}, app.operations.snapshot())
+        self.assertTrue(seen_paths and not os.path.exists(seen_paths[0]))
+
+    def test_app_close_warns_for_erase_or_ipa_and_respects_cancel(self):
+        """Bug #7: Closing while erase/install_ipa/devmode is running must warn before terminating."""
+        terminated = []
+        app = types.SimpleNamespace(
+            operations=BB_RB.OperationRegistry(),
+            process_runner=types.SimpleNamespace(terminate_all=lambda: terminated.append(True)),
+            _save_settings_from_ui=lambda: None,
+            destroy=lambda: None,
+        )
+        app.operations.begin("u1", "erase")
+        app.operations.begin("u2", "install_ipa")
+
+        with patch.object(BB_RB.messagebox, "askyesno", return_value=False) as prompt, patch.object(
+            BB_RB.os, "_exit"
+        ) as hard_exit:
+            BB_RB.App._on_app_close(app)
+
+        self.assertEqual(1, prompt.call_count)
+        self.assertIn("ERASE", prompt.call_args.args[1])
+        self.assertIn("IPA", prompt.call_args.args[1])
+        self.assertEqual([], terminated)
+        self.assertEqual(0, hard_exit.call_count)
+
+    def test_settings_persists_ipas_dir_and_skips_write_back_during_apply(self):
+        """Bug #9: ipasDir round-trips through settings.json and _apply_settings_to_ui does not write disk."""
+        with tempfile.TemporaryDirectory() as tmp:
+            settings_fp = Path(tmp, "settings.json")
+            custom_ipas = Path(tmp, "my_ipas")
+            custom_ipas.mkdir()
+            lbl = lambda val="": types.SimpleNamespace(
+                val=val,
+                cget=lambda _k, self_d={"v": val}: self_d["v"],
+                config=lambda **kw: None,
+            )
+            ipa_holder = {"v": str(custom_ipas)}
+            lbl_ipa = types.SimpleNamespace(
+                cget=lambda _k: ipa_holder["v"],
+                config=lambda **kw: ipa_holder.__setitem__("v", kw.get("text", ipa_holder["v"])),
+            )
+            app = types.SimpleNamespace(
+                lbl_path_a=lbl("A"),
+                lbl_path_b=lbl("B"),
+                lbl_path_gen=lbl("G"),
+                lbl_ipa_dir=lbl_ipa,
+                lbl_current_lang=types.SimpleNamespace(config=lambda **kw: None),
+                var_tik=types.SimpleNamespace(get=lambda: False, set=lambda _v: None),
+                var_lite=types.SimpleNamespace(get=lambda: True, set=lambda _v: None),
+                var_pro=types.SimpleNamespace(get=lambda: False, set=lambda _v: None),
+                var_lang_locale=types.SimpleNamespace(get=lambda: "ja_JP|ja", set=lambda _v: None),
+                var_set_lang_after_active=types.SimpleNamespace(get=lambda: True, set=lambda _v: None),
+                var_auto_activate_after_restore=types.SimpleNamespace(get=lambda: False, set=lambda _v: None),
+                var_auto_webclip_after_restore=types.SimpleNamespace(get=lambda: False, set=lambda _v: None),
+                var_active_store=types.SimpleNamespace(get=lambda: "A", set=lambda _v: None),
+                var_show_extra_tabs=types.SimpleNamespace(get=lambda: True, set=lambda _v: None),
+                var_custom_webclip_link=types.SimpleNamespace(get=lambda: "", set=lambda _v: None),
+                daily_restore_date="2026-11-25",
+                daily_restore_count=5,
+                hourly_restore_stats=HourlyRestoreStats("2026-11-25", {"09": 5}),
+                restore_done_count=5,
+                last_json_mtime=0,
+                current_mode="RESTORE",
+                log=lambda *_a, **_kw: None,
+                _update_restore_counter=lambda: None,
+            )
+            save_calls = []
+            app._save_settings_from_ui = types.MethodType(BB_RB.App._save_settings_from_ui, app)
+            app._on_store_switch = lambda: app._save_settings_from_ui() or save_calls.append(1)
+
+            with patch.object(BB_RB, "SETTINGS_FP", str(settings_fp)):
+                app._save_settings_from_ui()
+                saved = json.loads(settings_fp.read_text(encoding="utf-8"))
+                self.assertEqual(str(custom_ipas), saved["ipasDir"])
+                self.assertEqual([], list(Path(tmp).glob(".settings_*.tmp")))
+
+                ipa_holder["v"] = "OLD"
+                mtime_before = settings_fp.stat().st_mtime_ns
+                with patch.object(BB_RB, "_write_json_atomic") as atomic_mock:
+                    BB_RB.App._apply_settings_to_ui(app, saved)
+                    self.assertEqual(0, atomic_mock.call_count)
+                self.assertEqual(str(custom_ipas), ipa_holder["v"])
+                self.assertEqual(mtime_before, settings_fp.stat().st_mtime_ns)
+
+    def test_skip_setup_cloud_config_strips_byte_archive_and_keeps_expected_prefix(self):
+        """Bug #10: Strip huge CommandErrorArchive byte dumps while reporting ErrorCode 14002 clearly."""
+        raw_out = (
+            'time="2026-11-25T09:46:53+07:00" level=fatal msg="failed erasing" '
+            'err="map[CommandErrorArchive:[4 11 115 116 114 101 97 109] '
+            'ErrorChain:[map[ErrorCode:14002 LocalizedDescription:A cloud configuration is already present on this device.]]]"'
+        )
+        helper = PipelineTruthTests()
+        app = helper.make_app()
+        result, _ = helper.run_activate(
+            app,
+            capture_results=[(0, "activated"), (0, "Activated")],
+            runner_results=[cmd_result(1, raw_out)],
+        )
+        self.assertFalse(result)
+        full_log = "\n".join(str(args) for args, _ in app.messages)
+        self.assertNotIn("CommandErrorArchive", full_log)
+        self.assertIn("THẤT BẠI (A cloud configuration is already present on this device", full_log)
+        self.assertIn("Đổi lệnh", full_log)
+
+    def test_tiktok_pro_webclip_icon_does_not_use_standard_tiktok_icon(self):
+        """Bug #11: TikTok Pro WebClip must not reuse standard TikTok icon."""
+        icon = BB_RB._pick_webclip_icon_path(
+            "TikTok Pro",
+            "https://apps.apple.com/us/app/tiktok-pro-events/id6741796873",
+        )
+        self.assertNotEqual(BB_RB.WEBCLIP_TIKTOK_PNG, icon)
+
+    def test_tik_signer_udid_matching_and_filename_generation(self):
+        """Bug #4: Two 00008101 devices must not collide on 8-char chip prefix, and IPA stem is preserved."""
+        fake_ttkb = types.ModuleType("ttkbootstrap")
+        fake_ttkb.Window = object
+        fake_consts = types.ModuleType("ttkbootstrap.constants")
+        with patch.dict(sys.modules, {"ttkbootstrap": fake_ttkb, "ttkbootstrap.constants": fake_consts}):
+            sys.modules.pop("TIK_SIGNER", None)
+            import TIK_SIGNER
+
+        u1 = "00008101-000C604836FA001E"
+        u2 = "00008101-0018796A34B9001E"
+        with tempfile.TemporaryDirectory() as ipas_dir:
+            signed_u1 = Path(ipas_dir, f"TikTok_Pro_{u1}_Signed.ipa")
+            signed_u1.write_bytes(b"ipa")
+            Path(ipas_dir, "TikTok_Pro_unsigned.ipa").write_bytes(b"raw")
+
+            self.assertEqual(str(signed_u1), TIK_SIGNER.find_signed_ipa_in_dir(ipas_dir, u1))
+            self.assertIsNone(TIK_SIGNER.find_signed_ipa_in_dir(ipas_dir, u2))
+
+        self.assertEqual(
+            f"TikTok_Pro_{u2}_Signed.ipa",
+            TIK_SIGNER.build_signed_ipa_filename("C:/ipas/TikTok_Pro_unsigned.ipa", u2),
+        )
+        self.assertEqual(
+            f"TikTok_Lite_{u2}_Signed.ipa",
+            TIK_SIGNER.build_signed_ipa_filename("C:/ipas/TikTok_Lite_und3fined.ipa", u2),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
