@@ -24,10 +24,10 @@ TIKTOOL PRO V4 (`BB_RB.py`) is a Windows Tkinter/ttk desktop application for man
 - **Available Devices for Batch Operations**: always filter target devices via `self._available_udids()` instead of iterating `self.rows.keys()` directly, so rebooting devices (in `reboot_tracker.is_waiting()`) and absent devices (`_reboot_hidden_cards`) are excluded.
 - **Resetting Counters**:
   - Clicking the refresh button beside the transfer counters resets `restore_done_count = 0`, syncs to `settings.json`, and refreshes the labels.
-- **WebClip + Activate after Restore** (`autoWebclipAfterRestore`, default off):
-  - Restore panel checkbox `Tạo Web App + Activate sau Restore`. It forces the Auto Activate path (`auto_activate = auto_activate or auto_webclip`) and passes `auto_webclip`, `webclip_url`, `webclip_label` down `_restore_worker` → `_queue_auto_activate` (job tuple has 7 fields) → `_run_auto_activate_batch` → `_auto_activate_launch`.
-  - Operation order per device: `restore` → `auto_activate` → `webclip` → `activate`. A failed profile push is logged but activation still runs.
-  - `start_restore_all` refuses to start when the option is on and `customWebclipLink` is empty.
+- **WebClip + Block Update + Activate after Restore** (`autoWebclipAfterRestore` & `autoBlockUpdateAfterRestore`, both default off):
+  - Restore panel checkboxes `Tạo Web App + Activate sau Restore` and `Chặn Update iOS + Activate sau Restore` work independently or combined. Turning on either forces the Auto Activate path (`auto_activate = auto_activate or auto_webclip or auto_block_update`) and passes the options down `_restore_worker` → `_queue_auto_activate` → `_run_auto_activate_batch` → `_auto_activate_launch`.
+  - Operation order per device: `restore` → `auto_activate` → [`webclip` if enabled] → [`block_update` if enabled] → `activate`. A failed profile push is logged but subsequent profile/activation steps still run.
+  - `start_restore_all` refuses to start when `autoWebclipAfterRestore` is on and `customWebclipLink` is empty, or when `autoBlockUpdateAfterRestore` is on and `NOOTA_tvOS26_signed.mobileconfig` is missing.
 
 ## Performance Card (Updated 2026-10-18)
 

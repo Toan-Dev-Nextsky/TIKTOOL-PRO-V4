@@ -2382,6 +2382,114 @@ class BugFixAuditRegressionTests(unittest.TestCase):
             TIK_SIGNER.build_signed_ipa_filename("C:/ipas/TikTok_Lite_und3fined.ipa", u2),
         )
 
+    def test_auto_block_update_after_restore_standalone_and_combined_with_webclip(self):
+        """Chặn Update iOS + Activate sau Restore hoạt động cả độc lập lẫn kết hợp với Tạo Web App."""
+        helper = AutoActivateBatchTests()
+        # 1. Độc lập: chỉ bật Chặn Update iOS + Activate sau Restore
+        app = helper.make_app()
+        app.operations.begin("u1", "auto_activate")
+        events = []
+        app._get_noota_profile_path = lambda: "C:/NOOTA.mobileconfig"
+        app._block_update_single = lambda u, p, exe, max_retries=2: events.append(("block", u, p)) or True
+        app._batch_activate_worker = lambda *args, **kwargs: events.append(("activate", args[0], args[4])) or True
+
+        with patch.object(BB_RB.time, "sleep"), patch.object(
+            BB_RB, "ideviceinfo_k", return_value="iPhone"
+        ), patch.object(BB_RB, "pair_validate", return_value=True), patch.object(
+            BB_RB, "_fixed_ios_exe", return_value="ios.exe"
+        ):
+            app._auto_activate_launch("u1", True, "ja_JP|ja", True, False, "", "", True)
+
+        self.assertEqual(
+            [("block", "u1", "C:/NOOTA.mobileconfig"), ("activate", "u1", "activate")],
+            events,
+        )
+        self.assertEqual({"u1": "activate"}, app.operations.snapshot())
+
+        # 2. Kết hợp cả 2: Tạo Web App + Chặn Update iOS + Activate sau Restore
+        app2 = helper.make_app()
+        app2.operations.begin("u2", "auto_activate")
+        events2 = []
+        app2._push_webclip_profile = lambda u, url, lbl: events2.append(("webclip", u, url, lbl)) or True
+        app2._get_noota_profile_path = lambda: "C:/NOOTA.mobileconfig"
+        app2._block_update_single = lambda u, p, exe, max_retries=2: events2.append(("block", u, p)) or True
+        app2._batch_activate_worker = lambda *args, **kwargs: events2.append(("activate", args[0], args[4])) or True
+
+        with patch.object(BB_RB.time, "sleep"), patch.object(
+            BB_RB, "ideviceinfo_k", return_value="iPhone"
+        ), patch.object(BB_RB, "pair_validate", return_value=True), patch.object(
+            BB_RB, "_fixed_ios_exe", return_value="ios.exe"
+        ):
+            app2._auto_activate_launch(
+                "u2", True, "ja_JP|ja", True, True, "https://sms.ghichu.dev/", "SMS.GHICHU.DEV", True
+            )
+
+        self.assertEqual(
+            [
+                ("webclip", "u2", "https://sms.ghichu.dev/", "SMS.GHICHU.DEV"),
+                ("block", "u2", "C:/NOOTA.mobileconfig"),
+                ("activate", "u2", "activate"),
+            ],
+            events2,
+        )
+        self.assertEqual({"u2": "activate"}, app2.operations.snapshot())
+
+    def test_auto_block_update_failure_still_continues_to_activate(self):
+        """Lỗi gửi profile Chặn Update không được chặn bước Activate của máy."""
+        helper = AutoActivateBatchTests()
+        app = helper.make_app()
+        app.operations.begin("u1", "auto_activate")
+        activated = []
+        app._get_noota_profile_path = lambda: "C:/NOOTA.mobileconfig"
+        app._block_update_single = lambda *_a, **_kw: False
+        app._batch_activate_worker = lambda *args, **_kw: activated.append(args[0]) or True
+
+        with patch.object(BB_RB.time, "sleep"), patch.object(
+            BB_RB, "ideviceinfo_k", return_value="iPhone"
+        ), patch.object(BB_RB, "pair_validate", return_value=True), patch.object(
+            BB_RB, "_fixed_ios_exe", return_value="ios.exe"
+        ):
+            app._auto_activate_launch("u1", False, "ja_JP|ja", True, False, "", "", True)
+
+        self.assertEqual(["u1"], activated)
+        self.assertEqual({"u1": "activate"}, app.operations.snapshot())
+
+    def test_auto_block_update_job_forwarded_through_batch_and_blocks_start_when_profile_missing(self):
+        """Hàng chờ batch truyền đủ cờ auto_block_update=True, và start_restore_all báo lỗi nếu thiếu file NOOTA."""
+        helper = AutoActivateBatchTests()
+        app = helper.make_app()
+        app.operations.begin("u1", "auto_activate")
+        launches = []
+        app._auto_activate_launch = lambda *args: launches.append(args)
+        BB_RB.App._queue_auto_activate(
+            app, "u1", True, "ja_JP|ja", True, True, "https://sms.ghichu.dev/", "SMS.GHICHU.DEV", True
+        )
+        jobs = list(app.auto_activate_queue)
+        app.auto_activate_queue.clear()
+
+        with patch.object(BB_RB.threading, "Thread", _ImmediateThread), patch.object(
+            BB_RB.time, "sleep"
+        ), patch.object(BB_RB, "get_connected_udids", return_value=["u1"]), patch.object(
+            BB_RB, "AUTO_ACTIVATE_SETTLE_SECONDS", 0
+        ), patch.object(BB_RB, "AUTO_ACTIVATE_STABLE_SAMPLES", 1):
+            BB_RB.App._run_auto_activate_batch(app, jobs)
+
+        self.assertEqual(
+            [("u1", True, "ja_JP|ja", True, True, "https://sms.ghichu.dev/", "SMS.GHICHU.DEV", True)],
+            launches,
+        )
+
+        # Kiểm tra start_restore_all chặn chạy sớm nếu bật tùy chọn mà thiếu file NOOTA
+        with tempfile.TemporaryDirectory() as root:
+            make_backup(root, name="1_iPhone")
+            restore_app = AvailableDevicesTests().make_app(store_root=root)
+            restore_app.var_auto_block_update_after_restore = _Value(True)
+            restore_app._get_noota_profile_path = lambda: None
+            with patch.object(BB_RB.messagebox, "showerror") as err_box:
+                BB_RB.App.start_restore_all(restore_app)
+            self.assertEqual(1, err_box.call_count)
+            self.assertEqual([], restore_app.shown)
+
 
 if __name__ == "__main__":
     unittest.main()

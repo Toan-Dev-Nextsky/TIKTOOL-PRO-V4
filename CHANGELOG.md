@@ -2,6 +2,13 @@
 
 Tất cả những thay đổi và nâng cấp quan trọng của dự án được ghi nhận đầy đủ tại đây.
 
+## [Tự Chặn Update iOS + Kết hợp Tạo Web App + Activate sau Restore] - 2026-11-25
+
+- Thêm checkbox `✕ Chặn Update iOS + Activate sau Restore` (khóa `autoBlockUpdateAfterRestore`, mặc định tắt) ngay cạnh `Tạo Web App + Activate sau Restore` trong khung Restore.
+- Hỗ trợ chạy **độc lập** (chỉ Chặn Update + Activate) hoặc **kết hợp đồng thời cả 2** (`Tạo Web App` + `Chặn Update iOS` + `Activate` sau Restore): sau khi cả đợt Restore xong và máy lên USB ổn định, từng máy tự đẩy song song WebClip profile (nếu bật) → đẩy `NOOTA_tvOS26_signed.mobileconfig` (nếu bật) → chạy pipeline `Batch Activate` (Activate → Skip Setup → Set Lang).
+- Quyền sở hữu thiết bị chuyển tuần tự an toàn: `restore` → `auto_activate` → `webclip` → `block_update` → `activate`. Gửi profile lỗi vẫn ghi cảnh báo và tiếp tục bước tiếp theo / Activate. `start_restore_all` kiểm tra trước sự tồn tại của `NOOTA_tvOS26_signed.mobileconfig`.
+- Kiểm thử: Bổ sung 3 unit test kiểm chứng chạy độc lập, chạy kết hợp cả Web App + Chặn Update, xử lý lỗi gửi profile, và chặn sớm khi thiếu file NOOTA (**166/166 unit tests PASS**).
+
 ## [Sửa 11 lỗi vận hành, ký IPA và quản lý thiết bị] - 2026-11-25
 
 - **Làm mới Trust & iOS sau Reboot / Erase D.2**: Xóa `TRUSTED_CACHE` và `info_cache` khi thiết bị rời bus USB hoặc hoàn tất `erase` để bắt buộc `idevicepair validate` thật khi máy lên lại; tự đọc lại `ProductVersion` nếu thiết bị bị kẹt `iOS ?` và cảnh báo rõ nếu chưa đọc được khi Restore.
