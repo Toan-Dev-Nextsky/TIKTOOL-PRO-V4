@@ -5677,7 +5677,33 @@ class App(tk.Tk):
 
         all_bks = list_valid_backups(source_root)
         if not all_bks:
-            messagebox.showerror("LỖI", f"Kho {src_label} không chứa bản backup hợp lệ nào!")
+            invalid_details = []
+            try:
+                for entry in sorted(os.listdir(source_root)):
+                    if entry == ".tiktool_work":
+                        continue
+                    full_entry = os.path.join(source_root, entry)
+                    if not os.path.isdir(full_entry):
+                        continue
+                    errs = verify_backup_layout(full_entry)
+                    if errs:
+                        invalid_details.append(f"• {entry}: {errs[0]}")
+            except Exception:
+                pass
+            if invalid_details:
+                preview = "\n".join(invalid_details[:5])
+                more = (
+                    f"\n... và {len(invalid_details) - 5} thư mục lỗi khác."
+                    if len(invalid_details) > 5
+                    else ""
+                )
+                messagebox.showerror(
+                    "LỖI",
+                    f"Kho {src_label} không chứa bản backup hợp lệ nào!\n\n"
+                    f"Phát hiện {len(invalid_details)} thư mục backup bị lỗi:\n{preview}{more}"
+                )
+            else:
+                messagebox.showerror("LỖI", f"Kho {src_label} không chứa bản backup hợp lệ nào!")
             return
 
         connected_devices = []
