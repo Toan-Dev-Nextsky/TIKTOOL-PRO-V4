@@ -574,8 +574,20 @@ def validate_backup(path: str) -> tuple[bool, list[str]]:
     except (OSError, plistlib.InvalidFileException, ValueError, TypeError) as exc:
         return False, [f"Invalid Status.plist: {exc}"]
 
-    if str(status.get("SnapshotState", "")).strip().lower() != "finished":
+    if not isinstance(status, dict) or str(status.get("SnapshotState", "")).strip().lower() != "finished":
         return False, ["Status.plist snapshot is not finished"]
+
+    info_path = os.path.join(backup, "Info.plist")
+    try:
+        with open(info_path, "rb") as stream:
+            raw_info = stream.read()
+        if not raw_info or not raw_info.strip(b"\x00"):
+            return False, ["Invalid Info.plist: file is empty or zero-filled"]
+        info = plistlib.loads(raw_info)
+        if not isinstance(info, dict):
+            return False, ["Invalid Info.plist: root object is not a dictionary"]
+    except (OSError, plistlib.InvalidFileException, ValueError, TypeError) as exc:
+        return False, [f"Invalid Info.plist: {exc}"]
     return True, []
 
 
@@ -614,6 +626,8 @@ def _write_info_bytes(info_path: str, payload: bytes) -> None:
     try:
         with os.fdopen(descriptor, "wb") as stream:
             stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
         try:
             os.replace(temporary, info_path)
         except PermissionError as exc:

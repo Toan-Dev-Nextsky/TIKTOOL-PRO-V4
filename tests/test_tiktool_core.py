@@ -100,6 +100,30 @@ class BackupSafetyTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("not finished", " ".join(errors).lower())
 
+    def test_zero_filled_or_corrupt_info_plist_is_rejected(self):
+        """Catches zero-byte or corrupt Info.plist silently passing backup validation."""
+        backup = make_backup(self.store_a)
+        Path(backup, "Info.plist").write_bytes(b"\x00" * 4096)
+
+        ok, errors = validate_backup(backup)
+
+        self.assertFalse(ok)
+        self.assertIn("Info.plist", " ".join(errors))
+        self.assertIn("zero-filled", " ".join(errors).lower())
+
+        Path(backup, "Info.plist").write_bytes(b"not-a-valid-plist")
+        ok_bad, errors_bad = validate_backup(backup)
+        self.assertFalse(ok_bad)
+        self.assertIn("Invalid Info.plist", " ".join(errors_bad))
+
+    def test_restore_preparation_flushes_info_plist_to_disk_before_replace(self):
+        """Catches atomic replace without fsync leaving zero-filled Info.plist after crash."""
+        backup = make_backup(self.store_a, udid="ORIGINAL-UDID")
+        with patch("tiktool_core.os.fsync") as fsync_mock:
+            prepare_restore_in_place(backup, "TARGET-UDID")
+        self.assertEqual(1, fsync_mock.call_count)
+        self.assertEqual("TARGET-UDID", read_udid(backup))
+
     def test_restore_preparation_stamps_udid_without_copying_the_backup(self):
         """Catches preparation copying or rewriting payload files instead of Info.plist."""
         backup = make_backup(self.store_a, udid="ORIGINAL-UDID")
